@@ -25,7 +25,7 @@ class User(BaseEntity, UserMixin):
 
 class AgentType(BaseEntity):
 	id = db.Column(db.Integer, primary_key=True)
-	name = db.Column(db.String(80), nullable=False)
+	name = db.Column(db.String(80), nullable=False, unique=True)
 
 class AgentTypeAttribute(BaseEntity):
 	id = db.Column(db.Integer, primary_key=True)
