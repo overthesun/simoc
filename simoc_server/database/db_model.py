@@ -29,7 +29,7 @@ class AgentType(BaseEntity):
 
 class AgentTypeAttribute(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"),
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), index=True,
         nullable=False)
     agent_type = db.relationship("AgentType",
         backref=db.backref("agent_type_attributes", lazy=False))
@@ -46,12 +46,12 @@ class AgentEntity(BaseEntity):
         nullable=False)
     agent_type = db.relationship("AgentType")
     agent_model_entity_id = db.Column(db.Integer, db.ForeignKey("agent_model.id"),
-        nullable=False)
+        nullable=False, index=True)
     agent_model_entity = db.relationship("AgentModelEntity", backref=db.backref("agent_entities", lazy=False))
 
 class AgentAttribute(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-    agent_entity_id = db.Column(db.Integer, db.ForeignKey("agent.id"), nullable=False)
+    agent_entity_id = db.Column(db.Integer, db.ForeignKey("agent.id"), nullable=False, index=True)
     agent_entity = db.relationship("AgentEntity", backref=db.backref("agent_attributes", lazy=False))
     name = db.Column(db.String(80), nullable=False)
     value = db.Column(db.String(80))
