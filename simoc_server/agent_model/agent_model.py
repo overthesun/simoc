@@ -21,13 +21,14 @@ class AgentModel(object):
         if human_agent_entity:
             human_agent = HumanAgent(self, human_agent_entity)
             print("Loaded human agent from db with energy={0}".format(human_agent.energy))
+            human_agent.energy -= 1
+            print("Changing human agent to energy={0}".format(human_agent.energy))
         else:
             human_agent = HumanAgent(self)
             print("Created human agent with energy={0}".format(human_agent.energy))
         self.add_agent(human_agent, (0,0))
-        if not human_agent_entity:
-            print("Saving human agent to db with energy={0}".format(human_agent.energy))
-            self.save()
+        print("Saving human agent to db with energy={0}".format(human_agent.energy))
+        self.save()
 
     def init_new(self, grid_width, grid_height):
         self.grid_width = grid_width
