@@ -19,4 +19,4 @@ def gen_human():
 
 def create_agent_type_attr(agent_type, name, value):
     return AgentTypeAttribute(name=name, agent_type=agent_type, value=value,
-        value_type=str(type(value)))
+        value_type=str(type(value).__name__))

@@ -11,8 +11,8 @@ with open(os.path.join(LOCAL_DIR, "requirements.txt"), "r") as f:
             requirements.append(line)
 
 setup (
-	name="simoc_server",
-	packages=["simoc_server"],
-	include_package_data=True,
-	install_requires=requirements
+    name="simoc_server",
+    packages=["simoc_server"],
+    include_package_data=True,
+    install_requires=requirements
 )
