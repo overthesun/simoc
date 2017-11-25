@@ -7,25 +7,27 @@ SIMOC - A Scalable Model of an Isolated, Off-world Colony
 
 ## Getting Started
 
-### Install dependencies:
+### Setup
 
-'pip install -r requirements.txt'
+#### Install dependencies:
 
-### Create Database
+`pip install -r requirements.txt`
+
+#### Create Database
 
 `python create_db.py`
 
-## Running Server
+### Running Server
 
-### Normal Run
+#### Normal Run
 
 `python -m simoc_server`
 
-### Debug Mode
+#### Debug Mode
 `python -m simoc_server --debug`
 
-### Specify Port
+#### Specify Port
 `python -m simoc_server --port 9000`
 
-### Run Locally
+#### Run Locally
 `python -m simoc_server --run_local`
