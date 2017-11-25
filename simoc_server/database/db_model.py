@@ -39,23 +39,27 @@ class AgentTypeAttribute(BaseEntity):
 
 
 class AgentEntity(BaseEntity):
+    __tablename__ = "agent"
+
     id = db.Column(db.Integer, primary_key=True)
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"),
         nullable=False)
     agent_type = db.relationship("AgentType")
-    agent_model_entity_id = db.Column(db.Integer, db.ForeignKey("agent_model_entity.id"),
+    agent_model_entity_id = db.Column(db.Integer, db.ForeignKey("agent_model.id"),
         nullable=False)
     agent_model_entity = db.relationship("AgentModelEntity", backref=db.backref("agent_entities", lazy=False))
 
 class AgentAttribute(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-    agent_entity_id = db.Column(db.Integer, db.ForeignKey("agent_entity.id"), nullable=False)
+    agent_entity_id = db.Column(db.Integer, db.ForeignKey("agent.id"), nullable=False)
     agent_entity = db.relationship("AgentEntity", backref=db.backref("agent_attributes", lazy=False))
     name = db.Column(db.String(80), nullable=False)
     value = db.Column(db.String(80))
     value_type = db.Column(db.String(80))
 
 class AgentModelEntity(BaseEntity):
+    __tablename__ = "agent_model"
+
     id = db.Column(db.Integer, primary_key=True)
 #     saved_game_id = db.Column(db.Integer, db.ForeignKey("saved_game.id"), nullable=False)
 #     saved_game = db.relationship("SavedGame", backref=db.backref("saved_games", lazy=False))
