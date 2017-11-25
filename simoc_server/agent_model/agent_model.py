@@ -2,7 +2,7 @@ from .human import HumanAgent
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
-from simoc_server.database.db_model import AgentModelEntity
+from simoc_server.database.db_model import AgentModelEntity, AgentEntity, AgentType
 from simoc_server import db
 
 class AgentModel(object):
@@ -16,8 +16,18 @@ class AgentModel(object):
 
         self.agent_model_entity = agent_model_entity
 
-        self.add_agent(HumanAgent(self), (0,0))
-        self.save()
+        human_agent_type = AgentType.query.filter_by(name="Human").first()
+        human_agent_entity = AgentEntity.query.filter_by(agent_type=human_agent_type).first()
+        if human_agent_entity:
+            human_agent = HumanAgent(self, human_agent_entity)
+            print("Loaded human agent from db with energy={0}".format(human_agent.energy))
+        else:
+            human_agent = HumanAgent(self)
+            print("Created human agent with energy={0}".format(human_agent.energy))
+        self.add_agent(human_agent, (0,0))
+        if not human_agent_entity:
+            print("Saving human agent to db with energy={0}".format(human_agent.energy))
+            self.save()
 
     def init_new(self, grid_width, grid_height):
         self.grid_width = grid_width

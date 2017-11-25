@@ -50,14 +50,14 @@ class BaseAgent(Agent):
     def get_agent_type_attribute(self, name):
         return self.__class__.agent_type_attributes[name]
 
-    def load_from_db(self):
-        self.pos = (self.agent_entity.pos_x, self.agent_entity.pos_y)
-        self.unique_id = self.agent_entity.agent_unique_id
-        for attribute in self.agent_entity.agent_attributes:
+    def load_from_db(self, agent_entity):
+        self.pos = (agent_entity.pos_x, agent_entity.pos_y)
+        self.unique_id = agent_entity.agent_unique_id
+        for attribute in agent_entity.agent_attributes:
             # get type of attribute
             value_type = eval(attribute.value_type)
             value_str = attribute.value
-            self.__dict__[attribute] = value_type(value_str)
+            self.__dict__[attribute.name] = value_type(value_str)
 
     def create_entity(self, model, unique_id):
         agent_entity = AgentEntity(agent_type=self.__class__.__agent_type__,
@@ -85,6 +85,8 @@ class BaseAgent(Agent):
         for agent_attribute in self.agent_entity.agent_attributes:
             agent_attribute.value = self.__dict__[agent_attribute.name]
             db.session.add(agent_attribute)
+        self.agent_entity.pos_x = self.pos[0]
+        self.agent_entity.pos_y = self.pos[1]
         db.session.add(self.agent_entity)
         if commit:
             db.session.commit()
