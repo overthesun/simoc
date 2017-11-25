@@ -4,6 +4,8 @@ from simoc_server.database.db_model import AgentType, AgentEntity, AgentAttribut
 from simoc_server import db
 from uuid import uuid4
 
+PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__]
+
 class BaseAgent(Agent):
     __metaclass__ = ABCMeta
 
@@ -68,6 +70,8 @@ class BaseAgent(Agent):
             value_str = str(value)
             if value_type == type(None).__name__:
                 raise Exception("None type not allowed for persistent attribute")
+            elif value_type not in PERSISTABLE_ATTRIBUTE_TYPES:
+                raise Exception("Attribute set to non-persistable type.")
             agent_entity.agent_attributes.append(AgentAttribute(name=attribute_name, 
                 value=value_str, value_type=value_type))
         return agent_entity
