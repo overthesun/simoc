@@ -58,8 +58,11 @@ class BaseAgent(Agent):
         for attribute in agent_entity.agent_attributes:
             # get type of attribute
             value_type = eval(attribute.value_type)
-            value_str = attribute.value
-            self.__dict__[attribute.name] = value_type(value_str)
+            if value_type == type(None).__name__:
+                self.__dict__[attribute.name] = None
+            else:
+                value_str = attribute.value
+                self.__dict__[attribute.name] = value_type(value_str)
 
     def create_entity(self, model, unique_id):
         agent_entity = AgentEntity(agent_type=self.__class__.__agent_type__,
@@ -68,9 +71,7 @@ class BaseAgent(Agent):
             value = self.__dict__[attribute_name]
             value_type = type(value).__name__
             value_str = str(value)
-            if value_type == type(None).__name__:
-                raise Exception("None type not allowed for persistent attribute")
-            elif value_type not in PERSISTABLE_ATTRIBUTE_TYPES:
+            if value_type not in PERSISTABLE_ATTRIBUTE_TYPES:
                 raise Exception("Attribute set to non-persistable type.")
             agent_entity.agent_attributes.append(AgentAttribute(name=attribute_name, 
                 value=value_str, value_type=value_type))
