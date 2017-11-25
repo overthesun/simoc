@@ -5,6 +5,16 @@
 SIMOC - A Scalable Model of an Isolated, Off-world Colony
 
 
+## Getting Started
+
+### Install dependencies:
+
+'pip install -r requirements.txt'
+
+### Create Database
+
+`python create_db.py`
+
 ## Running Server
 
 ### Normal Run
