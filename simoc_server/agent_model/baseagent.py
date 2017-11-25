@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from mesa import Agent
 from simoc_server.database.db_model import AgentType, AgentEntity, AgentAttribute
 from simoc_server import db
+from uuid import uuid4
 
 class BaseAgent(Agent):
     __metaclass__ = ABCMeta
@@ -10,19 +11,21 @@ class BaseAgent(Agent):
     __agent_type_attributes_loaded__ = False
 
     def __init__(self, model, agent_entity=None):
-        self.model = model
         self.type = self.__class__.__name__
         self.load_agent_type_attributes()
         #self.sprite_mapper = DefaultSpriteMapper
         if agent_entity is not None:
             self.load_from_db(agent_entity)
         else:
+            unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4())
             self.persisted_attributes = set()
             self.client_attributes = set()
             self.init_new()
-            agent_entity = self.create_entity()
+            agent_entity = self.create_entity(model, unique_id)
 
         self.agent_entity = agent_entity
+        unique_id = self.agent_entity.agent_unique_id
+        super().__init__(unique_id, model)
 
     @abstractmethod
     def init_new(self):
@@ -49,15 +52,16 @@ class BaseAgent(Agent):
 
     def load_from_db(self):
         self.pos = (self.agent_entity.pos_x, self.agent_entity.pos_y)
+        self.unique_id = self.agent_entity.agent_unique_id
         for attribute in self.agent_entity.agent_attributes:
             # get type of attribute
             value_type = eval(attribute.value_type)
             value_str = attribute.value
             self.__dict__[attribute] = value_type(value_str)
 
-    def create_entity(self):
+    def create_entity(self, model, unique_id):
         agent_entity = AgentEntity(agent_type=self.__class__.__agent_type__,
-                 agent_model_entity=self.model.agent_model_entity)
+                 agent_model_entity=model.agent_model_entity, agent_unique_id=unique_id)
         for attribute_name in self.persisted_attributes:
             value = self.__dict__[attribute_name]
             value_type = type(value).__name__
@@ -78,6 +82,9 @@ class BaseAgent(Agent):
         return self.sprite_mapper.get_sprite_mapping(self)
 
     def save(self, commit=True):
+        for agent_attribute in self.agent_entity.agent_attributes:
+            agent_attribute.value = self.__dict__[agent_attribute.name]
+            db.session.add(agent_attribute)
         db.session.add(self.agent_entity)
         if commit:
             db.session.commit()

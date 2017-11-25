@@ -42,6 +42,7 @@ class AgentEntity(BaseEntity):
     __tablename__ = "agent"
 
     id = db.Column(db.Integer, primary_key=True)
+    agent_unique_id = db.Column(db.Integer, nullable=False)
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"),
         nullable=False)
     agent_type = db.relationship("AgentType")
