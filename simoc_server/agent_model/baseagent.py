@@ -4,7 +4,7 @@ from simoc_server.database.db_model import AgentType, AgentEntity, AgentAttribut
 from simoc_server import db
 from uuid import uuid4
 
-PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__]
+PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__, type(None).__name__]
 
 class BaseAgent(Agent):
     __metaclass__ = ABCMeta
@@ -43,9 +43,14 @@ class BaseAgent(Agent):
             self.__class__.agent_type_attributes = {}
             for agent_type_attribute in agent_type.agent_type_attributes:
                 value_str = agent_type_attribute.value
-                value_type = eval(agent_type_attribute.value_type)
+                if(agent_type_attribute.value_type == type(None).__name__):
+                    value_type = type(None)
+                    value = None
+                else:
+                    value_type = eval(agent_type_attribute.value_type)
+                    value = value_type(value_str)
                 attr_name = agent_type_attribute.name
-                self.__class__.agent_type_attributes[attr_name] = value_type(value_str)
+                self.__class__.agent_type_attributes[attr_name] = str(value)
             __agent_type_attributes_loaded__ = True
             self.__class__.__agent_type__ = agent_type
 
@@ -57,10 +62,10 @@ class BaseAgent(Agent):
         self.unique_id = agent_entity.agent_unique_id
         for attribute in agent_entity.agent_attributes:
             # get type of attribute
-            value_type = eval(attribute.value_type)
-            if value_type == type(None).__name__:
+            if attribute.value_type == type(None).__name__:
                 self.__dict__[attribute.name] = None
             else:
+                value_type = eval(attribute.value_type)
                 value_str = attribute.value
                 self.__dict__[attribute.name] = value_type(value_str)
 
@@ -88,7 +93,9 @@ class BaseAgent(Agent):
 
     def save(self, commit=True):
         for agent_attribute in self.agent_entity.agent_attributes:
-            agent_attribute.value = self.__dict__[agent_attribute.name]
+            value = self.__dict__[agent_attribute.name]
+            agent_attribute.value_type = type(value).__name__
+            agent_attribute.value = str(value)
             db.session.add(agent_attribute)
         self.agent_entity.pos_x = self.pos[0]
         self.agent_entity.pos_y = self.pos[1]
