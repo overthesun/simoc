@@ -1,44 +1,55 @@
+from .agent_name_mapping import agent_name_mapping
 from .human import HumanAgent
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
-from simoc_server.database.db_model import AgentModelEntity, AgentEntity, AgentType
+from simoc_server.database.db_model import AgentModelState, AgentState, AgentType, SnapshotBranch, \
+                                    AgentModelSnapshot
 from simoc_server import db
+import time
+import uuid
 
 class AgentModel(object):
 
-    def __init__(self, grid_width=None, grid_height=None, agent_model_entity=None):
-        if agent_model_entity is not None:
-            self.load_from_db(agent_entity)
+    def __init__(self, grid_width=None, grid_height=None, agent_model_state=None):
+        # for testing
+        agent_model_state = AgentModelState.query.order_by(AgentModelState.date_created).first()
+        if agent_model_state is not None:
+            self.load_from_db(agent_model_state)
         else:
             self.init_new(grid_width ,grid_height)
-            agent_model_entity = self.create_entity()
 
-        self.agent_model_entity = agent_model_entity
+        self.snapshot()
 
-        human_agent_type = AgentType.query.filter_by(name="Human").first()
-        human_agent_entity = AgentEntity.query.filter_by(agent_type=human_agent_type).first()
-        if human_agent_entity:
-            human_agent = HumanAgent(self, human_agent_entity)
-            print("Loaded human agent from db with energy={0}".format(human_agent.energy))
-            human_agent.energy -= 1
-            print("Changing human agent to energy={0}".format(human_agent.energy))
-        else:
-            human_agent = HumanAgent(self)
-            print("Created human agent with energy={0}".format(human_agent.energy))
-        self.add_agent(human_agent, (0,0))
-        print("Saving human agent to db with energy={0}".format(human_agent.energy))
-        self.save()
+    def load_from_db(self, agent_model_state):
+        self.grid_width = agent_model_state.grid_width
+        self.grid_height = agent_model_state.grid_height
+        self.step_num = agent_model_state.step_num
+        self.grid = MultiGrid(self.grid_width, self.grid_height, True)
+        self.scheduler = RandomActivation(self)
+
+        for agent_state in agent_model_state.agent_states:
+            agent_type_name = agent_state.agent_type.name
+            agent_class = agent_name_mapping[agent_type_name]
+            agent = agent_class(self, agent_state)
+            self.add_agent(agent, agent.pos)
+            print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
+        self.snapshot_branch = agent_model_state.agent_model_snapshot.snapshot_branch
 
     def init_new(self, grid_width, grid_height):
+        self.snapshot_branch = SnapshotBranch(name="root")
+        db.session.add(self.snapshot_branch)
+        db.session.commit()
+        self.step_num = 0
         self.grid_width = grid_width
         self.grid_height = grid_height
         self.grid = MultiGrid(self.grid_width, self.grid_height, True)
         self.scheduler = RandomActivation(self)
 
-    def create_entity(self):
-        agent_model_entity = AgentModelEntity()
-        return agent_model_entity
+        # for testing
+        human_agent = HumanAgent(self)
+        print("Created human agent: {0}".format(human_agent.energy))
+        self.add_agent(human_agent, (0,0))
 
     def add_agent(self, agent, pos):
         self.scheduler.add(agent)
@@ -47,8 +58,53 @@ class AgentModel(object):
     def num_agents(self):
         return len(self.schedule.agents)
 
-    def save(self):
-        db.session.add(self.agent_model_entity)
-        for agent in self.scheduler.agents:
-            agent.save(commit=False)
-        db.session.commit()
+    def set_snapshot_branch(self):
+        # aquire snapshot branch and lock it
+        session = db.create_scoped_session(options={
+            "autocommit":False,
+            "autoflush":True
+            })
+
+        def check_branch():
+            aquired_snapshot_branch = session.query(SnapshotBranch).with_for_update(nowait=False) \
+                .filter_by(id=self.snapshot_branch.id).first()
+            if(aquired_snapshot_branch.save_lock):
+                session.rollback()
+                check_branch()
+            else:
+                # aquire lock
+                aquired_snapshot_branch.save_lock = 1
+                session.add(aquired_snapshot_branch)
+                session.commit()
+
+                self.snapshot_branch = aquired_snapshot_branch
+
+                for agent_model_snapshot in self.snapshot_branch.agent_model_snapshots:
+                    if agent_model_snapshot.agent_model_state.step_num >= self.step_num:
+                        self.snapshot_branch.save_lock = 0
+                        session.add(self.snapshot_branch)
+                        session.commit()
+                        self.snapshot_branch = SnapshotBranch(name="{0}.{1}".format(self.snapshot_branch.name, uuid4()))
+                        self.snapshot_branch.save_lock = 1
+                        session.add(self.snapshot_branch)
+                        session.commit()
+
+
+    def snapshot(self):
+        try:
+            agent_model_state = AgentModelState(step_num=self.step_num, grid_width=self.grid.width, grid_height=self.grid.height)
+            snapshot = AgentModelSnapshot(agent_model_state=agent_model_state, snapshot_branch=self.snapshot_branch)
+            db.session.add(agent_model_state)
+            db.session.add(snapshot)
+            for agent in self.scheduler.agents:
+                agent.snapshot(agent_model_state, commit=False)
+            db.session.commit()
+            return snapshot
+
+        finally:
+            self.snapshot_branch.save_lock = 0
+            db.session.add(self.snapshot_branch)
+            db.session.commit()
+
+    def step(self):
+        self.step_num += 1

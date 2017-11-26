@@ -38,9 +38,7 @@ class AgentTypeAttribute(BaseEntity):
     value_type = db.Column(db.String(80))
 
 
-class AgentEntity(BaseEntity):
-    __tablename__ = "agent"
-
+class AgentState(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     pos_x = db.Column(db.Integer, nullable=True)
     pos_y = db.Column(db.Integer, nullable=True)
@@ -48,26 +46,45 @@ class AgentEntity(BaseEntity):
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"),
         nullable=False)
     agent_type = db.relationship("AgentType")
-    agent_model_entity_id = db.Column(db.Integer, db.ForeignKey("agent_model.id"),
+    agent_model_state_id = db.Column(db.Integer, db.ForeignKey("agent_model_state.id"),
         nullable=False, index=True)
-    agent_model_entity = db.relationship("AgentModelEntity", backref=db.backref("agent_entities", lazy=False))
+    agent_model_state = db.relationship("AgentModelState", backref=db.backref("agent_states", lazy=False))
 
-class AgentAttribute(BaseEntity):
+class AgentStateAttribute(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-    agent_entity_id = db.Column(db.Integer, db.ForeignKey("agent.id"), nullable=False, index=True)
-    agent_entity = db.relationship("AgentEntity", backref=db.backref("agent_attributes", lazy=False))
+    agent_state_id = db.Column(db.Integer, db.ForeignKey("agent_state.id"), nullable=False, index=True)
+    agent_state = db.relationship("AgentState", backref=db.backref("agent_state_attributes", lazy=False))
     name = db.Column(db.String(80), nullable=False)
     value = db.Column(db.String(80))
     value_type = db.Column(db.String(80))
 
-class AgentModelEntity(BaseEntity):
-    __tablename__ = "agent_model"
-
+class AgentModelState(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-#     saved_game_id = db.Column(db.Integer, db.ForeignKey("saved_game.id"), nullable=False)
-#     saved_game = db.relationship("SavedGame", backref=db.backref("saved_games", lazy=False))
+    step_num = db.Column(db.Integer, nullable=False)
+    grid_width = db.Column(db.Integer, nullable=False)
+    grid_height = db.Column(db.Integer, nullable=False)
 
-# class SavedGame(BaseEntity):
-#     id = db.Column(db.Integer, primary_key=True)
-#     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-#     user = db.relationship("User")
+
+class AgentModelSnapshot(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    agent_model_state_id = db.Column(db.Integer, db.ForeignKey("agent_model_state.id"))
+    agent_model_state = db.relationship("AgentModelState", backref=db.backref("agent_model_snapshot", uselist=False))
+    snapshot_branch_id = db.Column(db.Integer, db.ForeignKey("snapshot_branch.id"))
+    snapshot_branch = db.relationship("SnapshotBranch",
+        backref=db.backref("agent_model_snapshots", lazy=True))
+
+class SnapshotBranch(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(10000), nullable=False)
+    parent_branch_id = db.Column(db.Integer, db.ForeignKey("snapshot_branch.id"),
+        nullable=True)
+    parent_branch = db.relationship("SnapshotBranch", backref=db.backref("child_branches",
+        lazy=False, remote_side=[id]))
+    save_lock = db.Column(db.Integer)
+
+class SavedGame(BaseEntity):
+     id = db.Column(db.Integer, primary_key=True)
+     agent_model_snapshot_id = db.Column(db.Integer, db.ForeignKey("agent_model_snapshot.id"))
+     agent_model_snapshot = db.relationship("AgentModelSnapshot")
+     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+     user = db.relationship("User")

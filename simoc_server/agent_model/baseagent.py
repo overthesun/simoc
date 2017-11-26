@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from mesa import Agent
-from simoc_server.database.db_model import AgentType, AgentEntity, AgentAttribute
+from simoc_server.database.db_model import AgentType, AgentState, AgentStateAttribute
 from simoc_server import db
 from uuid import uuid4
 
@@ -12,22 +12,19 @@ class BaseAgent(Agent):
     __agent_type_name__ = None
     __agent_type_attributes_loaded__ = False
 
-    def __init__(self, model, agent_entity=None):
+    def __init__(self, model, agent_state=None):
         self.type = self.__class__.__name__
         self.load_agent_type_attributes()
         #self.sprite_mapper = DefaultSpriteMapper
-        if agent_entity is not None:
-            self.load_from_db(agent_entity)
+        self.persisted_attributes = set()
+        self.client_attributes = set()
+        if agent_state is not None:
+            self.load_from_db(agent_state)
         else:
-            unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4())
-            self.persisted_attributes = set()
-            self.client_attributes = set()
+            self.unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4())
             self.init_new()
-            agent_entity = self.create_entity(model, unique_id)
 
-        self.agent_entity = agent_entity
-        unique_id = self.agent_entity.agent_unique_id
-        super().__init__(unique_id, model)
+        super().__init__(self.unique_id, model)
 
     @abstractmethod
     def init_new(self):
@@ -49,11 +46,13 @@ class BaseAgent(Agent):
     def get_agent_type_attribute(self, name):
         return self.__class__.agent_type_attributes[name]
 
-    def load_from_db(self, agent_entity):
-        self.pos = (agent_entity.pos_x, agent_entity.pos_y)
-        self.unique_id = agent_entity.agent_unique_id
-        self.__class__._load_database_attributes_into(agent_entity.agent_attributes,
+    def load_from_db(self, agent_state):
+        self.pos = (agent_state.pos_x, agent_state.pos_y)
+        self.unique_id = agent_state.agent_unique_id
+        self.__class__._load_database_attributes_into(agent_state.agent_state_attributes,
             self.__dict__)
+        for attribute in agent_state.agent_state_attributes:
+            self.persisted_attributes.add(attribute.name)
 
     @classmethod
     def _load_database_attributes_into(cls, attributes, target):
@@ -67,15 +66,6 @@ class BaseAgent(Agent):
                 value = value_type(value_str)
             attribute_name = attribute.name
             target[attribute_name] = value
-
-    def create_entity(self, model, unique_id):
-        agent_entity = AgentEntity(agent_type=self.__class__.__agent_type__,
-                 agent_model_entity=model.agent_model_entity, agent_unique_id=unique_id)
-        for attribute_name in self.persisted_attributes:
-            value_str, value_type = self._get_instance_attribute_params(attribute_name)
-            agent_entity.agent_attributes.append(AgentAttribute(name=attribute_name, 
-                value=value_str, value_type=value_type))
-        return agent_entity
 
     def _get_instance_attribute_params(self, attribute_name):
         value = self.__dict__[attribute_name]
@@ -94,14 +84,20 @@ class BaseAgent(Agent):
     def get_sprite_mapping(self):
         return self.sprite_mapper.get_sprite_mapping(self)
 
-    def save(self, commit=True):
-        for agent_attribute in self.agent_entity.agent_attributes:
-            value_str, value_type = self._get_instance_attribute_params(agent_attribute.name)
-            agent_attribute.value_type = value_type
-            agent_attribute.value = value_str
-            db.session.add(agent_attribute)
-        self.agent_entity.pos_x = self.pos[0]
-        self.agent_entity.pos_y = self.pos[1]
-        db.session.add(self.agent_entity)
+    def snapshot(self, agent_model_state, commit=True):
+        agent_state = AgentState(agent_type=self.__class__.__agent_type__,
+                 agent_model_state=agent_model_state, agent_unique_id=self.unique_id,
+                 pos_x=self.pos[0], pos_y=self.pos[1])
+        for attribute_name in self.persisted_attributes:
+            value_str, value_type = self._get_instance_attribute_params(attribute_name)
+            agent_state.agent_state_attributes.append(AgentStateAttribute(name=attribute_name, 
+                value=value_str, value_type=value_type))
+        db.session.add(agent_state)
         if commit:
             db.session.commit()
+
+    def status_str(self):
+        sb = []
+        for attribute_name in self.persisted_attributes:
+            sb.append("{0}: {1}".format(attribute_name, self.__dict__[attribute_name]))
+        return " ".join(sb)

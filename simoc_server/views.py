@@ -3,8 +3,6 @@ from flask_login import LoginManager, login_user, login_required, logout_user
 from flask import request, session
 from simoc_server.database.db_model import User
 
-app.secret_key = '$$#@AS]d##$ADVH]]3$^s&*!acgs'
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 
