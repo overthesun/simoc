@@ -1,3 +1,4 @@
+import time
 from .agent_name_mapping import agent_name_mapping
 from .human import HumanAgent
 from mesa import Model
@@ -6,8 +7,7 @@ from mesa.space import MultiGrid
 from simoc_server.database.db_model import AgentModelState, AgentState, AgentType, SnapshotBranch, \
                                     AgentModelSnapshot
 from simoc_server import db
-import time
-import uuid
+from uuid import uuid4
 
 class AgentModel(object):
 
@@ -77,20 +77,24 @@ class AgentModel(object):
                 session.add(aquired_snapshot_branch)
                 session.commit()
 
-                self.snapshot_branch = aquired_snapshot_branch
-
-                for agent_model_snapshot in self.snapshot_branch.agent_model_snapshots:
+                for agent_model_snapshot in aquired_snapshot_branch.agent_model_snapshots:
+                    print(agent_model_snapshot)
                     if agent_model_snapshot.agent_model_state.step_num >= self.step_num:
-                        self.snapshot_branch.save_lock = 0
-                        session.add(self.snapshot_branch)
+                        aquired_snapshot_branch.save_lock = 0
+                        session.add(aquired_snapshot_branch)
                         session.commit()
-                        self.snapshot_branch = SnapshotBranch(name="{0}.{1}".format(self.snapshot_branch.name, uuid4()))
-                        self.snapshot_branch.save_lock = 1
-                        session.add(self.snapshot_branch)
+                        aquired_snapshot_branch = SnapshotBranch(name="{0}.{1}".format(self.snapshot_branch.name, uuid4()))
+                        aquired_snapshot_branch.save_lock = 1
+                        session.add(aquired_snapshot_branch)
                         session.commit()
+
+                self.snapshot_branch = SnapshotBranch.query.filter_by(id=aquired_snapshot_branch.id).first()
+
+        check_branch()
 
 
     def snapshot(self):
+        self.set_snapshot_branch()
         try:
             agent_model_state = AgentModelState(step_num=self.step_num, grid_width=self.grid.width, grid_height=self.grid.height)
             snapshot = AgentModelSnapshot(agent_model_state=agent_model_state, snapshot_branch=self.snapshot_branch)
