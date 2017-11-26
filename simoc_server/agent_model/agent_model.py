@@ -78,12 +78,12 @@ class AgentModel(object):
                 session.commit()
 
                 for agent_model_snapshot in aquired_snapshot_branch.agent_model_snapshots:
-                    print(agent_model_snapshot)
                     if agent_model_snapshot.agent_model_state.step_num >= self.step_num:
                         aquired_snapshot_branch.save_lock = 0
                         session.add(aquired_snapshot_branch)
                         session.commit()
-                        aquired_snapshot_branch = SnapshotBranch(name="{0}.{1}".format(self.snapshot_branch.name, uuid4()))
+                        aquired_snapshot_branch = SnapshotBranch(name="{0}.{1}".format(self.snapshot_branch.name, uuid4()),
+                            parent_branch_id=self.snapshot_branch.id)
                         aquired_snapshot_branch.save_lock = 1
                         session.add(aquired_snapshot_branch)
                         session.commit()
