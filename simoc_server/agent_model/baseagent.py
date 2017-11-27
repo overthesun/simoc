@@ -41,7 +41,10 @@ class BaseAgent(Agent):
             self.__class__._load_database_attributes_into(agent_type.agent_type_attributes,
                 self.__class__.agent_type_attributes)
             __agent_type_attributes_loaded__ = True
-            self.__class__.__agent_type__ = agent_type
+            self.__class__.__agent_type_id__ = agent_type.id
+
+    def get_agent_type(self):
+        return AgentType.query.get(self.__class.__agent_type_id__)
 
     def get_agent_type_attribute(self, name):
         return self.__class__.agent_type_attributes[name]
@@ -85,7 +88,7 @@ class BaseAgent(Agent):
         return self.sprite_mapper.get_sprite_mapping(self)
 
     def snapshot(self, agent_model_state, commit=True):
-        agent_state = AgentState(agent_type=self.__class__.__agent_type__,
+        agent_state = AgentState(agent_type_id=self.__class__.__agent_type_id__,
                  agent_model_state=agent_model_state, agent_unique_id=self.unique_id,
                  pos_x=self.pos[0], pos_y=self.pos[1])
         for attribute_name in self.persisted_attributes:

@@ -9,6 +9,8 @@ from simoc_server.database.db_model import AgentModelState, AgentState, AgentTyp
 from simoc_server import db
 from uuid import uuid4
 
+import threading
+
 class AgentModel(object):
 
     def __init__(self, grid_width=None, grid_height=None, agent_model_state=None):
@@ -18,8 +20,6 @@ class AgentModel(object):
             self.load_from_db(agent_model_state)
         else:
             self.init_new(grid_width ,grid_height)
-
-        self.snapshot()
 
     def load_from_db(self, agent_model_state):
         self.grid_width = agent_model_state.grid_width
@@ -50,6 +50,9 @@ class AgentModel(object):
         human_agent = HumanAgent(self)
         print("Created human agent: {0}".format(human_agent.energy))
         self.add_agent(human_agent, (0,0))
+        human_agent = HumanAgent(self)
+        print("Created human agent: {0}".format(human_agent.energy))
+        self.add_agent(human_agent, (1,2))
 
     def add_agent(self, agent, pos):
         self.scheduler.add(agent)
@@ -58,12 +61,13 @@ class AgentModel(object):
     def num_agents(self):
         return len(self.schedule.agents)
 
-    def set_snapshot_branch(self):
+    def set_snapshot_branch(self, session=None):
         # aquire snapshot branch and lock it
-        session = db.create_scoped_session(options={
-            "autocommit":False,
-            "autoflush":True
-            })
+        if not session:
+            session = db.create_scoped_session(options={
+                "autocommit":False,
+                "autoflush":True
+                })
 
         def check_branch():
             aquired_snapshot_branch = session.query(SnapshotBranch).with_for_update(nowait=False) \
@@ -87,10 +91,11 @@ class AgentModel(object):
                         aquired_snapshot_branch.save_lock = 1
                         session.add(aquired_snapshot_branch)
                         session.commit()
-
+                        break
                 self.snapshot_branch = SnapshotBranch.query.filter_by(id=aquired_snapshot_branch.id).first()
+                session.close()
 
-        check_branch()
+        check_branch()          
 
 
     def snapshot(self):
