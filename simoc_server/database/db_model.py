@@ -1,3 +1,4 @@
+import datetime
 from simoc_server import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -69,21 +70,13 @@ class AgentModelSnapshot(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     agent_model_state_id = db.Column(db.Integer, db.ForeignKey("agent_model_state.id"))
     agent_model_state = db.relationship("AgentModelState", backref=db.backref("agent_model_snapshot", uselist=False))
-    snapshot_branch_id = db.Column(db.Integer, db.ForeignKey("snapshot_branch.id"))
-    snapshot_branch = db.relationship("SnapshotBranch",
-        backref=db.backref("agent_model_snapshots", lazy=True))
-
-class SnapshotBranch(BaseEntity):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(10000), nullable=False)
-    parent_branch_id = db.Column(db.Integer, db.ForeignKey("snapshot_branch.id"),
-        nullable=True)
-    parent_branch = db.relationship("SnapshotBranch", backref=db.backref("child_branches",
-        lazy=False, remote_side=[id]))
-    save_lock = db.Column(db.Integer)
+    previous_snapshot_id = db.Column(db.Integer, db.ForeignKey("agent_model_snapshot.id"))
+    previous_snapshot = db.relationship("AgentModelSnapshot", backref=db.backref("next_snapshots", lazy=True),
+        remote_side=[id])
 
 class SavedGame(BaseEntity):
      id = db.Column(db.Integer, primary_key=True)
+     name = db.Column(db.String(120), default=lambda:str(datetime.datetime.utcnow()))
      agent_model_snapshot_id = db.Column(db.Integer, db.ForeignKey("agent_model_snapshot.id"))
      agent_model_snapshot = db.relationship("AgentModelSnapshot")
      user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)

@@ -5,7 +5,7 @@ class GenericError(Exception):
     status_code = 400
 
     def __init__(self, message, status_code=None):
-        super(GenericError, self).__init__(self)
+        super(GenericError, self).__init__()
         if status_code is not None:
             self.status_code =  status_code
         self.message = message

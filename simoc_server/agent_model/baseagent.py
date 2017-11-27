@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from mesa import Agent
 from simoc_server.database.db_model import AgentType, AgentState, AgentStateAttribute
 from simoc_server import db
+from .sprite_mappers import DefaultSpriteMapper
 from uuid import uuid4
 
 PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__, type(None).__name__]
@@ -9,13 +10,13 @@ PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__, type(
 class BaseAgent(Agent):
     __metaclass__ = ABCMeta
 
+    __sprite_mapper__ = DefaultSpriteMapper
     __agent_type_name__ = None
     __agent_type_attributes_loaded__ = False
 
     def __init__(self, model, agent_state=None):
         self.type = self.__class__.__name__
         self.load_agent_type_attributes()
-        #self.sprite_mapper = DefaultSpriteMapper
         self.persisted_attributes = set()
         self.client_attributes = set()
         if agent_state is not None:
