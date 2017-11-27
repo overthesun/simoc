@@ -7,7 +7,6 @@ def run(debug=False, port=8000, run_local=False):
     if debug:
         import os
         os.environ['PYTHONPATH'] = os.getcwd()
-    agent_model = AgentModel(100, 100)
     app.run(addr, port=port, debug=debug)
 
 if __name__ == "__main__":

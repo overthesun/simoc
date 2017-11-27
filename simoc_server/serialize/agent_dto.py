@@ -1,4 +1,4 @@
-from .base_dto import BaseDTO
+from . import BaseDTO
 
 class AgentDTO(BaseDTO):
 
@@ -6,8 +6,16 @@ class AgentDTO(BaseDTO):
         self.agent = agent
 
     def get_state(self):
-        # TODO implement
-        pass
+        state = {
+            "pos_x":self.agent.pos[0],
+            "pos_y":self.agent.pos[1]
+        }
+
+        attributes = {}
+        for name in self.agent.client_attributes:
+            attributes[name] = self.agent.__dict__[name]
+        state["attributes"] = attributes
+        return state
 
     def get_state_diff(self, prev_state):
         # TODO implement

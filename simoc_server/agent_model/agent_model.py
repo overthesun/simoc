@@ -1,6 +1,6 @@
 import time
-from .agent_name_mapping import agent_name_mapping
-from .human import HumanAgent
+from . import agent_name_mapping
+from . import HumanAgent
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
@@ -48,10 +48,8 @@ class AgentModel(object):
 
         # for testing
         human_agent = HumanAgent(self)
-        print("Created human agent: {0}".format(human_agent.energy))
         self.add_agent(human_agent, (0,0))
         human_agent = HumanAgent(self)
-        print("Created human agent: {0}".format(human_agent.energy))
         self.add_agent(human_agent, (1,2))
 
     def add_agent(self, agent, pos):
@@ -95,7 +93,7 @@ class AgentModel(object):
                 self.snapshot_branch = SnapshotBranch.query.filter_by(id=aquired_snapshot_branch.id).first()
                 session.close()
 
-        check_branch()          
+        check_branch()
 
 
     def snapshot(self):
@@ -117,3 +115,4 @@ class AgentModel(object):
 
     def step(self):
         self.step_num += 1
+        print("{0} step_num {1}".format(self, self.step_num))

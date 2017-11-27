@@ -1,4 +1,4 @@
-from .human import HumanAgent
+from . import HumanAgent
 
 agent_name_mapping = {
     "Human":HumanAgent

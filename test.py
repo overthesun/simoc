@@ -43,7 +43,6 @@ class SimocServerTestCase(unittest.TestCase):
             t=threading.Thread(target=snapshot_at_step_1, args=(model_state_id,branch_ids))
             t.start()
             threads.append(t)
-            print(i)
         for thread in threads:
             thread.join()
 
