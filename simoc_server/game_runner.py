@@ -30,13 +30,12 @@ class GameRunner(object):
 
 
     def _get_step_from_buffer(self, step_num):
-        step = self.step_buffer[step_num]
-
         pruned_buffer = {}
         for n, step in self.step_buffer.items():
             if n > step_num:
                 pruned_buffer[n] = step
 
+        step = self.step_buffer[step_num]
         self.step_buffer = pruned_buffer
 
         if len(self.step_buffer) < self.step_buffer_size:
