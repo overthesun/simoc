@@ -32,23 +32,26 @@ class SimocServerTestCase(unittest.TestCase):
             agent_model = AgentModel(agent_model_state=agent_model_state)
             agent_model.step()
             snapshot = agent_model.snapshot()
-            previous_snap_ids.append(snapshot.previous_snapshot.id)
+            branch_ids.append(snapshot.snapshot_branch.id)
         orig_agent_model = AgentModel(grid_width=100, grid_height=100)
-        orig_snapshot = orig_agent_model.snapshot()
-        model_state_id = orig_snapshot.agent_model_state.id
+        orig_snapshot_1 = orig_agent_model.snapshot()
+        orig_agent_model.step()
+        orig_snapshot_2 = orig_agent_model.snapshot()
+        model_state_id = orig_snapshot_2.agent_model_state.id
         num_branches = 10
         threads = []
-        previous_snap_ids = []
+        branch_ids = []
         for i in range(num_branches):
-            t=threading.Thread(target=snapshot_at_step_1, args=(model_state_id,previous_snap_ids))
+            t=threading.Thread(target=snapshot_at_step_1, args=(model_state_id,branch_ids))
             t.start()
             threads.append(t)
         for thread in threads:
             thread.join()
 
-        print(previous_snap_ids)
-        for i in range(len(previous_snap_ids)):
-            self.assertTrue(previous_snap_ids[i] == orig_snapshot.id)
+        print(branch_ids)
+        for i in range(len(branch_ids)):
+            for j in range(i+1, len(branch_ids)):
+                self.assertTrue(branch_ids[i] != branch_ids[j])
 
 
 

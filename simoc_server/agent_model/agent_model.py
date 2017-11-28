@@ -4,9 +4,10 @@ from . import HumanAgent
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
-from simoc_server.database.db_model import AgentModelState, AgentState, AgentType, AgentModelSnapshot
+from simoc_server.database.db_model import AgentModelState, AgentState, AgentType, AgentModelSnapshot, SnapshotBranch
 from simoc_server import db
 from uuid import uuid4
+from sqlalchemy.orm.exc import StaleDataError
 
 import threading
 
@@ -31,10 +32,10 @@ class AgentModel(object):
             agent = agent_class(self, agent_state)
             self.add_agent(agent, agent.pos)
             print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
-        self.previous_snapshot = agent_model_state.agent_model_snapshot
+        self.snapshot_branch = agent_model_state.agent_model_snapshot.snapshot_branch
 
     def init_new(self, grid_width, grid_height):
-        self.previous_snapshot = None
+        self.snapshot_branch = None
         self.step_num = 0
         self.grid_width = grid_width
         self.grid_height = grid_height
@@ -55,17 +56,44 @@ class AgentModel(object):
         return len(self.schedule.agents)
 
 
+    def _branch(self):
+        self.snapshot_branch = SnapshotBranch(parent_branch_id=self.snapshot_branch.id)
+
     def snapshot(self, commit=True):
-        agent_model_state = AgentModelState(step_num=self.step_num, grid_width=self.grid.width, grid_height=self.grid.height)
-        snapshot = AgentModelSnapshot(agent_model_state=agent_model_state, previous_snapshot=self.previous_snapshot)
-        db.session.add(agent_model_state)
-        db.session.add(snapshot)
-        for agent in self.scheduler.agents:
-            agent.snapshot(agent_model_state, commit=False)
-        if commit:
-            db.session.commit()
-        self.previous_snapshot = snapshot
-        return snapshot
+        if self.snapshot_branch is None:
+            self.snapshot_branch = SnapshotBranch()
+        else:
+            if(self.snapshot_branch.version_id is not None):
+                self.snapshot_branch.version_id += 1
+        try:
+            last_saved_branch_state = AgentModelState.query \
+                                .join(AgentModelSnapshot) \
+                                .join(SnapshotBranch, SnapshotBranch.id == self.snapshot_branch.id) \
+                                .order_by(AgentModelState.step_num.desc()) \
+                                .limit(1) \
+                                .first()
+            if(last_saved_branch_state is not None and \
+               last_saved_branch_state.step_num >= self.step_num):
+                self._branch()
+            agent_model_state = AgentModelState(step_num=self.step_num, grid_width=self.grid.width, grid_height=self.grid.height)
+            snapshot = AgentModelSnapshot(agent_model_state=agent_model_state, snapshot_branch=self.snapshot_branch)
+            db.session.add(agent_model_state)
+            db.session.add(snapshot)
+            db.session.add(self.snapshot_branch)
+            for agent in self.scheduler.agents:
+                agent.snapshot(agent_model_state, commit=False)
+            if commit:
+                db.session.commit()
+            print(snapshot)
+
+            print("version: {0}".format(self.snapshot_branch.version_id))
+            print("returning")
+            return snapshot
+        except StaleDataError:
+            print("WARNING: StaleDataError during snapshot, probably a simultaneous save, changing branch.")
+            db.session.rollback()
+            self._branch()
+            return self.snapshot()
 
     def step(self):
         self.step_num += 1

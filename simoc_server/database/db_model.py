@@ -70,9 +70,18 @@ class AgentModelSnapshot(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     agent_model_state_id = db.Column(db.Integer, db.ForeignKey("agent_model_state.id"))
     agent_model_state = db.relationship("AgentModelState", backref=db.backref("agent_model_snapshot", uselist=False))
-    previous_snapshot_id = db.Column(db.Integer, db.ForeignKey("agent_model_snapshot.id"))
-    previous_snapshot = db.relationship("AgentModelSnapshot", backref=db.backref("next_snapshots", lazy=True),
-        remote_side=[id])
+    snapshot_branch_id = db.Column(db.Integer, db.ForeignKey("snapshot_branch.id"))
+    snapshot_branch = db.relationship("SnapshotBranch",
+        backref=db.backref("agent_model_snapshots", lazy=True))
+
+class SnapshotBranch(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    version_id = db.Column(db.Integer, nullable=False)
+    __mapper_args__ = {
+        "version_id_col":version_id
+    }
+    parent_branch_id = db.Column(db.Integer, db.ForeignKey("snapshot_branch.id"))
+    parent_branch = db.relationship("SnapshotBranch", backref=db.backref("child_branches"), remote_side=[id])
 
 class SavedGame(BaseEntity):
      id = db.Column(db.Integer, primary_key=True)
