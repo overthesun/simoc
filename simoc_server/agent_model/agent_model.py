@@ -84,10 +84,7 @@ class AgentModel(object):
                 agent.snapshot(agent_model_state, commit=False)
             if commit:
                 db.session.commit()
-            print(snapshot)
 
-            print("version: {0}".format(self.snapshot_branch.version_id))
-            print("returning")
             return snapshot
         except StaleDataError:
             print("WARNING: StaleDataError during snapshot, probably a simultaneous save, changing branch.")
