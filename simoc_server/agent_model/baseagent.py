@@ -19,6 +19,8 @@ class BaseAgent(Agent):
     def __init__(self, model, agent_state=None):
         self.type = self.__class__.__name__
         self.load_agent_type_attributes()
+
+        self.active = True
         if agent_state is not None:
             self.load_from_db(agent_state)
         else:
@@ -97,3 +99,7 @@ class BaseAgent(Agent):
         for attribute_name in self.__persisted_attributes__:
             sb.append("{0}: {1}".format(attribute_name, self.__dict__[attribute_name]))
         return " ".join(sb)
+
+    def destroy(self):
+        self.active = False
+        self.model.remove_agent(self)

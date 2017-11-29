@@ -115,3 +115,7 @@ class AgentModel(object):
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)
+
+    def remove(self, agent):
+        self.grid.remove_agent(agent)
+        self.scheduler.remove(agent)
