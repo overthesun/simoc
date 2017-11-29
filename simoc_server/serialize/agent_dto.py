@@ -7,8 +7,9 @@ class AgentDTO(BaseDTO):
 
     def get_state(self):
         state = {
+            "id":self.agent.unique_id,
             "pos_x":self.agent.pos[0],
-            "pos_y":self.agent.pos[1]
+            "pos_y":self.agent.pos[1],
         }
 
         attributes = {}
