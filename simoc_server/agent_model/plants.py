@@ -23,3 +23,6 @@ class Plant(BaseAgent):
             self.status = "grown"
         if age > self.lifespan:
             self.model.remove(self)
+
+Plant.__persisted_attributes__.add("status")
+Plant.__client_attributes__.add("status")
