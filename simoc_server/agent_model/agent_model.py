@@ -4,12 +4,14 @@ from . import HumanAgent
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
-from simoc_server.database.db_model import AgentModelState, AgentState, AgentType, AgentModelSnapshot, SnapshotBranch
+from simoc_server.database.db_model import AgentModelState, AgentState, \
+    AgentType, AgentModelSnapshot, SnapshotBranch, AgentModelParam
 from simoc_server import db
 from uuid import uuid4
 from sqlalchemy.orm.exc import StaleDataError
 
 import threading
+import datetime
 
 class AgentModel(object):
 
@@ -18,6 +20,18 @@ class AgentModel(object):
             self.load_from_db(agent_model_state)
         else:
             self.init_new(grid_width ,grid_height)
+
+        self.load_params()
+
+    def load_params(self):
+        params = AgentModelParam.query.all()
+        for param in params:
+            value_type_str = param.value_type
+            if value_type_str != type(None).__name__:
+                value_type = eval(value_type_str)
+                self.__dict__[param.name] = value_type(param.value)
+            else:
+                self.__dict__[param.name] = None
 
     def load_from_db(self, agent_model_state):
         self.grid_width = agent_model_state.grid_width
@@ -95,3 +109,9 @@ class AgentModel(object):
     def step(self):
         self.step_num += 1
         print("{0} step_num {1}".format(self, self.step_num))
+
+    def get_timedelta_since_start(self):
+        return datetime.timedelta(minutes=self.minutes_per_step * self.step_num)
+
+    def timedelta_per_step(self):
+        return datetime.timedelta(minutes=self.minutes_per_step)

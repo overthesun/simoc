@@ -15,12 +15,14 @@ import simoc_server
 
 class SimocServerTestCase(unittest.TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         simoc_server.app.testing = True
         db.create_all()
         seed.seed()
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         db.sessionmaker.close_all()
         # db.engine.dispose()
         db.drop_all()
@@ -54,6 +56,12 @@ class SimocServerTestCase(unittest.TestCase):
                 self.assertTrue(branch_ids[i] != branch_ids[j])
 
 
-
+    def testTimeDelta(self):
+        agent_model = AgentModel(grid_width=100, grid_height=100)
+        for i in range(100):
+            agent_model.step()
+            print(agent_model.get_timedelta_since_start())
+        delta = agent_model.get_timedelta_since_start()
+        self.assertTrue(delta.days==4)
 if __name__ == "__main__":
     unittest.main()

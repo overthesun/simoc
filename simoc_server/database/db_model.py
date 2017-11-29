@@ -24,6 +24,13 @@ class User(BaseEntity, UserMixin):
     def get_id(self):
         return str(self.id)
 
+class AgentModelParam(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), nullable=False)
+    value = db.Column(db.String(512))
+    value_type = db.Column(db.String(80))
+    description = db.Column(db.String(512), nullable=True)
+
 class AgentType(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False, unique=True)
@@ -37,6 +44,7 @@ class AgentTypeAttribute(BaseEntity):
     name = db.Column(db.String(80), nullable=False)
     value = db.Column(db.String(80))
     value_type = db.Column(db.String(80))
+    units = db.Column(db.String(80), nullable=True)
 
 
 class AgentState(BaseEntity):
