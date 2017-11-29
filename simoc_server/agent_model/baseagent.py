@@ -13,12 +13,12 @@ class BaseAgent(Agent):
     __sprite_mapper__ = DefaultSpriteMapper
     __agent_type_name__ = None
     __agent_type_attributes_loaded__ = False
+    __persisted_attributes__ = set()
+    __client_attributes__ = set()
 
     def __init__(self, model, agent_state=None):
         self.type = self.__class__.__name__
         self.load_agent_type_attributes()
-        self.persisted_attributes = set()
-        self.client_attributes = set()
         if agent_state is not None:
             self.load_from_db(agent_state)
         else:
@@ -55,8 +55,6 @@ class BaseAgent(Agent):
         self.unique_id = agent_state.agent_unique_id
         self.__class__._load_database_attributes_into(agent_state.agent_state_attributes,
             self.__dict__)
-        for attribute in agent_state.agent_state_attributes:
-            self.persisted_attributes.add(attribute.name)
 
     @classmethod
     def _load_database_attributes_into(cls, attributes, target):
@@ -79,12 +77,6 @@ class BaseAgent(Agent):
             raise Exception("Attribute set to non-persistable type.")
         return value_str, value_type
 
-    def register_persisted_attribute(self, attribute_name):
-        self.persisted_attributes.add(attribute_name)
-
-    def register_client_attribute(self, attribute_name):
-        self.client_attributes.add(attribute_name)
-
     def get_sprite_mapping(self):
         return self.sprite_mapper.get_sprite_mapping(self)
 
@@ -92,7 +84,7 @@ class BaseAgent(Agent):
         agent_state = AgentState(agent_type_id=self.__class__.__agent_type_id__,
                  agent_model_state=agent_model_state, agent_unique_id=self.unique_id,
                  pos_x=self.pos[0], pos_y=self.pos[1])
-        for attribute_name in self.persisted_attributes:
+        for attribute_name in self.__persisted_attributes__:
             value_str, value_type = self._get_instance_attribute_params(attribute_name)
             agent_state.agent_state_attributes.append(AgentStateAttribute(name=attribute_name, 
                 value=value_str, value_type=value_type))
@@ -102,6 +94,6 @@ class BaseAgent(Agent):
 
     def status_str(self):
         sb = []
-        for attribute_name in self.persisted_attributes:
+        for attribute_name in self.__persisted_attributes__:
             sb.append("{0}: {1}".format(attribute_name, self.__dict__[attribute_name]))
         return " ".join(sb)
