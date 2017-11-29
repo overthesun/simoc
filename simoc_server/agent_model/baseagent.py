@@ -102,4 +102,4 @@ class BaseAgent(Agent):
 
     def destroy(self):
         self.active = False
-        self.model.remove_agent(self)
+        self.model.remove(self)
