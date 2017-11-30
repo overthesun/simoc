@@ -18,5 +18,7 @@ def gen_params():
 
     data["minutes_per_step"] = create_param(name="minutes_per_step", \
             value=60, description="Number of minutes per 1 model step.")
+    data["meters_per_grid_unit"] = create_param(name="meters_per_grid_unit", \
+            value=1, description="Number of square meters in 1 grid unit.")
 
     return data
