@@ -1,4 +1,7 @@
 import time
+import numbers
+import threading
+import datetime
 from .agent_name_mapping import agent_name_mapping
 from . import HumanAgent
 from mesa import Model
@@ -9,9 +12,6 @@ from simoc_server.database.db_model import AgentModelState, AgentState, \
 from simoc_server import db
 from uuid import uuid4
 from sqlalchemy.orm.exc import StaleDataError
-
-import threading
-import datetime
 
 class AgentModel(object):
 
@@ -115,6 +115,17 @@ class AgentModel(object):
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)
+
+    def get_meters_per_grid_unit(self):
+        return self.meters_per_grid_unit
+
+    def grid_units_to_meters(self, dist_grid):
+        if isinstance(dist_grid, tuple):
+            return tuple(d * self.meters_per_grid_unit for d in dist_grid)
+        elif isinstance(dist_grid, numbers.Number):
+            return self.meters_per_grid_unit * dist_grid
+        else:
+            raise TypeError("Expected number or tuple of numbers")
 
     def remove(self, agent):
         self.grid.remove_agent(agent)

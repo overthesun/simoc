@@ -53,7 +53,7 @@ class SimocServerTestCase(unittest.TestCase):
         print(branch_ids)
         for i in range(len(branch_ids)):
             for j in range(i+1, len(branch_ids)):
-                self.assertTrue(branch_ids[i] != branch_ids[j])
+                self.assertNotEqual(branch_ids[i], branch_ids[j])
 
 
     def testTimeDelta(self):
@@ -62,6 +62,14 @@ class SimocServerTestCase(unittest.TestCase):
             agent_model.step()
             print(agent_model.get_timedelta_since_start())
         delta = agent_model.get_timedelta_since_start()
-        self.assertTrue(delta.days==4)
+        self.assertEqual(delta.days, 4)
+
+    def testSpaceConversion(self):
+        agent_model = AgentModel(grid_width=100, grid_height=100)
+        m1 = agent_model.grid_units_to_meters(10)
+        self.assertEqual(m1, 10)
+        m2 = agent_model.grid_units_to_meters((20, 60))
+        self.assertEqual(m2, (20, 60))
+
 if __name__ == "__main__":
     unittest.main()
