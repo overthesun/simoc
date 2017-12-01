@@ -16,14 +16,22 @@ class GameRunner(object):
 
     @classmethod
     def load_from_state(cls, agent_model_state, user, step_buffer_size=10):
-        agent_model = AgentModel(agent_model_state)
+        if agent_model_state is None:
+            raise Exception("Got None for agent_model_state.")
+        agent_model = AgentModel.load_from_db(agent_model_state)
         return GameRunner(agent_model, user, step_buffer_size=step_buffer_size)
+
+    @classmethod
+    def load_from_saved_game(cls, saved_game, step_buffer_size=10):
+        agent_model_state = saved_game.agent_model_snapshot.agent_model_state
+        user = saved_game.user
+        return GameRunner.load_from_state(agent_model_state, user, step_buffer_size)
 
     @classmethod
     def from_new_game(cls, user, step_buffer_size=10):
         grid_width = GameRunner.__default_grid_size__[0]
         grid_height = GameRunner.__default_grid_size__[1]
-        agent_model = AgentModel(grid_width=grid_width, grid_height=grid_height)
+        agent_model = AgentModel.create_new(100, 100)
         return GameRunner(agent_model, user, step_buffer_size=step_buffer_size)
 
     def save_game(self, save_name):
@@ -46,8 +54,10 @@ class GameRunner(object):
 
         if step_num not in self.step_buffer.keys():
             all_step_nums = self.step_buffer.keys()
+            min_step = min(all_step_nums) if len(all_step_nums) > 0 else None
+            max_step = max(all_step_nums) if len(all_step_nums) > 0 else None
             raise Exception("Error step requested is out of range"
-                "of buffer - min: {0} max: {1}".format(min(all_step_nums, max(all_step_nums))))
+                "of buffer - min: {0} max: {1}".format(min_step, max_step))
         step = self.step_buffer[step_num]
         self.step_buffer = pruned_buffer
 

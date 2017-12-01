@@ -15,13 +15,15 @@ from sqlalchemy.orm.exc import StaleDataError
 
 class AgentModel(object):
 
-    def __init__(self, grid_width=None, grid_height=None, agent_model_state=None):
-        if agent_model_state is not None:
-            self.load_from_db(agent_model_state)
-        else:
-            self.init_new(grid_width ,grid_height)
-
+    def __init__(self, grid_width, grid_height, starting_step_num=0, snapshot_branch=None):
         self.load_params()
+        self.grid_width = grid_width
+        self.grid_height = grid_height
+        self.grid = MultiGrid(self.grid_width, self.grid_height, True)
+        self.scheduler = RandomActivation(self)
+        self.step_num = starting_step_num
+        self.scheduler.steps = starting_step_num
+        self.snapshot_branch = snapshot_branch
 
     def load_params(self):
         params = AgentModelParam.query.all()
@@ -33,34 +35,32 @@ class AgentModel(object):
             else:
                 self.__dict__[param.name] = None
 
+    @classmethod
     def load_from_db(self, agent_model_state):
-        self.grid_width = agent_model_state.grid_width
-        self.grid_height = agent_model_state.grid_height
-        self.step_num = agent_model_state.step_num
-        self.grid = MultiGrid(self.grid_width, self.grid_height, True)
-        self.scheduler = RandomActivation(self)
+        snapshot_branch = agent_model_state.agent_model_snapshot.snapshot_branch
+        grid_width = agent_model_state.grid_width
+        grid_height = agent_model_state.grid_height
+        step_num = agent_model_state.step_num
+        model = AgentModel(grid_width, grid_height, starting_step_num=step_num, \
+            snapshot_branch = snapshot_branch)
 
         for agent_state in agent_model_state.agent_states:
             agent_type_name = agent_state.agent_type.name
             agent_class = agent_name_mapping[agent_type_name]
             agent = agent_class(self, agent_state)
-            self.add_agent(agent, agent.pos)
+            model.add_agent(agent, agent.pos)
             print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
-        self.snapshot_branch = agent_model_state.agent_model_snapshot.snapshot_branch
+        return model
 
-    def init_new(self, grid_width, grid_height):
-        self.snapshot_branch = None
-        self.step_num = 0
-        self.grid_width = grid_width
-        self.grid_height = grid_height
-        self.grid = MultiGrid(self.grid_width, self.grid_height, True)
-        self.scheduler = RandomActivation(self)
-
+    @classmethod
+    def create_new(self, grid_width, grid_height):
+        model = AgentModel(grid_width, grid_height)
         # for testing
         human_agent = HumanAgent(self)
-        self.add_agent(human_agent, (0,0))
+        model.add_agent(human_agent, (0,0))
         human_agent = HumanAgent(self)
-        self.add_agent(human_agent, (1,2))
+        model.add_agent(human_agent, (1,2))
+        return model
 
     def add_agent(self, agent, pos):
         self.scheduler.add(agent)
