@@ -45,6 +45,13 @@ class DefaultSpriteMapper(object):
         d["rules"] = rules_vals
         return d
 
+    def evaluate(self, agent):
+        matches = []
+        for rule in self.rules:
+            if rule.check(agent):
+                matches.append(rule)
+        return max(matches, key=lambda x: x.precedence)
+
 class SpriteRule(object):
     def __init__(self, comparator, sprite_path, precedence=0, offset=(0,0)):
         self.comparator = comparator
