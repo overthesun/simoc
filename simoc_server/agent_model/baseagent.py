@@ -13,8 +13,9 @@ class BaseAgent(Agent):
     __sprite_mapper__ = DefaultSpriteMapper
     __agent_type_name__ = None
     __agent_type_attributes_loaded__ = False
-    __persisted_attributes__ = set()
-    __client_attributes__ = set()
+
+    __persisted_attributes__ = []
+    __client_attributes__ = []
 
     def __init__(self, model, agent_state=None):
         self.type = self.__class__.__name__
@@ -22,12 +23,13 @@ class BaseAgent(Agent):
 
         self.active = True
         if agent_state is not None:
+            super().__init__(self.unique_id, model)
             self.load_from_db(agent_state)
         else:
             self.unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4())
+            super().__init__(self.unique_id, model)
             self.init_new()
 
-        super().__init__(self.unique_id, model)
 
     @abstractmethod
     def init_new(self):
@@ -86,7 +88,7 @@ class BaseAgent(Agent):
         agent_state = AgentState(agent_type_id=self.__class__.__agent_type_id__,
                  agent_model_state=agent_model_state, agent_unique_id=self.unique_id,
                  pos_x=self.pos[0], pos_y=self.pos[1])
-        for attribute_name in self.__persisted_attributes__:
+        for attribute_name in self.__class__.__persisted_attributes__:
             value_str, value_type = self._get_instance_attribute_params(attribute_name)
             agent_state.agent_state_attributes.append(AgentStateAttribute(name=attribute_name, 
                 value=value_str, value_type=value_type))
@@ -96,7 +98,7 @@ class BaseAgent(Agent):
 
     def status_str(self):
         sb = []
-        for attribute_name in self.__persisted_attributes__:
+        for attribute_name in self.__class__.__persisted_attributes__:
             sb.append("{0}: {1}".format(attribute_name, self.__dict__[attribute_name]))
         return " ".join(sb)
 

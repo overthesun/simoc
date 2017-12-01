@@ -3,7 +3,7 @@ import numbers
 import threading
 import datetime
 from .agent_name_mapping import agent_name_mapping
-from . import HumanAgent
+from . import HumanAgent, PlantAgent
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
@@ -47,7 +47,7 @@ class AgentModel(object):
         for agent_state in agent_model_state.agent_states:
             agent_type_name = agent_state.agent_type.name
             agent_class = agent_name_mapping[agent_type_name]
-            agent = agent_class(self, agent_state)
+            agent = agent_class(model, agent_state)
             model.add_agent(agent, agent.pos)
             print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
         return model
@@ -56,10 +56,14 @@ class AgentModel(object):
     def create_new(self, grid_width, grid_height):
         model = AgentModel(grid_width, grid_height)
         # for testing
-        human_agent = HumanAgent(self)
+        human_agent = HumanAgent(model)
         model.add_agent(human_agent, (0,0))
-        human_agent = HumanAgent(self)
+        human_agent = HumanAgent(model)
         model.add_agent(human_agent, (1,2))
+        plant_agent = PlantAgent(model)
+        model.add_agent(plant_agent, (12, 1))
+        plant_agent = PlantAgent(model)
+        model.add_agent(plant_agent, (4, 4))
         return model
 
     def add_agent(self, agent, pos):

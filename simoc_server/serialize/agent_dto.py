@@ -10,6 +10,7 @@ class AgentDTO(BaseDTO):
             "id":self.agent.unique_id,
             "pos_x":self.agent.pos[0],
             "pos_y":self.agent.pos[1],
+            "sprite_mapper":self.agent.__sprite_mapper__().to_serializable()
         }
 
         attributes = {}

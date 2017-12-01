@@ -1,10 +1,14 @@
 import datetime
 from .baseagent import BaseAgent
+from .sprite_mappers import PlantSpriteMapper
 
-class Plant(BaseAgent):
+class PlantAgent(BaseAgent):
     # TODO implement each plant and abstract this class
 
     __agent_type_name__ = "default_plant"
+    __sprite_mapper__ = PlantSpriteMapper
+    __persisted_attributes__ = ["status"]
+    __client_attributes__ = ["status"]
 
     def init_new(self):
         self.status = "planted"
@@ -23,6 +27,3 @@ class Plant(BaseAgent):
             self.status = "grown"
         if age > self.lifespan:
             self.destroy(self)
-
-Plant.__persisted_attributes__.add("status")
-Plant.__client_attributes__.add("status")
