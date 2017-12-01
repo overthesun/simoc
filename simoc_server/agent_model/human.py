@@ -1,7 +1,7 @@
 from .baseagent import BaseAgent
 
 class HumanAgent(BaseAgent):
-    
+
     __agent_type_name__ = "Human" #__sprite_mapper__ = HumanSpriteMapper
     thirstPerStep = 10.5 #variable for controling thirst
     hungerPerStep = 10.5 #variable for controling hunger
@@ -9,6 +9,9 @@ class HumanAgent(BaseAgent):
     thirstthreshold = 60 #variable for controling thirst/drink
     sleepthreashold = 7  #variable for controling sleep/hours
     workthreashold = 8   #variable for controling work/hours
+
+    __persisted_attributes__ = ["energy", "thirst", "hunger", "health", "status", "age", "totalsteps"]
+    __client_attributes__ = ["energy", "thirst", "hunger", "health", "status", "age"]
 
     status = {
         "Standby": "Standby",
@@ -37,7 +40,7 @@ class HumanAgent(BaseAgent):
         self.status = HumanAgent.status["Standby"] #variable for tracking work hours
         self.goal_pos = (0,0) #variable for tracking work hours
         self.energy = self.get_agent_type_attribute("max_energy") #calories to burn??
-    
+
     def step(self):
         self.totalsteps += 1
         self.default()
@@ -118,18 +121,3 @@ class HumanAgent(BaseAgent):
         #if self.status == "Sleeping" and self.pos is self.goal_pos:
         #if self.status == "Busy" and self.pos is self.goal_pos:
         pass
-        
-    
-HumanAgent.__persisted_attributes__.add("energy")
-HumanAgent.__client_attributes__.add("energy")
-HumanAgent.__persisted_attributes__.add("thirst")
-HumanAgent.__client_attributes__.add("thirst")
-HumanAgent.__persisted_attributes__.add("hunger")
-HumanAgent.__client_attributes__.add("hunger")
-HumanAgent.__persisted_attributes__.add("health")
-HumanAgent.__client_attributes__.add("health")
-HumanAgent.__persisted_attributes__.add("status")
-HumanAgent.__client_attributes__.add("status")
-HumanAgent.__persisted_attributes__.add("age")
-HumanAgent.__client_attributes__.add("age")
-HumanAgent.__persisted_attributes__.add("totalsteps")

@@ -1,1 +1,2 @@
 from .default import DefaultSpriteMapper
+from .plant_sprite_mapper import PlantSpriteMapper
