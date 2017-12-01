@@ -1,8 +1,9 @@
 import datetime
 from simoc_server import app, db
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from flask import request, session, jsonify
+from flask import request, session, jsonify, send_from_directory
 from simoc_server.database.db_model import User, SavedGame
+from simoc_server.agent_model.agent_name_mapping import agent_name_mapping
 from uuid import uuid4
 from .game_runner import GameRunner
 from . import error_handlers
@@ -115,6 +116,19 @@ def get_saved_games():
                 "date_created":saved_game.date_created
             })
     return jsonify(response)
+
+@app.route("/sprite_mappings", methods=["GET"])
+def sprite_mappings():
+    response = {}
+    for key, val in agent_name_mapping.items():
+        response[key] = val.__sprite_mapper__().to_serializable()
+    print(response)
+    return jsonify(response)
+
+@app.route("/sprite/<path:sprite_path>", methods=["GET"])
+def get_sprite(sprite_path):
+    print(sprite_path)
+    return send_from_directory("res/sprites", sprite_path)
 
 @login_manager.user_loader
 def load_user(user_id):

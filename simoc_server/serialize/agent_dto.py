@@ -8,6 +8,7 @@ class AgentDTO(BaseDTO):
     def get_state(self):
         state = {
             "id":self.agent.unique_id,
+            "agent_type":self.agent.__class__.__agent_type_name__,
             "pos_x":self.agent.pos[0],
             "pos_y":self.agent.pos[1],
             "sprite_mapper":self.agent.__sprite_mapper__().to_serializable()

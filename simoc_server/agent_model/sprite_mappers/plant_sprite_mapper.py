@@ -6,6 +6,10 @@ class PlantSpriteMapper(DefaultSpriteMapper):
     def _init_rules(self):
         self.default_sprite = "grown.png"
 
+        # planted rule
+        grown_comparator = AttributeComparator("status", operator.eq, "planted")
+        self._add_rule(SpriteRule(grown_comparator, "plants/seedling.png", offset=(0, 0)))
+
         # grown rule
         grown_comparator = AttributeComparator("status", operator.eq, "grown")
-        self._add_rule(SpriteRule(grown_comparator, "grown.png", offset=(0, -70)))
+        self._add_rule(SpriteRule(grown_comparator, "plants/grown.png", offset=(0, -70)))
