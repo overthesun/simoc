@@ -101,14 +101,14 @@ class HumanAgent(BaseAgent):
         pass
 
     # method to set goal
-    def setGoal(self , goal = self.goal, position = self.goal_pos):
+    def setGoal(self , goal, position):
         self.goal = goal
         self.goal_pos = position
         pass
 
     def default(self):
-        self.thirst = self.thirst - (self.model.minutes_per_step * thirstPerStep)
-        self.hunger = self.hunger - (self.model.minutes_per_step * hungerPerStep)
+        self.thirst = self.thirst - (self.model.minutes_per_step * HumanAgent.thirstPerStep)
+        self.hunger = self.hunger - (self.model.minutes_per_step * HumanAgent.hungerPerStep)
         #if self.status == "Sleeping":
         #   sleephours += 1
         #if self.status == "Working" and self.pos is self.goal_pos:
