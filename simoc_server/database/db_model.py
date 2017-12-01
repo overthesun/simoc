@@ -91,6 +91,12 @@ class SnapshotBranch(BaseEntity):
     parent_branch_id = db.Column(db.Integer, db.ForeignKey("snapshot_branch.id"))
     parent_branch = db.relationship("SnapshotBranch", backref=db.backref("child_branches"), remote_side=[id])
 
+    def get_root_branch(self):
+        node = self
+        while node.parent_branch is not None:
+            node = node.parent_branch
+        return node
+
 class SavedGame(BaseEntity):
      id = db.Column(db.Integer, primary_key=True)
      name = db.Column(db.String(120), default=lambda:str(datetime.datetime.utcnow()))

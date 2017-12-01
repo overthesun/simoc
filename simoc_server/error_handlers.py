@@ -40,6 +40,14 @@ class BadRequest(GenericError):
             message = "Bad request."
         super(BadRequest, self).__init__(message, status_code=status_code)
 
+class NotFound(GenericError):
+    status_code = 404
+
+    def __init__(self, message=None, status_code=None):
+        if message is None:
+            message = "Not Found."
+        super(NotFound, self).__init__(message, status_code=status_code)
+
 @app.errorhandler(GenericError)
 def handle_error(error):
     response = jsonify(error.to_dict())
