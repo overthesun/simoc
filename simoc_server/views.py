@@ -140,7 +140,7 @@ def save_game():
     Returns
     -------
     str :
-        A sucess message.
+        A success message.
     '''
     if "save_name" in request.json.keys():
         save_name = request.json["save_name"]
