@@ -124,9 +124,17 @@ def get_step():
             ]
         }
 
+    Raises
+    ------
+    error_handlers.BadRequest
+        If 'step_num' not found in query parameters
+
     '''
-    # TODO gracefully handle missing query parameter
+    print(request.url)
+    print(request.args)
     step_num = request.args.get("step_num", type=int)
+    if step_num is None:
+        raise error_handlers.BadRequest("Required parameter, 'step_num' not found in request.")
     game_runner = get_game_runner()
     agent_model_state = game_runner.get_step(step_num)
     return jsonify(agent_model_state)
