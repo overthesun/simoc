@@ -22,8 +22,8 @@ def login():
     'username' and 'password' should be provided on the request
     json data.
 
-    Return
-    ------
+    Returns
+    -------
     str: A success message.
 
     Raises
@@ -47,8 +47,8 @@ def register():
     'username' and 'password' should be provided on the request
     json data. This also logs the user in.
 
-    Return
-    ------
+    Returns
+    -------
     str: A success message.
 
     Raises
@@ -73,8 +73,8 @@ def logout():
     '''
     Logs current user out.
 
-    Return
-    ------
+    Returns
+    -------
     str: A success message.
     '''
     logout_user()
@@ -88,8 +88,8 @@ def new_game():
     Creates a new game on the current session and adds
     a game runner to 'game_runners'.
 
-    Return
-    ------
+    Returns
+    -------
     str: A success message.
     '''
     game_runner = GameRunner.from_new_game(current_user)
@@ -103,8 +103,8 @@ def get_step():
     Gets the step with the requsted 'step_num' which is a required
     query parameter.
 
-    Return
-    ------
+    Returns
+    -------
     str:
         json format -
         {
@@ -157,8 +157,8 @@ def load_game():
     Load game with given 'saved_game_id' in session.  Adds
     GameRunner to game_runners.
 
-    Return
-    ------
+    Returns
+    -------
     str:
         A success message.
 
@@ -192,8 +192,8 @@ def get_saved_games():
     Get saved games for current user. All save games fall under the root
     branch id that they are saved under.
 
-    Return
-    ------
+    Returns
+    -------
     str:
         json format -
 
@@ -240,8 +240,8 @@ def get_saved_games():
 def sprite_mappings():
     '''
     Get sprite mapping rules for all agents.
-    Return
-    ------
+    Returns
+    -------
     str:
         json format -
         {
@@ -277,8 +277,8 @@ def get_sprite(sprite_path):
     Returns a sprite at the requested path.  Paths are provided
     by rules given in '/sprite_mappings' route
 
-    Return
-    ------
+    Returns
+    -------
         response : Contains requested image.
 
     Parameters
@@ -306,8 +306,8 @@ def get_game_runner():
     '''
     Returns the game runner for the active session
 
-    Return
-    ------
+    Returns
+    -------
         simoc_server.game_runner.GameRunner
     Raises
     ------
@@ -329,8 +329,8 @@ def add_game_runner(game_runner):
     '''
      Adds a game runner to the internal game runner collection
 
-    Return
-    ------
+    Returns
+    -------
         int : The key for the game runner in the 'game_runners' dict.
 
     Parameters
@@ -349,8 +349,8 @@ def success(message, status_code=200):
     '''
     Returns a success message.
 
-    Return
-    ------
+    Returns
+    -------
     str:
         json format -
         {
