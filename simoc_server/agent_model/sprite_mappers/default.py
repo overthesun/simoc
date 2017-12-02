@@ -34,7 +34,7 @@ class DefaultSpriteMapper(object):
             rules_vals.append({
                 "comparator":{
                     "attr_name":rule.comparator.attr_name,
-                    "operator":operator_strings[rule.comparator.op],
+                    "op":operator_strings[rule.comparator.op],
                     "value":rule.comparator.value
                 },
                 "precedence":rule.precedence,
