@@ -1,7 +1,8 @@
 import datetime
 from simoc_server import app, db
+from simoc_server.serialize import serialize_response, deserialize_request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from flask import request, session, jsonify, send_from_directory
+from flask import request, session, send_from_directory
 from simoc_server.database.db_model import User, SavedGame
 from simoc_server.agent_model.agent_name_mapping import agent_name_mapping
 from uuid import uuid4
@@ -14,6 +15,10 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 game_runners = {}
+
+@app.before_request
+def deserialize_before_request():
+    deserialize_request(request)
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -32,8 +37,9 @@ def login():
         If the user with the given username or password cannot
         be found.
     '''
-    username = request.json["username"]
-    password = request.json["password"]
+    print(request.deserialized)
+    username = request.deserialized["username"]
+    password = request.deserialized["password"]
     user = User.query.filter_by(username=username).first()
     if user and user.validate_password(password):
         login_user(user)
@@ -56,8 +62,8 @@ def register():
     simoc_server.error_handlers.BadRegistration
         If the user already exists.
     '''
-    username = request.json["username"]
-    password = request.json["password"]
+    username = request.deserialized["username"]
+    password = request.deserialized["password"]
     if(User.query.filter_by(username=username).first()):
         raise error_handlers.BadRegistration("User already exists")
     user = User(username=username)
@@ -137,7 +143,7 @@ def get_step():
         raise error_handlers.BadRequest("Required parameter, 'step_num' not found in request.")
     game_runner = get_game_runner()
     agent_model_state = game_runner.get_step(step_num)
-    return jsonify(agent_model_state)
+    return serialize_response(agent_model_state)
 
 @app.route("/save_game", methods=["POST"])
 @login_required
@@ -150,8 +156,8 @@ def save_game():
     str :
         A success message.
     '''
-    if "save_name" in request.json.keys():
-        save_name = request.json["save_name"]
+    if "save_name" in request.deserialized.keys():
+        save_name = request.deserialized["save_name"]
     else:
         save_name = None
     game_runner = get_game_runner()
@@ -182,8 +188,8 @@ def load_game():
     '''
 
     # TODO cleanup old GameRunners
-    if "saved_game_id" in request.json.keys():
-        saved_game_id = request.json["saved_game_id"]
+    if "saved_game_id" in request.deserialized.keys():
+        saved_game_id = request.deserialized["saved_game_id"]
     else:
         raise error_handlers.BadRequest("Required value 'saved_game_id' not found in request.")
     saved_game = SavedGame.query.get(saved_game_id)
@@ -242,7 +248,7 @@ def get_saved_games():
                 "name":saved_game.name,
                 "date_created":saved_game.date_created
             })
-    return jsonify(response)
+    return serialize_response(response)
 
 @app.route("/sprite_mappings", methods=["GET"])
 def sprite_mappings():
@@ -259,7 +265,7 @@ def sprite_mappings():
                     {
                         "comparator":{
                             "attr_name":<agent_attribute_name:str>,
-                            "operator":<comparison_operator:str>,
+                            "op":<comparison_operator:str>,
                             "value":<comparison_value>
                         },
                         "offset_x":<offset_x_value_for_placing_sprite:str>,
@@ -277,7 +283,7 @@ def sprite_mappings():
     for key, val in agent_name_mapping.items():
         response[key] = val.__sprite_mapper__().to_serializable()
     print(response)
-    return jsonify(response)
+    return serialize_response(response)
 
 @app.route("/sprite/<path:sprite_path>", methods=["GET"])
 def get_sprite(sprite_path):
@@ -373,7 +379,7 @@ def success(message, status_code=200):
         The status code to send on the response (default is 200)
     '''
     print(message)
-    response = jsonify(
+    response = serialize_response(
         {
             "message":message
         })
