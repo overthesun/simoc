@@ -14,7 +14,7 @@ def seed():
 
 def gen_human():
     data = OrderedDict()
-    data["human_agent_type"] = AgentType(name="Human")
+    data["human_agent_type"] = AgentType(name="human")
     data["human_max_energy_attr"] = create_agent_type_attr(data["human_agent_type"], "max_energy", 100)
 
     return data

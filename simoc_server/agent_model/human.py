@@ -2,7 +2,7 @@ from .baseagent import BaseAgent
 
 class HumanAgent(BaseAgent):
 
-    __agent_type_name__ = "Human" #__sprite_mapper__ = HumanSpriteMapper
+    __agent_type_name__ = "human" #__sprite_mapper__ = HumanSpriteMapper
     thirstPerStep = 10.5 #variable for controling thirst
     hungerPerStep = 10.5 #variable for controling hunger
     hungerthreshold = 40 #variable for controling hunger/eat
