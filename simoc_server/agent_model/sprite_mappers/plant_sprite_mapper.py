@@ -4,7 +4,7 @@ import operator
 class PlantSpriteMapper(DefaultSpriteMapper):
 
     def _init_rules(self):
-        self.default_sprite = "grown.png"
+        self.default_sprite = "plants/grown.png"
 
         # planted rule
         grown_comparator = AttributeComparator("status", operator.eq, "planted")
