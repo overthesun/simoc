@@ -4,6 +4,7 @@
 
 SIMOC - A Scalable Model of an Isolated, Off-world Colony
 
+- This is the server side backend for SIMOC, to view the client [click here](https://github.com/gschober/simoc_client)
 
 ## Getting Started
 
