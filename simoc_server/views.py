@@ -1,8 +1,9 @@
 import datetime
+import os
 from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from flask import request, session, send_from_directory
+from flask import request, session, send_from_directory, safe_join
 from simoc_server.database.db_model import User, SavedGame
 from simoc_server.agent_model.agent_name_mapping import agent_name_mapping
 from uuid import uuid4
@@ -301,7 +302,12 @@ def get_sprite(sprite_path):
         The path to the sprite
     '''
     print(sprite_path)
-    return send_from_directory("res/sprites", sprite_path)
+    root_path = "res/sprites"
+    full_path = safe_join(app.root_path, root_path, sprite_path)
+    if not os.path.isfile(full_path):
+        print(full_path)
+        raise error_handlers.NotFound("Requested sprite not found: {0}".format(sprite_path))
+    return send_from_directory(root_path, sprite_path)
 
 @login_manager.user_loader
 def load_user(user_id):
