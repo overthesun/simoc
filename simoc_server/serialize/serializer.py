@@ -35,19 +35,17 @@ class MsgPackSerializer(Serializer):
 
     @classmethod
     def serialize_response(cls, obj):
-        a = make_response(msgpack.packb(obj).decode("utf-8"))
+        a = make_response(msgpack.packb(obj))
         return a
 
     @classmethod
     def deserialize_request(cls, request):
         data = request.get_data()
         if data:
-            print(" ".join([str("{:02x}".format(x)) for x in data]))
-            #print(msgpack.packb({"username":"ben","password":"bad_pass"}))
             request.__dict__["deserialized"] = msgpack.unpackb(data, encoding='utf-8')
 
 
-_serializer = JsonSerializer()
+_serializer = MsgPackSerializer()
 
 serialize_response = _serializer.serialize_response
 deserialize_request = _serializer.deserialize_request
