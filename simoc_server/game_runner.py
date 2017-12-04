@@ -41,7 +41,9 @@ class GameRunner(object):
         db.session.commit()
         return saved_game
 
-    def get_step(self, step_num):
+    def get_step(self, step_num=None):
+        if(step_num is None):
+            step_num = self.agent_model.step_num + 1
         self._step_to(step_num, False)
         return self._get_step_from_buffer(step_num)
 

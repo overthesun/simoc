@@ -107,8 +107,8 @@ def new_game():
 @login_required
 def get_step():
     '''
-    Gets the step with the requsted 'step_num' which is a required
-    query parameter.
+    Gets the step with the requsted 'step_num', if not specified,
+        uses current model step.
 
     Returns
     -------
@@ -131,17 +131,11 @@ def get_step():
             ]
         }
 
-    Raises
-    ------
-    error_handlers.BadRequest
-        If 'step_num' not found in query parameters
 
     '''
     print(request.url)
     print(request.args)
     step_num = request.args.get("step_num", type=int)
-    if step_num is None:
-        raise error_handlers.BadRequest("Required parameter, 'step_num' not found in request.")
     game_runner = get_game_runner()
     agent_model_state = game_runner.get_step(step_num)
     return serialize_response(agent_model_state)
