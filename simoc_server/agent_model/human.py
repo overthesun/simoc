@@ -5,17 +5,17 @@ from .plants import PlantAgent
 class HumanAgent(BaseAgent):
 
     __agent_type_name__ = "human" #__sprite_mapper__ = HumanSpriteMapper
-    thirstPerStep = 10.5 #variable for controling thirst
-    hungerPerStep = 10.5 #variable for controling hunger
-    hungerthreshold = 40 #variable for controling hunger/eat
-    thirstthreshold = 60 #variable for controling thirst/drink
-    sleepthreashold = 7  #variable for controling sleep/hours
-    workthreashold = 8   #variable for controling work/hours
+    thirst_per_step = 10.5 #variable for controling thirst
+    hunger_per_step = 10.5 #variable for controling hunger
+    hunger_threshold = 40 #variable for controling hunger/eat
+    thirst_threshold = 60 #variable for controling thirst/drink
+    sleep_threashold = 7  #variable for controling sleep/hours
+    work_threashold = 8   #variable for controling work/hours
 
     __persisted_attributes__ = ["energy", "thirst", "hunger", "health", "status", "age", "totalsteps"]
     __client_attributes__ = ["energy", "thirst", "hunger", "health", "status", "age"]
 
-    status = {
+    statuses = {
         "Standby": "Standby",
         "Working": "Working",
         "Busy" : "Busy",
@@ -40,8 +40,8 @@ class HumanAgent(BaseAgent):
         self.hunger = 100   #variable for tracking hunger
         self.happiness = 100 #variable for tracking happiness
         self.health = 100   #variable for tracking health
-        self.goal = HumanAgent.status["Standby"] #variable for tracking work hours
-        self.status = HumanAgent.status["Standby"] #variable for tracking work hours
+        self.goal = HumanAgent.statuses["Standby"] #variable for tracking work hours
+        self.status = HumanAgent.statuses["Standby"] #variable for tracking work hours
         self.goal_pos = None #variable for tracking work hours
         self.energy = self.get_agent_type_attribute("max_energy") #calories to burn??
 
@@ -49,9 +49,9 @@ class HumanAgent(BaseAgent):
         self.totalsteps += 1
         self.default()
         self.find_goal()
-        if self.hunger < HumanAgent.hungerthreshold:
+        if self.hunger < HumanAgent.hunger_threshold:
             self.eat()
-        if self.thirst < HumanAgent.thirstthreshold:
+        if self.thirst < HumanAgent.thirst_threshold:
             self.drink()
         if self.pos is not self.goal_pos:
             self.move()
@@ -62,19 +62,29 @@ class HumanAgent(BaseAgent):
         #move one space at a time
         x, y = self.pos
         dx, dy = self.goal_pos
-        print(x,y)
-        print(dx,dy)
-        print("----")
+
+        # print(x,y)
+        # print(dx, dy)
+        # print("----")
+        if abs(x-dx) > self.model.grid.width/2:
+            dx = -dx
+        if abs(y-dx) > self.model.grid.height/2:
+            dy = -dy
+
 
         if (x - dx) < 0:
-            x = x - 1
-        elif (x - dx) > 0:
             x = x + 1
+        elif (x - dx) > 0:
+            x = x - 1
         elif (y - dy) < 0:
-            y = y - 1
-        elif (y - dy) > 0:
             y = y + 1
+        elif (y - dy) > 0:
+            y = y - 1
 
+        if(x < 0):
+            x = self.model.grid.width + x
+        if(y < 0):
+            y = self.model.grid.height + y
         self.model.grid.move_agent(self, (x,y))
 
     #method to eat
@@ -112,14 +122,15 @@ class HumanAgent(BaseAgent):
         pass
 
     # method to set goal
-    def set_goal(self , goal, position):
-        self.goal = goal
-        self.goal_pos = position
+    def set_goal(self , goal_pos, status=None):
+        if status is not None:
+            self.status = status
+        self.goal_pos = goal_pos
         pass
 
     def default(self):
-        self.thirst = self.thirst - (self.model.minutes_per_step * thirstPerStep)
-        self.hunger = self.hunger - (self.model.minutes_per_step * hungerPerStep)
+        self.thirst = self.thirst - (self.model.minutes_per_step * self.thirst_per_step)
+        self.hunger = self.hunger - (self.model.minutes_per_step * self.hunger_per_step)
         #if self.status == "Sleeping":
         #   sleephours += 1
         #if self.status == "Working" and self.pos is self.goal_pos:
@@ -137,43 +148,44 @@ class HumanAgent(BaseAgent):
             closest = None
             closest_distance = None
             for plant in harvestable:
-                distance = get_distance_to(plant.pos)
+                distance = self.get_distance_to(plant.pos)
                 if(closest is None or distance < closest_distance):
                     closest = plant
                     closest_distance = distance
             if closest is not None:
-                self.set_goal(closest, status["Harvesting"])
+                self.set_goal(closest.pos, self.statuses["Harvesting"])
             else:
-                neighborhood = model.grid.get_neighborhood(self.pos,
+                neighborhood = self.model.grid.get_neighborhood(self.pos,
                     moore=True,
                     include_center=True,
                     radius=2)
                 closest_empty = None
                 closest_distance = None
                 for cell in neighborhood:
-                    cell_contents = model.grid.get_cell_list_contents(cell)
+                    cell_contents = self.model.grid.get_cell_list_contents(cell)
                     no_plants = True
                     for content in cell_contents:
-                        if isinstance(conent, PlantAgent):
+                        if isinstance(content, PlantAgent):
                             no_plants = False
                             break
-                    distance = get_distance_to(cell.pos)
+                    distance = self.get_distance_to(cell)
                     if no_plants and closest_empty is None or \
                             closest_distance < distance:
                         closest_empty = cell
+                        closest_distance = distance
                 if closest_empty is not None:
-                    self.set_goal(closest, status["Planting"])
+                    self.set_goal(closest_empty, self.statuses["Planting"])
                 else:
                     heading = self.pos(random.randrange(2), random.randrange(2))
-                    self.set_goal(heading, self.set_goal(heading, status["Exploring"]))
+                    self.set_goal(heading, self.statuses["Exploring"])
 
     def handle_goal_reached(self):
-        if self.goal == status["Harvesting"]:
+        if self.goal == self.statuses["Harvesting"]:
             cell_contents = self.model.get_cell_list_contents()
             for content in cell_contents:
                 if isinstance(content, PlantAgent) and content.status == "grown":
                     self.model.remove(content)
-        elif self.goal == status["Planting"]:
+        elif self.goal == self.statuses["Planting"]:
             cell_contents = self.model.get_cell_list_contents()
             has_plants = False
             for content in cell_contents:
@@ -188,6 +200,6 @@ class HumanAgent(BaseAgent):
 
     def get_distance_to(self, pos):
         # TODO move this elsewhere
-        distance = math.sqrt((self.pos[0] - pos[0])**2 + \
+        return math.sqrt((self.pos[0] - pos[0])**2 + \
                             (self.pos[1] - pos[1])**2)
 

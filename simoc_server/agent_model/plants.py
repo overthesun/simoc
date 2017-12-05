@@ -22,8 +22,11 @@ class PlantAgent(BaseAgent):
 
 
     def step(self):
+        if not hasattr(self, "planted_time_delta"):
+            print("WARNING: PLANTED TIME DELTA NOT ADDED, NEED TO FIX THIS")
+            self.planted_time_delta = self.model.get_timedelta_since_start()
         current_time_delta = self.model.get_timedelta_since_start()
-        age = (current_time_delta - planted_time_delta)
+        age = (current_time_delta - self.planted_time_delta)
         if age > self.grow_time:
             self.status = "grown"
         if age > self.lifespan:
