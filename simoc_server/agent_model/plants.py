@@ -17,6 +17,7 @@ class PlantAgent(BaseAgent):
         # TODO find out how long plants live
         self.lifespan = datetime.timedelta(days=200)
 
+        # TODO save time delta to database and load it back up
         self.planted_time_delta = self.model.get_timedelta_since_start()
 
 

@@ -134,3 +134,9 @@ class AgentModel(object):
     def remove(self, agent):
         self.grid.remove_agent(agent)
         self.scheduler.remove(agent)
+
+    def get_agents(agent_type=None):
+        if agent_type is None:
+            return self.scheduler.agents
+        else:
+            return [agent for agent in self.scheduler.agents if typeof(agent) == agent_type]
