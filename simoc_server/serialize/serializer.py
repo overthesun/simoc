@@ -1,9 +1,13 @@
 import msgpack
 import flask.json
+import traceback
 from json.decoder import JSONDecodeError
 from abc import ABCMeta, abstractmethod
 from flask import make_response
-import traceback
+from simoc_server import app
+
+_serializer = None
+
 class Serializer(object):
     __metaclass__ = ABCMeta
 
@@ -44,8 +48,22 @@ class MsgPackSerializer(Serializer):
         if data:
             request.__dict__["deserialized"] = msgpack.unpackb(data, encoding='utf-8')
 
+def serialize_response(obj):
+    return _serializer.serialize_response(obj)
 
-_serializer = MsgPackSerializer()
+def deserialize_request(request):
+    return _serializer.deserialize_request(request)
 
-serialize_response = _serializer.serialize_response
-deserialize_request = _serializer.deserialize_request
+def set_serializer(serializer):
+    global _serializer
+    _serializer = serializer
+    print(_serializer)
+
+def init_serializer():
+    global _serializer
+    if "SERIALIZER" in app.config:
+        _serializer = app.config["SERIALIZER"]
+    else:
+        _serializer = MsgPackSerializer()
+
+init_serializer()

@@ -25,7 +25,7 @@ class BadRegistration(GenericError):
         super(BadRegistration, self).__init__(message, status_code=status_code)
 
 class InvalidLogin(GenericError):
-    status_code = 409
+    status_code = 401
 
     def __init__(self, message=None, status_code=None):
         if message is None:
