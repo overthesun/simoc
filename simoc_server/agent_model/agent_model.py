@@ -112,6 +112,7 @@ class AgentModel(object):
 
     def step(self):
         self.step_num += 1
+        self.scheduler.step()
         print("{0} step_num {1}".format(self, self.step_num))
 
     def get_timedelta_since_start(self):
@@ -134,3 +135,9 @@ class AgentModel(object):
     def remove(self, agent):
         self.grid.remove_agent(agent)
         self.scheduler.remove(agent)
+
+    def get_agents(self, agent_type=None):
+        if agent_type is None:
+            return self.scheduler.agents
+        else:
+            return [agent for agent in self.scheduler.agents if isinstance(agent, agent_type)]

@@ -1,4 +1,4 @@
-from flask import jsonify
+from simoc_server.serialize import serialize_response
 from simoc_server import app
 
 class GenericError(Exception):
@@ -25,7 +25,7 @@ class BadRegistration(GenericError):
         super(BadRegistration, self).__init__(message, status_code=status_code)
 
 class InvalidLogin(GenericError):
-    status_code = 409
+    status_code = 401
 
     def __init__(self, message=None, status_code=None):
         if message is None:
@@ -50,6 +50,6 @@ class NotFound(GenericError):
 
 @app.errorhandler(GenericError)
 def handle_error(error):
-    response = jsonify(error.to_dict())
+    response = serialize_response(error.to_dict())
     response.status_code = error.status_code
     return response

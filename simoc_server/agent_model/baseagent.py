@@ -23,8 +23,8 @@ class BaseAgent(Agent):
 
         self.active = True
         if agent_state is not None:
-            super().__init__(self.unique_id, model)
             self.load_from_db(agent_state)
+            super().__init__(self.unique_id, model)
         else:
             self.unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4())
             super().__init__(self.unique_id, model)
@@ -42,6 +42,8 @@ class BaseAgent(Agent):
         if not self.__class__.__agent_type_attributes_loaded__:
             agent_type_name = self.__class__.__agent_type_name__
             agent_type = AgentType.query.filter_by(name=agent_type_name).first()
+            if agent_type is None:
+                raise Exception("Cannot find agent_type in database with name '{0}'".format(agent_type_name))
             self.__class__.agent_type_attributes = {}
             self.__class__._load_database_attributes_into(agent_type.agent_type_attributes,
                 self.__class__.agent_type_attributes)
