@@ -9,7 +9,7 @@ install:
 script:
   # * E501 - line length limit
   # * E123 - indentation on data structures
-  - nosetests --with-coverage --cover-package=simoc_server
+  - python run_tests.py
 after_success:
   - coveralls
 branches:

@@ -3,9 +3,6 @@ import unittest
 import tempfile
 import time
 import threading
-
-os.environ["DIAG_CONFIG_MODULE"] = "simoc_server.test_settings"
-
 from simoc_server import db, app
 from simoc_server.agent_model import AgentModel
 from simoc_server.database.db_model import AgentModelState, User
@@ -18,7 +15,6 @@ class SimocServerTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        simoc_server.app.testing = True
         db.create_all()
         seed.seed()
 
