@@ -103,4 +103,4 @@ ENV/
 # mypy
 .mypy_cache/
 
-simoc_server/db.sqlite
+*.sqlite

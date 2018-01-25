@@ -1,5 +1,4 @@
 coverage==4.4.2
-Mesa==0.8.2
 Flask_SQLAlchemy==2.3.2
 Werkzeug==0.12.2
 Flask_Login==0.4.0
@@ -7,3 +6,4 @@ Flask==0.12.2
 setuptools==37.0.0
 msgpack-python==0.4.8
 psycopg2==2.7.3.2
+numpy==1.13.0
