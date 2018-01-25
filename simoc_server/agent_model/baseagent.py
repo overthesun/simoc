@@ -27,6 +27,7 @@ class BaseAgent(Agent):
             super().__init__(self.unique_id, model)
         else:
             self.unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4())
+            self.model_time_created = model.model_time
             super().__init__(self.unique_id, model)
             self.init_new()
 
@@ -59,6 +60,7 @@ class BaseAgent(Agent):
     def load_from_db(self, agent_state):
         self.pos = (agent_state.pos_x, agent_state.pos_y)
         self.unique_id = agent_state.agent_unique_id
+        self.model_time_created = agent_state.model_time_created
         self.__class__._load_database_attributes_into(agent_state.agent_state_attributes,
             self.__dict__)
 
@@ -89,7 +91,7 @@ class BaseAgent(Agent):
     def snapshot(self, agent_model_state, commit=True):
         agent_state = AgentState(agent_type_id=self.__class__.__agent_type_id__,
                  agent_model_state=agent_model_state, agent_unique_id=self.unique_id,
-                 pos_x=self.pos[0], pos_y=self.pos[1])
+                 model_time_created=self.model_time_created, pos_x=self.pos[0], pos_y=self.pos[1])
         for attribute_name in self.__class__.__persisted_attributes__:
             value_str, value_type = self._get_instance_attribute_params(attribute_name)
             agent_state.agent_state_attributes.append(AgentStateAttribute(name=attribute_name, 

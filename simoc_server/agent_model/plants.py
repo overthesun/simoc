@@ -10,23 +10,19 @@ class PlantAgent(BaseAgent):
     __persisted_attributes__ = ["status"]
     __client_attributes__ = ["status"]
 
+    # TODO find out how long plants take to grow
+    grow_time = datetime.timedelta(days=30)
+    # TODO find out how long plants live
+    lifespan = datetime.timedelta(days=200)
+
     def init_new(self):
         self.status = "planted"
-        # TODO find out how long plants take to grow
-        self.grow_time = datetime.timedelta(days=30)
-        # TODO find out how long plants live
-        self.lifespan = datetime.timedelta(days=200)
 
-        # TODO save time delta to database and load it back up
-        self.planted_time_delta = self.model.get_timedelta_since_start()
 
 
     def step(self):
-        if not hasattr(self, "planted_time_delta"):
-            print("WARNING: PLANTED TIME DELTA NOT ADDED, NEED TO FIX THIS")
-            self.planted_time_delta = self.model.get_timedelta_since_start()
-        current_time_delta = self.model.get_timedelta_since_start()
-        age = (current_time_delta - self.planted_time_delta)
+        current_time_delta = self.model.model_time
+        age = (current_time_delta - self.model_time_created)
         if age > self.grow_time:
             self.status = "grown"
         if age > self.lifespan:

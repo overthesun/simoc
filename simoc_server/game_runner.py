@@ -35,6 +35,7 @@ class GameRunner(object):
         return GameRunner(agent_model, user, step_buffer_size=step_buffer_size)
 
     def save_game(self, save_name):
+        self.user = db.session.merge(self.user)
         agent_model_snapshot = self.agent_model.snapshot(commit=False)
         saved_game = SavedGame(user=self.user, agent_model_snapshot=agent_model_snapshot, name=save_name)
         db.session.add(saved_game)

@@ -52,6 +52,7 @@ class AgentState(BaseEntity):
     pos_x = db.Column(db.Integer, nullable=True)
     pos_y = db.Column(db.Integer, nullable=True)
     agent_unique_id = db.Column(db.String(120), nullable=False)
+    model_time_created = db.Column(db.Interval(), nullable=False)
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"),
         nullable=False)
     agent_type = db.relationship("AgentType")
@@ -72,6 +73,9 @@ class AgentModelState(BaseEntity):
     step_num = db.Column(db.Integer, nullable=False)
     grid_width = db.Column(db.Integer, nullable=False)
     grid_height = db.Column(db.Integer, nullable=False)
+    model_time = db.Column(db.Interval, nullable=False)
+    seed = db.Column(db.Integer, nullable=False)
+    random_state = db.Column(db.PickleType, nullable=False)
 
 
 class AgentModelSnapshot(BaseEntity):

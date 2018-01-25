@@ -1,7 +1,10 @@
+import os
+import sys
+
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-import os
 
+sys.path.insert(0, os.path.join("mesa"))
 config_obj = os.environ.get("DIAG_CONFIG_MODULE", "simoc_server.default_settings")
 
 app = Flask(__name__)

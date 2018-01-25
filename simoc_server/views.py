@@ -1,15 +1,17 @@
 import datetime
 import os
-from simoc_server import app, db
-from simoc_server.serialize import serialize_response, deserialize_request
+from collections import OrderedDict
+from uuid import uuid4
+
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask import request, session, send_from_directory, safe_join
+
+from simoc_server import app, db
+from simoc_server.serialize import serialize_response, deserialize_request
 from simoc_server.database.db_model import User, SavedGame
 from simoc_server.agent_model.agent_name_mapping import agent_name_mapping
-from uuid import uuid4
-from .game_runner import GameRunner
-from . import error_handlers
-from collections import OrderedDict
+from simoc_server.game_runner import GameRunner
+from simoc_server import error_handlers
 
 
 login_manager = LoginManager()

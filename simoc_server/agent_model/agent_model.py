@@ -2,6 +2,7 @@ import time
 import numbers
 import threading
 import datetime
+import numpy as np
 from .agent_name_mapping import agent_name_mapping
 from . import HumanAgent, PlantAgent
 from mesa import Model
@@ -13,17 +14,68 @@ from simoc_server import db
 from uuid import uuid4
 from sqlalchemy.orm.exc import StaleDataError
 
-class AgentModel(object):
+class AgentModelInitializationParams(object):
 
-    def __init__(self, grid_width, grid_height, starting_step_num=0, snapshot_branch=None):
-        self.load_params()
+    snapshot_branch = None
+    seed = None
+    random_state = None
+
+    def set_grid_width(self, grid_width):
         self.grid_width = grid_width
+        return self
+
+    def set_grid_height(self, grid_height):
         self.grid_height = grid_height
-        self.grid = MultiGrid(self.grid_width, self.grid_height, True)
-        self.scheduler = RandomActivation(self)
-        self.step_num = starting_step_num
-        self.scheduler.steps = starting_step_num
+        return self
+
+    def set_starting_step_num(self, starting_step_num):
+        self.starting_step_num = starting_step_num
+        return self
+
+    def set_starting_model_time(self, starting_model_time):
+        self.starting_model_time = starting_model_time
+        return self
+
+    def set_snapshot_branch(self, snapshot_branch):
         self.snapshot_branch = snapshot_branch
+        return self
+
+    def set_seed(self, seed):
+        self.seed = seed
+        return self
+
+    def set_random_state(self, random_state):
+        self.random_state = random_state
+        return self
+
+class AgentModel(Model):
+
+    def __init__(self, init_params):
+        self.load_params()
+
+        self.grid_width = init_params.grid_width
+        self.grid_height = init_params.grid_height
+        self.model_time = init_params.starting_model_time
+        self.snapshot_branch = init_params.snapshot_branch
+        self.seed = init_params.seed
+        self.random_state = init_params.random_state
+
+        # if no random state given, initialize a new one
+        if self.random_state is None:
+            # if no random seed given initialize a new one
+            if self.seed is None:
+                self.seed = np.random.randint(2**32, dtype='int64')
+            self.random_state = np.random.RandomState(self.seed)
+
+        self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state)
+        self.scheduler = RandomActivation(self, random_state=self.random_state)
+
+        self.scheduler.steps = init_params.starting_step_num
+
+
+    @property
+    def step_num(self):
+        return self.scheduler.steps
 
     def load_params(self):
         params = AgentModelParam.query.all()
@@ -41,8 +93,21 @@ class AgentModel(object):
         grid_width = agent_model_state.grid_width
         grid_height = agent_model_state.grid_height
         step_num = agent_model_state.step_num
-        model = AgentModel(grid_width, grid_height, starting_step_num=step_num, \
-            snapshot_branch = snapshot_branch)
+        model_time = agent_model_state.model_time
+        seed = agent_model_state.seed
+        random_state = agent_model_state.random_state
+
+        init_params = AgentModelInitializationParams()
+
+        (init_params.set_grid_width(grid_width)
+                    .set_grid_height(grid_height)
+                    .set_starting_step_num(step_num)
+                    .set_starting_model_time(model_time)
+                    .set_snapshot_branch(snapshot_branch)
+                    .set_seed(seed)
+                    .set_random_state(random_state))
+
+        model = AgentModel(init_params)
 
         for agent_state in agent_model_state.agent_states:
             agent_type_name = agent_state.agent_type.name
@@ -54,7 +119,13 @@ class AgentModel(object):
 
     @classmethod
     def create_new(self, grid_width, grid_height):
-        model = AgentModel(grid_width, grid_height)
+        init_params = AgentModelInitializationParams()
+        (init_params.set_grid_width(grid_width)
+                    .set_grid_height(grid_height)
+                    .set_starting_step_num(0)
+                    .set_starting_model_time(datetime.timedelta()))
+
+        model = AgentModel(init_params)
         # for testing
         human_agent = HumanAgent(model)
         model.add_agent(human_agent, (0,0))
@@ -93,7 +164,9 @@ class AgentModel(object):
             if(last_saved_branch_state is not None and \
                last_saved_branch_state.step_num >= self.step_num):
                 self._branch()
-            agent_model_state = AgentModelState(step_num=self.step_num, grid_width=self.grid.width, grid_height=self.grid.height)
+            agent_model_state = AgentModelState(step_num=self.step_num, grid_width=self.grid.width,
+                    grid_height=self.grid.height, model_time=self.model_time, seed=self.seed,
+                    random_state=self.random_state)
             snapshot = AgentModelSnapshot(agent_model_state=agent_model_state, snapshot_branch=self.snapshot_branch)
             db.session.add(agent_model_state)
             db.session.add(snapshot)
@@ -111,12 +184,9 @@ class AgentModel(object):
             return self.snapshot()
 
     def step(self):
-        self.step_num += 1
+        self.model_time += self.timedelta_per_step()
         self.scheduler.step()
         print("{0} step_num {1}".format(self, self.step_num))
-
-    def get_timedelta_since_start(self):
-        return datetime.timedelta(minutes=self.minutes_per_step * self.step_num)
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)
