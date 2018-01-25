@@ -1,6 +1,9 @@
 # Unencrypted Secret Files
 test_settings.py
 
+# Secret Settings Files
+settings.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

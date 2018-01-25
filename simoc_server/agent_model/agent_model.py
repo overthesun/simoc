@@ -64,9 +64,11 @@ class AgentModel(Model):
         if self.random_state is None:
             # if no random seed given initialize a new one
             if self.seed is None:
-                self.seed = np.random.randint(2**32, dtype='int64')
+                self.seed = int(np.random.randint(2**32, dtype='int64'))
             self.random_state = np.random.RandomState(self.seed)
 
+        if not isinstance(self.seed, int):
+            raise Exception("Seed value must be of type 'int', got type '{}'".format(type(self.seed)))
         self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state)
         self.scheduler = RandomActivation(self, random_state=self.random_state)
 
