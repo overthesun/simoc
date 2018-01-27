@@ -62,8 +62,8 @@ class SimocServerTestCase(unittest.TestCase):
         agent_model = AgentModel.create_new(100, 100)
         for i in range(100):
             agent_model.step()
-            print(agent_model.get_timedelta_since_start())
-        delta = agent_model.get_timedelta_since_start()
+            print(agent_model.model_time)
+        delta = agent_model.model_time
         self.assertEqual(delta.days, 4)
 
     def testSpaceConversion(self):
