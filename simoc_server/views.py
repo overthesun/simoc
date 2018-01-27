@@ -65,6 +65,12 @@ def register():
     simoc_server.error_handlers.BadRegistration
         If the user already exists.
     '''
+    if request.deserialized is None:
+        raise error_handlers.BadRequest("No data or malformed data in request.")
+    if "username" not in request.deserialized.keys():
+        raise error_handlers.BadRequest("Username not found in request content.")
+    if "password" not in request.deserialized.keys():
+        raise error_handlers.BadRequest("Password not found in request content.")
     username = request.deserialized["username"]
     password = request.deserialized["password"]
     if(User.query.filter_by(username=username).first()):
