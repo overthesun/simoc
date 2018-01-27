@@ -11,5 +11,5 @@ branches:
   only:
   - master
 before_install:
-- openssl aes-256-cbc -K $encrypted_e4c4801ada75_key -iv $encrypted_e4c4801ada75_iv
+- openssl aes-256-cbc -K $encrypted_426b9ac67101_key -iv $encrypted_426b9ac67101_iv
   -in test_settings.py.enc -out test_settings.py -d
