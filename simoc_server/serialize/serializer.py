@@ -47,6 +47,8 @@ class MsgPackSerializer(Serializer):
         data = request.get_data()
         if data:
             request.__dict__["deserialized"] = msgpack.unpackb(data, encoding='utf-8')
+        else:
+            request.__dict__["deserialized"] = None
 
 def serialize_response(obj):
     return _serializer.serialize_response(obj)
