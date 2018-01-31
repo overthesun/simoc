@@ -10,6 +10,9 @@ SIMOC - A Scalable Model of an Isolated, Off-world Colony
 
 ### Setup
 
+#### Clone Repository
+`git clone --recursive https://github.com/bdmccord/simoc_server.git`
+
 #### Install dependencies:
 
 `pip install -r requirements.txt`
@@ -32,3 +35,9 @@ SIMOC - A Scalable Model of an Isolated, Off-world Colony
 
 #### Run Locally
 `python -m simoc_server --run_local`
+
+#### Run using JSON Serialization For API Testing
+`python -m simoc_server --use_json`
+
+### Testing
+`python run_tests.py`
