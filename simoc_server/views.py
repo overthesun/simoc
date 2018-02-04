@@ -4,7 +4,7 @@ from collections import OrderedDict
 from uuid import uuid4
 
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from flask import request, session, send_from_directory, safe_join
+from flask import request, session, send_from_directory, safe_join, Flask, render_template
 
 from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request
@@ -23,6 +23,9 @@ game_runners = {}
 def deserialize_before_request():
     deserialize_request(request)
 
+@app.route("/")
+def home():
+    return render_template('base_home.html')
 @app.route("/login", methods=["POST"])
 def login():
     '''
