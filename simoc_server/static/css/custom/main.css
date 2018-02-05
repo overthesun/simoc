@@ -12,7 +12,25 @@
     font-family:'jupiter';
     src:url('../../assets/fonts/jupiter.ttf')
 }
-.title{
-
-   font-size:xx-large 
+div .row .sf_window{
+   width:500px;
+   height:500px;
+   margin:0 auto;
+   background:url('../../assets/img/bg/sf_window.png') no-repeat;
+   background-size:auto;
+}
+.btn.btn-success {
+    color: #ffffff;
+    background-color: #2283d8;
+    background-image: linear-gradient(to bottom, #2283d8, #2283d8);
+    border-color: #2283d8 #2283d8 #2283d8;
+}
+.btn.btn-success:hover {
+    color: #ffffff;
+    background-color: #2283d8;
+    background-image: linear-gradient(to bottom, #2283d8, #2283d8);
+    border-color: #2283d8 #2283d8 #2283d8;
+}
+.btn {
+    width:25%
 }

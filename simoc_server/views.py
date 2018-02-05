@@ -25,7 +25,12 @@ def deserialize_before_request():
 
 @app.route("/")
 def home():
-    return render_template('base_home.html')
+    print(request.deserialized)
+    print(request.script_root)
+    return render_template('panel_content.html')
+@app.route("/loginpanel", methods=["GET"])
+def loginpanel():
+    return render_template("panel_login.html")
 @app.route("/login", methods=["POST"])
 def login():
     '''
