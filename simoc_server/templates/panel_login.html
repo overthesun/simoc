@@ -3,20 +3,43 @@
 {% block panel %}
 <div class="text-center sf_window">
     <div class="pt-5 center">
-        <form class="logform">
+        <form class="logform" >
             <div class="form-group ">               
-                <input type="text" class="form-control " id="username" placeholder="Enter username">
+                <input type="text" name="username" class="form-control " id="username" placeholder="Enter username">
                
             </div>
             <div class="form-group ">               
-                <input type="password" class="form-control " id="password" placeholder="Password">
+                <input type="password" name="password" class="form-control " id="password" placeholder="Password">
             </div>
              <small id="msg" class="form-text text-muted"></small>            
-            <button type="submit" class="btn btn-primary">Login</button>
+            <button type="submit" id="submitbtn" class="btn btn-primary">Login</button>
             <button type="button" id="menuoptionbackbtn" class="btn btn-primary">Back</button>
         </form>
     </div>
 
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $('#menuoptionbackbtn').click(function () {
+            gotourl('/');
+        });
+        $('#submitbtn').click(function () {
+            
 
+           // alert($('form').());
+            var user = $('#username').val();
+            var pass = $('#password').val();
+            var obj = { "username": user, "password": pass };
+            alert(JSON.stringify(obj));
+            $.post($SCRIPT_ROOT + '/login', JSON.stringify(obj), function (data) {
+                alert(JSON.stringify(data));
+                //$("#result").text(data.result);
+            });
+            return false;
+        });
+        });
+    
+   
+</script>
 {% endblock %}

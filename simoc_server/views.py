@@ -21,6 +21,7 @@ game_runners = {}
 
 @app.before_request
 def deserialize_before_request():
+    print(request)
     deserialize_request(request)
 
 @app.route("/")
