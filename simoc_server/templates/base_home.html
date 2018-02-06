@@ -36,14 +36,22 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/custom/connectionhandler.js') }}">
-
-        $(function () {
-            $('#loginbtn').click(function () {
-                gotourl('/loginpanel');
-            });
-
+       
+    </script>
+<script type="text/javascript">
+    $(function () {
+        $('#loginbtn').click(function () {
+            gotourl('/loginpanel');
+        });
+        $('#registerbtn').click(function () {
+            gotourl('/registerpanel');
+        });
+        $('#menuoptionbackbtn').click(function () {
+            gotourl('/');
         });
 
-    </script>
+    });
+
+</script>
 </body>
 </html>
