@@ -1,14 +1,25 @@
 import datetime
-from simoc_server import db
+
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.ext.declarative import declared_attr
+
+from simoc_server import db
 
 class BaseEntity(db.Model):
     __abstract__ = True # Prevent sql alchemy from creating a table for BaseEntity
 
-    date_created = db.Column(db.DateTime, server_default=db.func.now())
-    date_modified = db.Column(db.DateTime, server_default=db.func.now(),
-        server_onupdate=db.func.now())
+
+    @declared_attr
+    def date_created(cls):
+        # work around to move columns to end of table
+        date_created = db.Column(db.DateTime, server_default=db.func.now())
+
+    @declared_attr
+    def date_modified(cls):
+        # work around to move columns to end of table
+        date_modified = db.Column(db.DateTime, server_default=db.func.now(),
+            server_onupdate=db.func.now())
 
 class User(BaseEntity, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -24,27 +35,49 @@ class User(BaseEntity, UserMixin):
     def get_id(self):
         return str(self.id)
 
-class AgentModelParam(BaseEntity):
+class BaseAttribute(BaseEntity):
+    # Base attribute, used to store generic information in string
+    # format along with type data for conversion
+    __abstract__ = True
+
+    @declared_attr
+    def name(cls):
+        return db.Column(db.String(128), nullable=False)
+
+    @declared_attr
+    def value(cls):
+        return db.Column(db.String(512))
+
+    @declared_attr
+    def value_type(cls):
+        return db.Column(db.String(80))
+
+
+class DescriptiveAttribute(BaseAttribute):
+    # Extends base attribute by adding unit and description as columns
+    __abstract__ = True
+
+    @declared_attr
+    def units(cls):
+        return db.Column(db.String(128), nullable=True)
+
+    @declared_attr
+    def description(cls):
+        return db.Column(db.String(512), nullable=True)
+
+class AgentModelParam(DescriptiveAttribute):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), nullable=False)
-    value = db.Column(db.String(512))
-    value_type = db.Column(db.String(80))
-    description = db.Column(db.String(512), nullable=True)
 
 class AgentType(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False, unique=True)
 
-class AgentTypeAttribute(BaseEntity):
+class AgentTypeAttribute(DescriptiveAttribute):
     id = db.Column(db.Integer, primary_key=True)
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), index=True,
         nullable=False)
     agent_type = db.relationship("AgentType",
         backref=db.backref("agent_type_attributes", lazy=False))
-    name = db.Column(db.String(80), nullable=False)
-    value = db.Column(db.String(80))
-    value_type = db.Column(db.String(80))
-    units = db.Column(db.String(80), nullable=True)
 
 
 class AgentState(BaseEntity):
@@ -60,13 +93,10 @@ class AgentState(BaseEntity):
         nullable=False, index=True)
     agent_model_state = db.relationship("AgentModelState", backref=db.backref("agent_states", lazy=False))
 
-class AgentStateAttribute(BaseEntity):
+class AgentStateAttribute(BaseAttribute):
     id = db.Column(db.Integer, primary_key=True)
     agent_state_id = db.Column(db.Integer, db.ForeignKey("agent_state.id"), nullable=False, index=True)
     agent_state = db.relationship("AgentState", backref=db.backref("agent_state_attributes", lazy=False))
-    name = db.Column(db.String(80), nullable=False)
-    value = db.Column(db.String(80))
-    value_type = db.Column(db.String(80))
 
 class AgentModelState(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)

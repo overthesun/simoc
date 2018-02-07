@@ -14,8 +14,8 @@ class AgentDTO(BaseDTO):
         }
 
         attributes = {}
-        for name in self.agent.__client_attributes__:
-            attributes[name] = self.agent.__dict__[name]
+        for attribute_name, attribute_descriptor in self.agent.attribute_descriptors.items():
+            attributes[attribute_name] = self.agent.__dict__[attribute_name]
         state["attributes"] = attributes
         return state
 

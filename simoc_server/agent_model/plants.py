@@ -15,9 +15,9 @@ class PlantAgent(BaseAgent):
     # TODO find out how long plants live
     lifespan = datetime.timedelta(days=200)
 
-    def init_new(self):
-        self.status = "planted"
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._attr("status", "planted", is_client_attr=True, is_persisted_attr=True)
 
 
     def step(self):

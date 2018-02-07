@@ -139,9 +139,10 @@ class AgentModel(Model):
         model.add_agent(plant_agent, (4, 4))
         return model
 
-    def add_agent(self, agent, pos):
+    def add_agent(self, agent, pos=None):
         self.scheduler.add(agent)
-        self.grid.place_agent(agent, pos)
+        if pos is not None:
+            self.grid.place_agent(agent, pos)
 
     def num_agents(self):
         return len(self.schedule.agents)
@@ -205,8 +206,9 @@ class AgentModel(Model):
             raise TypeError("Expected number or tuple of numbers")
 
     def remove(self, agent):
-        self.grid.remove_agent(agent)
         self.scheduler.remove(agent)
+        if hasattr(agent, "pos"):
+            self.grid.remove_agent(agent)
 
     def get_agents(self, agent_type=None):
         if agent_type is None:
