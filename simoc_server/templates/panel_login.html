@@ -1,7 +1,7 @@
 ﻿{% extends "base_home.html" %}
 
 {% block panel %}
-<div class="text-center sf_window">
+<div class="text-center SF_lg_Window">
     <div class="pt-5 center">
         <form class="logform" >
             <div class="form-group ">               
@@ -11,19 +11,23 @@
             <div class="form-group ">               
                 <input type="password" name="password" class="form-control " id="password" placeholder="Password">
             </div>
-             <small id="msg" class="form-text text-muted"></small>            
-            <button type="submit" id="submitbtn" class="btn btn-primary">Login</button>
+            <span id="msg" class="form-text " ></span>             
+            <button type="button" id="submitbtn" class="btn btn-primary">Login</button>
             <button type="button" id="menuoptionbackbtn" class="btn btn-primary">Back</button>
         </form>
     </div>
 
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
 <script type="text/javascript">
     $(function () {
         $('#menuoptionbackbtn').click(function () {
             gotourl('/');
         });
+        function isEmpty(str) {
+            return (!str || 0 === str.length);
+        }
         $('#submitbtn').click(function () {
             
 
@@ -31,11 +35,21 @@
             var user = $('#username').val();
             var pass = $('#password').val();
             var obj = { "username": user, "password": pass };
+            if (isEmpty(user) || isEmpty(pass)) {
+                $('#msg').html('Enter username or password!');
+            }
             alert(JSON.stringify(obj));
-            $.post($SCRIPT_ROOT + '/login', JSON.stringify(obj), function (data) {
-                alert(JSON.stringify(data));
+            $.post($SCRIPT_ROOT + '/login', JSON.stringify(obj), function (data,status) {
+                alert(JSON.stringify(data+'status:'+status));
+                if (status == 'success') {
+                    gotourl('/gameinit');
+                }
+                else {
+                    $('#msg').html('Login failed! Try again');
+                }
+                
                 //$("#result").text(data.result);
-            });
+            },"json");
             return false;
         });
         });

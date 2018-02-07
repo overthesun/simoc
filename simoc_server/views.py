@@ -33,6 +33,9 @@ def loginpanel():
 @app.route("/registerpanel", methods=["GET"])
 def registerpanel():
     return render_template("panel_register.html")
+@app.route("/gameinit", methods=["GET"])
+def gameinit():
+    return render_template("base_game.html")
 @app.route("/login", methods=["POST"])
 def login():
     '''

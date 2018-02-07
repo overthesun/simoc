@@ -13,7 +13,7 @@
         //alert({{request.script_root|tojson|safe}});
     </script>
 </head>
-<body>
+<body class="game">
 
     <!-- Page Content -->
     <section>
@@ -25,22 +25,11 @@
                 </div>
             </div>
             <div class="row">
-                {% block panel %}
                 
-                {% endblock %}
             </div>
         </div>
     </section>
 
-   
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/custom/connectionhandler.js') }}"></script>
-<script type="text/javascript">
-   
-        
-       
-
-</script>
+ 
 </body>
 </html>

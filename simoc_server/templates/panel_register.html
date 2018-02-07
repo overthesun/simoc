@@ -1,21 +1,68 @@
 ﻿{% extends "base_home.html" %}
 
 {% block panel %}
-<div class="text-center sf_window">
+<div class="text-center SF_lg_Window">
     <div class="pt-5 center">
         <form class="logform">
             <div class="form-group ">               
-                <input type="text" class="form-control " id="username" placeholder="Enter username">
-                <input type="password" class="form-control " id="password" placeholder="Password">
-                <input type="password" class="form-control " id="validatepassword" placeholder="Confirm Password">
+                <input type="text" name="username" class="form-control " id="username" placeholder="Create username">
+                <input type="password" name="password" class="form-control " id="password" placeholder="Create Password">
+                <input type="password" name="validatepassword" class="form-control " id="validatepassword" placeholder="Confirm Password">
             </div>
            
-             <small id="msg" class="form-text text-muted"></small>            
-            <button type="submit" class="btn btn-primary">Login</button>
+             <span id="msg" class="form-text " ></span>            
+            <button type="button" id="registerbtn" class="btn btn-primary">Submit</button>
             <button type="button" id="menuoptionbackbtn" class="btn btn-primary">Back</button>
         </form>
     </div>
 
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
+<script type="text/javascript">
+   
+    $(function () {
+        $('#menuoptionbackbtn').click(function () {
+            gotourl('/');
+        });
+        function isEmpty(str) {
+            return (!str || 0 === str.length);
+        }
+        $('#registerbtn').click(function () {
+
+
+            // alert($('form').());
+            $('#msg').html('');
+            var user = $('#username').val();
+            var pass = $('#password').val();
+            var vpass = $('#validatepassword').val();
+            //alert(pass + '=' + vpass);
+            //alert('user is empty: ' + isEmpty(user));
+            if (pass != vpass) {
+                $('#msg').html('Password does not match!');
+            }
+            else if (isEmpty(user) || isEmpty(pass) || isEmpty(vpass)) {
+                $('#msg').html('Enter username or password!');
+            }
+            else {
+               var obj = { "username": user, "password": pass };
+                alert(JSON.stringify(obj));
+                $.post($SCRIPT_ROOT + '/register', JSON.stringify(obj), function (data, status) {
+                    alert(data.message +'status:'+status);
+                    if (status=='success') {
+                        $('#msg').html('Registration was successful! ');
+                    }
+                    else {
+                        $('#msg').html('Registration was unseccessful!');
+                    }
+                    
+                }, "json");
+                return false;
+            }
+            
+        });
+    });
+
+
+</script>
 {% endblock %}
