@@ -1,6 +1,3 @@
-
-
-
 class AgentAttributeDescriptor(object):
 
     def __init__(self, _type, is_client_attr, is_persisted_attr):

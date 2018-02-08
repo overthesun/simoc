@@ -16,3 +16,7 @@ def load_db_attributes_into_dict(attributes, target=None):
         target[attribute_name] = value
 
     return target
+
+
+def extend_dict(dict_a, dict_b):
+    return dict(dict_a, **dict_b)

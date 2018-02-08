@@ -1,10 +1,9 @@
 import math
 from .baseagent import BaseAgent
-from .plants import PlantAgent
 
 class HumanAgent(BaseAgent):
 
-    __agent_type_name__ = "human" #__sprite_mapper__ = HumanSpriteMapper
+    _agent_type_name = "human"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -9,7 +9,7 @@ from flask import request, session, send_from_directory, safe_join
 from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request
 from simoc_server.database.db_model import User, SavedGame
-from simoc_server.agent_model.agent_name_mapping import agent_name_mapping
+from simoc_server.agent_model.agents.agent_name_mapping import agent_name_mapping
 from simoc_server.game_runner import GameRunner
 from simoc_server import error_handlers
 
@@ -284,7 +284,8 @@ def sprite_mappings():
     '''
     response = {}
     for key, val in agent_name_mapping.items():
-        response[key] = val.__sprite_mapper__().to_serializable()
+        # initialize the sprite mapper class and serialize it
+        response[key] = val._sprite_mapper().to_serializable()
     print(response)
     return serialize_response(response)
 

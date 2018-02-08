@@ -8,10 +8,12 @@ class AgentDTO(BaseDTO):
     def get_state(self):
         state = {
             "id":self.agent.unique_id,
-            "agent_type":self.agent.__class__.__agent_type_name__,
-            "pos_x":self.agent.pos[0],
-            "pos_y":self.agent.pos[1],
+            "agent_type":self.agent.__class__._agent_type_name,
         }
+
+        if hasattr(self.agent, "pos"):
+            state["pos_x"] = self.agent.pos[0],
+            state["pos_y"] = self.agent.pos[1],
 
         attributes = {}
         for attribute_name, attribute_descriptor in self.agent.attribute_descriptors.items():
@@ -25,10 +27,11 @@ class AgentDTO(BaseDTO):
             return state, {}
         else:
             diff = {}
-            if state["pos_x"] != prev_state["pos_x"]:
-                diff["pos_x"] = state["pos_x"]
-            if state["pos_y"] != prev_state["pos_y"]:
-                diff["pos_y"] = state["pos_y"]
+            if hasattr(self.agent, "pos"):
+                if state["pos_x"] != prev_state["pos_x"]:
+                    diff["pos_x"] = state["pos_x"]
+                if state["pos_y"] != prev_state["pos_y"]:
+                    diff["pos_y"] = state["pos_y"]
             attributes = state["attributes"]
             prev_attributes = prev_state["attributes"]
             attr_diff = {(key, val) for key, val in attributes if val != prev_state[key]}

@@ -3,16 +3,18 @@ import numbers
 import threading
 import datetime
 import numpy as np
-from .agent_name_mapping import agent_name_mapping
-from . import HumanAgent, PlantAgent
+from uuid import uuid4
+
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
+from sqlalchemy.orm.exc import StaleDataError
+
 from simoc_server.database.db_model import AgentModelState, AgentState, \
     AgentType, AgentModelSnapshot, SnapshotBranch, AgentModelParam
+
 from simoc_server import db
-from uuid import uuid4
-from sqlalchemy.orm.exc import StaleDataError
+from .agents import *
 
 class AgentModelInitializationParams(object):
 
@@ -115,7 +117,7 @@ class AgentModel(Model):
             agent_type_name = agent_state.agent_type.name
             agent_class = agent_name_mapping[agent_type_name]
             agent = agent_class(model, agent_state)
-            model.add_agent(agent, agent.pos)
+            model.add_agent(agent)
             print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
         return model
 
@@ -140,6 +142,8 @@ class AgentModel(Model):
         return model
 
     def add_agent(self, agent, pos=None):
+        if pos is None and hasattr(agent, "pos"):
+            pos = agent.pos
         self.scheduler.add(agent)
         if pos is not None:
             self.grid.place_agent(agent, pos)
