@@ -6,9 +6,11 @@ from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 def seed():
     human_data = gen_human()
     plant_data = gen_plants()
+    structure_data = gen_structures()
 
     util.add_all(human_data)
     util.add_all(plant_data)
+    util.add_all(structure_data)
 
 
 
@@ -65,6 +67,36 @@ def add_plant(data, name, oxygen, carbon, water, edible, inedible):
     add_plant_attribute("water_uptake", water, "(kg/m^2)*day")
     add_plant_attribute("edible", edible, "(g[dry weight]/m^2)*day")
     add_plant_attribute("inedible", inedible, "(g[dry weight]/m^2)*day")
+
+def gen_structures():
+    data = OrderedDict()
+
+    add_structure(data, "Airlock", 10, 10, 10, 50, 0.9, 10, 10)
+    add_structure(data, "Crew_Quarters", 10, 10, 10, 50, 0.9, 10, 10)
+    add_structure(data, "Greenhouse", 10, 10, 10, 50, 0.9, 10, 10)
+    add_structure(data, "Kitchen", 10, 10, 10, 50, 0.9, 10, 10)
+    add_structure(data, "Power_Station", 10, 10, 10, 50, 0.9, 10, 0)
+    add_structure(data, "Rocket_Pad", 10, 10, 10, 50, 0.9, 10, 10)
+    add_structure(data, "Rover_Dock", 10, 10, 10, 50, 0.9, 10, 0)
+    add_structure(data, "Storage_Facility", 10, 10, 10, 50, 0.9, 10, 0)
+
+    return data
+
+def add_structure(data, name, length, width, height, mass, efficiency, time, power_consumed)
+    agent_type = AgentType(name=name)
+    data["{0}_structure_agent_type"] = agent_type
+
+    def add_structure_attribute(attribute_name, value, units):
+        key = "{0}_{1}_attr".format(name, attribute_name)
+        data[key] = create_agent_type_attr(agent_type, attribute_name, value, units)
+
+    add_structure_attribute("length", length, "m")
+    add_structure_attribute("width", width, "m")
+    add_structure_attribute("height", height, "m")
+    add_structure_attribute("mass", mass, "kg")
+    add_structure_attribute("efficiency", efficiency, " ")
+    add_structure_attribute("time", time, "hours")
+    add_structure_attribute("power_consumption", power, "kW/day")
 
 
 def create_agent_type_attr(agent_type, name, value, units=None):
