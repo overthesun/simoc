@@ -25,7 +25,8 @@ function ajaxFormatted(url, data, options){
         var options = {
             url:url,
             converters: {
-                "binary msgpack": convertMsgPack
+                // convert to "json" (actually msgpack)
+                "binary json": convertMsgPack,
             },
             contents:{
                 msgpack:/msgpack/,
@@ -33,7 +34,9 @@ function ajaxFormatted(url, data, options){
             accepts:{
                 msgpack:"application/x-msgpack",
             },
-            dataType:"msgpack",
+            // Accept "json" (actually msgpack) so that jquery will give us the data
+            // on error
+            dataType:"json",
             xhr:function(){
                 try {
                     var xhr = new window.XMLHttpRequest();

@@ -61,8 +61,15 @@
                     }
 
                 }).fail(function(jqXHR, textStatus, errorThrown){
-                    // Need to figure out how to get deserialized data on error
-                    alertForm("Registration failed. MESSAGE HERE", "alert-danger")
+                    var responseJSON = jqXHR.responseJSON;
+                    if(responseJSON){
+                        var message = responseJSON.message;
+                        alertForm("Registration failed. " + responseJSON.message, "alert-danger");
+                    }
+                    else{
+                        console.log("ERROR: " + errorThrown + " " + textStatus);
+                        alertForm("Registration failed. Contact System Admin.", "alert-json");
+                    }
                 });
                 return false;
             }
