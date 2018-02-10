@@ -1,6 +1,7 @@
 import msgpack
 import flask.json
 import traceback
+from msgpack.exceptions import ExtraData, UnpackException
 from json.decoder import JSONDecodeError
 from abc import ABCMeta, abstractmethod
 from flask import make_response
@@ -13,48 +14,73 @@ class Serializer(object):
 
     @classmethod
     @abstractmethod
-    def serialize_to_string(obj):
+    def serialize_response(cls, obj):
         pass
 
     @classmethod
     @abstractmethod
-    def deserialize_request(request):
+    def deserialize_request(cls, request):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_format_name(cls):
         pass
 
 class JsonSerializer(Serializer):
 
     @classmethod
     def serialize_response(cls, obj):
-        return make_response(flask.json.dumps(obj))
+        resp = make_response(flask.json.dumps(obj))
+        resp.mimetype = "application/json"
+        return resp
 
     @classmethod
     def deserialize_request(cls, request):
-        try:
-            request.__dict__["deserialized"] = flask.json.loads(request.get_data())
-        except JSONDecodeError:
-            request.__dict__["deserialized"] = None
+        request.__dict__["deserialized"] = None
 
+        data = request.get_data()
+        if data:
+            try:
+                request.__dict__["deserialized"] = flask.json.loads(data)
+            except JSONDecodeError:
+                print("Error deserializing json: {}".format(data))
+
+    @classmethod
+    def get_format_name(cls):
+        return "json"
 
 class MsgPackSerializer(Serializer):
 
     @classmethod
     def serialize_response(cls, obj):
-        a = make_response(msgpack.packb(obj))
-        return a
+        resp = make_response(msgpack.packb(obj))
+        resp.mimetype = "application/x-msgpack"
+        return resp
 
     @classmethod
     def deserialize_request(cls, request):
+        request.__dict__["deserialized"] = None
+
         data = request.get_data()
         if data:
-            request.__dict__["deserialized"] = msgpack.unpackb(data, encoding='utf-8')
-        else:
-            request.__dict__["deserialized"] = None
+            try:
+                request.__dict__["deserialized"] = msgpack.unpackb(data, encoding='utf-8')
+            except (UnpackException, ExtraData) as e:
+                print("Error deserializing msgpack: {}".format(data))
+
+    @classmethod
+    def get_format_name(cls):
+        return "msgpack"
 
 def serialize_response(obj):
     return _serializer.serialize_response(obj)
 
 def deserialize_request(request):
     return _serializer.deserialize_request(request)
+
+def data_format_name():
+    return _serializer.get_format_name()
 
 def set_serializer(serializer):
     global _serializer

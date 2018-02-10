@@ -8,6 +8,13 @@
     <title>SIMOC - Home</title>
     <link href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/custom/main.css') }}" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='js/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/msgpack/msgpack.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/custom/connectionhandler.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/custom/custom_util.js') }}"></script>
+
     <script type="text/javascript">
         $SCRIPT_ROOT = 'http://localhost:8000';
         //alert({{request.script_root|tojson|safe}});
@@ -25,11 +32,11 @@
                 </div>
             </div>
             <div class="row">
-                
+
             </div>
         </div>
     </section>
 
- 
+
 </body>
 </html>

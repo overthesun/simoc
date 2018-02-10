@@ -52,4 +52,5 @@ class NotFound(GenericError):
 def handle_error(error):
     response = serialize_response(error.to_dict())
     response.status_code = error.status_code
+    print(response.__dict__)
     return response
