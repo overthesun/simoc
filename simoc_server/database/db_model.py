@@ -77,7 +77,7 @@ class AgentTypeAttribute(DescriptiveAttribute):
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), index=True,
         nullable=False)
     agent_type = db.relationship("AgentType",
-        backref=db.backref("agent_type_attributes", lazy=False))
+        backref=db.backref("agent_type_attributes", lazy=False, cascade="all, delete-orphan"))
 
 
 class AgentState(BaseEntity):
@@ -91,12 +91,14 @@ class AgentState(BaseEntity):
     agent_type = db.relationship("AgentType")
     agent_model_state_id = db.Column(db.Integer, db.ForeignKey("agent_model_state.id"),
         nullable=False, index=True)
-    agent_model_state = db.relationship("AgentModelState", backref=db.backref("agent_states", lazy=False))
+    agent_model_state = db.relationship("AgentModelState", backref=db.backref("agent_states", lazy=False,
+        cascade="all, delete-orphan"))
 
 class AgentStateAttribute(BaseAttribute):
     id = db.Column(db.Integer, primary_key=True)
     agent_state_id = db.Column(db.Integer, db.ForeignKey("agent_state.id"), nullable=False, index=True)
-    agent_state = db.relationship("AgentState", backref=db.backref("agent_state_attributes", lazy=False))
+    agent_state = db.relationship("AgentState", backref=db.backref("agent_state_attributes", lazy=False,
+        cascade="all, delete-orphan"))
 
 class AgentModelState(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)

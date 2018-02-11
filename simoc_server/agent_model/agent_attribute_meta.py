@@ -6,7 +6,7 @@ class AgentAttributeDescriptor(object):
         self.is_persisted_attr = is_persisted_attr
 
     def __repr__(self):
-        return "type: {} is_client_attr: {} is_persisted_attr: {}".format(self.type, self.is_client_attr, self.is_persisted_attr)
+        return "type: {} is_client_attr: {} is_persisted_attr: {}".format(self._type, self.is_client_attr, self.is_persisted_attr)
 
 class AgentAttributeHolder(object):
 

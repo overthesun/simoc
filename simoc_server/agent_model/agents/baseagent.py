@@ -66,7 +66,7 @@ class BaseAgent(Agent, AgentAttributeHolder):
 
                     # load this base class' attributes into existing set of attributes,
                     # overriding if necessary
-                    extend_dict(attributes, base.agent_type_attributes)
+                    attributes.update(base.agent_type_attributes)
 
             # finally, extend existing attributes with this classes attributes
             load_db_attributes_into_dict(agent_type.agent_type_attributes, attributes)

@@ -18,5 +18,5 @@ def load_db_attributes_into_dict(attributes, target=None):
     return target
 
 
-def extend_dict(dict_a, dict_b):
+def extend_dict(dict_a, dict_b, in_place=False):
     return dict(dict_a, **dict_b)
