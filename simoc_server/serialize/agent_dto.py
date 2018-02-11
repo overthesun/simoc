@@ -1,3 +1,4 @@
+from simoc_server.agent_model.agents import BaseAgent
 from . import BaseDTO
 
 class AgentDTO(BaseDTO):
@@ -17,7 +18,11 @@ class AgentDTO(BaseDTO):
 
         attributes = {}
         for attribute_name, attribute_descriptor in self.agent.attribute_descriptors.items():
-            attributes[attribute_name] = self.agent.__dict__[attribute_name]
+            attribute_value = self.agent.__dict__[attribute_name]
+            if(issubclass(attribute_descriptor._type, BaseAgent) and attribute_value is not None):
+                attributes[attribute_name] = attribute_value.unique_id
+            else:    
+                attributes[attribute_name] = attribute_value
         state["attributes"] = attributes
         return state
 

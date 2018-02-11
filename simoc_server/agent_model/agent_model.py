@@ -119,6 +119,10 @@ class AgentModel(Model):
             agent = agent_class(model, agent_state)
             model.add_agent(agent)
             print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
+
+        for agent in model.get_agents():
+            agent.post_db_load()
+
         return model
 
     @classmethod
@@ -219,3 +223,10 @@ class AgentModel(Model):
             return self.scheduler.agents
         else:
             return [agent for agent in self.scheduler.agents if isinstance(agent, agent_type)]
+
+    def agent_by_id(self, unique_id):
+        for agent in self.get_agents():
+            if(agent.unique_id == unique_id):
+                return agent
+        return None
+

@@ -1,6 +1,6 @@
 import unittest
 from simoc_server import db
-from simoc_server.tests.test_util import setUpDB, clearDB
+from simoc_server.tests.test_util import setup_db, clear_db
 from simoc_server.database.db_model import User
 from simoc_server.game_runner import GameRunner
 
@@ -11,7 +11,7 @@ class GameRunnerTestCase(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
-        setUpDB()
+        setup_db()
         cls.test_user = User(username="bob")
         cls.test_user.set_password("test_pass")
         db.session.add(cls.test_user)
@@ -19,7 +19,7 @@ class GameRunnerTestCase(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        clearDB()
+        clear_db()
 
 
     def testSaveGame(self):

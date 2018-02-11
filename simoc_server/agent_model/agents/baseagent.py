@@ -23,6 +23,7 @@ class BaseAgent(Agent, AgentAttributeHolder):
 
     def __init__(self, model, agent_state=None):
         self.__class__._load_agent_type_attributes()
+        AgentAttributeHolder.__init__(self)
 
         self.active = True
         if agent_state is not None:
@@ -112,7 +113,17 @@ class BaseAgent(Agent, AgentAttributeHolder):
             self.pos = (agent_state.pos_x, agent_state.pos_y)
         self.unique_id = agent_state.agent_unique_id
         self.model_time_created = agent_state.model_time_created
+
+        self.requires_post_load = {}
+
         load_db_attributes_into_dict(agent_state.agent_state_attributes, self.__dict__)
+
+    def post_db_load(self):
+        for name, attribute_descriptor in self.attribute_descriptors.items():
+            if(issubclass(attribute_descriptor._type, BaseAgent)):
+                id_value = self.__dict__[name]
+                if id_value is not None:
+                    self.__dict__[name] = self.model.agent_by_id(id_value)
 
     def snapshot(self, agent_model_state, commit=True):
         pos = self.pos if hasattr(self, "pos") else (None, None)
@@ -122,13 +133,19 @@ class BaseAgent(Agent, AgentAttributeHolder):
 
         for attribute_name, attribute_descriptor in self.attribute_descriptors.items():
             value = self.__dict__[attribute_name]
-            value_type = attribute_descriptor._type.__name__
+            value_type = attribute_descriptor._type
+            if issubclass(value_type, BaseAgent):
+                value_type_str = "str"
+                if value is not None:
+                    value = value.unique_id
+            else:
+                value_type_str =  value_type.__name__
             value_str = str(value)
-            if value_type not in PERSISTABLE_ATTRIBUTE_TYPES:
+            if value_type_str not in PERSISTABLE_ATTRIBUTE_TYPES:
                 raise Exception("Attribute set to non-persistable type.")
 
             agent_state.agent_state_attributes.append(AgentStateAttribute(name=attribute_name, 
-                value=value_str, value_type=value_type))
+                value=value_str, value_type=value_type_str))
         db.session.add(agent_state)
         if commit:
             db.session.commit()

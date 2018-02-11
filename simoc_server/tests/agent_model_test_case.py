@@ -4,9 +4,9 @@ import tempfile
 import time
 import threading
 from simoc_server import db, app
-from simoc_server.tests.test_util import setUpDB, clearDB
+from simoc_server.tests.test_util import setup_db, clear_db
 from simoc_server.agent_model import AgentModel
-from simoc_server.database.db_model import AgentModelState, User
+from simoc_server.database.db_model import AgentModelState
 
 class AgentModelTestCase(unittest.TestCase):
 
@@ -15,15 +15,11 @@ class AgentModelTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        setUpDB()
-        cls.test_user = User(username="bob")
-        cls.test_user.set_password("test_pass")
-        db.session.add(cls.test_user)
-        db.session.commit()
+        setup_db()
 
     @classmethod
     def tearDownClass(cls):
-        clearDB()
+        clear_db()
 
     def testConcurrentBranching(self):
         snapshot_ind = 0

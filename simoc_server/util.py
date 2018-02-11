@@ -20,3 +20,20 @@ def load_db_attributes_into_dict(attributes, target=None):
 
 def extend_dict(dict_a, dict_b, in_place=False):
     return dict(dict_a, **dict_b)
+
+def subdict_from_list(d, l):
+    """Return a subset of d from a list of keys, l
+    
+    Parameters
+    ----------
+    d : dict
+        Dictionary to take subset from
+    l : list
+        list of keys to make the subet
+    
+    Returns
+    -------
+    dict
+        the subset of d defined by l
+    """
+    return {key:d[key] for key in l if key in d}

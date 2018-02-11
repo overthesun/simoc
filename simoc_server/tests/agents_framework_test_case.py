@@ -6,8 +6,9 @@ from simoc_server.agent_model import AgentModel
 from simoc_server.agent_model.agents import BaseAgent
 from simoc_server.agent_model.agents.agent_name_mapping import _add_agent_class_to_mapping
 from simoc_server.agent_model.agent_attribute_meta import AgentAttributeHolder
-from simoc_server.database.db_model import User, AgentType, AgentTypeAttribute
-from simoc_server.tests.test_util import setUpDB, clearDB
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute
+from simoc_server.serialize import AgentDTO
+from simoc_server.tests.test_util import setup_db, clear_db
 
 class AgentsFrameworkTestCase(unittest.TestCase):
 
@@ -17,15 +18,11 @@ class AgentsFrameworkTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        setUpDB()
-        cls.test_user = User(username="bob")
-        cls.test_user.set_password("test_pass")
-        db.session.add(cls.test_user)
-        db.session.commit()
+        setup_db()
 
     @classmethod
     def tearDownClass(cls):
-        clearDB()
+        clear_db()
 
     def testPersistedAttributes(self):
         # persisted attributes should be saved and loaded to/from the database
@@ -61,7 +58,7 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         snapshot = agent_model.snapshot()
         agent_model_state = snapshot.agent_model_state
 
-        # load game
+        # load model
         loaded_agent_model = AgentModel.load_from_db(agent_model_state)
 
         # get agents
@@ -74,9 +71,217 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         loaded_agent = matching_agents[0]
         self.assertEqual(loaded_agent.agent_a_attribute, 16)
 
+
+
+        ## Repeat above but change value this time
+        loaded_agent.agent_a_attribute = 9
+
+        # snapshot
+        snapshot_two = loaded_agent_model.snapshot()
+        agent_model_state_two = snapshot_two.agent_model_state
+
+        # load model
+        loaded_agent_model_two = AgentModel.load_from_db(agent_model_state_two)
+
+        # get agents
+        loaded_agents_two = loaded_agent_model_two.get_agents()
+        # make sure agent exists and only exists once
+        matching_agents_two = list(filter(lambda x: x.unique_id == agent_a.unique_id, loaded_agents_two))
+        self.assertTrue(len(matching_agents_two) == 1)
+
+        # make sure agent attribute loaded correctly
+        loaded_agent_two = matching_agents_two[0]
+        self.assertEqual(loaded_agent_two.agent_a_attribute, 9)
+
         db.session.delete(snapshot)
         db.session.delete(agent_model_state)
+        db.session.delete(snapshot_two)
+        db.session.delete(agent_model_state_two)
         db.session.delete(agent_a_type)
+        db.session.commit()
+
+    def testPersistedAgentReferences(self):
+        # persisted attributes should be saved and loaded to/from the database
+        class AgentA(BaseAgent):
+            _agent_type_name = "agent_a"
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self._attr("agent_b_ref", None, _type=AgentB, is_persisted_attr=True)
+
+            def set_agent_b(self, agent_b):
+                self.agent_b_ref = agent_b
+
+        class AgentB(BaseAgent):
+            _agent_type_name = "agent_b"
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self._attr("agent_a_ref",  None, _type=AgentA, is_persisted_attr=True)
+
+            def set_agent_a(self, agent_a):
+                self.agent_a_ref = agent_a
+
+
+        # add agent type data to database
+        agent_a_type = AgentType(name="agent_a")
+        agent_b_type = AgentType(name="agent_b")
+        db.session.add(agent_a_type)
+        db.session.add(agent_b_type)
+        db.session.commit()
+
+        # add agent to agent_name_mappings
+        _add_agent_class_to_mapping(AgentA)
+        _add_agent_class_to_mapping(AgentB)
+
+        # create agent_model
+        agent_model = AgentModel.create_new(100,100)
+
+        # create agent
+        agent_a = AgentA(agent_model)
+        agent_b = AgentB(agent_model)
+        agent_a.set_agent_b(agent_b)
+        agent_b.set_agent_a(agent_a)
+
+        # make sure attributes are set properly
+        self.assertTrue(hasattr(agent_a, "agent_b_ref"))
+        self.assertTrue(hasattr(agent_b, "agent_a_ref"))
+        self.assertEqual(agent_a.agent_b_ref, agent_b)
+        self.assertEqual(agent_b.agent_a_ref, agent_a)
+
+        # add agents to model
+        agent_model.add_agent(agent_a)
+        agent_model.add_agent(agent_b)
+
+        # snapshot
+        snapshot = agent_model.snapshot()
+        agent_model_state = snapshot.agent_model_state
+
+        # load model
+        loaded_agent_model = AgentModel.load_from_db(agent_model_state)
+
+        # get agents
+        loaded_agents = loaded_agent_model.get_agents()
+        # make sure agents exists and only exists once
+        matching_agents_a = list(filter(lambda x: x.unique_id == agent_a.unique_id, loaded_agents))
+        matching_agents_b = list(filter(lambda x: x.unique_id == agent_b.unique_id, loaded_agents))
+        self.assertTrue(len(matching_agents_a) == 1)
+        self.assertTrue(len(matching_agents_b) == 1)
+
+        # make sure agent's attribute loaded correctly
+        loaded_agent_a = matching_agents_a[0]
+        loaded_agent_b = matching_agents_b[0]
+        self.assertEqual(loaded_agent_a.agent_b_ref, loaded_agent_b)
+        self.assertEqual(loaded_agent_b.agent_a_ref, loaded_agent_a)
+
+
+
+        ## Repeat above but change value this time
+
+        agent_a_new = AgentA(loaded_agent_model)
+        agent_b_new = AgentB(loaded_agent_model)
+        loaded_agent_a.set_agent_b(agent_b_new)
+        loaded_agent_b.set_agent_a(agent_a_new)
+
+        # add agents to model
+        loaded_agent_model.add_agent(agent_a_new)
+        loaded_agent_model.add_agent(agent_b_new)
+
+        # snapshot
+        snapshot_two = loaded_agent_model.snapshot()
+        agent_model_state_two = snapshot_two.agent_model_state
+
+        # load model
+        loaded_agent_model_two = AgentModel.load_from_db(agent_model_state_two)
+
+        # get agents
+        loaded_agents_two = loaded_agent_model_two.get_agents()
+        print(loaded_agents_two)
+        # make sure agent exists and only exists once
+        matching_agents_a_two = list(filter(lambda x: x.unique_id == agent_a.unique_id, loaded_agents_two))
+        matching_agents_b_two = list(filter(lambda x: x.unique_id == agent_b.unique_id, loaded_agents_two))
+        matching_agents_a_new = list(filter(lambda x: x.unique_id == agent_a_new.unique_id, loaded_agents_two))
+        matching_agents_b_new = list(filter(lambda x: x.unique_id == agent_b_new.unique_id, loaded_agents_two))
+
+        self.assertTrue(len(matching_agents_a_two) == 1)
+        self.assertTrue(len(matching_agents_b_two) == 1)
+        self.assertTrue(len(matching_agents_a_new) == 1)
+        self.assertTrue(len(matching_agents_b_new) == 1)
+
+        # make sure agent attribute loaded correctly
+        loaded_agent_a_two = matching_agents_a_two[0]
+        loaded_agent_b_two = matching_agents_b_two[0]
+        loaded_agent_a_new = matching_agents_a_new[0]
+        loaded_agent_b_new = matching_agents_b_new[0]
+        self.assertEqual(loaded_agent_a_two.agent_b_ref, loaded_agent_b_new)
+        self.assertEqual(loaded_agent_b_two.agent_a_ref, loaded_agent_a_new)
+        self.assertEqual(loaded_agent_a_new.agent_b_ref, None)
+        self.assertEqual(loaded_agent_b_new.agent_a_ref, None)
+
+        db.session.delete(snapshot)
+        db.session.delete(agent_model_state)
+        db.session.delete(snapshot_two)
+        db.session.delete(agent_model_state_two)
+        db.session.delete(agent_a_type)
+        db.session.delete(agent_b_type)
+        db.session.commit()
+
+
+    def testSerializedAgentReferences(self):
+        # persisted attributes should be saved and loaded to/from the database
+        class AgentA(BaseAgent):
+            _agent_type_name = "agent_a"
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self._attr("agent_b_ref", None, _type=AgentB, is_client_attr=True)
+
+            def set_agent_b(self, agent_b):
+                self.agent_b_ref = agent_b
+
+        class AgentB(BaseAgent):
+            _agent_type_name = "agent_b"
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self._attr("agent_a_ref",  None, _type=AgentA, is_client_attr=True)
+
+            def set_agent_a(self, agent_a):
+                self.agent_a_ref = agent_a
+
+
+        # add agent type data to database
+        agent_a_type = AgentType(name="agent_a")
+        agent_b_type = AgentType(name="agent_b")
+        db.session.add(agent_a_type)
+        db.session.add(agent_b_type)
+        db.session.commit()
+
+        # add agent to agent_name_mappings
+        _add_agent_class_to_mapping(AgentA)
+        _add_agent_class_to_mapping(AgentB)
+
+        # create agent_model
+        agent_model = AgentModel.create_new(100,100)
+
+        # create agent
+        agent_a = AgentA(agent_model)
+        agent_b = AgentB(agent_model)
+        agent_a.set_agent_b(agent_b)
+        agent_b.set_agent_a(agent_a)
+
+        agent_a_dto = AgentDTO(agent_a)
+        agent_b_dto = AgentDTO(agent_b)
+
+        agent_a_state = agent_a_dto.get_state()
+        agent_b_state = agent_b_dto.get_state()
+
+        print(agent_a_state)
+        self.assertEqual(agent_a_state["attributes"]["agent_b_ref"], agent_b.unique_id)
+        self.assertEqual(agent_b_state["attributes"]["agent_a_ref"], agent_a.unique_id)
+
+        db.session.delete(agent_a_type)
+        db.session.delete(agent_b_type)
         db.session.commit()
 
     def testAgentInstanceAttributeCreation(self):

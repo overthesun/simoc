@@ -10,15 +10,14 @@ class AgentAttributeDescriptor(object):
 
 class AgentAttributeHolder(object):
 
-    def _attr(self, name, value, _type=None, is_client_attr=True, is_persisted_attr=True):
+    def __init__(self):
+        self.attribute_descriptors = {}
+
+    def _attr(self, name, default_value=None, _type=None, is_client_attr=True, is_persisted_attr=True):
         if _type is None:
-            _type = type(value)
+            _type = type(default_value)
 
-        self.__dict__[name] = value
+        if(name not in self.__dict__.keys()):
+            self.__dict__[name] = default_value
 
-        descr =  AgentAttributeDescriptor(_type, is_client_attr, is_persisted_attr)
-        try:
-            self.attribute_descriptors[name] = descr
-        except AttributeError:
-            # initialize if not already initialized
-            self.attribute_descriptors = { name:descr }
+        self.attribute_descriptors[name] = AgentAttributeDescriptor(_type, is_client_attr, is_persisted_attr)
