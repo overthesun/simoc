@@ -72,6 +72,10 @@ class AgentsFrameworkTestCase(unittest.TestCase):
 
         # make sure agent attribute loaded correctly
         loaded_agent = matching_agents[0]
+        self.assertEqual(loaded_agent.agent_a_attribute, 16)
+
+        db.session.delete(snapshot)
+        db.session.delete(agent_model_state)
         db.session.delete(agent_a_type)
         db.session.commit()
 
