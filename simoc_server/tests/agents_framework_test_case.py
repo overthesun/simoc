@@ -228,7 +228,8 @@ class AgentsFrameworkTestCase(unittest.TestCase):
 
 
     def testSerializedAgentReferences(self):
-        # persisted attributes should be saved and loaded to/from the database
+        # serialized agents should store unique_id of agent they are referencing in their
+        # attributes
         class AgentA(BaseAgent):
             _agent_type_name = "agent_a"
 
