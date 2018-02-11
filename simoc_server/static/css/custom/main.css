@@ -51,7 +51,13 @@ div .row .sf_lg_window{
 .btn {
     width:25%
 }
-.logform{  
+.logform{
     width:50%; 
     margin:0 auto;
+}
+.logform .alert{
+  line-height: 20px;
+  padding: 0px 10px;
+  opacity: .7;
+  display: hidden;
 }
