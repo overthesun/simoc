@@ -20,7 +20,7 @@ body.game
 }
 @font-face{
     font-family:'jupiter';
-    src:url('../../assets/fonts/jupiter.ttf')
+    src:url('../../assets/fonts/Jupiter.ttf')
 }
 div .row .sf_window{
    width:500px;
