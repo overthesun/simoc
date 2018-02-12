@@ -4,30 +4,22 @@ import tempfile
 import time
 import threading
 from simoc_server import db, app
+from simoc_server.tests.test_util import setup_db, clear_db
 from simoc_server.agent_model import AgentModel
-from simoc_server.database.db_model import AgentModelState, User
-from simoc_server.database.seed_data import seed
-from simoc_server.game_runner import GameRunner
-import simoc_server
+from simoc_server.database.db_model import AgentModelState
 
+class AgentModelTestCase(unittest.TestCase):
 
-class SimocServerTestCase(unittest.TestCase):
+    """Test the functionality of the agent model
+    """
 
     @classmethod
     def setUpClass(cls):
-        db.create_all()
-        seed.seed()
-
-        cls.test_user = User(username="bob")
-        cls.test_user.set_password("test_pass")
-        db.session.add(cls.test_user)
-        db.session.commit()
+        setup_db()
 
     @classmethod
     def tearDownClass(cls):
-        db.sessionmaker.close_all()
-        # db.engine.dispose()
-        db.drop_all()
+        clear_db()
 
     def testConcurrentBranching(self):
         snapshot_ind = 0
@@ -52,7 +44,7 @@ class SimocServerTestCase(unittest.TestCase):
         for thread in threads:
             thread.join()
 
-        print(branch_ids)
+        #print(branch_ids)
         for i in range(len(branch_ids)):
             for j in range(i+1, len(branch_ids)):
                 self.assertNotEqual(branch_ids[i], branch_ids[j])
@@ -62,7 +54,7 @@ class SimocServerTestCase(unittest.TestCase):
         agent_model = AgentModel.create_new(100, 100)
         for i in range(100):
             agent_model.step()
-            print(agent_model.model_time)
+            #print(agent_model.model_time)
         delta = agent_model.model_time
         self.assertEqual(delta.days, 4)
 
@@ -73,20 +65,6 @@ class SimocServerTestCase(unittest.TestCase):
         m2 = agent_model.grid_units_to_meters((20, 60))
         self.assertEqual(m2, (20, 60))
 
-    def testSaveGame(self):
-        test_user = self.__class__.test_user
-        game_runner = GameRunner.from_new_game(test_user)
-
-        buffer_size = game_runner.step_buffer_size
-
-        game_runner.get_step(1)
-        game_runner.get_step(2)
-        game_runner.get_step(3)
-
-        saved_game = game_runner.save_game("test")
-
-        game_runner_2 = GameRunner.load_from_saved_game(saved_game)
-        self.assertEqual(game_runner_2.agent_model.step_num, 3 + buffer_size)
 
 if __name__ == "__main__":
     unittest.main()

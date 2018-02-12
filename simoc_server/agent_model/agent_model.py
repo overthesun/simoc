@@ -3,16 +3,18 @@ import numbers
 import threading
 import datetime
 import numpy as np
-from .agent_name_mapping import agent_name_mapping
-from . import HumanAgent, PlantAgent
+from uuid import uuid4
+
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
+from sqlalchemy.orm.exc import StaleDataError
+
 from simoc_server.database.db_model import AgentModelState, AgentState, \
     AgentType, AgentModelSnapshot, SnapshotBranch, AgentModelParam
+
 from simoc_server import db
-from uuid import uuid4
-from sqlalchemy.orm.exc import StaleDataError
+from .agents import *
 
 class AgentModelInitializationParams(object):
 
@@ -115,8 +117,12 @@ class AgentModel(Model):
             agent_type_name = agent_state.agent_type.name
             agent_class = agent_name_mapping[agent_type_name]
             agent = agent_class(model, agent_state)
-            model.add_agent(agent, agent.pos)
+            model.add_agent(agent)
             print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
+
+        for agent in model.get_agents():
+            agent.post_db_load()
+
         return model
 
     @classmethod
@@ -139,9 +145,12 @@ class AgentModel(Model):
         model.add_agent(plant_agent, (4, 4))
         return model
 
-    def add_agent(self, agent, pos):
+    def add_agent(self, agent, pos=None):
+        if pos is None and hasattr(agent, "pos"):
+            pos = agent.pos
         self.scheduler.add(agent)
-        self.grid.place_agent(agent, pos)
+        if pos is not None:
+            self.grid.place_agent(agent, pos)
 
     def num_agents(self):
         return len(self.schedule.agents)
@@ -205,11 +214,19 @@ class AgentModel(Model):
             raise TypeError("Expected number or tuple of numbers")
 
     def remove(self, agent):
-        self.grid.remove_agent(agent)
         self.scheduler.remove(agent)
+        if hasattr(agent, "pos"):
+            self.grid.remove_agent(agent)
 
     def get_agents(self, agent_type=None):
         if agent_type is None:
             return self.scheduler.agents
         else:
             return [agent for agent in self.scheduler.agents if isinstance(agent, agent_type)]
+
+    def agent_by_id(self, unique_id):
+        for agent in self.get_agents():
+            if(agent.unique_id == unique_id):
+                return agent
+        return None
+

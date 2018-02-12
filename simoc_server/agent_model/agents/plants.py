@@ -1,23 +1,22 @@
 import datetime
+
+from simoc_server.agent_model.sprite_mappers import PlantSpriteMapper
 from .baseagent import BaseAgent
-from .sprite_mappers import PlantSpriteMapper
 
 class PlantAgent(BaseAgent):
     # TODO implement each plant and abstract this class
 
-    __agent_type_name__ = "default_plant"
-    __sprite_mapper__ = PlantSpriteMapper
-    __persisted_attributes__ = ["status"]
-    __client_attributes__ = ["status"]
+    _agent_type_name = "default_plant"
+    _sprite_mapper = PlantSpriteMapper
 
     # TODO find out how long plants take to grow
     grow_time = datetime.timedelta(days=30)
     # TODO find out how long plants live
     lifespan = datetime.timedelta(days=200)
 
-    def init_new(self):
-        self.status = "planted"
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._attr("status", "planted", is_client_attr=True, is_persisted_attr=True)
 
 
     def step(self):
