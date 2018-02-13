@@ -1,4 +1,4 @@
-
+import datetime
 
 def load_db_attributes_into_dict(attributes, target=None):
     if target is None:
@@ -37,3 +37,16 @@ def subdict_from_list(d, l):
         the subset of d defined by l
     """
     return {key:d[key] for key in l if key in d}
+
+
+def timedelta_to_days(time_d):
+    return time_d / datetime.timedelta(days=1)
+
+def timedelta_to_hours(time_d):
+    return time_d / datetime.timedelta(hours=1)
+
+def timedelta_to_minutes(time_d):
+    return time_d / datetime.timedelta(minutes=1)
+
+def timedelta_to_seconds(time_d):
+    return time_d.total_seconds()
