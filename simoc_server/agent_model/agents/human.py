@@ -24,14 +24,14 @@ class HumanAgent(BaseAgent):
         #self.model.waste_water += 
 
 
-    def total_water_usage_per_day():
+    def total_water_usage_per_day(self):
         try:
             # try cached value
             return self._total_water_usage_per_day
         except AttributeError as ex:
-            consumed = get_agent_type_attribute("consumed_water_usage")
-            hygiene = get_agent_type_attribute("hygiene_water_usage")
-            medical = get_agent_type_attribute("medical_water_usage")
+            consumed = self.get_agent_type_attribute("consumed_water_usage")
+            hygiene = self.get_agent_type_attribute("hygiene_water_usage")
+            medical = self.get_agent_type_attribute("medical_water_usage")
 
             self._total_water_usage_per_day = consumed + hygiene + medical
             return self._total_water_usage_per_day

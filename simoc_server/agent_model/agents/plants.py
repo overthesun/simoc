@@ -25,4 +25,4 @@ class PlantAgent(BaseAgent):
         if age > self.grow_time:
             self.status = "grown"
         if age > self.lifespan:
-            self.destroy(self)
+            self.destroy()

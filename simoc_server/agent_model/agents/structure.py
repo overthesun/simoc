@@ -2,7 +2,7 @@ from .baseagent import BaseAgent
 from .plants import PlantAgent
 from .human import HumanAgent
 
-class Structure(Agent):
+class Structure(BaseAgent):
 
 	__agent_type_name__ = "default_structure"
 	#TODO: Implement structure sprites

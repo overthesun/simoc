@@ -370,37 +370,38 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         agent_child_two_type  = AgentType(name="agent_child_two")
 
         # set up agent type attributes
-        agent_root_attr_a = AgentTypeAttribute(agent_type=agent_root_type,
+        AgentTypeAttribute(agent_type=agent_root_type,
             name="a", value=10, value_type="int")
-        agent_root_attr_m = AgentTypeAttribute(agent_type=agent_root_type,
+        AgentTypeAttribute(agent_type=agent_root_type,
             name="m", value="root_m", value_type="str")
 
-        agent_parent_one_b = AgentTypeAttribute(agent_type=agent_parent_one_type,
+        AgentTypeAttribute(agent_type=agent_parent_one_type,
             name="b", value=11, value_type="int")
-        agent_parent_one_m = AgentTypeAttribute(agent_type=agent_parent_one_type,
+        AgentTypeAttribute(agent_type=agent_parent_one_type,
             name="m", value="parent_one_m", value_type="str")
-        agent_parent_one_n = AgentTypeAttribute(agent_type=agent_parent_one_type,
+        AgentTypeAttribute(agent_type=agent_parent_one_type,
             name="n", value="parent_one_n", value_type="str")
 
-        agent_parent_two_c = AgentTypeAttribute(agent_type=agent_parent_two_type,
+        AgentTypeAttribute(agent_type=agent_parent_two_type,
             name="c", value=12, value_type="int")
-        agent_parent_two_m = AgentTypeAttribute(agent_type=agent_parent_two_type,
+        AgentTypeAttribute(agent_type=agent_parent_two_type,
             name="m", value="parent_two_m", value_type="str")
-        agent_parent_two_o = AgentTypeAttribute(agent_type=agent_parent_two_type,
+        AgentTypeAttribute(agent_type=agent_parent_two_type,
             name="o", value="parent_two_o", value_type="str")
 
-        agent_child_one_d = AgentTypeAttribute(agent_type=agent_child_one_type,
+        # agent_child_one
+        AgentTypeAttribute(agent_type=agent_child_one_type,
             name="d", value=13, value_type="int")
-        agent_child_one_n = AgentTypeAttribute(agent_type=agent_child_one_type,
+        AgentTypeAttribute(agent_type=agent_child_one_type,
             name="n", value="child_one_n", value_type="str")
-        agent_child_one_p = AgentTypeAttribute(agent_type=agent_child_one_type,
+        AgentTypeAttribute(agent_type=agent_child_one_type,
             name="p", value="child_one_p", value_type="str")
         
-        agent_child_two_e = AgentTypeAttribute(agent_type=agent_child_two_type,
+        AgentTypeAttribute(agent_type=agent_child_two_type,
             name="e", value=14, value_type="int")
-        agent_child_two_n = AgentTypeAttribute(agent_type=agent_child_two_type,
+        AgentTypeAttribute(agent_type=agent_child_two_type,
             name="n", value="child_two_n", value_type="str")
-        agent_child_one_p = AgentTypeAttribute(agent_type=agent_child_two_type,
+        AgentTypeAttribute(agent_type=agent_child_two_type,
             name="p", value="child_two_p", value_type="str")
 
         # commit agents
