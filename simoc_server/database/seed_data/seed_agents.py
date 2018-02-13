@@ -159,9 +159,11 @@ def add_structure(data, name, length, width, height, mass, efficiency, build_tim
 	agent_type = AgentType(name=name)
 	data["{0}_structure_agent_type"] = agent_type
 
-	def add_structure_attribute(attribute_name, value, units):
+	def add_structure_attribute(attribute_name, value, units, description):
 		key = "{0}_{1}_attr".format(name, attribute_name)
-		data[key] = create_agent_type_attr(agent_type, attribute_name, value, units)
+		data[key] = create_agent_type_attr(agent_type, attribute_name, value,
+            units=units,
+            description=description)
 
 	add_structure_attribute("length", length, "m", "The length of the structure.")
 	add_structure_attribute("width", width, "m", "The width of the structure.")
