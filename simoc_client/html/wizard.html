@@ -2,6 +2,138 @@
 <html>
 
 <head>
+	   <meta charset="utf-8">
+    <!-- This file has been downloaded from Bootsnipp.com. Enjoy! -->
+    <title>Form wizard (using tabs) - Bootsnipp.com</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        .wizard {
+    margin: 20px auto;
+    background: #fff;
+}
+
+    .wizard .nav-tabs {
+        position: relative;
+        margin: 40px auto;
+        margin-bottom: 0;
+        border-bottom-color: #e0e0e0;
+    }
+/*Something to do with the connecting line*/
+    .wizard > div.wizard-inner {
+        position: relative;
+    }
+/* The line proper */
+.connecting-line {
+    height: 2px;
+    background: #e0e0e0;
+    position: absolute;
+    width: 90%;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    top: 50%;
+    z-index: 1;
+}
+
+.wizard .nav-tabs > li.active > a, .wizard .nav-tabs > li.active > a:hover, .wizard .nav-tabs > li.active > a:focus {
+    color: #555555;
+    cursor: default;
+    border: 0;
+    border-bottom-color: transparent;
+}
+
+span.round-tab {
+    width: 70px;
+    height: 70px;
+    line-height: 70px;
+    display: inline-block;
+    border-radius: 100px;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    z-index: 2;
+    position: absolute;
+    left: 0;
+    text-align: center;
+    font-size: 25px;
+}
+
+span.round-tab i{
+    color:#555555;
+}
+
+.wizard li.active span.round-tab {
+    background: #fff;
+    border: 2px solid #5bc0de;
+    
+}
+
+/*Changes the color of the active icon*/
+.wizard li.active span.round-tab i{
+    color: #5bc0de;
+}
+
+/*Changing the color when you hoover over one*/
+span.round-tab:hover {
+    color: #333;
+    border: 2px solid #333;
+}
+
+/*Spacing between the circles.*/
+.wizard .nav-tabs > li {
+    width: 10%;
+}
+
+/*This is related to the little pointer thingy*/
+.wizard li:after {
+    content: " ";
+    position: absolute;
+    left: 46%;
+    opacity: 0;
+    margin: 0 auto;
+    bottom: 0px;
+    border: 5px solid transparent;
+    border-bottom-color: #5bc0de;
+    transition: .1s ease-in-out;
+}
+
+/*This is also related to the little pointer thingy*/
+.wizard li.active:after {
+    content: " ";
+    position: absolute;
+    left: 46%;
+    opacity: 1;
+    margin: 0 auto;
+    bottom: 0px;
+    border: 10px solid transparent;
+    border-bottom-color: #5bc0de;
+}
+
+/*Something related to the alignment of the line running through the circles*/
+.wizard .nav-tabs > li a {
+    width: 70px;
+    height: 70px;
+    margin: 20px auto;
+    border-radius: 100%;
+    padding: 0;
+}
+
+    .wizard .nav-tabs > li a:hover {
+        background: transparent;
+    }
+
+/* Spacing for the working below the circles and the line */
+.wizard .tab-pane {
+    position: relative;
+    padding-top: 50px;
+}
+
+.wizard h3 {
+    margin-top: 0;
+}
+</style>
 </head>
 
 <body>
@@ -99,6 +231,37 @@
 								</span>
 							</a>
 						</li>
+					</ul>
+				</div>
+
+				<form role="form">
+					<div class="tab-content">
+
+						<div class="tab-pane active" role="tabpanel" id="launch">
+							<h3>Launch</h3>
+							<p>Temporary Description Placement</p>
+							<div class="dropdown">
+								<button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									Launch
+								</button>
+
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
+									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
+									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
+								</ul>								
+							</div>
+
+							<ul class="list-inline pull-right">
+								<li><button type="button" class="btn btn-primary btn-lg next-step"> Next</button></li>
+							</ul>
+						</div>
+
+					</div>
+				</form>
+			</div>
+		</section>
+	</div>
 
 
 
