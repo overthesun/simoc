@@ -4,10 +4,10 @@ from collections import OrderedDict
 from uuid import uuid4
 
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from flask import request, session, send_from_directory, safe_join
+from flask import request, session, send_from_directory, safe_join, render_template
 
 from simoc_server import app, db
-from simoc_server.serialize import serialize_response, deserialize_request
+from simoc_server.serialize import serialize_response, deserialize_request, data_format_name
 from simoc_server.database.db_model import User, SavedGame
 from simoc_server.agent_model.agents.agent_name_mapping import agent_name_mapping
 from simoc_server.game_runner import GameRunner
@@ -22,6 +22,26 @@ game_runners = {}
 @app.before_request
 def deserialize_before_request():
     deserialize_request(request)
+
+@app.route("/")
+def home():
+    return render_template('panel_content.html')
+
+@app.route("/loginpanel", methods=["GET"])
+def loginpanel():
+    return render_template("panel_login.html")
+
+@app.route("/registerpanel", methods=["GET"])
+def registerpanel():
+    return render_template("panel_register.html")
+
+@app.route("/gameinit", methods=["GET"])
+def gameinit():
+    return render_template("base_game.html")
+
+@app.route("/data_format", methods=["GET"])
+def data_format():
+    return data_format_name()
 
 @app.route("/login", methods=["POST"])
 def login():

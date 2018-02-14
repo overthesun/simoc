@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SIMOC - Home</title>
+    <link href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom/main.css') }}" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='js/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/msgpack/msgpack.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/custom/connectionhandler.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/custom/custom_util.js') }}"></script>
+
+    <script type="text/javascript">
+        $SCRIPT_ROOT = 'http://localhost:8000';
+        //alert({{request.script_root|tojson|safe}});
+    </script>
+</head>
+<body class="game">
+
+    <!-- Page Content -->
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="mt-5 text-center" >SIMOC</h1>
+                    <h2 class="text-center" style="color: #2283D8; ">A Scalable Model of an Isolated Off-World Colony</h2>
+                </div>
+            </div>
+            <div class="row">
+
+            </div>
+        </div>
+    </section>
+
+
+</body>
+</html>
