@@ -70,8 +70,7 @@ class HumanAgent(EnclosedAgent):
 
             #atmosphere
 
-            plumbing_system.water -= self._total_water_usage_per_day() * days_per_step
-            #self.plumbing_system.waste_water += 
+            plumbing_system.water_to_waste(self._total_water_usage_per_day() * days_per_step)
 
 
 

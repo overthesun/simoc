@@ -12,6 +12,14 @@ class PlumbingSystem(BaseAgent):
         self._attr("water", 0.0, is_client_attr=True, is_persisted_attr=True)
         self._attr("waste_water", 0.0, is_client_attr=True, is_persisted_attr=True)
 
+    def water_to_waste(self, amount):
+        self.water -= amount
+        self.waste_water += amount
+
+    def waste_to_water(self, amount):
+        self.waste_water -= amount
+        self.water += amount
+
 class Atmosphere(BaseAgent):
     _agent_type_name = "atmosphere"
 

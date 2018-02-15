@@ -3,6 +3,8 @@ import numbers
 import threading
 import datetime
 import numpy as np
+import functools
+import operator
 from uuid import uuid4
 
 from mesa import Model
@@ -14,7 +16,8 @@ from simoc_server.database.db_model import AgentModelState, AgentState, \
     AgentType, AgentModelSnapshot, SnapshotBranch, AgentModelParam
 
 from simoc_server import db
-from . import agents
+from simoc_server.agent_model import agents
+from simoc_server.util import sum_attributes
 
 
 class AgentModel(Model):
@@ -28,6 +31,9 @@ class AgentModel(Model):
         self.snapshot_branch = init_params.snapshot_branch
         self.seed = init_params.seed
         self.random_state = init_params.random_state
+
+        self.atmospheres = []
+        self.plumbing_systems = []
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -43,6 +49,29 @@ class AgentModel(Model):
 
         self.scheduler.steps = init_params.starting_step_num
 
+    @property
+    def total_water(self):
+        return sum_attributes(self.plumbing_systems, "water")
+
+    @property
+    def total_waste_water(self):
+        return sum_attributes(self.plumbing_systems, "waste_water")
+
+    @property
+    def total_oxygen(self):
+        return sum_attributes(self.atmospheres, "oxygen")
+
+    @property
+    def total_carbon_dioxide(self):
+        return sum_attributes(self.atmospheres, "carbon_dioxide")
+
+    @property
+    def total_nitrogen(self):
+        return sum_attributes(self.atmospheres, "nitrogen")
+
+    @property
+    def total_argon(self):
+        return sum_attributes(self.atmospheres, "argon")
 
     @property
     def step_num(self):
@@ -88,7 +117,6 @@ class AgentModel(Model):
             print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
 
         for agent in model.get_agents():
-            print("in post")
             agent.post_db_load()
 
         return model
@@ -153,6 +181,11 @@ class AgentModel(Model):
         if pos is not None:
             self.grid.place_agent(agent, pos)
 
+        if isinstance(agent, agents.Atmosphere):
+            self.atmospheres.append(agent)
+        elif isinstance(agent, agents.PlumbingSystem):
+            self.plumbing_systems.append(agent)
+
     def num_agents(self):
         return len(self.schedule.agents)
 
@@ -199,6 +232,9 @@ class AgentModel(Model):
         self.model_time += self.timedelta_per_step()
         self.scheduler.step()
         print("{0} step_num {1}".format(self, self.step_num))
+        print("o2: {} co2: {} n2: {} ar: {} h2o: {} waste_h2o: {}".format(
+            self.total_oxygen, self.total_carbon_dioxide, self.total_nitrogen,
+            self.total_argon, self.total_water, self.total_waste_water))
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)
@@ -219,6 +255,11 @@ class AgentModel(Model):
         if hasattr(agent, "pos"):
             self.grid.remove_agent(agent)
 
+        if isinstance(agent, agents.Atmosphere):
+            self.atmospheres.remove(agent)
+        elif isinstance(agent, agents.PlumbingSystem):
+            self.plumbing_systems.remove(agent)
+
     def get_agents(self, agent_type=None):
         if agent_type is None:
             return self.scheduler.agents
@@ -229,8 +270,6 @@ class AgentModel(Model):
         for agent in self.get_agents():
             if(agent.unique_id == unique_id):
                 return agent
-        print([a.unique_id for a in self.get_agents()])
-        print(unique_id)
         return None
 
 class AgentModelInitializationParams(object):
