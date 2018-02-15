@@ -3,9 +3,9 @@ import unittest
 
 from simoc_server import db
 from simoc_server.agent_model import AgentModel
-from simoc_server.agent_model.agents import BaseAgent
-from simoc_server.agent_model.agents.agent_name_mapping import _add_agent_class_to_mapping
-from simoc_server.agent_model.agent_attribute_meta import AgentAttributeHolder
+from simoc_server.agent_model.agents import (BaseAgent, get_agent_by_type_name,
+    _add_agent_class_to_mapping)
+from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 from simoc_server.serialize import AgentDTO
 from simoc_server.tests.test_util import setup_db, clear_db
@@ -293,7 +293,7 @@ class AgentsFrameworkTestCase(unittest.TestCase):
                 super().__init__(*args, **kwargs)
                 self._attr("parent_attribute", 1)
 
-        class AgentMixin(AgentAttributeHolder):
+        class AgentMixin(AttributeHolder):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
                 self._attr("mixin_attribute", 10)

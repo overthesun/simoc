@@ -50,3 +50,6 @@ def timedelta_to_minutes(time_d):
 
 def timedelta_to_seconds(time_d):
     return time_d.total_seconds()
+
+def timedelta_hour_of_day(time_d):
+    return time_d.seconds/float(datetime.timedelta(hours=1).total_seconds())

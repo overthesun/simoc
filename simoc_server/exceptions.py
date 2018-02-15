@@ -1,11 +1,10 @@
-from simoc_server.serialize import serialize_response
 from simoc_server import app
 
 class GenericError(Exception):
     status_code = 400
 
     def __init__(self, message, status_code=None):
-        super(GenericError, self).__init__()
+        super().__init__()
         if status_code is not None:
             self.status_code =  status_code
         self.message = message
@@ -22,7 +21,7 @@ class BadRegistration(GenericError):
     def __init__(self, message=None, status_code=None):
         if message is None:
             message = "Error During Registration"
-        super(BadRegistration, self).__init__(message, status_code=status_code)
+        super().__init__(message, status_code=status_code)
 
 class InvalidLogin(GenericError):
     status_code = 401
@@ -30,7 +29,7 @@ class InvalidLogin(GenericError):
     def __init__(self, message=None, status_code=None):
         if message is None:
             message = "Error During Login"
-        super(InvalidLogin, self).__init__(message, status_code=status_code)
+        super().__init__(message, status_code=status_code)
 
 class BadRequest(GenericError):
     status_code = 400
@@ -38,7 +37,7 @@ class BadRequest(GenericError):
     def __init__(self, message=None, status_code=None):
         if message is None:
             message = "Bad request."
-        super(BadRequest, self).__init__(message, status_code=status_code)
+        super().__init__(message, status_code=status_code)
 
 class NotFound(GenericError):
     status_code = 404
@@ -46,10 +45,18 @@ class NotFound(GenericError):
     def __init__(self, message=None, status_code=None):
         if message is None:
             message = "Not Found."
-        super(NotFound, self).__init__(message, status_code=status_code)
+        super().__init__(message, status_code=status_code)
 
-@app.errorhandler(GenericError)
-def handle_error(error):
-    response = serialize_response(error.to_dict())
-    response.status_code = error.status_code
-    return response
+class ServerError(GenericError):
+    status_code = 500
+
+    def __init__(self, message, status_code=None):
+        if message is None:
+            message = "Internal server error."
+        super().__init__(message, status_code=status_code)
+
+class AgentModelError(ServerError):
+    def __init__(self, message, status_code=None):
+        if message is None:
+            message = "Unknown error in agent model."
+        super().__init__(message, status_code=status_code)

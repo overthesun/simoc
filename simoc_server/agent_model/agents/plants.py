@@ -1,9 +1,9 @@
 import datetime
 
 from simoc_server.agent_model.sprite_mappers import PlantSpriteMapper
-from .baseagent import BaseAgent
+from simoc_server.agent_model.agents.core import EnclosedAgent
 
-class PlantAgent(BaseAgent):
+class PlantAgent(EnclosedAgent):
     # TODO implement each plant and abstract this class
 
     _agent_type_name = "default_plant"

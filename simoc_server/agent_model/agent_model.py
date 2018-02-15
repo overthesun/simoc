@@ -14,41 +14,8 @@ from simoc_server.database.db_model import AgentModelState, AgentState, \
     AgentType, AgentModelSnapshot, SnapshotBranch, AgentModelParam
 
 from simoc_server import db
-from .agents import *
+from . import agents
 
-class AgentModelInitializationParams(object):
-
-    snapshot_branch = None
-    seed = None
-    random_state = None
-
-    def set_grid_width(self, grid_width):
-        self.grid_width = grid_width
-        return self
-
-    def set_grid_height(self, grid_height):
-        self.grid_height = grid_height
-        return self
-
-    def set_starting_step_num(self, starting_step_num):
-        self.starting_step_num = starting_step_num
-        return self
-
-    def set_starting_model_time(self, starting_model_time):
-        self.starting_model_time = starting_model_time
-        return self
-
-    def set_snapshot_branch(self, snapshot_branch):
-        self.snapshot_branch = snapshot_branch
-        return self
-
-    def set_seed(self, seed):
-        self.seed = seed
-        return self
-
-    def set_random_state(self, random_state):
-        self.random_state = random_state
-        return self
 
 class AgentModel(Model):
 
@@ -115,18 +82,19 @@ class AgentModel(Model):
 
         for agent_state in agent_model_state.agent_states:
             agent_type_name = agent_state.agent_type.name
-            agent_class = agent_name_mapping[agent_type_name]
+            agent_class = agents.get_agent_by_type_name(agent_type_name)
             agent = agent_class(model, agent_state)
             model.add_agent(agent)
             print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
 
         for agent in model.get_agents():
+            print("in post")
             agent.post_db_load()
 
         return model
 
     @classmethod
-    def create_new(self, grid_width, grid_height):
+    def create_new(cls, grid_width, grid_height):
         init_params = AgentModelInitializationParams()
         (init_params.set_grid_width(grid_width)
                     .set_grid_height(grid_height)
@@ -135,15 +103,48 @@ class AgentModel(Model):
 
         model = AgentModel(init_params)
         # for testing
-        human_agent = HumanAgent(model)
-        model.add_agent(human_agent, (0,0))
-        human_agent = HumanAgent(model)
-        model.add_agent(human_agent, (1,2))
-        plant_agent = PlantAgent(model)
-        model.add_agent(plant_agent, (12, 1))
-        plant_agent = PlantAgent(model)
-        model.add_agent(plant_agent, (4, 4))
+        crew_quarters = agents.CrewQuarters(model)
+        model.add_agent(crew_quarters, (0,0))
+
+        atmosphere = cls.create_initial_atmosphere(model, [crew_quarters])
+        plumbing_system = cls.create_initial_plumbing_system(model, [crew_quarters])
+        model.add_agent(atmosphere)
+        model.add_agent(plumbing_system)
+        human_agent = agents.HumanAgent(model, structure=crew_quarters)
+        model.add_agent(human_agent)
+        human_agent = agents.HumanAgent(model, structure=crew_quarters)
+        model.add_agent(human_agent)
+        plant_agent = agents.PlantAgent(model, structure=crew_quarters)
+        model.add_agent(plant_agent)
+        plant_agent = agents.PlantAgent(model, structure=crew_quarters)
+        model.add_agent(plant_agent)
         return model
+
+    @classmethod
+    def create_initial_atmosphere(cls, model, structures):
+        atmosphere = agents.Atmosphere(model)
+
+        atmosphere.temp = model.initial_temp
+        atmosphere.oxygen = model.initial_oxygen
+        atmosphere.carbon_dioxide = model.initial_carbon_dioxide
+        atmosphere.nitrogen = model.initial_nitrogen
+        atmosphere.argon = model.initial_argon
+
+        for structure in structures:
+            structure.set_atmosphere(atmosphere, maintain_pressure=True)
+
+        return atmosphere
+
+    @classmethod
+    def create_initial_plumbing_system(cls, model, structures):
+        plumbing_system = agents.PlumbingSystem(model)
+        plumbing_system.water = model.initial_water
+        plumbing_system.waste_water = model.initial_waste_water
+
+        for structure in structures:
+            structure.set_plumbing_system(plumbing_system)
+
+        return plumbing_system
 
     def add_agent(self, agent, pos=None):
         if pos is None and hasattr(agent, "pos"):
@@ -228,5 +229,40 @@ class AgentModel(Model):
         for agent in self.get_agents():
             if(agent.unique_id == unique_id):
                 return agent
+        print([a.unique_id for a in self.get_agents()])
+        print(unique_id)
         return None
 
+class AgentModelInitializationParams(object):
+
+    snapshot_branch = None
+    seed = None
+    random_state = None
+
+    def set_grid_width(self, grid_width):
+        self.grid_width = grid_width
+        return self
+
+    def set_grid_height(self, grid_height):
+        self.grid_height = grid_height
+        return self
+
+    def set_starting_step_num(self, starting_step_num):
+        self.starting_step_num = starting_step_num
+        return self
+
+    def set_starting_model_time(self, starting_model_time):
+        self.starting_model_time = starting_model_time
+        return self
+
+    def set_snapshot_branch(self, snapshot_branch):
+        self.snapshot_branch = snapshot_branch
+        return self
+
+    def set_seed(self, seed):
+        self.seed = seed
+        return self
+
+    def set_random_state(self, random_state):
+        self.random_state = random_state
+        return self

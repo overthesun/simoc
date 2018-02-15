@@ -1,16 +1,17 @@
 from abc import ABCMeta, abstractmethod
 from mesa import Agent
 from uuid import uuid4
+import inspect
 
 from simoc_server import db
 from simoc_server.util import load_db_attributes_into_dict, extend_dict
 from simoc_server.database.db_model import AgentType, AgentState, AgentStateAttribute
 from simoc_server.agent_model.sprite_mappers import DefaultSpriteMapper
-from simoc_server.agent_model.agent_attribute_meta import AgentAttributeHolder
+from simoc_server.agent_model.attribute_meta import AttributeHolder
 
 PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__, type(None).__name__]
 
-class BaseAgent(Agent, AgentAttributeHolder):
+class BaseAgent(Agent, AttributeHolder):
     __metaclass__ = ABCMeta
 
     _sprite_mapper = DefaultSpriteMapper
@@ -23,7 +24,7 @@ class BaseAgent(Agent, AgentAttributeHolder):
 
     def __init__(self, model, agent_state=None):
         self.__class__._load_agent_type_attributes()
-        AgentAttributeHolder.__init__(self)
+        AttributeHolder.__init__(self)
 
         self.active = True
         if agent_state is not None:
@@ -47,13 +48,15 @@ class BaseAgent(Agent, AgentAttributeHolder):
             If class does not define _agent_type_name or if the specified
             agent type cannot be located in the database
         """
-        if not cls._agent_type_name:
-            raise Exception("_agent_type_name not set")
+        if cls._agent_type_name is None:
+            raise Exception("_agent_type_name not set for class {}".format(cls))
+
         if cls._last_loaded_type_attr_class is not cls:
             agent_type_name = cls._agent_type_name
             agent_type = AgentType.query.filter_by(name=agent_type_name).first()
             if agent_type is None:
-                raise Exception("Cannot find agent_type in database with name '{0}'".format(agent_type_name))
+                raise Exception("Cannot find agent_type in database with name '{0}'. Please"
+                    " create associated AgentType and add to database".format(agent_type_name))
 
             attributes = {}
 
@@ -75,7 +78,7 @@ class BaseAgent(Agent, AgentAttributeHolder):
             cls._last_loaded_type_attr_class = cls
 
             # store agent type id for later saving of agent state
-            cls.__agent_type_id__ = agent_type.id
+            cls._agent_type_id = agent_type.id
 
     def get_agent_type(self):
         """
@@ -84,7 +87,7 @@ class BaseAgent(Agent, AgentAttributeHolder):
         AgentType
             Returns the AgentType related to the instance Agent
         """
-        return AgentType.query.get(self.__class.__agent_type_id__)
+        return AgentType.query.get(self.__class._agent_type_id)
 
     def get_agent_type_attribute(self, name):
         """ Get agent type attribute by name as it was defined in database
@@ -127,7 +130,7 @@ class BaseAgent(Agent, AgentAttributeHolder):
 
     def snapshot(self, agent_model_state, commit=True):
         pos = self.pos if hasattr(self, "pos") else (None, None)
-        agent_state = AgentState(agent_type_id=self.__class__.__agent_type_id__,
+        agent_state = AgentState(agent_type_id=self.__class__._agent_type_id,
                  agent_model_state=agent_model_state, agent_unique_id=self.unique_id,
                  model_time_created=self.model_time_created, pos_x=pos[0], pos_y=pos[1])
 
@@ -162,3 +165,25 @@ class BaseAgent(Agent, AgentAttributeHolder):
     def destroy(self):
         self.active = False
         self.model.remove(self)
+
+
+class EnclosedAgent(BaseAgent):
+
+    _agent_type_name = "enclosed_agent"
+
+    def __init__(self, *args, **kwargs):
+        structure = kwargs.pop("structure", None)
+        super().__init__(*args, **kwargs)
+
+        from .structure import Structure
+
+        self._attr("structure", structure, _type=Structure, is_persisted_attr=True, is_client_attr=True)
+
+    def destroy(self):
+        super().destroy()
+        self.structure.remove_agent_from(self)
+
+    def add_to_structure(self, target):
+        if self.structure is not None:
+            self.structure.remove_agent_from(self)
+        target.add_agent_to(self)
