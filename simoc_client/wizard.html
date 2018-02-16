@@ -1,305 +1,83 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
+  <head>
 
-<head>
-	   <meta charset="utf-8">
-    <!-- This file has been downloaded from Bootsnipp.com. Enjoy! -->
-    <title>Form wizard (using tabs) - Bootsnipp.com</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script src="js/wizard.js"></script>
-  <link rel="stylesheet" href="css/wizard.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-</style>
-</head>
+  	<link rel="stylesheet" href="css/wizard.css">
 
-<body>
-	<div class="container">
-		<div class = "row">
-			<section>
-			<div class="wizard">
-				<div class="wizard-inner">
-					<div class="connecting-line"></div>
-					<ul class="nav nav-tabs" role="tablist">
 
-						<li role="presentation" class="active">
-							<a href="#launch" data-toggle="tab" aria-controls="launch" role="tab" title="Launch">
-								<span class="round-tab">
-									<i class="glypicon glyphicon-folder-open"></i> <!-- This will need to be changed once we have icons -->
-								</span>
-							</a>
-						</li>
+  </head>
+  <body>
 
-						<li role="presentation" class="disabled">
-							<a href="#location" data-toggle="tab" aria-controls="location" role="tab" title="Location">
-								<span class="round-tab">
-									<i class="glypicon glyphicon-folder-open"></i> <!-- This will need to be changed once we have icons -->
-								</span>
-							</a>
-						</li>
+    <div class="container">
+      <div class="card-deck">
+      <div class="card">
+        <div class="card-header">
+        <!--<div class="connecting-line"></div>-->
+        <div class="tab">
+        <ul class="nav nav-tabs">
+      		<li class="nav-item">
+      			<a class="nav-link active" data-toggle="tab" href="#">A</a>
+      		</li>
 
-						<li role="presentation" class="disabled">
-							<a href="#region" data-toggle="tab" aria-controls="region" role="tab" title="Region">
-								<span class="round-tab">
-									<i class="glypicon glyphicon-folder-open"></i> <!-- This will need to be changed once we have icons -->
-								</span>
-							</a>
-						</li>
+    		  <li class="nav-item">
+      			<a class="nav-link " data-toggle="tab" href="#">A</a>
+      		</li>  		
 
-						<li role="presentation" class="disabled">
-							<a href="#terrain" data-toggle="tab" aria-controls="terrain" role="tab"
-							title="Terrain">
-								<span class="round-tab">
-									<i class="glypicon glyphicon-folder-open"></i> <!-- This will need to be changed once we have icons -->
-								</span>
-							</a>
-						</li>
+    			<li class="nav-item">
+      			<a class="nav-link disabled" data-toggle="tab" href="#">A</a>
+      		</li>
 
-						<li role="presentation" class="disabled">
-							<a href="#window" data-toggle="tab" aria-controls="window" role="tab"
-							title="Launch Window">
-								<span class="round-tab">
-									<i class="glypicon glyphicon-folder-open"></i> <!-- This will need to be changed once we have icons -->
-								</span>
-							</a>
-						</li>
+          <li class="nav-item">
+            <a class="nav-link disabled" data-toggle="tab" href="#">A</a>
+          </li>
 
-						<li role="presentation" class="disabled">
-							<a href="#transportation" data-toggle="tab" aria-controls="transportation" role="tab"
-							title="Transportation">
-								<span class="round-tab">
-									<i class="glypicon glyphicon-folder-open"></i> <!-- This will need to be changed once we have icons -->
-								</span>
-							</a>
-						</li>
+          <li class="nav-item">
+            <a class="nav-link " data-toggle="tab" href="#">A</a>
+          </li>     
 
-						<li role="presentation" class="disabled">
-							<a href="#payload" data-toggle="tab" aria-controls="payload" role="tab"
-							title="Payload">
-								<span class="round-tab">
-									<i class="glypicon glyphicon-folder-open"></i> <!-- This will need to be changed once we have icons -->
-								</span>
-							</a>
-						</li>
+          <li class="nav-item">
+            <a class="nav-link disabled" data-toggle="tab" href="#">A</a>
+          </li>
 
-						<li role="presentation" class="disabled">
-							<a href="#model" data-toggle="tab" aria-controls="model" role="tab"
-							title="Model">
-								<span class="round-tab">
-									<i class="glypicon glyphicon-folder-open"></i> <!-- This will need to be changed once we have icons -->
-								</span>
-							</a>
-						</li>
+          <li class="nav-item">
+            <a class="nav-link disabled" data-toggle="tab" href="#">A</a>
+          </li>
 
-						<li role="presentation" class="disabled">
-							<a href="#mode" data-toggle="tab" aria-controls="mode" role="tab"
-							title="Mode">
-								<span class="round-tab">
-									<i class="glypicon glyphicon-folder-open"></i> <!-- This will need to be changed once we have icons -->
-								</span>
-							</a>
-						</li>
+          <li class="nav-item">
+            <a class="nav-link " data-toggle="tab" href="#">A</a>
+          </li>     
 
-						<li role="presentation" class="disabled">
-							<a href="#finalize" data-toggle="tab" aria-controls="finalize" role="tab"
-							title="Finalize">
-								<span class="round-tab">
-									<i class="glypicon glyphicon-folder-open"></i> <!-- This will need to be changed once we have icons -->
-								</span>
-							</a>
-						</li>
-					</ul>
-				</div>
+          <li class="nav-item">
+            <a class="nav-link disabled" data-toggle="tab" href="#">A</a>
+          </li>
 
-				<form role="form">
-					<div class="tab-content">
+          <li class="nav-item">
+            <a class="nav-link disabled" data-toggle="tab" href="#"></a>
+          </li>
 
-						<div class="tab-pane active" role="tabpanel" id="launch">
-							<h3>Launch Year</h3>
-							<p>Welcome To SIMOC</p>
-							<p>Please Select A Year For Initial Launch Window</p>
-							<div class="dropdown">
-								<button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									Launch
-								</button>
+        </ul>
 
-								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-								</ul>								
-							</div>
+      </div>
+      </div>
 
-							<ul class="list-inline pull-right">
-								<li><button type="button" class="btn btn-primary btn-lg next-step"> Next</button></li>
-							</ul>
-						</div>
+      <div class="card-body"></div>
+        <form>
+        </form>
+      </div>
 
-						<div class="tab-pane" role="tabpanel" id="location">
-							<h3>Location</h3>
-							<p>Temporary Description Placement</p>
-							<div class="dropdown">
-								<button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									Launch
-								</button>
+      <div class="card">
+        <h2>STEP INFORMATION</h2>
+        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+      </div>
+    </div>
+  </div>
 
-								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-								</ul>								
-							</div>
-
-							<ul class="list-inline pull-right">
-								<li><button type="button" class="btn btn-primary btn-lg next-step"> Next</button></li>
-							</ul>
-						</div>
-
-						<div class="tab-pane" role="tabpanel" id="region">
-							<h3>Region</h3>
-							<p>Temporary Description Placement</p>
-							<div class="dropdown">
-								<button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									Launch
-								</button>
-
-								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-								</ul>								
-							</div>
-
-							<ul class="list-inline pull-right">
-								<li><button type="button" class="btn btn-primary btn-lg next-step"> Next</button></li>
-							</ul>
-						</div>
-
-						<div class="tab-pane" role="tabpanel" id="terrain">
-							<h3>Terrain</h3>
-							<p>Temporary Description Placement</p>
-							<div class="dropdown">
-								<button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									Launch
-								</button>
-
-								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-								</ul>								
-							</div>
-
-							<ul class="list-inline pull-right">
-								<li><button type="button" class="btn btn-primary btn-lg next-step"> Next</button></li>
-							</ul>
-						</div>
-
-						<div class="tab-pane" role="tabpanel" id="window">
-							<h3>Launch Window</h3>
-							<p>Temporary Description Placement</p>
-							<div class="dropdown">
-								<button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									Launch
-								</button>
-
-								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-								</ul>								
-							</div>
-
-							<ul class="list-inline pull-right">
-								<li><button type="button" class="btn btn-primary btn-lg next-step"> Next</button></li>
-							</ul>
-						</div>
-
-						<div class="tab-pane" role="tabpanel" id="transportation">
-							<h3>Transportation</h3>
-							<p>Temporary Description Placement</p>
-							<div class="dropdown">
-								<button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									Launch
-								</button>
-
-								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-								</ul>								
-							</div>
-
-							<ul class="list-inline pull-right">
-								<li><button type="button" class="btn btn-primary btn-lg next-step"> Next</button></li>
-							</ul>
-						</div>
-
-						<div class="tab-pane" role="tabpanel" id="payload">
-							<h3>Payload</h3>
-							<p>Temporary Description Placement</p>
-							<div class="dropdown">
-								<button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									Launch
-								</button>
-
-								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-								</ul>								
-							</div>
-
-							<ul class="list-inline pull-right">
-								<li><button type="button" class="btn btn-primary btn-lg next-step"> Next</button></li>
-							</ul>
-						</div>
-
-						<div class="tab-pane" role="tabpanel" id="mode">
-							<h3>Mode</h3>
-							<p>Temporary Description Placement</p>
-							<div class="dropdown">
-								<button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									Launch
-								</button>
-
-								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-								</ul>								
-							</div>
-
-							<ul class="list-inline pull-right">
-								<li><button type="button" class="btn btn-primary btn-lg next-step"> Next</button></li>
-							</ul>
-						</div>
-
-						<div class="tab-pane" role="tabpanel" id="finalize">
-							<h3>Finalize</h3>
-							<p>Temporary Description Placement</p>
-							<div class="dropdown">
-								<button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									Launch
-								</button>
-
-								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-									<li><a class="dropdown-item" href="#">Launch Date Year XXXX</a></li>
-								</ul>								
-							</div>
-
-							<ul class="list-inline pull-right">
-								<li><button type="button" class="btn btn-primary btn-lg next-step"> Next</button></li>
-							</ul>
-						</div>
-					</div>
-				</form>
-			</div>
-		</section>
-	</div>
-</body>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
 </html>
