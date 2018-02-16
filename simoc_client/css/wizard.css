@@ -32,16 +32,15 @@ a.active hover:after{
   left:0;
 }
 
-a.disabled:hover:after{
-  width:0;
-}
-
 a:after{
   right:0;
   left:auto;
 }
 
+
 a.active:after{
+  right:auto;
+  left:0;
   width:100%;
 }
 

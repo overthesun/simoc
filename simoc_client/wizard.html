@@ -8,6 +8,9 @@
 
   	<link rel="stylesheet" href="css/wizard.css">
 
+    
+
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
 
   </head>
   <body>
@@ -19,55 +22,130 @@
         <!--<div class="connecting-line"></div>-->
         <div class="tab">
         <ul class="nav nav-tabs">
-      		<li class="nav-item">
-      			<a class="nav-link active" data-toggle="tab" href="#">A</a>
+      		<li class="nav-item active">
+      			<a class="nav-link active" data-toggle="tab" href="#launch"><i class="fas fa-calendar-alt"></i></a>
       		</li>
 
-    		  <li class="nav-item">
-      			<a class="nav-link " data-toggle="tab" href="#">A</a>
+    		  <li class="nav-item disabled">
+      			<a class="nav-link " data-toggle="tab" href="#location"><i class="fas fa-globe"></i></a>
       		</li>  		
 
-    			<li class="nav-item">
-      			<a class="nav-link disabled" data-toggle="tab" href="#">A</a>
+    			<li class="nav-item disabled">
+      			<a class="nav-link" data-toggle="tab" href="#region"><i class="fas fa-map"></i></a>
       		</li>
 
-          <li class="nav-item">
-            <a class="nav-link disabled" data-toggle="tab" href="#">A</a>
+          <li class="nav-item disabled">
+            <a class="nav-link" data-toggle="tab" href="#terrain"><i class="fas fa-map-pin"></i></a>
           </li>
 
-          <li class="nav-item">
-            <a class="nav-link " data-toggle="tab" href="#">A</a>
+          <li class="nav-item disabled">
+            <a class="nav-link" data-toggle="tab" href="#transportation"><i class="fas fa-clock"></i></a>
           </li>     
 
-          <li class="nav-item">
-            <a class="nav-link disabled" data-toggle="tab" href="#">A</a>
+          <li class="nav-item  disabled">
+            <a class="nav-link" data-toggle="tab" href="#payload"><i class="fas fa-rocket"></i></a>
           </li>
 
-          <li class="nav-item">
-            <a class="nav-link disabled" data-toggle="tab" href="#">A</a>
+          <li class="nav-item  disabled">
+            <a class="nav-link" data-toggle="tab" href="#model"><i class="fas fa-shopping-cart"></i></a>
           </li>
 
-          <li class="nav-item">
-            <a class="nav-link " data-toggle="tab" href="#">A</a>
-          </li>     
-
-          <li class="nav-item">
-            <a class="nav-link disabled" data-toggle="tab" href="#">A</a>
+          <li class="nav-item  disabled">
+            <a class="nav-link" data-toggle="tab" href="#mode"><i class="fas fa-clipboard"></i></a>
           </li>
 
-          <li class="nav-item">
-            <a class="nav-link disabled" data-toggle="tab" href="#"></a>
-          </li>
-
+          <li class="nav-item  disabled">
+            <a class="nav-link" data-toggle="tab" href="#finalize"><i class="fas fa-play"></i></a>
+          </li>       
         </ul>
 
       </div>
       </div>
 
-      <div class="card-body"></div>
-        <form>
-        </form>
+      <div class="card-body">
+
+        <form action="" method="post">  
+
+      <div class="tab-content">   
+         
+          <div id="launch" class="tab-pane active" role="tabpanel">
+            <select id="launch-selector">
+              <option value="2020">2020</option>
+            </select>
+            <br><br><button type="button" class="btn btn-primary next-step">Next</button>
+          </div>
+          
+          <div id="location" class="tab-pane" role="tabpanel">
+            <select id="location-selector">
+              <option value="earth-orbit" disabled>Earth Orbit</option>
+              <option value="moon" disabled>The Moon</option>
+              <option value="mars" disabled>Mars</option>
+              <option value="asteroid-belt" disabled>Asteroid Belt</option>
+              <option value="enceladus" disabled>Eceladus</option>
+            </select>
+            <br><br><button type="button" class="btn btn-primary next-step">Next</button>
+          </div>
+          
+          <div id="region" class="tab-pane" role="tabpanel">
+            <select id="region-selector">
+            </select>
+            <br><br><button type="button" class="btn btn-primary next-step">Next</button>
+          </div>
+
+          <div id="terrain" class="tab-pane" role="tabpanel">
+            <select id="terrain-selector">
+            </select>
+
+            <br><br><button type="button" class="btn btn-primary next-step">Next</button>
+          </div>
+
+          <div id="window" class="tab-pane" role="tabpanel">
+            <select id="window-selector">
+            </select>
+
+            <select id="duration-selector">
+            </select>
+
+            <br><br><button type="button" class="btn btn-primary next-step">Next</button>
+          </div>
+
+          <div id="transportation" class="tab-pane" role="tabpanel">
+            <select id="transportation-selector">
+            </select>
+
+            <br><br><button type="button" class="btn btn-primary next-step">Next</button>
+          </div>
+
+
+          <div id="payload" class="tab-pane" role="tabpanel">
+            <select id="payload-selector">
+            </select>
+
+            <br><br><button type="button" class="btn btn-primary next-step">Next</button>
+          </div>
+
+          <div id="model" class="tab-pane" role="tabpanel">
+            <select id="model-selector">
+            </select>
+
+            <br><br><button type="button" class="btn btn-primary next-step">Next</button>
+          </div>
+
+          <div id="mode" class="tab-pane" role="tabpanel">
+            <select id="mode-selector">
+            </select>
+
+            <br><br><button type="button" class="btn btn-primary next-step">Next</button>
+          </div>
+
+          <div id="finalize" class="tab-pane" role="tabpanel">
+            <br><br><input type="submit" value="submit">Finalize</button>
+          </div
+
+        </form>        
       </div>
+     </div>
+   </div>
 
       <div class="card">
         <h2>STEP INFORMATION</h2>
@@ -79,5 +157,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="js/wizard.js"></script>
   </body>
 </html>
+
