@@ -105,10 +105,3 @@ class HumanAgent(EnclosedAgent):
 
             self._cached_total_water_usage_per_day = consumed + hygiene + medical
             return self._cached_total_water_usage_per_day
-
-    # def _initial_waste_water_per_day(self):
-    #     try:
-    #         # try cached value
-    #         return self._cached_initial_waste_water_per_day
-    #     except AttributeError as ex:
-

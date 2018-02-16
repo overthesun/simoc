@@ -1,15 +1,27 @@
 from simoc_server.agent_model.agents.human import HumanAgent
-from simoc_server.agent_model.agents.plants import PlantAgent
+
+from simoc_server.agent_model.agents.plants import (PlantAgent, CabbageAgent, CarrotAgent, ChardAgent, 
+    CryBeanAgent, LettuceAgent, PeaAgent, PeanutAgent, PepperAgent, RedBeetAgent, RiceAgent, SnapBeanAgent, 
+    SoybeanAgent, SpinachAgent, StrawberryAgent, SweetPotatoAgent, TomatoAgent, WheatAgent, WhitePotatoAgent)
+
 from simoc_server.agent_model.agents.core import BaseAgent, EnclosedAgent
+
 from simoc_server.agent_model.agents.structure import (PlumbingSystem, Atmosphere, Structure,
     Airlock, CrewQuarters, Greenhouse, Kitchen, PowerStation, RocketPad, RoverDock, StorageFacility)
 
 # Until a better solution can be found, agents must be imported here and added to the below list
 
-_agent_classes = [HumanAgent, PlantAgent, BaseAgent, EnclosedAgent,PlumbingSystem, Atmosphere, 
-    Structure, Airlock, CrewQuarters, Greenhouse, Kitchen, PowerStation, RocketPad, RoverDock, StorageFacility]
+# core agents + human
+_agent_classes = [ BaseAgent, EnclosedAgent, HumanAgent ]
 
+# structure agents
+_agent_classes += [ PlumbingSystem, Atmosphere, Structure, Airlock, CrewQuarters, 
+    Greenhouse, Kitchen, PowerStation, RocketPad, RoverDock, StorageFacility ]
 
+# plant agents
+_agent_classes += [ PlantAgent, CabbageAgent, CarrotAgent, ChardAgent, 
+    CryBeanAgent, LettuceAgent, PeaAgent, PeanutAgent, PepperAgent, RedBeetAgent, RiceAgent, SnapBeanAgent, 
+    SoybeanAgent, SpinachAgent, StrawberryAgent, SweetPotatoAgent, TomatoAgent, WheatAgent, WhitePotatoAgent ]
 
 
 agent_name_mapping = {}
@@ -30,3 +42,5 @@ def get_agent_by_type_name(name):
 
 _add_all()
 del _add_all
+
+

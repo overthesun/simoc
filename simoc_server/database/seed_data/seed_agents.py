@@ -152,11 +152,11 @@ def add_plant(data, name, oxygen, carbon, water, edible, inedible):
     agent_type = AgentType(name=name)
     data["{0}_plant_agent_type".format(name)] = agent_type
 
-    create_agent_type_attr(agent_type, "oxygen_consumption", oxygen, "(g/m^2)*day",
+    create_agent_type_attr(agent_type, "oxygen_consumption", oxygen, "g/(m^2*day)",
         "Oxygen consumed by the plant.")
-    create_agent_type_attr(agent_type, "carbon_uptake", carbon, "(g/m^2)*day",
+    create_agent_type_attr(agent_type, "carbon_uptake", carbon, "g/(m^2*day)",
         "Carbon uptake by the plant.")
-    create_agent_type_attr(agent_type, "water_uptake", water, "(kg/m^2)*day",
+    create_agent_type_attr(agent_type, "water_uptake", water, "kg/(m^2*day)",
         "Water uptake by the plant.")
     create_agent_type_attr(agent_type, "edible", edible, "(g[dry weight]/(m^2*day)",
         "The edible mass created by the plant per day.")
