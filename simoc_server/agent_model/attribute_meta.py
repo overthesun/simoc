@@ -1,4 +1,4 @@
-class AgentAttributeDescriptor(object):
+class AttributeDescriptor(object):
 
     def __init__(self, _type, is_client_attr, is_persisted_attr):
         self._type = _type
@@ -8,7 +8,7 @@ class AgentAttributeDescriptor(object):
     def __repr__(self):
         return "type: {} is_client_attr: {} is_persisted_attr: {}".format(self._type, self.is_client_attr, self.is_persisted_attr)
 
-class AgentAttributeHolder(object):
+class AttributeHolder(object):
 
     def __init__(self):
         self.attribute_descriptors = {}
@@ -20,4 +20,4 @@ class AgentAttributeHolder(object):
         if(name not in self.__dict__.keys()):
             self.__dict__[name] = default_value
 
-        self.attribute_descriptors[name] = AgentAttributeDescriptor(_type, is_client_attr, is_persisted_attr)
+        self.attribute_descriptors[name] = AttributeDescriptor(_type, is_client_attr, is_persisted_attr)

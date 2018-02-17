@@ -1,9 +1,9 @@
 import datetime
 
 from simoc_server.agent_model.sprite_mappers import PlantSpriteMapper
-from .baseagent import BaseAgent
+from simoc_server.agent_model.agents.core import EnclosedAgent
 
-class PlantAgent(BaseAgent):
+class PlantAgent(EnclosedAgent):
     # TODO implement each plant and abstract this class
 
     _agent_type_name = "default_plant"
@@ -25,4 +25,59 @@ class PlantAgent(BaseAgent):
         if age > self.grow_time:
             self.status = "grown"
         if age > self.lifespan:
-            self.destroy(self)
+            self.destroy()
+
+
+class CabbageAgent(PlantAgent):
+    _agent_type_name = "cabbage"
+
+class CarrotAgent(PlantAgent):
+    _agent_type_name = "carrot"
+
+class ChardAgent(PlantAgent):
+    _agent_type_name = "chard"
+
+class CryBeanAgent(PlantAgent):
+    _agent_type_name = "cry_bean"
+
+class LettuceAgent(PlantAgent):
+    _agent_type_name = "Lettuce"
+
+class PeaAgent(PlantAgent):
+    _agent_type_name = "pea"
+
+class PeanutAgent(PlantAgent):
+    _agent_type_name = "peanut"
+
+class PepperAgent(PlantAgent):
+    _agent_type_name = "pepper"
+
+class RedBeetAgent(PlantAgent):
+    _agent_type_name = "red_beet"
+
+class RiceAgent(PlantAgent):
+    _agent_type_name = "rice"
+
+class SnapBeanAgent(PlantAgent):
+    _agent_type_name = "snap_bean"
+
+class SoybeanAgent(PlantAgent):
+    _agent_type_name = "soybean"
+
+class SpinachAgent(PlantAgent):
+    _agent_type_name = "spinach"
+
+class StrawberryAgent(PlantAgent):
+    _agent_type_name = "strawberry"
+
+class SweetPotatoAgent(PlantAgent):
+    _agent_type_name = "sweet_potato"
+
+class TomatoAgent(PlantAgent):
+    _agent_type_name = "tomato"
+
+class WheatAgent(PlantAgent):
+    _agent_type_name = "wheat"
+
+class WhitePotatoAgent(PlantAgent):
+    _agent_type_name = "white_potato"

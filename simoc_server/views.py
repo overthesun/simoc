@@ -9,10 +9,11 @@ from flask import request, session, send_from_directory, safe_join, render_templ
 from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request, data_format_name
 from simoc_server.database.db_model import User, SavedGame
-from simoc_server.agent_model.agents.agent_name_mapping import agent_name_mapping
+from simoc_server.agent_model.agents import agent_name_mapping
 from simoc_server.game_runner import GameRunner
-from simoc_server import error_handlers
 
+from simoc_server.exceptions import InvalidLogin, BadRequest, \
+    BadRegistration, NotFound, GenericError
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -56,7 +57,7 @@ def login():
 
     Raises
     ------
-    simoc_server.error_handlers.InvalidLogin
+    simoc_server.exceptions.InvalidLogin
         If the user with the given username or password cannot
         be found.
     '''
@@ -67,7 +68,7 @@ def login():
     if user and user.validate_password(password):
         login_user(user)
         return success("Logged In.")
-    raise error_handlers.InvalidLogin("Bad username or password.")
+    raise InvalidLogin("Bad username or password.")
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -82,19 +83,19 @@ def register():
 
     Raises
     ------
-    simoc_server.error_handlers.BadRegistration
+    simoc_server.exceptions.BadRegistration
         If the user already exists.
     '''
     if request.deserialized is None:
-        raise error_handlers.BadRequest("No data or malformed data in request.")
+        raise BadRequest("No data or malformed data in request.")
     if "username" not in request.deserialized.keys():
-        raise error_handlers.BadRequest("Username not found in request content.")
+        raise BadRequest("Username not found in request content.")
     if "password" not in request.deserialized.keys():
-        raise error_handlers.BadRequest("Password not found in request content.")
+        raise BadRequest("Password not found in request content.")
     username = request.deserialized["username"]
     password = request.deserialized["password"]
     if(User.query.filter_by(username=username).first()):
-        raise error_handlers.BadRegistration("User already exists")
+        raise BadRegistration("User already exists")
     user = User(username=username)
     user.set_password(password)
     db.session.add(user)
@@ -201,10 +202,10 @@ def load_game():
 
     Raises
     ------
-    simoc_server.error_handlers.BadRequest
+    simoc_server.exceptions.BadRequest
         If 'saved_game_id' is not in the json data on the request.
 
-    simoc_server.error_handlers.NotFound
+    simoc_server.exceptions.NotFound
         If the GameRunner with the requested 'saved_game_id' does not
         exist in game_runners dictionary
 
@@ -214,10 +215,10 @@ def load_game():
     if "saved_game_id" in request.deserialized.keys():
         saved_game_id = request.deserialized["saved_game_id"]
     else:
-        raise error_handlers.BadRequest("Required value 'saved_game_id' not found in request.")
+        raise BadRequest("Required value 'saved_game_id' not found in request.")
     saved_game = SavedGame.query.get(saved_game_id)
     if saved_game is None:
-        raise error_handlers.NotFound("Requested game not found in loaded games.")
+        raise NotFound("Requested game not found in loaded games.")
     game_runner = GameRunner.load_from_saved_game(saved_game)
     add_game_runner(game_runner)
     return success("Game loaded successfully.")
@@ -329,7 +330,7 @@ def get_sprite(sprite_path):
     full_path = safe_join(app.root_path, root_path, sprite_path)
     if not os.path.isfile(full_path):
         print(full_path)
-        raise error_handlers.NotFound("Requested sprite not found: {0}".format(sprite_path))
+        raise NotFound("Requested sprite not found: {0}".format(sprite_path))
     return send_from_directory(root_path, sprite_path)
 
 @login_manager.user_loader
@@ -354,17 +355,17 @@ def get_game_runner():
         simoc_server.game_runner.GameRunner
     Raises
     ------
-    simoc_server.error_handlers.BadRequest
+    simoc_server.exceptions.BadRequest
         If there is there is not 'game_runner_id' in the session
         attached to the request.
-    simoc_server.error_handlers.NotFound
+    simoc_server.exceptions.NotFound
         If the GameRunner with the requested id is not found.
     '''
     if "game_runner_id" not in session.keys():
-        raise error_handlers.BadRequest("No game found in session.")
+        raise BadRequest("No game found in session.")
     game_runner_id = session["game_runner_id"]
     if game_runner_id not in game_runners.keys():
-        raise error_handlers.NotFound("Game not found.")
+        raise NotFound("Game not found.")
     game_runner = game_runners[game_runner_id]
     return game_runner
 
@@ -414,3 +415,22 @@ def success(message, status_code=200):
         })
     response.status_code = status_code
     return response
+
+@app.errorhandler(GenericError)
+def handle_error(error):
+    """Handles GenericError type exceptions
+    
+    Parameters
+    ----------
+    error : GenericError
+        Error thrown
+    
+    Returns
+    -------
+    Serialized Response
+        The response to send to the client
+    """
+    response = serialize_response(error.to_dict())
+    response.status_code = error.status_code
+    return response
+

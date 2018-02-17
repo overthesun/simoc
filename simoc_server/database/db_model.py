@@ -13,12 +13,12 @@ class BaseEntity(db.Model):
     @declared_attr
     def date_created(cls):
         # work around to move columns to end of table
-        date_created = db.Column(db.DateTime, server_default=db.func.now())
+        return db.Column(db.DateTime, server_default=db.func.now())
 
     @declared_attr
     def date_modified(cls):
         # work around to move columns to end of table
-        date_modified = db.Column(db.DateTime, server_default=db.func.now(),
+        return db.Column(db.DateTime, server_default=db.func.now(),
             server_onupdate=db.func.now())
 
 class User(BaseEntity, UserMixin):

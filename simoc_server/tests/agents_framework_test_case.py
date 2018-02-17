@@ -3,9 +3,9 @@ import unittest
 
 from simoc_server import db
 from simoc_server.agent_model import AgentModel
-from simoc_server.agent_model.agents import BaseAgent
-from simoc_server.agent_model.agents.agent_name_mapping import _add_agent_class_to_mapping
-from simoc_server.agent_model.agent_attribute_meta import AgentAttributeHolder
+from simoc_server.agent_model.agents import (BaseAgent, get_agent_by_type_name,
+    _add_agent_class_to_mapping)
+from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 from simoc_server.serialize import AgentDTO
 from simoc_server.tests.test_util import setup_db, clear_db
@@ -293,7 +293,7 @@ class AgentsFrameworkTestCase(unittest.TestCase):
                 super().__init__(*args, **kwargs)
                 self._attr("parent_attribute", 1)
 
-        class AgentMixin(AgentAttributeHolder):
+        class AgentMixin(AttributeHolder):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
                 self._attr("mixin_attribute", 10)
@@ -370,37 +370,38 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         agent_child_two_type  = AgentType(name="agent_child_two")
 
         # set up agent type attributes
-        agent_root_attr_a = AgentTypeAttribute(agent_type=agent_root_type,
+        AgentTypeAttribute(agent_type=agent_root_type,
             name="a", value=10, value_type="int")
-        agent_root_attr_m = AgentTypeAttribute(agent_type=agent_root_type,
+        AgentTypeAttribute(agent_type=agent_root_type,
             name="m", value="root_m", value_type="str")
 
-        agent_parent_one_b = AgentTypeAttribute(agent_type=agent_parent_one_type,
+        AgentTypeAttribute(agent_type=agent_parent_one_type,
             name="b", value=11, value_type="int")
-        agent_parent_one_m = AgentTypeAttribute(agent_type=agent_parent_one_type,
+        AgentTypeAttribute(agent_type=agent_parent_one_type,
             name="m", value="parent_one_m", value_type="str")
-        agent_parent_one_n = AgentTypeAttribute(agent_type=agent_parent_one_type,
+        AgentTypeAttribute(agent_type=agent_parent_one_type,
             name="n", value="parent_one_n", value_type="str")
 
-        agent_parent_two_c = AgentTypeAttribute(agent_type=agent_parent_two_type,
+        AgentTypeAttribute(agent_type=agent_parent_two_type,
             name="c", value=12, value_type="int")
-        agent_parent_two_m = AgentTypeAttribute(agent_type=agent_parent_two_type,
+        AgentTypeAttribute(agent_type=agent_parent_two_type,
             name="m", value="parent_two_m", value_type="str")
-        agent_parent_two_o = AgentTypeAttribute(agent_type=agent_parent_two_type,
+        AgentTypeAttribute(agent_type=agent_parent_two_type,
             name="o", value="parent_two_o", value_type="str")
 
-        agent_child_one_d = AgentTypeAttribute(agent_type=agent_child_one_type,
+        # agent_child_one
+        AgentTypeAttribute(agent_type=agent_child_one_type,
             name="d", value=13, value_type="int")
-        agent_child_one_n = AgentTypeAttribute(agent_type=agent_child_one_type,
+        AgentTypeAttribute(agent_type=agent_child_one_type,
             name="n", value="child_one_n", value_type="str")
-        agent_child_one_p = AgentTypeAttribute(agent_type=agent_child_one_type,
+        AgentTypeAttribute(agent_type=agent_child_one_type,
             name="p", value="child_one_p", value_type="str")
         
-        agent_child_two_e = AgentTypeAttribute(agent_type=agent_child_two_type,
+        AgentTypeAttribute(agent_type=agent_child_two_type,
             name="e", value=14, value_type="int")
-        agent_child_two_n = AgentTypeAttribute(agent_type=agent_child_two_type,
+        AgentTypeAttribute(agent_type=agent_child_two_type,
             name="n", value="child_two_n", value_type="str")
-        agent_child_one_p = AgentTypeAttribute(agent_type=agent_child_two_type,
+        AgentTypeAttribute(agent_type=agent_child_two_type,
             name="p", value="child_two_p", value_type="str")
 
         # commit agents
