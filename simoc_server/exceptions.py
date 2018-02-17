@@ -47,6 +47,7 @@ class NotFound(GenericError):
             message = "Not Found."
         super().__init__(message, status_code=status_code)
 
+
 class ServerError(GenericError):
     status_code = 500
 
@@ -60,3 +61,5 @@ class AgentModelError(ServerError):
         if message is None:
             message = "Unknown error in agent model."
         super().__init__(message, status_code=status_code)
+
+

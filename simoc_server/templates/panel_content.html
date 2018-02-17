@@ -1,0 +1,25 @@
+﻿{% extends "base_home.html" %}
+
+{% block panel %}
+<div class="text-center sf_window">
+    <div class="pt-5">
+        <p><button type="button" id="loginbtn" class="btn btn-primary">Login</button></p>
+        <p><button type="button" id="registerbtn" class="btn btn-primary ">Register</button></p>
+        <p><button type="button" class="btn btn-primary ">Exit</button></p>
+
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+    $(function () {
+        $('#loginbtn').click(function () {
+            gotourl('/loginpanel');
+        });
+        $('#registerbtn').click(function () {
+            gotourl('/registerpanel');
+        });
+    });
+</script>
+{% endblock %}

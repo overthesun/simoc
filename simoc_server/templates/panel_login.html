@@ -1,0 +1,73 @@
+﻿{% extends "base_home.html" %}
+
+{% block panel %}
+<div class="text-center SF_lg_Window">
+    <div class="pt-5 center">
+        <form id="logform" class="logform" >
+            <div id="logformAlert" class="alert"></div>
+            <div class="form-group ">
+                <input type="text" name="username" class="form-control " id="username" placeholder="Enter username">
+
+            </div>
+            <div class="form-group ">
+                <input type="password" name="password" class="form-control " id="password" placeholder="Password">
+            </div>
+            <span id="msg" class="form-text " ></span>
+            <button type="button" id="submitbtn" class="btn btn-primary">Login</button>
+            <button type="button" id="menuoptionbackbtn" class="btn btn-primary">Back</button>
+        </form>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#menuoptionbackbtn').click(function () {
+            gotourl('/');
+        });
+        function isEmpty(str) {
+            return (!str || 0 === str.length);
+        }
+        $('#submitbtn').click(function () {
+
+           var alertForm = function(message, alertClass){
+                $("#logformAlert").html("<strong>" + message + "</strong>")
+                $("#logformAlert").css({
+                        "visibility":"visible",
+                    })
+                $("#logformAlert").attr("class", "alert " + alertClass)
+            }
+
+           // alert($('form').());
+            var user = $('#username').val();
+            var pass = $('#password').val();
+            var obj = { "username": user, "password": pass };
+            if (isEmpty(user) || isEmpty(pass)) {
+                $('#msg').html('Enter username or password!');
+            }
+            //alert(JSON.stringify(obj));
+            postFormatted('/login', obj, function (data,status) {
+                //alert(JSON.stringify(data+'status:'+status));
+                if (status == 'success') {
+                    alertForm("Login Success!", "alert-success")
+                    gotourl('/gameinit');
+                }
+                //$("#result").text(data.result);
+            }).fail(function(jqXHR, textStatus, errorThrown){
+                    var responseJSON = jqXHR.responseJSON;
+                    if(jqXHR.responseJSON){
+                        var message = responseJSON.message;
+                        alertForm("Login failed. " + responseJSON.message, "alert-danger");
+                    }
+                    else{
+                        console.log("ERROR: " + errorThrown + " " + textStatus);
+                        alertForm("Login failed. Contact System Admin.", "alert-json");
+                    }
+            });
+            return false;
+        });
+        });
+
+
+</script>
+{% endblock %}
