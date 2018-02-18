@@ -48,215 +48,37 @@
 
   <div class="container">
     <div class="wizard">
-    <ul class="nav nav-tabs" role="tablist" id="wizard-tabs">
-      
-      <li class="nav-item">
-        <a class="nav-link active" data-toggle="tab" href="#launch"><i class="fas fa-calendar-alt"></i></a>
-      </li>
+      <ul class="nav nav-tabs" role="tablist" id="wizard-tabs">
 
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#location"><i class="fas fa-globe"></i></i></a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#region"><i class="fas fa-map"></i></a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#terrain"><i class="fas fa-map-pin"></i></a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#window"><i class="fas fa-clock"></i></a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#payload"><i class="fas fa-rocket"></i></a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#mode"><<i class="fas fa-shopping-cart"></i></a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#model"><i class="fas fa-clipboard"></i></a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#finalize"><i class="fas fa-play"></i></a>
-      </li>
-
-    </ul>
+        {% for tab in wizard-tabs %}
+          <li class="nav-item">
+            <a class="nav-link {{ tab.active }}" href="{{ tab.href }}">
+              <i class="{{ tab.icon }}"></i>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
 
     <br>
-    <form action="" method="post">
-    <div class="form-group">
-      <div class="tab-content" id="wizard-tab-content">
-        
-        <div id="launch" class="container tab-pane active">
-          <label for="launch-selector">Select Launch Year:</label>
-          <select class="form-control col-sm-4" id="launch-selector">
-            <!-- Delete later <option value="2020">2020</option>
-            <option value="2020">2021</option> 
-            <option value="2020">2022</option>-->
+    <form action= "{{wizard_post_route}}" method="post">
+      <div class="form-group">
+        <div class="tab-content" id="wizard-tab-content">
 
-            {% for item in launch-year %}
-              <option value="{{ item }} ">{{ item }}</option>
-            {% endfor %}
+          {% for panel in wizard-tabs %}
+            <div id="{{ panel.id }}" class="container tab-pane {{ panel.active }}">
+              <label for="{{ panel.selectorid }}">{{panel.description}}</label>
+              <select class="form-control col-sm-4" id="{{ panel.selectorid }}">
 
-          </select>
-          <div class="container tab-pane navigation-buttons" id="navigation-buttons">
-            <button type="button" class="btn btn-primary next-step">Next</button>
-          </div>
+                {% for item in options %}
+                  {% if panel.id == item.id}
+                    <option value="{{ item.value }}" >{{ item.value }}</option>
+                  {% endif %}
+                {% endfor %}
 
-        </div>
 
-        <div id="location" class="container tab-pane fade">
-          <label for="location-selector">Select Location:</label>
-          <select  class="form-control col-sm-4" id="location-selector">
-            <!--<option value="earth-orbit" disabled>Earth Orbit</option>
-            <option value="moon" disabled>The Moon</option>
-            <option value="mars">Mars</option>
-            <option value="asteroid-belt" disabled>Asteroid Belt</option>
-            <option value="enceladus" disabled>Eceladus</option>-->   
-            {% for item in location %}
-              <option value="{{ item }} ">{{ item }}</option>
-            {% endfor %}
-
-          </select>
-          <div class="container tab-pane navigation-buttons" id="navigation-buttons">
-            <button type="button" class="btn btn-primary next-step">Next</button>
-          </div>
-        </div>
-
-        <div id="region" class="container tab-pane fade">
-          <label for="region-selector">Select Region:</label>
-          <select class="form-control col-sm-4" id="region-selector">
-            <!--<option value="olypmpus-mons">Olympus Mons</option>
-            <option value="syrtis-major">Syrtis Major</option> 
-            <option value="hellas-planitia">Hellas Planitia</option> 
-            <option value="lacus-moeris">Lacus Moeris</option>
-            <option value="mare-tyrrhenum">Mare Tyrrhenum</option>-->
-
-            {% for item in region %}
-              <option value="{{ item }} ">{{ item }}</option>
-            {% endfor %}
-
-          </select>
-          <div class="container tab-pane navigation-buttons" id="navigation-buttons">
-            <button type="button" class="btn btn-primary next-step">Next</button>
-          </div>
-        </div>
-
-        <!-- Terrain -->
-        <div id="terrain" class="container tab-pane fade">
-          <!-- This one needs a JS to add the approriate label-->
-          <!-- Change later! Default is just the Mars options-->
-          <label for="terrain-selector" id="terrain-label">Select</label> 
-          <select class="form-control col-sm-4" id="terrain-selector">
-            <!--<option value="peak">Peak</option>
-            <option value="rift">Rift</option>
-            <option value="open-plain">Open Plain</option>
-            <option value="valley">Valley</option>
-            <option value="subterranean">Subterranean</option>
-            <option value="ocean-surface">Ocean Surface</option>
-            <option value="sub-ocean">Sub-Ocean</option>-->
-
-            {% for item in terrain %}
-              <option value="{{ item }} ">{{ item }}</option>
-            {% endfor %}
-
-          </select>
-
-          <!-- This one needs a JS to add the approriate label-->
-          <!-- Change later! Default is just the Mars options-->
-          <!-- Regolith Selector-->
-          <label for="regolith-selector" id="regolith-label">Select</label> 
-          <select disabled class="form-control col-sm-4" id="regolith-selector">
-
-            {% for item in regolith %}
-              <option value="{{ item }} ">{{ item }}</option>
-            {% endfor %}
-
-          </select>
-
-          <div class="container tab-pane navigation-buttons" id="navigation-buttons">
-            <button type="button" class="btn btn-primary next-step">Next</button>
-          </div>
-        </div>
-        
-        <!-- Launch Window & Duration of Stay -->
-        <!-- This is going to require either a text field only allowing integers or one of those 
-          increment counters to allow for the user to select the number of months. A check box will also be
-          needed to allow for the user to simply select a permanent stay. This should disable the selection field for 
-          the number of months possible-->
-        <div id="launch-window" class="container tab-pane fade">
-          <label for="launch-selector">Select Launch Year:</label>
-          <select class="form-control col-sm-4" id="window-selector">
-            
-            {% for item in window %}
-              <option value="{{ item }} ">{{ item }}</option>
-            {% endfor %}
-
-          </select>
-          <div class="container tab-pane navigation-buttons" id="navigation-buttons">
-            <button type="button" class="btn btn-primary next-step">Next</button>
-          </div>
-        </div>
-
-        <!-- Transportation -->
-        <!-- This one requires a JQ to get everything from that one text document and to parse it out based on the year the user selected above-->
-        <!-- This one will require the updates from a JQ based on what the user selects? Or display all stats for each in the info window at once?-->
-        <div id="transportation" class="container tab-pane fade">
-          <label for="transportation-selector">Select Launch Year:</label>
-          <select class="form-control col-sm-4" id="location-selector">
-            <!--<option value="nasa-sls">NASA SLS</option>
-            <option value="spacex-falcon-heavy">SpaceX Falcon Heavy</option> Car not included
-            <option value="spacex-fbr">SpaceX FBR</option>
-            <option value="ula" disabled>ULA ???</option>
-            <option value="china" disabled>China ???</option>-->
-          </select>
-          <div class="container tab-pane navigation-buttons" id="navigation-buttons">
-            <button type="button" class="btn btn-primary next-step">Next</button>
-          </div>
-        </div>
-
-        <!-- This one will require calculations based on the selected rocket. Another one of those pesky JQ scripts will be required. This needs to be auto-invalidated based on the change of the rocket to reflect the need to change the payload. This change will cause all tabs afterwards to be disabled again to force the user to select the new values.-->  
-        <div id="payload" class="container tab-pane fade">
-          <label for="launch-selector">Select Launch Year:</label>
-          <!--Incremental thingy with upper limit being max capacity of the rocket-->
-          <div class="container tab-pane navigation-buttons" id="navigation-buttons">
-            <button type="button" class="btn btn-primary next-step">Next</button>
-          </div>
-        </div>
-
-        <!-- This one will require the updates from a JQ based on what the user selects? Or display all stats for each in the info window at once?-->
-        <!-- This can actually be a radio button set, since there are only two options. The description will need to be changed based on what option the player selects.-->
-        <div id="model" class="container tab-pane fade">
-          <label for="mode-selector">Select Launch Year:</label>
-           <div class="container tab-pane navigation-buttons" id="navigation-buttons">
-            <button type="button" class="btn btn-primary next-step">Next</button>
-          </div>
-        </div>
-
-        <div id="finalize" class="container tab-pane fade">
-          <label for="launch-selector">Select Launch Year:</label>
-          <div class="container tab-pane navigation-buttons" id="navigation-buttons">
-            <button type="button" class="btn btn-primary next-step">Next</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
 
     </form>
-
-    <div>
-      <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
-    </div>
-  </div>
-
 
 </body>
 </html>
