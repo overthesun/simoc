@@ -70,6 +70,9 @@
               <label for="{{ panel.selectorid }}">{{panel.description}}</label>
               <select class="form-control col-sm-4" id="{{ panel.selectorid }}">
 
+
+                <!-- Add in different conditionals for the pages that will require things like
+                  the input integer fields, and radio buttons.-->
                 {% for item in options %}
                   {% if panel.id == item.id}
                     <option value="{{ item.value }}" >{{ item.value }}</option>
