@@ -1,11 +1,15 @@
 import threading
+import datetime
+
+from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server import db
-from simoc_server.agent_model import AgentModel
+from simoc_server.agent_model import (AgentModel,
+    AgentModelInitializationParams, DefaultAgentInitializerRecipe)
 from simoc_server.serialize import AgentModelDTO
 from simoc_server.database import SavedGame
 
+
 class GameRunner(object):
-    __default_grid_size__ = (100, 100)
 
     def __init__(self, agent_model, user, step_buffer_size=10):
         self.agent_model = agent_model
@@ -22,16 +26,18 @@ class GameRunner(object):
         return GameRunner(agent_model, user, step_buffer_size=step_buffer_size)
 
     @classmethod
-    def load_from_saved_game(cls, saved_game, step_buffer_size=10):
+    def load_from_saved_game(cls, user, saved_game, step_buffer_size=10):
         agent_model_state = saved_game.agent_model_snapshot.agent_model_state
-        user = saved_game.user
+        saved_game_user = saved_game.user
+        if saved_game_user != user:
+            raise Unauthorized("Attempted to load game belonging to another"
+                "user.")
         return GameRunner.load_from_state(agent_model_state, user, step_buffer_size)
 
     @classmethod
-    def from_new_game(cls, user, step_buffer_size=10):
-        grid_width = GameRunner.__default_grid_size__[0]
-        grid_height = GameRunner.__default_grid_size__[1]
-        agent_model = AgentModel.create_new(100, 100)
+    def from_new_game(cls, user, game_runner_init_params, step_buffer_size=10):
+        agent_model = AgentModel.create_new(game_runner_init_params.model_init_params,
+                                            game_runner_init_params.agent_init_recipe)
         return GameRunner(agent_model, user, step_buffer_size=step_buffer_size)
 
     def save_game(self, save_name):
@@ -84,3 +90,66 @@ class GameRunner(object):
             self.step_thread.run()
         else:
             step_loop(self.agent_model, step_num, self.step_buffer)
+
+class GameRunnerInitializationParams(object):
+
+    def __init__(self):
+        # placeholder
+        # TODO create agent model intialization parameters
+        # from higher level game runner initialization parameters
+        self.model_init_params = AgentModelInitializationParams()
+        (self.model_init_params.set_grid_width(100)
+                    .set_grid_height(100)
+                    .set_starting_model_time(datetime.timedelta()))
+        self.agent_init_recipe = DefaultAgentInitializerRecipe()
+
+
+class GameRunnerManager(object):
+
+
+    def __init__(self):
+        self.game_runners = {}
+
+
+    def new_game(self, user, game_runner_init_params):
+        game_runner = GameRunner.from_new_game(user, game_runner_init_params)
+        self._add_game_runner(user, game_runner)
+
+    def load_game(self, user, saved_game):
+        game_runner = GameRunner.load_from_saved_game(user, saved_game)
+        self._add_game_runner(saved_game.user, game_runner)
+
+    def save_game(self, user, save_name=None):
+        game_runner = self.get_game_runner(user)
+
+        if game_runner is None:
+            raise GameNotFoundException()
+
+        if save_name is None:
+            save_name = self._autosave_name()
+        game_runner.save_game(save_name)
+
+    def get_game_runner(self, user):
+        try:
+            return self.game_runners[user.id]
+        except KeyError:
+            return None
+
+    def get_step(self, user, step_num):
+        game_runner = self.get_game_runner(user)
+        if game_runner is None:
+            raise GameNotFoundException()
+
+        return game_runner.get_step(step_num)
+
+    def _add_game_runner(self, user, game_runner):
+        old_game = self.get_game_runner(user)
+        if old_game is not None:
+            old_game.save_game(self._autosave_name())
+
+        self.game_runners[user.id] = game_runner
+
+    def _autosave_name(self):
+        return "{} {}".format(
+                    "Autosave",
+                    datetime.datetime.utcnow())

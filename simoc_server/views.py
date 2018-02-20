@@ -10,7 +10,8 @@ from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request, data_format_name
 from simoc_server.database.db_model import User, SavedGame
 from simoc_server.agent_model.agents import agent_name_mapping
-from simoc_server.game_runner import GameRunner
+from simoc_server.game_runner import (GameRunner, GameRunnerManager,
+        GameRunnerInitializationParams)
 
 from simoc_server.exceptions import InvalidLogin, BadRequest, \
     BadRegistration, NotFound, GenericError
@@ -18,7 +19,7 @@ from simoc_server.exceptions import InvalidLogin, BadRequest, \
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-game_runners = {}
+game_runner_manager = GameRunnerManager()
 
 @app.before_request
 def deserialize_before_request():
@@ -122,14 +123,15 @@ def logout():
 def new_game():
     '''
     Creates a new game on the current session and adds
-    a game runner to 'game_runners'.
+    a game runner to the game_runner_manager
 
     Returns
     -------
     str: A success message.
     '''
-    game_runner = GameRunner.from_new_game(current_user)
-    add_game_runner(game_runner)
+    # TODO add real configuration parameters
+    game_runner_init_params = GameRunnerInitializationParams()
+    game_runner_manager.new_game(current_user, game_runner_init_params)
     return success("New game created.")
 
 @app.route("/get_step", methods=["GET"])
@@ -162,18 +164,15 @@ def get_step():
 
 
     '''
-    print(request.url)
-    print(request.args)
     step_num = request.args.get("step_num", type=int)
-    game_runner = get_game_runner()
-    agent_model_state = game_runner.get_step(step_num)
+    agent_model_state = game_runner_manager.get_step(current_user, step_num)
     return serialize_response(agent_model_state)
 
 @app.route("/save_game", methods=["POST"])
 @login_required
 def save_game():
     '''
-    Save the current game for the session.
+    Save the current game for the user.
 
     Returns
     -------
@@ -184,8 +183,7 @@ def save_game():
         save_name = request.deserialized["save_name"]
     else:
         save_name = None
-    game_runner = get_game_runner()
-    game_runner.save_game(save_name)
+    game_runner_manager.save_game(current_user ,save_name)
     return success("Save successful.")
 
 @app.route("/load_game", methods=["POST"])
@@ -193,7 +191,7 @@ def save_game():
 def load_game():
     '''
     Load game with given 'saved_game_id' in session.  Adds
-    GameRunner to game_runners.
+    GameRunner to game_runner_manager.
 
     Returns
     -------
@@ -206,8 +204,8 @@ def load_game():
         If 'saved_game_id' is not in the json data on the request.
 
     simoc_server.exceptions.NotFound
-        If the GameRunner with the requested 'saved_game_id' does not
-        exist in game_runners dictionary
+        If the SavedGame with the requested 'saved_game_id' does not
+        exist in the database
 
     '''
 
@@ -219,8 +217,7 @@ def load_game():
     saved_game = SavedGame.query.get(saved_game_id)
     if saved_game is None:
         raise NotFound("Requested game not found in loaded games.")
-    game_runner = GameRunner.load_from_saved_game(saved_game)
-    add_game_runner(game_runner)
+    game_runner_manager.load_game(current_user, saved_game)
     return success("Game loaded successfully.")
 
 @app.route("/get_saved_games", methods=["GET"])
@@ -344,50 +341,6 @@ def load_user(user_id):
         The requested user id.
     '''
     return User.query.get(int(user_id))
-
-
-def get_game_runner():
-    '''
-    Returns the game runner for the active session
-
-    Returns
-    -------
-        simoc_server.game_runner.GameRunner
-    Raises
-    ------
-    simoc_server.exceptions.BadRequest
-        If there is there is not 'game_runner_id' in the session
-        attached to the request.
-    simoc_server.exceptions.NotFound
-        If the GameRunner with the requested id is not found.
-    '''
-    if "game_runner_id" not in session.keys():
-        raise BadRequest("No game found in session.")
-    game_runner_id = session["game_runner_id"]
-    if game_runner_id not in game_runners.keys():
-        raise NotFound("Game not found.")
-    game_runner = game_runners[game_runner_id]
-    return game_runner
-
-def add_game_runner(game_runner):
-    '''
-     Adds a game runner to the internal game runner collection
-
-    Returns
-    -------
-        int : The key for the game runner in the 'game_runners' dict.
-
-    Parameters
-    ----------
-     game_runner : simoc_server.game_runner.GamerRunner
-        the game_runner to add
-    '''
-
-    # TODO Cleanup gamerunner on logout
-    game_runner_id = uuid4()
-    game_runners[game_runner_id] = game_runner
-    session["game_runner_id"] = game_runner_id
-    return game_runner_id
 
 def success(message, status_code=200):
     '''

@@ -47,6 +47,13 @@ class NotFound(GenericError):
             message = "Not Found."
         super().__init__(message, status_code=status_code)
 
+class Unauthorized(GenericError):
+    status_code = 401
+
+    def __init__(self, message=None, status_code=None):
+        if message is None:
+            message = "Unauthorized."
+        super().__init__(message, status_code=status_code)
 
 class ServerError(GenericError):
     status_code = 500
@@ -62,4 +69,8 @@ class AgentModelError(ServerError):
             message = "Unknown error in agent model."
         super().__init__(message, status_code=status_code)
 
-
+class GameNotFoundException(ServerError):
+    def __init__(self, message, status_code=None):
+        if message is None:
+            message = "Could not find requested game."
+        super().__init__(message, status_code=status_code)

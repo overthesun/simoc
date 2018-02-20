@@ -1,2 +1,3 @@
-from .agent_model import AgentModel
+from .agent_model import (AgentModel,
+    AgentModelInitializationParams, DefaultAgentInitializerRecipe)
 
