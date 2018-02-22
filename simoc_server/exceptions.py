@@ -58,19 +58,19 @@ class Unauthorized(GenericError):
 class ServerError(GenericError):
     status_code = 500
 
-    def __init__(self, message, status_code=None):
+    def __init__(self, message=None, status_code=None):
         if message is None:
             message = "Internal server error."
         super().__init__(message, status_code=status_code)
 
 class AgentModelError(ServerError):
-    def __init__(self, message, status_code=None):
+    def __init__(self, message=None, status_code=None):
         if message is None:
             message = "Unknown error in agent model."
         super().__init__(message, status_code=status_code)
 
 class GameNotFoundException(ServerError):
-    def __init__(self, message, status_code=None):
+    def __init__(self, message=None, status_code=None):
         if message is None:
             message = "Could not find requested game."
         super().__init__(message, status_code=status_code)

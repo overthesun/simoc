@@ -131,7 +131,7 @@ def new_game():
     '''
     # TODO add real configuration parameters
     game_runner_init_params = GameRunnerInitializationParams()
-    game_runner_manager.new_game(current_user, game_runner_init_params)
+    game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
     return success("New game created.")
 
 @app.route("/get_step", methods=["GET"])
@@ -165,7 +165,7 @@ def get_step():
 
     '''
     step_num = request.args.get("step_num", type=int)
-    agent_model_state = game_runner_manager.get_step(current_user, step_num)
+    agent_model_state = game_runner_manager.get_step(get_standard_user_obj(), step_num)
     return serialize_response(agent_model_state)
 
 @app.route("/save_game", methods=["POST"])
@@ -183,7 +183,7 @@ def save_game():
         save_name = request.deserialized["save_name"]
     else:
         save_name = None
-    game_runner_manager.save_game(current_user ,save_name)
+    game_runner_manager.save_game(get_standard_user_obj() ,save_name)
     return success("Save successful.")
 
 @app.route("/load_game", methods=["POST"])
@@ -217,7 +217,7 @@ def load_game():
     saved_game = SavedGame.query.get(saved_game_id)
     if saved_game is None:
         raise NotFound("Requested game not found in loaded games.")
-    game_runner_manager.load_game(current_user, saved_game)
+    game_runner_manager.load_game(get_standard_user_obj(), saved_game)
     return success("Game loaded successfully.")
 
 @app.route("/get_saved_games", methods=["GET"])
@@ -246,17 +246,22 @@ def get_saved_games():
 
 
     '''
-    saved_games = SavedGame.query.filter_by(user=current_user).all()
+    saved_games = SavedGame.query.filter_by(user=get_standard_user_obj()).all()
 
     sequences = {}
     for saved_game in saved_games:
         snapshot = saved_game.agent_model_snapshot
         snapshot_branch = snapshot.snapshot_branch
         root_branch = snapshot_branch.get_root_branch()
-        if(root_branch in sequences.keys()):
-            sequences[root_branch].append(save_game)
+        print(root_branch)
+        if root_branch in sequences.keys():
+            sequences[root_branch].append(saved_game)
         else:
+            print("creating entry for {}".format(root_branch.id))
+            print(sequences)
             sequences[root_branch] = [saved_game]
+            print(sequences)
+            print("------")
 
     sequences = OrderedDict(sorted(sequences.items(), key=lambda x: x[0].date_created))
 
@@ -387,3 +392,5 @@ def handle_error(error):
     response.status_code = error.status_code
     return response
 
+def get_standard_user_obj():
+    return current_user._get_current_object()
