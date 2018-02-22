@@ -257,11 +257,7 @@ def get_saved_games():
         if root_branch in sequences.keys():
             sequences[root_branch].append(saved_game)
         else:
-            print("creating entry for {}".format(root_branch.id))
-            print(sequences)
             sequences[root_branch] = [saved_game]
-            print(sequences)
-            print("------")
 
     sequences = OrderedDict(sorted(sequences.items(), key=lambda x: x[0].date_created))
 
