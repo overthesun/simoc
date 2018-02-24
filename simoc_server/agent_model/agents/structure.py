@@ -107,6 +107,7 @@ class Airlock(Structure):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
     def step(self):
         pass
 
@@ -131,11 +132,20 @@ class Greenhouse(Structure):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.needed_agents = ['Planter','Hydroponics','Composter','Harvestor','Processor']
+        self.needed_agents = ['Planter','Harvester']
+        self._attr("plants_housed", 0,is_client_attr=True, is_persisted_attr=True)
+        self._attr("plants_ready", 0,is_client_attr=True, is_persisted_attr=True)
+        self.plants = []
+        self.max_plants = 50
+
     def step(self):
         pass
-    def check_agents(self):
-        pass
+
+    def place_plant_inside(self, agent):
+        self.plants.append(agent)
+
+    def remove_plant(self, agent):
+        self.plants.remove(agent)
 
 
 #Converts plant mass to food
@@ -147,6 +157,7 @@ class Kitchen(Structure):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
     def step(self):
         #if(plantmass >= increment)
         #    plantmass -= increment
@@ -165,6 +176,7 @@ class PowerStation(Structure):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.power_output = 100
+
     def step(self):
         pass
 
@@ -176,6 +188,7 @@ class RocketPad(Structure):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
     def step(self):
         pass
 
@@ -187,6 +200,7 @@ class RoverDock(Structure):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
     def step(self):
         pass
 
@@ -199,5 +213,33 @@ class StorageFacility(Structure):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.storage_capacity = 1000
+        
+
+    def step(self):
+        pass
+
+    def store(self, resource, quantity):
+        amount_stored = quantity
+
+        if(self.storage_capacity == 0):
+            amount_stored = 0
+            return amount_stored
+
+        if(self.storage_capacity < quantity):
+            amount_stored = self.storage_capacity
+
+        if hasattr(self, resource):
+            temp = getattr(self, resource) + amount_stored
+            setattr(self, amount_stored, temp)
+            self.storage_capacity -= amount_stored
+        else:
+            self._attr(resource, amount_stored, is_client_attr=True, is_persisted_attr=True)
+            self.storage_capacity -= amount_stored
+
+        return amount_stored
+
+    def supply(self, agent, resource, quantity):
+        pass
+
     def step(self):
         pass

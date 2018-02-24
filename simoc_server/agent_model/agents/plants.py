@@ -1,4 +1,4 @@
-import datetime
+ import datetime
 
 from simoc_server.agent_model.sprite_mappers import PlantSpriteMapper
 from simoc_server.agent_model.agents.core import EnclosedAgent
@@ -8,7 +8,7 @@ class PlantAgent(EnclosedAgent):
 
     _agent_type_name = "default_plant"
     _sprite_mapper = PlantSpriteMapper
-
+    # TODO separate plants based on multiple or single harvest 
     # TODO find out how long plants take to grow
     grow_time = datetime.timedelta(days=30)
     # TODO find out how long plants live
@@ -24,6 +24,7 @@ class PlantAgent(EnclosedAgent):
         age = (current_time_delta - self.model_time_created)
         if age > self.grow_time:
             self.status = "grown"
+            self.structure.plants_ready += 1
         if age > self.lifespan:
             self.destroy()
 
@@ -38,7 +39,7 @@ class ChardAgent(PlantAgent):
     _agent_type_name = "chard"
 
 class CryBeanAgent(PlantAgent):
-    _agent_type_name = "cry_bean"
+    _agent_type_name = "dry_bean"
 
 class LettuceAgent(PlantAgent):
     _agent_type_name = "Lettuce"

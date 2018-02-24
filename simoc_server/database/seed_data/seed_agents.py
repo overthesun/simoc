@@ -126,7 +126,7 @@ def gen_plants():
     add_plant(data, "carrot",           16.36,  22.50, 1.77,  74.83,  59.87)
     add_plant(data, "chard",            11.49,  15.79, 1.77,  87.50,  37.69)
     add_plant(data, "celery",           12.24,  16.83, 1.24,  103.27, 11.47)
-    add_plant(data, "cry_bean",         30.67,  42.17, 2.53,  11.11,  150.00)
+    add_plant(data, "dry_bean",         30.67,  42.17, 2.53,  11.11,  150.00)
     add_plant(data, "green_onion",      10.67,  14.67, 1.74,  81.82,  10.00)
     add_plant(data, "lettuce",          7.78,   10.70, 1.77,  131.35, 7.30)
     add_plant(data, "pea",              12,     16.50, 1.74,  12.20,  161.00)
