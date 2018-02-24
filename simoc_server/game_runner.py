@@ -41,12 +41,13 @@ class GameRunner(object):
         The user the game belongs to
     """
 
-    def __init__(self, agent_model, user, step_buffer_size=10):
+    def __init__(self, agent_model, user, last_saved_step, step_buffer_size=10):
         self.agent_model = agent_model
         self.user = user
         self.step_buffer_size = step_buffer_size
         self.step_thread = None
         self.step_buffer = {}
+        self.last_saved_step = last_saved_step
         self.reset_last_accessed()
 
     @property
@@ -56,7 +57,9 @@ class GameRunner(object):
         -------
         float
             Seconds since this game runner was last accessed.  'Accessed' is
-            defined as requesting a step.  Used to check for timeout.
+            defined as requesting a step or pinging the server to explicitly keep the
+            sessin alive, this can be used during a game pause for instance.  Used to
+            check for timeout.
         """
         return time.time() - self.last_accessed
 
@@ -89,8 +92,8 @@ class GameRunner(object):
             loaded GameRunner instance
         """
         agent_model = AgentModel.load_from_db(agent_model_state)
-        agent_model.last_saved_step = agent_model.step_num
-        return GameRunner(agent_model, user, step_buffer_size=step_buffer_size)
+        return GameRunner(agent_model, user, agent_model.step_num,
+            step_buffer_size=step_buffer_size)
 
     @classmethod
     def load_from_saved_game(cls, user, saved_game, step_buffer_size=10):
@@ -143,8 +146,7 @@ class GameRunner(object):
         """
         agent_model = AgentModel.create_new(game_runner_init_params.model_init_params,
                                             game_runner_init_params.agent_init_recipe)
-        agent_model.last_saved_step = None
-        return GameRunner(agent_model, user, step_buffer_size=step_buffer_size)
+        return GameRunner(agent_model, user, None, step_buffer_size=step_buffer_size)
 
     def save_game(self, save_name):
         """Saves the game using the provided name and commits session to the
@@ -188,6 +190,11 @@ class GameRunner(object):
             step_num = self.agent_model.step_num + 1
         self._step_to(step_num, False)
         return self._get_step_from_buffer(step_num)
+
+    def ping(self):
+        """Reset's the last accessed time.  Useful if the game is paused.
+        """
+        self.reset_last_accessed()
 
     def reset_last_accessed(self):
         """Reset the time since epoch that the game runner was last accessed at
@@ -432,6 +439,21 @@ class GameRunnerManager(object):
             raise GameNotFoundException()
 
         return game_runner.get_step(step_num)
+
+    def ping(self, user):
+        """Updates time when game runner was last accessed for the given
+        user, preventing it from being removed during cleanup. Useful
+        if the game is paused and no longer requesting steps.
+
+        Parameters
+        ----------
+        user : simoc_server.database.db_model.User
+            The user who is pinging the server
+        """
+        game_runner = self.get_game_runner(user)
+        if game_runner is None:
+            raise GameNotFoundException()
+        game_runner.ping()
 
     def _add_game_runner(self, user, game_runner):
         """Adds the given game runner to self.game_runners and associates

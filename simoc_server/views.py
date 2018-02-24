@@ -331,6 +331,13 @@ def get_sprite(sprite_path):
         raise NotFound("Requested sprite not found: {0}".format(sprite_path))
     return send_from_directory(root_path, sprite_path)
 
+@app.route("/ping", methods=["GET", "POST"])
+def ping():
+    """Ping the server to prevent clean up of active game
+    """
+    game_runner_manager.ping(get_standard_user_obj())
+    return success("Pong")
+
 @login_manager.user_loader
 def load_user(user_id):
     '''
@@ -389,4 +396,14 @@ def handle_error(error):
     return response
 
 def get_standard_user_obj():
+    """This method should be used instead of 'current_user'
+    to prevent issues arising when the user object is accessed
+    later on.  'current_user' is actually of type LocalProxy
+    rather than 'User'.
+
+    Returns
+    -------
+    simoc_server.database.db_model.User
+        The current user entity for the request.
+    """
     return current_user._get_current_object()
