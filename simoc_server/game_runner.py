@@ -269,7 +269,8 @@ class GameRunner(object):
 
 class GameRunnerInitializationParams(object):
 
-    def __init__(self):
+    def __init__(self, mode, launch_date, duration_days, location,
+            payload, region=None, regolith=None):
         # placeholder
         # TODO create agent model intialization parameters
         # from higher level game runner initialization parameters

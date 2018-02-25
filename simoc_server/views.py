@@ -62,9 +62,8 @@ def login():
         If the user with the given username or password cannot
         be found.
     '''
-    print(request.deserialized)
-    username = request.deserialized["username"]
-    password = request.deserialized["password"]
+    username = try_get_param("username")
+    password = try_get_param("password")
     user = User.query.filter_by(username=username).first()
     if user and user.validate_password(password):
         login_user(user)
@@ -87,14 +86,8 @@ def register():
     simoc_server.exceptions.BadRegistration
         If the user already exists.
     '''
-    if request.deserialized is None:
-        raise BadRequest("No data or malformed data in request.")
-    if "username" not in request.deserialized.keys():
-        raise BadRequest("Username not found in request content.")
-    if "password" not in request.deserialized.keys():
-        raise BadRequest("Password not found in request content.")
-    username = request.deserialized["username"]
-    password = request.deserialized["password"]
+    username = try_get_param("username")
+    password = try_get_param("password")
     if(User.query.filter_by(username=username).first()):
         raise BadRegistration("User already exists")
     user = User(username=username)
@@ -130,7 +123,16 @@ def new_game():
     str: A success message.
     '''
     # TODO add real configuration parameters
-    game_runner_init_params = GameRunnerInitializationParams()
+    mode          = try_get_param("mode")
+    launch_date   = try_get_param("launch_date")
+    duration_days = try_get_param("duration_days")
+    payload       = try_get_param("payload")
+    location      = try_get_param("location")
+    region        = try_get_param("region")
+    regolith      = try_get_param("regolith")
+
+    game_runner_init_params = GameRunnerInitializationParams(mode, launch_date,
+        duration_days, payload, location, region, regolith)
     game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
     return success("New game created.")
 
@@ -209,11 +211,7 @@ def load_game():
 
     '''
 
-    # TODO cleanup old GameRunners
-    if "saved_game_id" in request.deserialized.keys():
-        saved_game_id = request.deserialized["saved_game_id"]
-    else:
-        raise BadRequest("Required value 'saved_game_id' not found in request.")
+    saved_game_id = try_get_param("saved_game_id")
     saved_game = SavedGame.query.get(saved_game_id)
     if saved_game is None:
         raise NotFound("Requested game not found in loaded games.")
@@ -394,6 +392,37 @@ def handle_error(error):
     response = serialize_response(error.to_dict())
     response.status_code = error.status_code
     return response
+
+def try_get_param(name):
+    """Attempts to retrieve named value from
+    request parameters
+
+    Parameters
+    ----------
+    name : str
+        The name of the parameter to retrieve
+
+    Returns
+    -------
+    Type of param
+        The value of the param to retreive.
+
+    Raises
+    ------
+    BadRequest
+        If the named param is not found in the request or
+        if there is no params in the request.
+    """
+    try:
+        return request.deserialized[name]
+    except TypeError as e:
+        if(request.deserialized is None):
+            raise BadRequest("No params on request or params are malformed, "
+                "'{}' is a required param.".format(name))
+        else:
+            raise e
+    except KeyError:
+        raise BadRequest("'{}' not found in request parameters.".format(name))
 
 def get_standard_user_obj():
     """This method should be used instead of 'current_user'
