@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+  <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Orbitron" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/wizard.css">
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="css/selector.css">
+
+
+<style>
+
+@font-face {
+  font-family: 'Nasalization';
+  src: URL('/static/nasalization-rg.ttf') format('truetype');
+}
+
+body{
+  background-image: url("/static/simoc-background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+button{
+  background-color: #e9f0f4;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 5px 16px;
+
+}
+
+/*Common CSS*/
+
+.common-text{
+  color: #e9f0f4;
+  font-family:'Nasalization';
+}
+
+/*Wizard CSS*/
+
+.simoc-title{
+  margin-top: 60px;
+  text-align: center;
+  font-size: 48px;
+}
+
+.configuration-title{
+  text-align: center;
+  margin-bottom:40px;
+  font-size: 18px;
+}
+
+
+
+/*Icon Related */
+.outer-icon{
+  color: #5bc0f6;
+}
+
+.inner-icon{
+  color: #212529;
+}
+
+/*Card Related */
+
+.card{
+  width: 700px;
+  height: 500px;
+  margin: 0 auto;
+  border-top: 2px solid #5bc0f6;
+  border-left: 2px solid #5bc0f6;
+  background-color: transparent; 
+  padding: 0;
+}
+
+
+.card-header{
+  width: 100%;
+  height: 80px;
+  margin: 0px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-bottom: 2px solid #5bc0f6;
+  border-right: 2px solid #5bc0f6;
+  background-color: transparent; 
+}
+
+.card-footer{
+
+}
+
+.card-body{
+  height: 420px;
+  padding: 0;
+  margin: 0;
+  border-bottom: 2px solid #5bc0f6;
+  border-right: 2px solid #5bc0f6; 
+}
+
+/*.card-footer{
+  height: 80px;
+  margin: 0;
+  padding: 0;
+  border-bottom: 2px solid #5bc0f6;
+  border-right: 2px solid #5bc0f6; 
+}*/
+
+
+/*Middle section*/
+.title{
+  border-bottom: 2px solid #5bc0f6;
+  font-size: 30px;
+  text-align: center;
+  height: 80px;
+  padding: 16px;
+}
+
+.section{
+  display: flex;
+  flex: 1;
+  height: 280px;
+}
+
+.selection{
+  flex: 1;
+  border-bottom: 2px solid #5bc0f6;
+  border-right: 2px solid #5bc0f6; 
+  padding: 16px;
+  width: 50%;
+}
+
+.information{
+  flex: 1;
+  border-bottom: 2px solid #5bc0f6;
+  padding: 16px;
+}
+
+.step-buttons{
+  display: flex;
+  flex: 1;
+  height: 60px;
+}
+
+.step-cancel{
+  flex: 1;
+  border-bottom: 2px solid #5bc0f6;
+  padding: 12px;
+}
+
+.step-navigation{
+  display: flex;
+  flex: 1;
+}
+
+.step-next{
+  flex: 1;
+  border-bottom: 2px solid #5bc0f6;
+  padding: 12px;
+}
+
+.step-previous{
+  flex: 1;
+  border-bottom: 2px solid #5bc0f6;
+  padding: 12px;
+}
+
+.step-container{
+  height: 100%;
+}
+
+</style>
+
+</head>
+
+<body>
+
+  <div class="simoc-title common-text">SIMOC</div>
+  <div class="configuration-title common-text">CONFIGURATION WIAZRD</div>
+
+  <div class="card">
+    <div class="card-header">
+      <ul class="nav">
+
+        {% for item in tabs %}
+          <li class="nav-item">
+            <a class="nav-link {{ item.active }} fa-3x fa-layers fa-fw" data-toggle="tab" href="{{ item.href }}">
+              <i class="fas fa-circle outer-icon"></i>
+              <i class="{{ item.icon }} inner-icon" data-fa-transform="shrink-7"></i>
+            </a>
+          </li>
+        {% endfor %}
+
+      </ul>
+    </div>
+
+
+    <div class="card-body">
+      <div class="tab-content">
+       
+        <!--This handles the content of the tab 
+        Please let this work correctly-->      
+        {% for content in tabscontent %}
+        <div class="tab pane {{ content.tabactive }} step" id="{{ content.id }}" role="tabpanel">
+          <div class="title common-text"> {{ content.title }} </div>
+          <div class="section">
+            <div class="selection"> 
+              <div class="item" >
+                 {% for item in content.selection %}                    
+                  {% if item.type == 'text' %}
+                    <p class="common-text">{{ item.content }}</p>
+                  {% elif item.type == 'select' %}
+                    <select name="{{ item.name }}" id="{{ item.id }}">
+                      {% for option in item.option %}
+                        <option value="{{ option.value }}">{{ option.text }}</option>
+                      {%endfor %} 
+                    </select>
+                    <br> 
+                  {% elif item.type == 'radio' %}
+                    {% for option in item.option %}
+                      <input type="radio" name="{{ option.name }}"" value="{{ option.value }}">{{ option.text }}</br>
+                    {% endfor %}
+                    <br>  
+                  {% endif %}
+                  
+                {% endfor %} 
+              </div>
+            </div>
+            <div class="information">Test {{ content.information }}</div> 
+          </div>
+
+          <div class="step-buttons">
+            <div class="step-cancel common-text"><button type="button" class="{{ content.cancel }}">CANCEL</button></div>
+            <div class="step-navigation common-text">
+              <div class="step-previous"><button type="button" class="{{ content.previous }}" >PREVIOUS</button></div> 
+              <div class="step-next"><button type="button" class="{{ content.next }}">NEXT</button></div>
+            </div>
+          </div>
+
+        </div>
+
+
+        {% endfor %}
+      </div>
+  </div>
+
+
+  </div>
+
+</body>
+</html>
