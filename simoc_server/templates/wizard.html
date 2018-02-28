@@ -182,6 +182,26 @@ button{
   height: 100%;
 }
 
+.connecting-line {
+    height: 6px;
+    background: #5bc0f6;
+    position: absolute;
+    width: 80%;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    z-index: -1;
+}
+
+li > a > .border-icon{
+  color: transparent;
+}
+
+li > a.active > .outer-icon{
+  color: #e9f0f4;;
+}
+
+
 </style>
 
 </head>
@@ -191,14 +211,15 @@ button{
   <div class="simoc-title common-text">SIMOC</div>
   <div class="configuration-title common-text">CONFIGURATION WIAZRD</div>
 
-  <div class="card">
+  <div class="card">    
     <div class="card-header">
+      <span class="connecting-line"></span>
       <ul class="nav">
-
         {% for item in tabs %}
           <li class="nav-item">
             <a class="nav-link {{ item.active }} fa-4x fa-layers fa-fw" data-toggle="tab" href="{{ item.href }}">
-              <i class="fas fa-circle outer-icon"></i>
+              <i class="fas fa-circle border-icon" data-fa-transform="grow-1"></i>
+              <i class="fas fa-circle outer-icon" data-fa-transform="shrink-1"></i>
               <i class="{{ item.icon }} inner-icon" data-fa-transform="shrink-7"></i>
             </a>
           </li>
