@@ -53,13 +53,13 @@ button{
 .simoc-title{
   margin-top: 60px;
   text-align: center;
-  font-size: 48px;
+  font-size: 60px;
 }
 
 .configuration-title{
   text-align: center;
   margin-bottom:40px;
-  font-size: 18px;
+  font-size: 32px;
 }
 
 
@@ -76,8 +76,8 @@ button{
 /*Card Related */
 
 .card{
-  width: 700px;
-  height: 500px;
+  width: 900px;
+  height: 600px;
   margin: 0 auto;
   border-top: 2px solid #5bc0f6;
   border-left: 2px solid #5bc0f6;
@@ -88,7 +88,7 @@ button{
 
 .card-header{
   width: 100%;
-  height: 80px;
+  height: 100px;
   margin: 0px;
   padding: 16px;
   display: flex;
@@ -104,7 +104,7 @@ button{
 }
 
 .card-body{
-  height: 420px;
+  height: 500px;
   padding: 0;
   margin: 0;
   border-bottom: 2px solid #5bc0f6;
@@ -132,7 +132,7 @@ button{
 .section{
   display: flex;
   flex: 1;
-  height: 280px;
+  height: 340px;
 }
 
 .selection{
@@ -152,12 +152,14 @@ button{
 .step-buttons{
   display: flex;
   flex: 1;
-  height: 60px;
+  height: 80px;
+  margin-top: 8px;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .step-cancel{
   flex: 1;
-  border-bottom: 2px solid #5bc0f6;
   padding: 12px;
 }
 
@@ -168,13 +170,11 @@ button{
 
 .step-next{
   flex: 1;
-  border-bottom: 2px solid #5bc0f6;
   padding: 12px;
 }
 
 .step-previous{
   flex: 1;
-  border-bottom: 2px solid #5bc0f6;
   padding: 12px;
 }
 
@@ -197,7 +197,7 @@ button{
 
         {% for item in tabs %}
           <li class="nav-item">
-            <a class="nav-link {{ item.active }} fa-3x fa-layers fa-fw" data-toggle="tab" href="{{ item.href }}">
+            <a class="nav-link {{ item.active }} fa-4x fa-layers fa-fw" data-toggle="tab" href="{{ item.href }}">
               <i class="fas fa-circle outer-icon"></i>
               <i class="{{ item.icon }} inner-icon" data-fa-transform="shrink-7"></i>
             </a>
@@ -214,7 +214,7 @@ button{
         <!--This handles the content of the tab 
         Please let this work correctly-->      
         {% for content in tabscontent %}
-        <div class="tab pane {{ content.tabactive }} step" id="{{ content.id }}" role="tabpanel">
+        <div class="tab pane {{ content.tabactive }} step step-container" id="{{ content.id }}" role="tabpanel">
           <div class="title common-text"> {{ content.title }} </div>
           <div class="section">
             <div class="selection"> 
