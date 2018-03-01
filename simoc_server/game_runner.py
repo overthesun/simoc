@@ -162,12 +162,11 @@ class GameRunner(object):
         simoc_server.database.db_model.SavedGame
             The saved game entity that was created.
         """
-        with app.app_context():
-            self.user = db.session.merge(self.user)
-            agent_model_snapshot = self.agent_model.snapshot(commit=False)
-            saved_game = SavedGame(user=self.user, agent_model_snapshot=agent_model_snapshot, name=save_name)
-            db.session.add(saved_game)
-            db.session.commit()
+        self.user = db.session.merge(self.user)
+        agent_model_snapshot = self.agent_model.snapshot(commit=False)
+        saved_game = SavedGame(user=self.user, agent_model_snapshot=agent_model_snapshot, name=save_name)
+        db.session.add(saved_game)
+        db.session.commit()
         self.last_saved_step = self.agent_model.step_num
         return saved_game
 
@@ -304,21 +303,24 @@ class GameRunnerManager(object):
     def __init__(self):
         self.game_runners = {}
 
-        def cleanup_at_interval():
-            self.clean_up_inactive()
-            new_interval = self.get_next_timeout()
-            self.cleanup_thread = threading.Timer(new_interval, cleanup_at_interval)
+        # thread will not end if it runs during unit test
+        if not app.config["TESTING"]:
+            def cleanup_at_interval():
+                self.clean_up_inactive()
+                new_interval = self.get_next_timeout()
+                self.cleanup_thread = threading.Timer(new_interval, cleanup_at_interval)
+                self.cleanup_thread.start()
+
+            def close():
+                print("Closing cleanup thread..")
+                self.cleanup_thread.cancel()
+                self.cleanup_thread.join()
+                print("Cleanup thread closed.")
+                self.save_all(allow_repeat_save=False) # do not save if already saved
+
+            register_exit_handler(close)
+            self.cleanup_thread = threading.Timer(self.CLEANUP_MAX_INTERVAL, cleanup_at_interval)
             self.cleanup_thread.start()
-
-        def close():
-            print("Closing cleanup thread..")
-            self.cleanup_thread.cancel()
-            print("Cleanup thread closed.")
-            self.save_all(allow_repeat_save=False) # do not save if already saved
-
-        register_exit_handler(close)
-        self.cleanup_thread = threading.Timer(self.CLEANUP_MAX_INTERVAL, cleanup_at_interval)
-        self.cleanup_thread.start()
 
 
     def new_game(self, user, game_runner_init_params):
@@ -470,7 +472,7 @@ class GameRunnerManager(object):
         """
         old_game = self.get_game_runner(user)
         if old_game is not None:
-            old_game.save_game(self._autosave_name(), allow_repeat_save=False)
+            self.save_game(user, allow_repeat_save=False)
 
         self.game_runners[user.id] = game_runner
 
@@ -499,7 +501,7 @@ class GameRunnerManager(object):
             try:
                 # prevent exceptions that would kill thread at all costs
                 app.logger.info("Cleaning up save game for user with id {}".format(user_id))
-                self.save_game(user_id)
+                self.save_game(user_id, allow_repeat_save=False)
                 del self.game_runners[user_id]
             except KeyError as e:
                 app.logger.error("Session for user '{}' removed before it could be cleaned up."

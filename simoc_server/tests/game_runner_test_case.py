@@ -1,8 +1,9 @@
 import unittest
+from sqlalchemy import inspect
 from simoc_server import db
 from simoc_server.tests.test_util import setup_db, clear_db
 from simoc_server.database.db_model import User
-from simoc_server.game_runner import GameRunner
+from simoc_server.game_runner import GameRunner, GameRunnerInitializationParams
 
 class GameRunnerTestCase(unittest.TestCase):
 
@@ -17,6 +18,9 @@ class GameRunnerTestCase(unittest.TestCase):
         db.session.add(cls.test_user)
         db.session.commit()
 
+        cls.default_game_runner_init_params = GameRunnerInitializationParams(None, None, 
+            None, None, None)
+
     @classmethod
     def tearDownClass(cls):
         clear_db()
@@ -24,7 +28,8 @@ class GameRunnerTestCase(unittest.TestCase):
 
     def testSaveGame(self):
         test_user = self.__class__.test_user
-        game_runner = GameRunner.from_new_game(test_user)
+        game_runner = GameRunner.from_new_game(test_user, 
+            self.default_game_runner_init_params)
 
         buffer_size = game_runner.step_buffer_size
 
@@ -33,6 +38,7 @@ class GameRunnerTestCase(unittest.TestCase):
         game_runner.get_step(3)
 
         saved_game = game_runner.save_game("test")
+        state = inspect(saved_game)
 
-        game_runner_2 = GameRunner.load_from_saved_game(saved_game)
+        game_runner_2 = GameRunner.load_from_saved_game(test_user, saved_game)
         self.assertEqual(game_runner_2.agent_model.step_num, 3 + buffer_size)

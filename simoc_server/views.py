@@ -251,7 +251,6 @@ def get_saved_games():
         snapshot = saved_game.agent_model_snapshot
         snapshot_branch = snapshot.snapshot_branch
         root_branch = snapshot_branch.get_root_branch()
-        print(root_branch)
         if root_branch in sequences.keys():
             sequences[root_branch].append(saved_game)
         else:
