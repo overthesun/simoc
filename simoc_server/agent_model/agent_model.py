@@ -304,13 +304,8 @@ class DefaultAgentInitializerRecipe(AgentInitializerRecipe):
         plumbing_system = AgentModel.create_plumbing_system(model, [crew_quarters])
         model.add_agent(atmosphere)
         model.add_agent(plumbing_system)
-        human_agent = agents.HumanAgent(model, structure=crew_quarters)
-        model.add_agent(human_agent)
-        human_agent = agents.HumanAgent(model, structure=crew_quarters)
-        model.add_agent(human_agent)
-        plant_agent = agents.PlantAgent(model, structure=crew_quarters)
-        model.add_agent(plant_agent)
-        plant_agent = agents.PlantAgent(model, structure=crew_quarters)
-        model.add_agent(plant_agent)
+        for i in range(4):
+            human_agent = agents.HumanAgent(model, structure=crew_quarters)
+            model.add_agent(human_agent)
 
         return model

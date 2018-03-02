@@ -1,24 +1,31 @@
 import signal
 import sys
 import traceback
+import os
+from functools import partial
 
 exit_handlers = []
 
-def register_exit_handler(func, args=None):
-    exit_handlers.append((func, args))
+def register_exit_handler(func, *args, **kwargs):
+    handler_partial = partial(func, *args, **kwargs)
+    exit_handlers.append(handler_partial)
+    return handler_partial
 
+def remove_exit_handler(func):
+    print("removing exit handler")
+    exit_handlers.remove(func)
 
-def _exit_handler(signal, frame):
+def _run_all():
     print("Exit handler..")
-    for exit_handler, args in exit_handlers:
+    for handler_partial in exit_handlers:
         try:
-            if args is None:
-                exit_handler()
-            else:
-                exit_handler(*args)
+            handler_partial()
         except:
             traceback.print_exc()
-    sys.exit(0)
+
+def _exit_handler(signal, frame):
+    _run_all()
+    os._exit(0)
 
 uncatchable = ['SIG_DFL','SIGSTOP','SIGKILL']
 

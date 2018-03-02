@@ -3,7 +3,7 @@ import datetime
 import time
 import traceback
 
-from simoc_server.exit_handler import register_exit_handler
+from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server import db, app
 from simoc_server.agent_model import (AgentModel,
@@ -286,42 +286,77 @@ class GameRunnerManager(object):
 
     Attributes
     ----------
-    TIMEOUT_INTERVAL : int
-         maximum time in seconds between cleanup thread runs
-    CLEANUP_MAX_INTERVAL : int
-        seconds until GameRunner timesout and gets cleaned up
+    DEFAULT_TIMEOUT_INTERVAL : int
+         default value for timeout_interval
+    DEFAULT_CLEANUP_MAX_INTERVAL : int
+        default value for max_interval
     cleanup_thread : Thread
         worker thread to cleanup GameRunner objects which have timed out
+    timeout_interval: int
+        maximum time in seconds between cleanup thread runs
+    max_interval: int
+        seconds until GameRunner timesout and gets cleaned up
     game_runners : dict
         dictionary containing GameRunner's indexed by user id's
 
     """
 
-    TIMEOUT_INTERVAL = 120 # seconds
-    CLEANUP_MAX_INTERVAL = 10 # seconds
+    DEFAULT_TIMEOUT_INTERVAL = 120 # seconds
+    DEFAULT_CLEANUP_MAX_INTERVAL = 10 # seconds
 
-    def __init__(self):
+    def __init__(self, timeout_interval=None,
+            cleanup_max_interval=None):
         self.game_runners = {}
 
+        if timeout_interval:
+            self.timeout_interval = timeout_interval
+        else:
+            self.timeout_interval = self.DEFAULT_TIMEOUT_INTERVAL
+
+        if cleanup_max_interval:
+            self.cleanup_max_interval = cleanup_max_interval
+        else:
+            self.cleanup_max_interval = self.DEFAULT_CLEANUP_MAX_INTERVAL
+
+        print(self.timeout_interval, self.cleanup_max_interval)
         # thread will not end if it runs during unit test
-        if not app.config["TESTING"]:
-            def cleanup_at_interval():
-                self.clean_up_inactive()
-                new_interval = self.get_next_timeout()
-                self.cleanup_thread = threading.Timer(new_interval, cleanup_at_interval)
-                self.cleanup_thread.start()
+        self.start_cleanup_thread()
 
-            def close():
-                print("Closing cleanup thread..")
-                self.cleanup_thread.cancel()
-                self.cleanup_thread.join()
-                print("Cleanup thread closed.")
-                self.save_all(allow_repeat_save=False) # do not save if already saved
 
-            register_exit_handler(close)
-            self.cleanup_thread = threading.Timer(self.CLEANUP_MAX_INTERVAL, cleanup_at_interval)
+    def start_cleanup_thread(self):
+        """Starts a cleanup thread to remove game_runners
+        that have timed out.  Should generally only be called
+        internally or during test
+        """
+
+        # close existing cleanup thread if exists
+        self.stop_cleanup_thread()
+
+        def cleanup_at_interval():
+            self.clean_up_inactive()
+            new_interval = self.get_next_timeout()
+            self.cleanup_thread = threading.Timer(new_interval, cleanup_at_interval)
             self.cleanup_thread.start()
 
+        def close():
+            print("Closing cleanup thread..")
+            self.cleanup_thread.cancel()
+            self.cleanup_thread.join()
+            print("Cleanup thread closed.")
+            self.save_all(allow_repeat_save=False) # do not save if already saved
+
+        handler_partial = register_exit_handler(close)
+        self.cleanup_thread = threading.Timer(self.cleanup_max_interval, cleanup_at_interval)
+        self.cleanup_thread.start()
+        self._handler_partial = handler_partial
+
+    def stop_cleanup_thread(self):
+        """For testing purposes, provides a method to close
+        a cleanup thread explicitly after starting it
+        """
+        if hasattr(self, "_handler_partial"):
+            self._handler_partial()
+            remove_exit_handler(self._handler_partial)
 
     def new_game(self, user, game_runner_init_params):
         """Create a new game and add it to internal game_runners dict.
@@ -494,7 +529,7 @@ class GameRunnerManager(object):
         """
         marked_for_cleanup = []
         for user_id, game_runner in self.game_runners.items():
-            if(game_runner.seconds_since_last_accessed > self.TIMEOUT_INTERVAL):
+            if(game_runner.seconds_since_last_accessed > self.timeout_interval):
                 marked_for_cleanup.append(user_id)
 
         for user_id in marked_for_cleanup:
@@ -519,6 +554,6 @@ class GameRunnerManager(object):
         int or float
             the time till the next timeout given the current state
         """
-        next_timeouts = [self.TIMEOUT_INTERVAL - runner.seconds_since_last_accessed 
+        next_timeouts = [self.timeout_interval - runner.seconds_since_last_accessed 
             for runner in self.game_runners.values()]
-        return max(0, min([self.TIMEOUT_INTERVAL] + next_timeouts))
+        return max(0, min([self.timeout_interval] + next_timeouts))
