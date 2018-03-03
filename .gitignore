@@ -1,6 +1,9 @@
 # Unencrypted Secret Files
 test_settings.py
 
+# Convenience extension for files not in use
+*.exclude
+
 # Secret Settings Files
 settings.py
 
