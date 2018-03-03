@@ -118,7 +118,7 @@ def gen_human():
         description="Work hours in a day.")
     # Metabolism function values
     metabolic_description_format = \
-        "{} in metabolic function: (A - (age_factor*age(years)) + B(mass_factor*mass(kg) + height_factor*height(m)))/(C * work_factor * time(days))"
+        "{} in metabolic function: work_factor * time(days) * (A - (age_factor*age(years)) + B(mass_factor*mass(kg) + height_factor*height(m)))/C"
 
     data["human_metabolism_A"] = create_agent_type_attr(
         _type, "metabolism_A", 622.0, units=UNKNOWN_UNITS,
