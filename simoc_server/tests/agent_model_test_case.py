@@ -7,7 +7,7 @@ import datetime
 from simoc_server import db, app
 from simoc_server.tests.test_util import setup_db, clear_db
 from simoc_server.agent_model import (AgentModel, AgentModelInitializationParams,
-    DefaultAgentInitializerRecipe)
+    BaseLineAgentInitializerRecipe)
 from simoc_server.database.db_model import AgentModelState
 
 class AgentModelTestCase(unittest.TestCase):
@@ -22,7 +22,7 @@ class AgentModelTestCase(unittest.TestCase):
         (cls.default_model_params.set_grid_width(100)
                     .set_grid_height(100)
                     .set_starting_model_time(datetime.timedelta()))
-        cls.default_agent_init_recipe = DefaultAgentInitializerRecipe()
+        cls.default_agent_init_recipe = BaseLineAgentInitializerRecipe()
 
     @classmethod
     def tearDownClass(cls):

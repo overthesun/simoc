@@ -4,7 +4,7 @@ import datetime
 
 from simoc_server import db
 from simoc_server.agent_model import (AgentModel, AgentModelInitializationParams,
-    DefaultAgentInitializerRecipe)
+    BaseLineAgentInitializerRecipe)
 from simoc_server.agent_model.agents import (BaseAgent, get_agent_by_type_name,
     _add_agent_class_to_mapping)
 from simoc_server.agent_model.attribute_meta import AttributeHolder
@@ -25,7 +25,7 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         (cls.default_model_params.set_grid_width(100)
                     .set_grid_height(100)
                     .set_starting_model_time(datetime.timedelta()))
-        cls.default_agent_init_recipe = DefaultAgentInitializerRecipe()
+        cls.default_agent_init_recipe = BaseLineAgentInitializerRecipe()
 
     @classmethod
     def tearDownClass(cls):
@@ -205,7 +205,7 @@ class AgentsFrameworkTestCase(unittest.TestCase):
 
         # get agents
         loaded_agents_two = loaded_agent_model_two.get_agents()
-        print(loaded_agents_two)
+
         # make sure agent exists and only exists once
         matching_agents_a_two = list(filter(lambda x: x.unique_id == agent_a.unique_id, loaded_agents_two))
         matching_agents_b_two = list(filter(lambda x: x.unique_id == agent_b.unique_id, loaded_agents_two))
@@ -287,7 +287,6 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         agent_a_state = agent_a_dto.get_state()
         agent_b_state = agent_b_dto.get_state()
 
-        print(agent_a_state)
         self.assertEqual(agent_a_state["attributes"]["agent_b_ref"], agent_b.unique_id)
         self.assertEqual(agent_b_state["attributes"]["agent_a_ref"], agent_a.unique_id)
 

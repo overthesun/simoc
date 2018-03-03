@@ -294,18 +294,46 @@ class AgentInitializerRecipe(metaclass=ABCMeta):
         pass
 
 
-class DefaultAgentInitializerRecipe(AgentInitializerRecipe):
+class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
+
+    NUM_HUMANS = 4
+
+    # plants
+    NUM_CABBAGE = 2
+    NUM_CARROTS = 2
+    NUM_RICE = 10
+    NUM_WHITE_POTATOS = 5
 
     def init_agents(self, model):
         crew_quarters = agents.CrewQuarters(model)
+        greenhouse = agents.Greenhouse(model)
+
         model.add_agent(crew_quarters, (0,0))
 
-        atmosphere = AgentModel.create_atmosphere(model, [crew_quarters])
-        plumbing_system = AgentModel.create_plumbing_system(model, [crew_quarters])
+        # place green house next to crew quarters
+        greenhouse_x = crew_quarters.width
+        model.add_agent(greenhouse, (greenhouse_x, 0))
+
+        structures = [crew_quarters, greenhouse]
+
+        atmosphere = AgentModel.create_atmosphere(model, structures)
+        plumbing_system = AgentModel.create_plumbing_system(model, structures)
         model.add_agent(atmosphere)
         model.add_agent(plumbing_system)
-        for i in range(4):
-            human_agent = agents.HumanAgent(model, structure=crew_quarters)
-            model.add_agent(human_agent)
+        for i in range(self.NUM_HUMANS):
+            model.add_agent(agents.HumanAgent(model, structure=crew_quarters))
+
+        # TODO determine number of plants for base line model
+        for i in range(self.NUM_CABBAGE):
+            model.add_agent(agents.CabbageAgent(model, structure=greenhouse))
+
+        for i in range(self.NUM_CARROTS):
+            model.add_agent(agents.CarrotAgent(model, structure=greenhouse))
+
+        for i in range(self.NUM_RICE):
+            model.add_agent(agents.RiceAgent(model, structure=greenhouse))
+
+        for i in range(self.NUM_WHITE_POTATOS):
+            model.add_agent(agents.WhitePotatoAgent(model, structure=greenhouse))
 
         return model

@@ -7,7 +7,7 @@ from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server import db, app
 from simoc_server.agent_model import (AgentModel,
-    AgentModelInitializationParams, DefaultAgentInitializerRecipe)
+    AgentModelInitializationParams, BaseLineAgentInitializerRecipe)
 from simoc_server.serialize import AgentModelDTO
 from simoc_server.database import SavedGame
 from simoc_server.database.db_model import User
@@ -277,7 +277,7 @@ class GameRunnerInitializationParams(object):
         (self.model_init_params.set_grid_width(100)
                     .set_grid_height(100)
                     .set_starting_model_time(datetime.timedelta()))
-        self.agent_init_recipe = DefaultAgentInitializerRecipe()
+        self.agent_init_recipe = BaseLineAgentInitializerRecipe()
 
 
 class GameRunnerManager(object):
@@ -318,7 +318,6 @@ class GameRunnerManager(object):
         else:
             self.cleanup_max_interval = self.DEFAULT_CLEANUP_MAX_INTERVAL
 
-        print(self.timeout_interval, self.cleanup_max_interval)
         # thread will not end if it runs during unit test
         self.start_cleanup_thread()
 
