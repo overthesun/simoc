@@ -18,7 +18,7 @@ from simoc_server.database.db_model import AgentModelState, AgentState, \
 
 from simoc_server import db
 from simoc_server.agent_model import agents
-from simoc_server.util import sum_attributes
+from simoc_server.util import sum_attributes, avg_attributes
 
 
 class AgentModel(Model):
@@ -59,20 +59,36 @@ class AgentModel(Model):
         return sum_attributes(self.plumbing_systems, "waste_water")
 
     @property
-    def total_oxygen(self):
-        return sum_attributes(self.atmospheres, "oxygen")
+    def total_grey_water(self):
+        return sum_attributes(self.plumbing_systems, "grey_water")
 
     @property
-    def total_carbon_dioxide(self):
-        return sum_attributes(self.atmospheres, "carbon_dioxide")
+    def total_solid_waste(self):
+        return sum_attributes(self.plumbing_systems, "solid_waste")
 
     @property
-    def total_nitrogen(self):
-        return sum_attributes(self.atmospheres, "nitrogen")
+    def total_grey_water_solids(self):
+        return sum_attributes(self.plumbing_systems, "grey_water_solids")
 
     @property
-    def total_argon(self):
-        return sum_attributes(self.atmospheres, "argon")
+    def avg_oxygen_pressure(self):
+        return avg_attributes(self.atmospheres, "oxygen")
+
+    @property
+    def avg_carbon_dioxide_pressure(self):
+        return avg_attributes(self.atmospheres, "carbon_dioxide")
+
+    @property
+    def avg_nitrogen_pressure(self):
+        return avg_attributes(self.atmospheres, "nitrogen")
+
+    @property
+    def avg_argon_pressure(self):
+        return avg_attributes(self.atmospheres, "argon")
+
+    @property
+    def avg_temp(self):
+        return avg_attributes(self.atmospheres, "temp")
 
     @property
     def step_num(self):
@@ -212,9 +228,14 @@ class AgentModel(Model):
         self.model_time += self.timedelta_per_step()
         self.scheduler.step()
         print("{0} step_num {1}".format(self, self.step_num))
-        print("o2: {} co2: {} n2: {} ar: {} h2o: {} waste_h2o: {}".format(
-            self.total_oxygen, self.total_carbon_dioxide, self.total_nitrogen,
-            self.total_argon, self.total_water, self.total_waste_water))
+
+        # TODO remove this when it is no longer needed
+        print("o2: {:.6g} co2: {:.6g} n2: {:.6g} ar: {:.6g} h2o: {:.6g} waste_h2o: {:.6g}"
+            " grey_h2o: {:.6g} grey_solids: {:.6g} solid_waste: {:.6g} avg_temp: {:.6g}".format(
+            self.avg_oxygen_pressure, self.avg_carbon_dioxide_pressure, self.avg_nitrogen_pressure,
+            self.avg_argon_pressure, self.total_water, self.total_waste_water,
+            self.total_grey_water, self.total_grey_water_solids, self.total_solid_waste,
+            self.avg_temp))
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)

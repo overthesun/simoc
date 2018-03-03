@@ -29,7 +29,7 @@ class HumanAgent(EnclosedAgent):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         # TODO populate std values with non-zero values in database
         mass_mean = self.get_agent_type_attribute("initial_mass_mean")
         mass_std = self.get_agent_type_attribute("initial_mass_std")
@@ -70,8 +70,28 @@ class HumanAgent(EnclosedAgent):
 
             #atmosphere
 
-            plumbing_system.water_to_waste(self._total_water_usage_per_day() * days_per_step)
+            # plumbing_system.water_to_waste_water(self._total_water_usage_per_day() * days_per_step)
 
+            # Values based on agent model specification
+            # TODO figure out discrepency between water consumption and
+            # output, ideally this would be a straight conversion
+            # conducted by the plumbing system agent's convenience
+            # methods. Currently there is more waste + grey water
+            # being created then water consumed
+            total_waste_water_output = self.get_agent_type_attribute("waste_water_output") + \
+                self.get_agent_type_attribute("solid_waste_water_output")
+
+            plumbing_system.water -= self._total_water_usage_per_day() * days_per_step
+            plumbing_system.grey_water += self.get_agent_type_attribute("grey_water_output") * days_per_step
+            plumbing_system.waste_water += total_waste_water_output * days_per_step
+            plumbing_system.grey_water_solids += self.get_agent_type_attribute("grey_water_solid_output") * days_per_step
+            plumbing_system.solid_waste += self.get_agent_type_attribute("solid_waste_output") * days_per_step
+
+            # Values based on agent model specification
+            # TODO figure out discrepency between o2 consumptions
+            # and co2 output (in moles)
+            atmosphere.modify_oxygen_by_mass(self.get_agent_type_attribute("oxygen_consumption") * days_per_step)
+            atmosphere.modify_carbon_dioxide_by_mass(self.get_agent_type_attribute("carbon_produced") * days_per_step)
 
 
     def _metabolize(self, is_working, days_per_step):
@@ -82,19 +102,29 @@ class HumanAgent(EnclosedAgent):
             work_factor = self.get_agent_type_attribute("metabolism_work_factor_working")
         else:
             work_factor = self.get_agent_type_attribute("metabolism_work_factor_idle")
-            
+
 
         A = self.get_agent_type_attribute("metabolism_A")
-        B = self.get_agent_type_attribute("metabolism_A")
+        B = self.get_agent_type_attribute("metabolism_B")
         C = self.get_agent_type_attribute("metabolism_C")
         age_factor = self.get_agent_type_attribute("metabolism_age_factor")
         mass_factor = self.get_agent_type_attribute("metabolism_mass_factor")
         height_factor = self.get_agent_type_attribute("metabolism_height_factor")
 
-        self.energy -= (A - (age_factor * self.age) + (B * (mass_factor * self.mass) + 
-            (height_factor * self.height)))/(C * work_factor * days_per_step)
-           
+        self.energy -= ((A - (age_factor * self.age) + B * ((mass_factor * self.mass) + 
+            (height_factor * self.height)))/(C)) * (work_factor * days_per_step)
     def _total_water_usage_per_day(self):
+        """Calculates the total water usage per day
+        from consumed_water, hygiene water, and medical
+
+        If this value is already calculated, return
+        cached value
+
+        Returns
+        -------
+        float
+            Total human waste water per day
+        """
         try:
             # try cached value
             return self._cached_total_water_usage_per_day

@@ -30,7 +30,7 @@ def gen_human():
     _type = data["human_agent_type"]
 
     age_units = "years"
-    water_usage_units = "Kg/CrewMember*d"
+    mass_usage_units = "Kg/CrewMember*d"
     gas_units = "kPa"
 
 
@@ -68,14 +68,42 @@ def gen_human():
 
     # water usage
     data["human_consumed_water_usage"] = create_agent_type_attr(
-        _type, "consumed_water_usage", 2.5, units=water_usage_units,
+        _type, "consumed_water_usage", 2.5, units=mass_usage_units,
         description="Water consumed by the human.")
     data["human_hygiene_water_usage"] = create_agent_type_attr(
-        _type, "hygiene_water_usage", 7.17, units=water_usage_units,
+        _type, "hygiene_water_usage", 7.17, units=mass_usage_units,
         description="Water consumed for hygiene, urinal, shower.")
     data["human_medical_water_usage"]  = create_agent_type_attr(
-        _type, "medical_water_usage", 0.5, units=water_usage_units,
+        _type, "medical_water_usage", 0.5, units=mass_usage_units,
         description="Water consumed for medical purposes")
+
+    # water output
+    # TODO sort out discrepency between water usage
+    # and water output
+    data["human_grey_water_output"] = create_agent_type_attr(_type,
+        "grey_water_output", 1.584, units=mass_usage_units,
+        description="Water converted to grey water by a human per day not including solid content.")
+    data["human_waste_water_output"] = create_agent_type_attr(_type,
+        "waste_water_output", 8.6, units=mass_usage_units,
+        description="Water converted to waste water by a human per day.")
+    data["human_solid_waste_water_output"] = create_agent_type_attr(_type,
+        "solid_waste_water_output", .02, units=mass_usage_units,
+        description="Water content in solid waste output of a human per day.")
+
+    # respiration
+    data["human_oxygen_consumption"] = create_agent_type_attr(_type,
+        "oxygen_consumption", 1.037, units=mass_usage_units,
+        description="Oxygen consumed by a human per day.")
+    data["human_carbon_produced"] = create_agent_type_attr(_type,
+        "carbon_produced", 0.818, units=mass_usage_units,
+        description="Carbon dioxide produced by a human per day.")
+    # solid waste
+    data["human_grey_water_solid_output"] = create_agent_type_attr(_type,
+        "grey_water_solid_output", 1.503, units=mass_usage_units,
+        description="Solid content of grey water output by a human per day.")
+    data["human_solid_waste_output"] = create_agent_type_attr(_type,
+        "solid_waste_output", .1, units=mass_usage_units,
+        description="Solid waste output of a human per day, not including water content.")
 
     # fatal gas levels
     data["human_fatal_o2"] = create_agent_type_attr(
@@ -91,7 +119,7 @@ def gen_human():
     # Metabolism function values
     metabolic_description_format = \
         "{} in metabolic function: (A - (age_factor*age(years)) + B(mass_factor*mass(kg) + height_factor*height(m)))/(C * work_factor * time(days))"
-        
+
     data["human_metabolism_A"] = create_agent_type_attr(
         _type, "metabolism_A", 622.0, units=UNKNOWN_UNITS,
         description=metabolic_description_format.format("A"))
@@ -152,8 +180,8 @@ def add_plant(data, name, oxygen, carbon, water, edible, inedible):
     agent_type = AgentType(name=name)
     data["{0}_plant_agent_type".format(name)] = agent_type
 
-    create_agent_type_attr(agent_type, "oxygen_consumption", oxygen, "g/(m^2*day)",
-        "Oxygen consumed by the plant.")
+    create_agent_type_attr(agent_type, "oxygen_produced", oxygen, "g/(m^2*day)",
+        "Oxygen produced by the plant.")
     create_agent_type_attr(agent_type, "carbon_uptake", carbon, "g/(m^2*day)",
         "Carbon uptake by the plant.")
     create_agent_type_attr(agent_type, "water_uptake", water, "kg/(m^2*day)",

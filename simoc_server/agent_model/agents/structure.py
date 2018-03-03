@@ -9,22 +9,49 @@ class PlumbingSystem(BaseAgent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._attr("water", 0.0, is_client_attr=True, is_persisted_attr=True)
-        self._attr("waste_water", 0.0, is_client_attr=True, is_persisted_attr=True)
+        # All values in kgs
 
-    def water_to_waste(self, amount):
+        # 'drinkable water' in the water system
+        self._attr("water", 0.0, is_client_attr=True, is_persisted_attr=True)
+        # 'waste water' in the waste water system (contains solid waste)
+        self._attr("waste_water", 0.0, is_client_attr=True, is_persisted_attr=True)
+        # 'grey water' in the grey water system
+        self._attr("grey_water", 0.0, is_client_attr=True, is_persisted_attr=True)
+
+        # solids in the 'grey water' system
+        self._attr("grey_water_solids", 0.0, is_client_attr=True, is_persisted_attr=True)
+        # solids in the 'waste water' system
+        self._attr("solid_waste", 0.0, is_client_attr=True, is_persisted_attr=True)
+
+    def water_to_waste_water(self, amount):
         self.water -= amount
         self.waste_water += amount
 
-    def waste_to_water(self, amount):
+    def waste_water_to_water(self, amount):
         self.waste_water -= amount
         self.water += amount
+
+    def grey_water_to_water(self, amount):
+        self.grey_water -= amount
+        self.water += amount
+
+    def water_to_gray_water(self, amount):
+        self.water -= amount
+        self.grey_water += amount
+
+    def grey_water_to_waste_water(self, amount):
+        self.grey_water -= amount
+        self.waste_water += amount
 
 class Atmosphere(BaseAgent):
     _agent_type_name = "atmosphere"
 
+    gas_constant = .0083145 # kL kPa / mol·K = 8.3145 L kPa / mol·K
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # All gas values stored as pressures measured in kPa
 
         self._attr("temp", 0.0, is_client_attr=True, is_persisted_attr=True)
         self._attr("volume", 0.0, is_client_attr=True, is_persisted_attr=True)
@@ -52,6 +79,42 @@ class Atmosphere(BaseAgent):
             self.argon *= ratio
 
         self.volume = new_volume
+
+    def modify_oxygen_by_mass(self, mass):
+        self.oxygen += self.mass_to_pressure(mass, 31.998)
+
+    def modify_carbon_dioxide_by_mass(self, mass):
+        self.carbon_dioxide += self.mass_to_pressure(mass, 44.009)
+
+    def modify_nitrogen_by_mass(self, mass):
+        self.nitrogen += self.mass_to_pressure(mass, 28.014)
+
+    def modify_argon_by_mass(self, mass):
+        self.argon += self.mass_to_pressure(mass, 39.948)
+
+    def mass_to_pressure(self, mass_kg, molar_mass):
+        """Get the pressure of a gas from a given mass
+        using the ideal gas law and the molar mass of
+        the gas
+
+        Parameters
+        ----------
+        mass_kg : float
+            The mass to convert in kg
+        molar_mass : float
+            The molar mass of the the gas in g/mol
+
+        Returns
+        -------
+        float
+            The pressure of the gas in kPa
+
+        """
+
+        # PV = nRT
+        n = mass_kg / (molar_mass/1000.0)
+
+        return (n * self.gas_constant * self.temp) / self.volume
 
 
 class Structure(BaseAgent):

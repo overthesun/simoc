@@ -23,14 +23,14 @@ def extend_dict(dict_a, dict_b, in_place=False):
 
 def subdict_from_list(d, l):
     """Return a subset of d from a list of keys, l
-    
+
     Parameters
     ----------
     d : dict
         Dictionary to take subset from
     l : list
         list of keys to make the subet
-    
+
     Returns
     -------
     dict
@@ -41,12 +41,12 @@ def subdict_from_list(d, l):
 
 def timedelta_to_days(time_d):
     """Get total days from timedelta
-    
+
     Parameters
     ----------
     time_d : datetime.timedelta
         the timedelta to get the days of
-    
+
     Returns
     -------
     float
@@ -56,12 +56,12 @@ def timedelta_to_days(time_d):
 
 def timedelta_to_hours(time_d):
     """Get total days from timedelta
-    
+
     Parameters
     ----------
     time_d : datetime.timedelta
         the timedelta to get the days of
-    
+
     Returns
     -------
     float
@@ -71,12 +71,12 @@ def timedelta_to_hours(time_d):
 
 def timedelta_to_minutes(time_d):
     """Get total minutes from timedelta
-    
+
     Parameters
     ----------
     time_d : datetime.timedelta
         the timedelta to get the minutes of
-    
+
     Returns
     -------
     float
@@ -86,12 +86,12 @@ def timedelta_to_minutes(time_d):
 
 def timedelta_to_seconds(time_d):
     """Get total seconds from timedelta
-    
+
     Parameters
     ----------
     time_d : datetime.timedelta
         the timedelta to get the seconds of
-    
+
     Returns
     -------
     float
@@ -104,12 +104,12 @@ def timedelta_hour_of_day(time_d):
     24 hour day.
 
     This does not account for daylight savings time
-    
+
     Parameters
     ----------
     time_d : datetime.timedelta
         the timedelta to get the hour of day from
-    
+
     Returns
     -------
     float
@@ -121,17 +121,34 @@ def timedelta_hour_of_day(time_d):
 
 def sum_attributes(objects, attribute_name):
     """Sum all attributes in an iterable containing objects
-    
+
     Parameters
     ----------
     objects : TYPE
         The objects containing attribute given
     attribute_name : TYPE
         the attribute to sum across the objects
-    
+
     Returns
     -------
     type of object.attribute
         The sum of all of the attributes
     """
     return sum([x.__dict__[attribute_name] for x in objects])
+
+def avg_attributes(objects, attribute_name):
+    """Take an average all attributes in an iterable containing objects
+
+    Parameters
+    ----------
+    objects : TYPE
+        The objects containing attribute given
+    attribute_name : TYPE
+        the attribute to sum across the objects
+
+    Returns
+    -------
+    float
+        The average of all of the attributes
+    """
+    return sum_attributes(objects, attribute_name)/float(len(objects))

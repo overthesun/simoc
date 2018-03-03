@@ -46,3 +46,6 @@ if __name__ == "__main__":
             db.drop_all()
 
     create(seed_data=(not args.no_seed))
+
+    # temporary fix for poorly handled threading
+    os._exit(0)
