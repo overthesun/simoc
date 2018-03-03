@@ -1,0 +1,43 @@
+body{
+  background-image: url("simoc-background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+
+.simoc-title{
+  margin-top: 60px;
+  text-align: center;
+  font-size: 48px;
+}
+
+.simoc-subtitle{
+  text-align: center;
+  margin-bottom:40px;
+  font-size: 18px;
+}
+
+button{
+  background-color: #e9f0f4;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 5px 16px;
+}
+
+.common-text{
+  color: #e9f0f4;
+  font-family:'Nasalization';
+}
+
+.common-border{
+	border: 2px solid #5bc0f6;
+}
+
+/*Wizard Step Title*/
+.common-header{
+  border-bottom: 2px solid #5bc0f6;
+  font-size: 30px;
+  text-align: center;
+}
