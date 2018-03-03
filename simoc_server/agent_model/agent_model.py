@@ -5,6 +5,7 @@ import datetime
 import numpy as np
 import functools
 import operator
+from abc import ABCMeta, abstractmethod
 from uuid import uuid4
 
 from mesa import Model
@@ -122,34 +123,13 @@ class AgentModel(Model):
         return model
 
     @classmethod
-    def create_new(cls, grid_width, grid_height):
-        init_params = AgentModelInitializationParams()
-        (init_params.set_grid_width(grid_width)
-                    .set_grid_height(grid_height)
-                    .set_starting_step_num(0)
-                    .set_starting_model_time(datetime.timedelta()))
-
-        model = AgentModel(init_params)
-        # for testing
-        crew_quarters = agents.CrewQuarters(model)
-        model.add_agent(crew_quarters, (0,0))
-
-        atmosphere = cls.create_initial_atmosphere(model, [crew_quarters])
-        plumbing_system = cls.create_initial_plumbing_system(model, [crew_quarters])
-        model.add_agent(atmosphere)
-        model.add_agent(plumbing_system)
-        human_agent = agents.HumanAgent(model, structure=crew_quarters)
-        model.add_agent(human_agent)
-        human_agent = agents.HumanAgent(model, structure=crew_quarters)
-        model.add_agent(human_agent)
-        plant_agent = agents.PlantAgent(model, structure=crew_quarters)
-        model.add_agent(plant_agent)
-        plant_agent = agents.PlantAgent(model, structure=crew_quarters)
-        model.add_agent(plant_agent)
+    def create_new(cls, model_init_params, agent_init_recipe):
+        model = AgentModel(model_init_params)
+        agent_init_recipe.init_agents(model)
         return model
 
     @classmethod
-    def create_initial_atmosphere(cls, model, structures):
+    def create_atmosphere(cls, model, structures):
         atmosphere = agents.Atmosphere(model)
 
         atmosphere.temp = model.initial_temp
@@ -164,7 +144,7 @@ class AgentModel(Model):
         return atmosphere
 
     @classmethod
-    def create_initial_plumbing_system(cls, model, structures):
+    def create_plumbing_system(cls, model, structures):
         plumbing_system = agents.PlumbingSystem(model)
         plumbing_system.water = model.initial_water
         plumbing_system.waste_water = model.initial_waste_water
@@ -277,6 +257,7 @@ class AgentModelInitializationParams(object):
     snapshot_branch = None
     seed = None
     random_state = None
+    starting_step_num = 0
 
     def set_grid_width(self, grid_width):
         self.grid_width = grid_width
@@ -305,3 +286,54 @@ class AgentModelInitializationParams(object):
     def set_random_state(self, random_state):
         self.random_state = random_state
         return self
+
+class AgentInitializerRecipe(metaclass=ABCMeta):
+
+    @abstractmethod
+    def init_agents(self, model):
+        pass
+
+
+class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
+
+    NUM_HUMANS = 4
+
+    # plants
+    NUM_CABBAGE = 2
+    NUM_CARROTS = 2
+    NUM_RICE = 10
+    NUM_WHITE_POTATOS = 5
+
+    def init_agents(self, model):
+        crew_quarters = agents.CrewQuarters(model)
+        greenhouse = agents.Greenhouse(model)
+
+        model.add_agent(crew_quarters, (0,0))
+
+        # place green house next to crew quarters
+        greenhouse_x = crew_quarters.width
+        model.add_agent(greenhouse, (greenhouse_x, 0))
+
+        structures = [crew_quarters, greenhouse]
+
+        atmosphere = AgentModel.create_atmosphere(model, structures)
+        plumbing_system = AgentModel.create_plumbing_system(model, structures)
+        model.add_agent(atmosphere)
+        model.add_agent(plumbing_system)
+        for i in range(self.NUM_HUMANS):
+            model.add_agent(agents.HumanAgent(model, structure=crew_quarters))
+
+        # TODO determine number of plants for base line model
+        for i in range(self.NUM_CABBAGE):
+            model.add_agent(agents.CabbageAgent(model, structure=greenhouse))
+
+        for i in range(self.NUM_CARROTS):
+            model.add_agent(agents.CarrotAgent(model, structure=greenhouse))
+
+        for i in range(self.NUM_RICE):
+            model.add_agent(agents.RiceAgent(model, structure=greenhouse))
+
+        for i in range(self.NUM_WHITE_POTATOS):
+            model.add_agent(agents.WhitePotatoAgent(model, structure=greenhouse))
+
+        return model

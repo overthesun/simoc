@@ -92,7 +92,7 @@ def gen_human():
     metabolic_description_format = \
         "{} in metabolic function: (A - (age_factor*age(years)) + B(mass_factor*mass(kg) + height_factor*height(m)))/(C * work_factor * time(days))"
         
-    data["human_mmetabolism_A"] = create_agent_type_attr(
+    data["human_metabolism_A"] = create_agent_type_attr(
         _type, "metabolism_A", 622.0, units=UNKNOWN_UNITS,
         description=metabolic_description_format.format("A"))
     data["human_metabolism_age_factor"] = create_agent_type_attr(
