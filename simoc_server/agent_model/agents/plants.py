@@ -1,4 +1,4 @@
- import datetime
+import datetime
 
 from simoc_server.agent_model.sprite_mappers import PlantSpriteMapper
 from simoc_server.agent_model.agents.core import EnclosedAgent

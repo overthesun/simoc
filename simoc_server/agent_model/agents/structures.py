@@ -1,5 +1,6 @@
 from simoc_server.agent_model.agents.core import BaseAgent
 from simoc_server.agent_model.agents.plants import PlantAgent
+from simoc_server.agent_model.agents.core import EnclosedAgent
 from simoc_server.exceptions import AgentModelError
 
 
@@ -147,6 +148,63 @@ class Greenhouse(Structure):
     def remove_plant(self, agent):
         self.plants.remove(agent)
 
+#Harvester 
+
+class Harvester(EnclosedAgent):
+    agent_type_name = "harvester"
+    # TODO harvester harvests all plants in one step, maybe needs to be incremental
+    # TODO add harvested mass to storage
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def step(self):
+        if (self.structure.plants_ready > 0):
+            self.harvest()
+
+    def harvest(self):
+        for x in self.structure.plants:
+            if(self.structure.plants[x].status == "grown"):
+                edible_mass = self.structure.plants[x].get_agent_type_attribute("edible")
+                inedible_mass = self.structure.plants[x].get_agent_type_attribute("inedible")
+                self.ship(edible_mass, inedible_mass)
+                self.structure.remove_plant(self.structure.plants[x])
+                self.structure.plants[x].destroy()
+                self.structure.plants_ready -= 1
+            if(self.structure.plants_ready == 0):
+                break
+
+    def ship(self, edible, inedible):
+        possible_storage = self.model.get_agents("storage_facility")
+        edible_to_store = edible
+        inedible_to_store = inedible
+        for x in possible_storage:
+            if(edible_to_store > 0):
+                edible_to_store -= possible_storage[x].store("edible_mass", edible)
+            if(inedible_to_store > 0):
+                inedible_to_store -= possible_storage[x].store("inedible_mass", inedible)
+            if(edible_to_store == 0 and inedible_to_store == 0):
+                break
+
+#Planter
+
+class Planter(EnclosedAgent):
+    agent_type_name = "planter"
+    # TODO right now just grows generic plant, the planter should choose a specific type somehow
+    # TODO planter plants everything in one step, should be incremental
+    # TODO planter should use soil
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def step(self):
+        if(self.structure.plants_housed < self.structure.max_plants):
+            to_plant = self.structure.max_plants - self.structure.plants_housed
+            self.plant(to_plant) 
+
+    def plant(self, number_to_plant):
+        for x in range(0, number_to_plant):
+            plant_agent = agents.PlantAgent(self.model, structure=self.structure)
+            self.model.add_agent(plant_agent)
+            self.structure.place_plant_inside(plant_agent)            
 
 #Converts plant mass to food
 #Input: Plant Mass
@@ -204,15 +262,14 @@ class RoverDock(Structure):
     def step(self):
         pass
 
-
 #Storage for raw materials and finished goods
-class StorageFacility(Structure):
+class StorageFacility(EnclosedAgent):
 
     _agent_type_name = "storage_facility"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.storage_capacity = 1000
+        self.storage_capacity = self.structure.getVolume()
         
 
     def step(self):
@@ -230,7 +287,7 @@ class StorageFacility(Structure):
 
         if hasattr(self, resource):
             temp = getattr(self, resource) + amount_stored
-            setattr(self, amount_stored, temp)
+            setattr(self, resource, temp)
             self.storage_capacity -= amount_stored
         else:
             self._attr(resource, amount_stored, is_client_attr=True, is_persisted_attr=True)
@@ -238,8 +295,23 @@ class StorageFacility(Structure):
 
         return amount_stored
 
-    def supply(self, agent, resource, quantity):
-        pass
+    def supply(self, resource, quantity):
+        amount_supplied = 0
 
-    def step(self):
-        pass
+        if hasattr(self, resource):
+            amount_stored = getattr(self, resource)
+            if(quantity > amount_stored):
+                amount_supplied = quantity - amount_stored
+                delattr(self, resource)
+
+                return amount_supplied
+
+            if(quantity < amount_stored):
+                amount_supplied = quantity
+                temp = getattr(self, resource) - amount_supplied
+                setattr(self, resource, temp)
+
+                return amount_supplied
+
+        return amount_supplied
+
