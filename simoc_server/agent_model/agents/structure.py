@@ -1,7 +1,10 @@
+import datetime
+
 from simoc_server.agent_model.agents.core import BaseAgent
 from simoc_server.agent_model.agents.plants import PlantAgent
 from simoc_server.agent_model.agents.core import EnclosedAgent
 from simoc_server.exceptions import AgentModelError
+from simoc_server.util import to_volume, timedelta_to_days
 
 
 class PlumbingSystem(BaseAgent):
@@ -153,9 +156,10 @@ class Greenhouse(Structure):
 class Harvester(EnclosedAgent):
     agent_type_name = "harvester"
     # TODO harvester harvests all plants in one step, maybe needs to be incremental
-    # TODO add harvested mass to storage
+    # Plant matter densities
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.plant_mass_density = 721 #NOT ACTUAL DENSITY kg/m^3
 
     def step(self):
         if (self.structure.plants_ready > 0):
@@ -164,9 +168,11 @@ class Harvester(EnclosedAgent):
     def harvest(self):
         for x in self.structure.plants:
             if(self.structure.plants[x].status == "grown"):
-                edible_mass = self.structure.plants[x].get_agent_type_attribute("edible")
-                inedible_mass = self.structure.plants[x].get_agent_type_attribute("inedible")
-                self.ship(edible_mass, inedible_mass)
+                plant_age = timedelta_to_days(self.model.model_time - self.structure.plants[x].model_time_created)
+                edible_mass = self.structure.plants[x].get_agent_type_attribute("edible") * plant_age
+                inedible_mass = self.structure.plants[x].get_agent_type_attribute("inedible") * plant_age
+                #Needs different densities for inedible/edible, add to plant attr
+                self.ship(to_volume(edible_mass, plant_mass_density), to_volume(inedible_mass, self.plant_mass_density))
                 self.structure.remove_plant(self.structure.plants[x])
                 self.structure.plants[x].destroy()
                 self.structure.plants_ready -= 1
@@ -209,7 +215,7 @@ class Planter(EnclosedAgent):
 #Converts plant mass to food
 #Input: Plant Mass
 #Output: Edible and Inedible Biomass
-class Kitchen(Structure):
+class Kitchen(EnclosedAgent):
 
     _agent_type_name = "kitchen"
 
@@ -269,8 +275,8 @@ class StorageFacility(EnclosedAgent):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.storage_capacity = self.structure.getVolume()
-        
 
     def step(self):
         pass
@@ -314,4 +320,3 @@ class StorageFacility(EnclosedAgent):
                 return amount_supplied
 
         return amount_supplied
-

@@ -21,7 +21,6 @@ def gen_misc():
     data["enclosed_agent_type"] = AgentType(name="enclosed_agent")
     data["atmosphere"] = AgentType(name="atmosphere")
     data["plumbing_system"] = AgentType(name="plumbing_system")
-    data["storage_facility"] = AgentType(name="storage_facility")
     return data
 
 def gen_human():
@@ -177,7 +176,7 @@ def gen_structures():
     add_structure(data, "power_station",    10, 10, 10, 50, 0.9, 10, 0)
     add_structure(data, "rocket_pad",       10, 10, 10, 50, 0.9, 10, 10)
     add_structure(data, "rover_dock",       10, 10, 10, 50, 0.9, 10, 0)
-    #add_structure(data, "storage_facility", 10, 10, 10, 50, 0.9, 10, 0)
+    add_structure(data, "storage_facility", 10, 10, 10, 50, 0.9, 10, 0)
     
     return data
 

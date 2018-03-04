@@ -135,3 +135,21 @@ def sum_attributes(objects, attribute_name):
         The sum of all of the attributes
     """
     return sum([x.__dict__[attribute_name] for x in objects])
+
+def to_volume(mass, density):
+    """ Converts the givin mass (in grams) and density (kg per cubic meter) to volume 
+
+    Parameters
+    ----------
+    mass: grams
+        The mass of the substance to be converted
+    density: kg/m^3
+        The density of the substance
+
+    Returns
+    -------
+    Volume of the substance 
+        m^3
+    """
+
+    return (mass * .001) / density

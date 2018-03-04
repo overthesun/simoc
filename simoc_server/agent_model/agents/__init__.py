@@ -6,7 +6,7 @@ from simoc_server.agent_model.agents.plants import (PlantAgent, CabbageAgent, Ca
 
 from simoc_server.agent_model.agents.core import BaseAgent, EnclosedAgent
 
-from simoc_server.agent_model.agents.structures import (PlumbingSystem, Atmosphere, Structure,
+from simoc_server.agent_model.agents.structure import (PlumbingSystem, Atmosphere, Structure,
     Airlock, CrewQuarters, Greenhouse, Kitchen, PowerStation, RocketPad, RoverDock, StorageFacility, Planter, Harvester)
 
 # Until a better solution can be found, agents must be imported here and added to the below list
