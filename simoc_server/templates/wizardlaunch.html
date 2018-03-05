@@ -1,0 +1,41 @@
+{% extends "basewizard.html" %}
+
+{% block content %}
+  <div class="w-content-container" id="{{ launch.id }}" role="tabpanel">
+    <div class="w-step-title cmn-text">{{launch.title}}</div>
+    <div class="w-step-inner">
+      <div class="w-step-option">
+
+         <div class="option-block cmn-text">
+          Please Select Launch Window: <br>
+          <select name="{{launch.name}}" id="{{launch.id}}">
+            {% for options in launch.launchoption %}
+              <option value="{{options.value}}">{{options.text}}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="option-block cmn-text">
+          Please Enter Duration Of Stay (Mars Days): <br>
+          <input type="number" name="{{launch.durationname}}" id="{{launch.durationid}}"/>
+        </div>
+
+      </div>
+
+      <div class="w-step-info">
+        {{launch.information}}
+      </div>
+    </div>
+  </div>
+  
+  <div class="w-step-button cmd-text">
+    <div class="w-step-cancel">
+      <button type="button">CANCEL</button>
+    </div>
+    <div class="w-step-navigation">
+        <button type="button" {{launch.previousactive}}>PREVIOUS</button>
+        <button type="button" {{launch.nextactive}}>NEXT</button>
+    </div>
+  </div>
+
+{% endblock content%}
