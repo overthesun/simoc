@@ -1,0 +1,24 @@
+{% extends "basewizard.html" %}
+
+{% block content %}
+  <div class="w-content-container" id="{{ finalize.id }}" role="tabpanel">
+    <div class="w-step-title cmn-text">{{finalize.title}}</div>
+    <div class="w-step-inner">
+        
+      <div class="w-step-info">
+        {{finalize.information}}
+      </div>
+    </div>
+  </div>
+  
+  <div class="w-step-button cmd-text">
+    <div class="w-step-cancel">
+      <button type="button">CANCEL</button>
+    </div>
+    <div class="w-step-navigation">
+        <button type="button" {{finalize.previousactive}}>PREVIOUS</button>
+        <button type="button" {{finalize.nextactive}}>NEXT</button>
+    </div>
+  </div>
+
+{% endblock content%}
