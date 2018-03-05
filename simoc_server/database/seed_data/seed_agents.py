@@ -177,6 +177,8 @@ def gen_structures():
     add_structure(data, "rocket_pad",       10, 10, 10, 50, 0.9, 10, 10)
     add_structure(data, "rover_dock",       10, 10, 10, 50, 0.9, 10, 0)
     add_structure(data, "storage_facility", 10, 10, 10, 50, 0.9, 10, 0)
+    add_structure(data, "harvester",        10, 10, 10, 50, 0.9, 10, 0)
+    add_structure(data, "planter",          10, 10, 10, 50, 0.9, 10, 0)
     
     return data
 

@@ -3,6 +3,7 @@ import datetime
 from simoc_server.agent_model.agents.core import BaseAgent
 from simoc_server.agent_model.agents.plants import PlantAgent
 from simoc_server.agent_model.agents.core import EnclosedAgent
+from simoc_server.agent_model import agents
 from simoc_server.exceptions import AgentModelError
 from simoc_server.util import to_volume, timedelta_to_days
 
@@ -139,8 +140,8 @@ class Greenhouse(Structure):
         self.needed_agents = ['Planter','Harvester']
         self._attr("plants_housed", 0,is_client_attr=True, is_persisted_attr=True)
         self._attr("plants_ready", 0,is_client_attr=True, is_persisted_attr=True)
+        self._attr("max_plants", 50,is_client_attr=True, is_persisted_attr=True)
         self.plants = []
-        self.max_plants = 50
 
     def step(self):
         pass
@@ -176,6 +177,7 @@ class Harvester(EnclosedAgent):
                 self.structure.remove_plant(self.structure.plants[x])
                 self.structure.plants[x].destroy()
                 self.structure.plants_ready -= 1
+                self.structure.plants_housed -= 1
             if(self.structure.plants_ready == 0):
                 break
 
@@ -202,15 +204,21 @@ class Planter(EnclosedAgent):
         super().__init__(*args, **kwargs)
 
     def step(self):
+        #FOR TESTING print(self.structure.plants_housed)
+        #FOR TESTING print(self.structure.max_plants)
+
         if(self.structure.plants_housed < self.structure.max_plants):
             to_plant = self.structure.max_plants - self.structure.plants_housed
             self.plant(to_plant) 
+
+        #FOR TESTING print(self.structure.plants[0].status)
 
     def plant(self, number_to_plant):
         for x in range(0, number_to_plant):
             plant_agent = agents.PlantAgent(self.model, structure=self.structure)
             self.model.add_agent(plant_agent)
-            self.structure.place_plant_inside(plant_agent)            
+            self.structure.place_plant_inside(plant_agent)
+            self.structure.plants_housed += 1               
 
 #Converts plant mass to food
 #Input: Plant Mass
@@ -276,7 +284,7 @@ class StorageFacility(EnclosedAgent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.storage_capacity = self.structure.getVolume()
+        self.storage_capacity = self.structure.volume
 
     def step(self):
         pass
