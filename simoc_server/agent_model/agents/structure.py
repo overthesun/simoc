@@ -138,7 +138,6 @@ class Greenhouse(Structure):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.needed_agents = ['Planter','Harvester']
-        self._attr("plants_housed", 0,is_client_attr=True, is_persisted_attr=True)
         self._attr("plants_ready", 0,is_client_attr=True, is_persisted_attr=True)
         self._attr("max_plants", 50,is_client_attr=True, is_persisted_attr=True)
         self.plants = []
@@ -204,11 +203,10 @@ class Planter(EnclosedAgent):
         super().__init__(*args, **kwargs)
 
     def step(self):
-        #FOR TESTING print(self.structure.plants_housed)
         #FOR TESTING print(self.structure.max_plants)
 
-        if(self.structure.plants_housed < self.structure.max_plants):
-            to_plant = self.structure.max_plants - self.structure.plants_housed
+        if(len(self.structure.plants) < self.structure.max_plants):
+            to_plant = self.structure.max_plants - len(self.structure.plants)
             self.plant(to_plant) 
 
         #FOR TESTING print(self.structure.plants[0].status)
@@ -217,8 +215,7 @@ class Planter(EnclosedAgent):
         for x in range(0, number_to_plant):
             plant_agent = agents.PlantAgent(self.model, structure=self.structure)
             self.model.add_agent(plant_agent)
-            self.structure.place_plant_inside(plant_agent)
-            self.structure.plants_housed += 1               
+            self.structure.place_plant_inside(plant_agent)             
 
 #Converts plant mass to food
 #Input: Plant Mass
