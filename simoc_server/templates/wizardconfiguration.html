@@ -1,0 +1,47 @@
+{% extends "basewizard.html" %}
+
+{% block content %}
+	<div class="w-content-container" role="tabpanel">
+		<div class="w-step-title cmn-text">{{config.title}}</div>
+		<div class="w-step-inner">
+		  <div class="w-step-option">
+        <div class="option-block cmn-text">
+          Please Select Configuration:<br>
+          <label for="{{config.presetid}}">{{config.presetlabel}}</label>
+          <input type="radio" name="config" id="{{config.presetid}}" value="{{config.presetvalue}}">
+          <label for="{{config.customid}}">{{config.customlabel}}</label>
+          <input type="radio" name="config" id="{{config.customid}}" value="{{config.customvalue}}">
+
+        </div>
+
+        <div class="option-block cmn-text">
+          Please Select Preset Configuration: <br>
+          <select name="{{config.name}}" id="{{config.id}}" disabled>
+            {% for options in config.option %}
+              <option value="{{options.value}}">{{options.text}}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="option-block cmn-text">
+          <button type="button">Import Config</button>
+        </div>
+      </div>
+
+      <div class="w-step-info">
+        {{config.information}}
+      </div>
+    </div>
+  </div>
+  
+  <div class="w-step-button cmd-text">
+    <div class="w-step-cancel">
+      <button type="button">CANCEL</button>
+    </div>
+    <div class="w-step-navigation">
+        <button type="button {{config.previousactive}}">Changed</button>
+        <button type="button {{config.previousactive}}">NEXT</button>
+    </div>
+  </div>
+
+{% endblock content%}

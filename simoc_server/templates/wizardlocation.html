@@ -1,0 +1,33 @@
+{% extends "basewizard.html" %}
+
+{% block content %}
+  <div class="w-content-container" id="{{ location.id }}" role="tabpanel">
+    <div class="w-step-title cmn-text">{{location.title}}</div>
+    <div class="w-step-inner">
+      <div class="w-step-option">
+        <div class="option-block cmn-text">
+          Please Select Starting Location: <br>
+          <select name="{{location.name}}" id="{{location.id}}">
+            {% for options in location.option %}
+              <option value="{{options.value}}">{{options.text}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="w-step-info">
+        {{location.information}}
+      </div>
+    </div>
+  </div>
+  
+  <div class="w-step-button cmd-text">
+    <div class="w-step-cancel">
+      <button type="button">CANCEL</button>
+    </div>
+    <div class="w-step-navigation">
+        <button type="button" {{location.previousactive}}>PREVIOUS</button>
+        <button type="button" {{location.nextactive}}>NEXT</button>
+    </div>
+  </div>
+
+{% endblock content%}
