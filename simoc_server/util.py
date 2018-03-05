@@ -134,7 +134,7 @@ def sum_attributes(objects, attribute_name):
     type of object.attribute
         The sum of all of the attributes
     """
-    return sum([x.__dict__[attribute_name] for x in objects])
+    return sum([getattr(x, attribute_name) for x in objects])
 
 def avg_attributes(objects, attribute_name):
     """Take an average all attributes in an iterable containing objects

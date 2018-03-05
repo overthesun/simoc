@@ -1,5 +1,6 @@
 import datetime
 
+from simoc_server.util import timedelta_to_days
 from simoc_server.agent_model.sprite_mappers import PlantSpriteMapper
 from simoc_server.agent_model.agents.core import EnclosedAgent
 
@@ -9,24 +10,60 @@ class PlantAgent(EnclosedAgent):
     _agent_type_name = "default_plant"
     _sprite_mapper = PlantSpriteMapper
 
-    # TODO find out how long plants take to grow
-    grow_time = datetime.timedelta(days=30)
-    # TODO find out how long plants live
-    lifespan = datetime.timedelta(days=200)
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._attr("status", "planted", is_client_attr=True, is_persisted_attr=True)
 
+        # value to track percentage of growth complete, not persisted
+        self._attr("growth", default_value=0.0, is_client_attr=True, is_persisted_attr=False)
+
+        self._growth_period = datetime.timedelta(days=self.get_agent_type_attribute("growth_period"))
 
     def step(self):
-        current_time_delta = self.model.model_time
-        age = (current_time_delta - self.model_time_created)
-        if age > self.grow_time:
-            self.status = "grown"
-        if age > self.lifespan:
-            self.destroy()
+        if self.structure is None:
+            raise AgentModelError("Enclosing structure was not set for plant agent.")
 
+        # TODO determine how long plants can go without water
+        water_uptake = self.get_agent_type_attribute("water_uptake")
+
+        atmosphere = self.structure.atmosphere
+        plumbing_system = self.structure.plumbing_system
+
+        if (atmosphere is None or plumbing_system is None
+            or atmosphere.carbon_dioxide < self.get_agent_type_attribute("fatal_co2_lower")
+            or water_uptake > plumbing_system.water):
+
+            self.destroy()
+        else:
+            current_time_delta = self.model.model_time
+            age = (current_time_delta - self.model_time_created)
+
+            if not self.is_grown():
+                if age > self._growth_period:
+                    self.status = "grown"
+                self.growth = min(1.0, age/self._growth_period)
+
+            timedelta_per_step = self.model.timedelta_per_step()
+            days_per_step = timedelta_to_days(timedelta_per_step)
+
+            # TODO intake water, currently we have single value
+            # which is described as water uptake/transpiration
+            # it is unclear how to interpret this value
+
+            # TODO sort out discrepency between o2 and co2
+            # consumption/production
+            # TODO convert gas exchange values to kgs in database
+            atmosphere.modify_oxygen_by_mass((self.get_agent_type_attribute("oxygen_produced") / 1000) * days_per_step)
+            atmosphere.modify_carbon_dioxide_by_mass((-1 * self.get_agent_type_attribute("carbon_uptake") / 1000) * days_per_step)
+
+            # TODO Temporary fix right here, this voilates conservation
+            # of matter
+            if(atmosphere.carbon_dioxide < 0):
+                print("WARNING Reseting carbon dioxide from negative value")
+                atmosphere.carbon_dioxide = 0
+
+    def is_grown(self):
+        return self.status == "grown"
 
 class CabbageAgent(PlantAgent):
     _agent_type_name = "cabbage"
@@ -37,8 +74,8 @@ class CarrotAgent(PlantAgent):
 class ChardAgent(PlantAgent):
     _agent_type_name = "chard"
 
-class CryBeanAgent(PlantAgent):
-    _agent_type_name = "cry_bean"
+class DryBeanAgent(PlantAgent):
+    _agent_type_name = "dry_bean"
 
 class LettuceAgent(PlantAgent):
     _agent_type_name = "Lettuce"

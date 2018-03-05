@@ -46,7 +46,11 @@ class PlumbingSystem(BaseAgent):
 class Atmosphere(BaseAgent):
     _agent_type_name = "atmosphere"
 
-    gas_constant = .0083145 # kL kPa / mol·K = 8.3145 L kPa / mol·K
+    GAS_CONSTANT = .0083145 # kL kPa / mol·K = 8.3145 L kPa / mol·K
+    OXYGEN_MOLAR_MASS = 31.998
+    CARBON_DIOXIDE_MOLAR_MASS = 44.009
+    NITROGEN_MOLAR_MASS = 28.014
+    ARGON_MOLAR_MASS = 39.948
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -60,6 +64,30 @@ class Atmosphere(BaseAgent):
         self._attr("nitrogen", 0.0, is_client_attr=True, is_persisted_attr=True)
         self._attr("argon", 0.0, is_client_attr=True, is_persisted_attr=True)
 
+    @property
+    def total_pressure(self):
+        return self.oxygen + self.carbon_dioxide + self.nitrogen + self.argon
+
+    @property
+    def total_moles(self):
+        # n = (PV)/(RT)
+        return (self.total_pressure * self.volume) / (self.GAS_CONSTANT * self.temp)
+
+    @property
+    def moles_oxygen(self):
+        return (self.oxygen * self.volume) / (self.GAS_CONSTANT * self.temp)
+
+    @property
+    def moles_carbon_dioxide(self):
+        return (self.carbon_dioxide * self.volume) / (self.GAS_CONSTANT * self.temp)
+
+    @property
+    def moles_nitrogen(self):
+        return (self.nitrogen * self.volume) / (self.GAS_CONSTANT * self.temp)
+
+    @property
+    def moles_argon(self):
+        return (self.argon * self.volume) / (self.GAS_CONSTANT * self.temp)
 
     def change_volume(self, volume_delta, maintain_pressure=False):
         new_volume = self.volume + volume_delta
@@ -69,7 +97,7 @@ class Atmosphere(BaseAgent):
 
         if not maintain_pressure:
             # p1v1 = p2v2 -> p2 = p1v1/v2
-            p2 = (self.pressure * self.volume) / new_volume
+            p2 = (self.pressure * self.volume) / float(new_volume)
 
             ratio = p2/self.pressure
 
@@ -81,16 +109,16 @@ class Atmosphere(BaseAgent):
         self.volume = new_volume
 
     def modify_oxygen_by_mass(self, mass):
-        self.oxygen += self.mass_to_pressure(mass, 31.998)
+        self.oxygen += self.mass_to_pressure(mass, self.OXYGEN_MOLAR_MASS)
 
     def modify_carbon_dioxide_by_mass(self, mass):
-        self.carbon_dioxide += self.mass_to_pressure(mass, 44.009)
+        self.carbon_dioxide += self.mass_to_pressure(mass, self.CARBON_DIOXIDE_MOLAR_MASS)
 
     def modify_nitrogen_by_mass(self, mass):
-        self.nitrogen += self.mass_to_pressure(mass, 28.014)
+        self.nitrogen += self.mass_to_pressure(mass, self.NITROGEN_MOLAR_MASS)
 
     def modify_argon_by_mass(self, mass):
-        self.argon += self.mass_to_pressure(mass, 39.948)
+        self.argon += self.mass_to_pressure(mass, self.ARGON_MOLAR_MASS)
 
     def mass_to_pressure(self, mass_kg, molar_mass):
         """Get the pressure of a gas from a given mass
@@ -114,7 +142,7 @@ class Atmosphere(BaseAgent):
         # PV = nRT
         n = mass_kg / (molar_mass/1000.0)
 
-        return (n * self.gas_constant * self.temp) / self.volume
+        return (n * self.GAS_CONSTANT * self.temp) / self.volume
 
 
 class Structure(BaseAgent):

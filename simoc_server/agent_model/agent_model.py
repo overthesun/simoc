@@ -51,6 +51,10 @@ class AgentModel(Model):
         self.scheduler.steps = init_params.starting_step_num
 
     @property
+    def total_moles_atmosphere(self):
+        return sum_attributes(self.atmospheres, "total_moles")
+
+    @property
     def total_water(self):
         return sum_attributes(self.plumbing_systems, "water")
 
@@ -230,12 +234,13 @@ class AgentModel(Model):
         print("{0} step_num {1}".format(self, self.step_num))
 
         # TODO remove this when it is no longer needed
-        print("o2: {:.6g} co2: {:.6g} n2: {:.6g} ar: {:.6g} h2o: {:.6g} waste_h2o: {:.6g}"
-            " grey_h2o: {:.6g} grey_solids: {:.6g} solid_waste: {:.6g} avg_temp: {:.6g}".format(
-            self.avg_oxygen_pressure, self.avg_carbon_dioxide_pressure, self.avg_nitrogen_pressure,
-            self.avg_argon_pressure, self.total_water, self.total_waste_water,
-            self.total_grey_water, self.total_grey_water_solids, self.total_solid_waste,
-            self.avg_temp))
+        to_print = ["avg_oxygen_pressure", "avg_carbon_dioxide_pressure", "avg_nitrogen_pressure",
+                    "avg_argon_pressure", "total_water", "total_waste_water",
+                    "total_grey_water", "total_grey_water_solids", "total_solid_waste",
+                    "avg_temp", "total_moles_atmosphere"]
+
+        status_string = " ".join(["{}: {:.5g}".format(name, getattr(self, name)) for name in to_print])
+        print(status_string)
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)

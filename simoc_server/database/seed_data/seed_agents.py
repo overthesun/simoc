@@ -67,6 +67,9 @@ def gen_human():
         _type, "initial_height_std", 0.0, units="", description="Standard deviation of initial height of a human.")
 
     # water usage
+    data["human_max_dehydration_days"] = create_agent_type_attr(
+        _type, "max_dehydration_days", 21.0, units="days",
+        description="Max time a human can go without water.")
     data["human_consumed_water_usage"] = create_agent_type_attr(
         _type, "consumed_water_usage", 2.5, units=mass_usage_units,
         description="Water consumed by the human.")
@@ -181,6 +184,7 @@ def add_plant(data, name, oxygen, carbon, water, edible,
     agent_type = AgentType(name=name)
     data["{0}_plant_agent_type".format(name)] = agent_type
 
+    # TODO convert gas exchange values to kg
     create_agent_type_attr(agent_type, "oxygen_produced", oxygen, "g/(m^2*day)",
         "Oxygen produced by the plant.")
     create_agent_type_attr(agent_type, "carbon_uptake", carbon, "g/(m^2*day)",
