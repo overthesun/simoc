@@ -167,28 +167,27 @@ class Harvester(EnclosedAgent):
 
     def harvest(self):
         for x in self.structure.plants:
-            if(self.structure.plants[x].status == "grown"):
-                plant_age = timedelta_to_days(self.model.model_time - self.structure.plants[x].model_time_created)
-                edible_mass = self.structure.plants[x].get_agent_type_attribute("edible") * plant_age
-                inedible_mass = self.structure.plants[x].get_agent_type_attribute("inedible") * plant_age
+            if(x.status == "grown"):
+                plant_age = timedelta_to_days(self.model.model_time - x.model_time_created)
+                edible_mass = x.get_agent_type_attribute("edible") * plant_age
+                inedible_mass = x.get_agent_type_attribute("inedible") * plant_age
                 #Needs different densities for inedible/edible, add to plant attr
-                self.ship(to_volume(edible_mass, plant_mass_density), to_volume(inedible_mass, self.plant_mass_density))
-                self.structure.remove_plant(self.structure.plants[x])
-                self.structure.plants[x].destroy()
+                self.ship(to_volume(edible_mass, self.plant_mass_density), to_volume(inedible_mass, self.plant_mass_density))
+                self.structure.remove_plant(x)
+                x.destroy()
                 self.structure.plants_ready -= 1
-                self.structure.plants_housed -= 1
             if(self.structure.plants_ready == 0):
                 break
 
     def ship(self, edible, inedible):
-        possible_storage = self.model.get_agents("storage_facility")
+        possible_storage = self.model.get_agents(StorageFacility)
         edible_to_store = edible
         inedible_to_store = inedible
         for x in possible_storage:
             if(edible_to_store > 0):
-                edible_to_store -= possible_storage[x].store("edible_mass", edible)
+                edible_to_store -= x.store("edible_mass", edible)
             if(inedible_to_store > 0):
-                inedible_to_store -= possible_storage[x].store("inedible_mass", inedible)
+                inedible_to_store -= x.store("inedible_mass", inedible)
             if(edible_to_store == 0 and inedible_to_store == 0):
                 break
 
@@ -203,6 +202,7 @@ class Planter(EnclosedAgent):
         super().__init__(*args, **kwargs)
 
     def step(self):
+        #FOR TESTING print(self.structure.plants_housed)
         #FOR TESTING print(self.structure.max_plants)
 
         if(len(self.structure.plants) < self.structure.max_plants):
@@ -215,6 +215,7 @@ class Planter(EnclosedAgent):
         for x in range(0, number_to_plant):
             plant_agent = agents.PlantAgent(self.model, structure=self.structure)
             self.model.add_agent(plant_agent)
+            self.structure.place_agent_inside(plant_agent)
             self.structure.place_plant_inside(plant_agent)             
 
 #Converts plant mass to food
