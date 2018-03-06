@@ -1,0 +1,20 @@
+body{
+  background-image: url("simoc-background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+button{
+  background-color: #e9f0f4;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 5px 16px;
+}
+
+.cmn-text{
+  color: #e9f0f4;
+  font-family:'Nasalization';
+}
+

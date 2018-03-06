@@ -48,7 +48,7 @@
 
   <div class="container">
     <div class="wizard">
-      <ul class="nav nav-tabs" role="tablist" id="wizard-tabs">
+      <ul class="nav flex-column nav-tabs" role="tablist" id="wizard-tabs">
 
         {% for tab in wizard-tabs %}
           <li class="nav-item">
@@ -61,7 +61,7 @@
     </div>
 
     <br>
-    <form action= "{{wizard_post_route}}" method="post">
+    <!--<form action= "{{wizard_post_route}}" method="post">
       <div class="form-group">
         <div class="tab-content" id="wizard-tab-content">
 
@@ -71,8 +71,8 @@
               <select class="form-control col-sm-4" id="{{ panel.selectorid }}">
 
 
-                <!-- Add in different conditionals for the pages that will require things like
-                  the input integer fields, and radio buttons.-->
+                 Add in different conditionals for the pages that will require things like
+                  the input integer fields, and radio buttons.
                 {% for item in options %}
                   {% if panel.id == item.id}
                     <option value="{{ item.value }}" >{{ item.value }}</option>
@@ -81,7 +81,7 @@
 
 
 
-    </form>
+    </form>-->
 
 </body>
 </html>
