@@ -10,7 +10,8 @@ from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request, data_format_name
 from simoc_server.database.db_model import User, SavedGame
 from simoc_server.agent_model.agents import agent_name_mapping
-from simoc_server.game_runner import GameRunner
+from simoc_server.game_runner import (GameRunner, GameRunnerManager,
+        GameRunnerInitializationParams)
 
 from simoc_server.exceptions import InvalidLogin, BadRequest, \
     BadRegistration, NotFound, GenericError
@@ -18,7 +19,7 @@ from simoc_server.exceptions import InvalidLogin, BadRequest, \
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-game_runners = {}
+game_runner_manager = GameRunnerManager()
 
 @app.before_request
 def deserialize_before_request():
@@ -61,9 +62,8 @@ def login():
         If the user with the given username or password cannot
         be found.
     '''
-    print(request.deserialized)
-    username = request.deserialized["username"]
-    password = request.deserialized["password"]
+    username = try_get_param("username")
+    password = try_get_param("password")
     user = User.query.filter_by(username=username).first()
     if user and user.validate_password(password):
         login_user(user)
@@ -86,14 +86,8 @@ def register():
     simoc_server.exceptions.BadRegistration
         If the user already exists.
     '''
-    if request.deserialized is None:
-        raise BadRequest("No data or malformed data in request.")
-    if "username" not in request.deserialized.keys():
-        raise BadRequest("Username not found in request content.")
-    if "password" not in request.deserialized.keys():
-        raise BadRequest("Password not found in request content.")
-    username = request.deserialized["username"]
-    password = request.deserialized["password"]
+    username = try_get_param("username")
+    password = try_get_param("password")
     if(User.query.filter_by(username=username).first()):
         raise BadRegistration("User already exists")
     user = User(username=username)
@@ -122,14 +116,24 @@ def logout():
 def new_game():
     '''
     Creates a new game on the current session and adds
-    a game runner to 'game_runners'.
+    a game runner to the game_runner_manager
 
     Returns
     -------
     str: A success message.
     '''
-    game_runner = GameRunner.from_new_game(current_user)
-    add_game_runner(game_runner)
+    # TODO add real configuration parameters
+    mode          = try_get_param("mode")
+    launch_date   = try_get_param("launch_date")
+    duration_days = try_get_param("duration_days")
+    payload       = try_get_param("payload")
+    location      = try_get_param("location")
+    region        = try_get_param("region")
+    regolith      = try_get_param("regolith")
+
+    game_runner_init_params = GameRunnerInitializationParams(mode, launch_date,
+        duration_days, payload, location, region, regolith)
+    game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
     return success("New game created.")
 
 @app.route("/get_step", methods=["GET"])
@@ -162,18 +166,15 @@ def get_step():
 
 
     '''
-    print(request.url)
-    print(request.args)
     step_num = request.args.get("step_num", type=int)
-    game_runner = get_game_runner()
-    agent_model_state = game_runner.get_step(step_num)
+    agent_model_state = game_runner_manager.get_step(get_standard_user_obj(), step_num)
     return serialize_response(agent_model_state)
 
 @app.route("/save_game", methods=["POST"])
 @login_required
 def save_game():
     '''
-    Save the current game for the session.
+    Save the current game for the user.
 
     Returns
     -------
@@ -184,8 +185,7 @@ def save_game():
         save_name = request.deserialized["save_name"]
     else:
         save_name = None
-    game_runner = get_game_runner()
-    game_runner.save_game(save_name)
+    game_runner_manager.save_game(get_standard_user_obj() ,save_name)
     return success("Save successful.")
 
 @app.route("/load_game", methods=["POST"])
@@ -193,7 +193,7 @@ def save_game():
 def load_game():
     '''
     Load game with given 'saved_game_id' in session.  Adds
-    GameRunner to game_runners.
+    GameRunner to game_runner_manager.
 
     Returns
     -------
@@ -206,21 +206,16 @@ def load_game():
         If 'saved_game_id' is not in the json data on the request.
 
     simoc_server.exceptions.NotFound
-        If the GameRunner with the requested 'saved_game_id' does not
-        exist in game_runners dictionary
+        If the SavedGame with the requested 'saved_game_id' does not
+        exist in the database
 
     '''
 
-    # TODO cleanup old GameRunners
-    if "saved_game_id" in request.deserialized.keys():
-        saved_game_id = request.deserialized["saved_game_id"]
-    else:
-        raise BadRequest("Required value 'saved_game_id' not found in request.")
+    saved_game_id = try_get_param("saved_game_id")
     saved_game = SavedGame.query.get(saved_game_id)
     if saved_game is None:
         raise NotFound("Requested game not found in loaded games.")
-    game_runner = GameRunner.load_from_saved_game(saved_game)
-    add_game_runner(game_runner)
+    game_runner_manager.load_game(get_standard_user_obj(), saved_game)
     return success("Game loaded successfully.")
 
 @app.route("/get_saved_games", methods=["GET"])
@@ -249,15 +244,15 @@ def get_saved_games():
 
 
     '''
-    saved_games = SavedGame.query.filter_by(user=current_user).all()
+    saved_games = SavedGame.query.filter_by(user=get_standard_user_obj()).all()
 
     sequences = {}
     for saved_game in saved_games:
         snapshot = saved_game.agent_model_snapshot
         snapshot_branch = snapshot.snapshot_branch
         root_branch = snapshot_branch.get_root_branch()
-        if(root_branch in sequences.keys()):
-            sequences[root_branch].append(save_game)
+        if root_branch in sequences.keys():
+            sequences[root_branch].append(saved_game)
         else:
             sequences[root_branch] = [saved_game]
 
@@ -333,6 +328,13 @@ def get_sprite(sprite_path):
         raise NotFound("Requested sprite not found: {0}".format(sprite_path))
     return send_from_directory(root_path, sprite_path)
 
+@app.route("/ping", methods=["GET", "POST"])
+def ping():
+    """Ping the server to prevent clean up of active game
+    """
+    game_runner_manager.ping(get_standard_user_obj())
+    return success("Pong")
+
 @login_manager.user_loader
 def load_user(user_id):
     '''
@@ -344,50 +346,6 @@ def load_user(user_id):
         The requested user id.
     '''
     return User.query.get(int(user_id))
-
-
-def get_game_runner():
-    '''
-    Returns the game runner for the active session
-
-    Returns
-    -------
-        simoc_server.game_runner.GameRunner
-    Raises
-    ------
-    simoc_server.exceptions.BadRequest
-        If there is there is not 'game_runner_id' in the session
-        attached to the request.
-    simoc_server.exceptions.NotFound
-        If the GameRunner with the requested id is not found.
-    '''
-    if "game_runner_id" not in session.keys():
-        raise BadRequest("No game found in session.")
-    game_runner_id = session["game_runner_id"]
-    if game_runner_id not in game_runners.keys():
-        raise NotFound("Game not found.")
-    game_runner = game_runners[game_runner_id]
-    return game_runner
-
-def add_game_runner(game_runner):
-    '''
-     Adds a game runner to the internal game runner collection
-
-    Returns
-    -------
-        int : The key for the game runner in the 'game_runners' dict.
-
-    Parameters
-    ----------
-     game_runner : simoc_server.game_runner.GamerRunner
-        the game_runner to add
-    '''
-
-    # TODO Cleanup gamerunner on logout
-    game_runner_id = uuid4()
-    game_runners[game_runner_id] = game_runner
-    session["game_runner_id"] = game_runner_id
-    return game_runner_id
 
 def success(message, status_code=200):
     '''
@@ -434,3 +392,46 @@ def handle_error(error):
     response.status_code = error.status_code
     return response
 
+def try_get_param(name):
+    """Attempts to retrieve named value from
+    request parameters
+
+    Parameters
+    ----------
+    name : str
+        The name of the parameter to retrieve
+
+    Returns
+    -------
+    Type of param
+        The value of the param to retreive.
+
+    Raises
+    ------
+    BadRequest
+        If the named param is not found in the request or
+        if there is no params in the request.
+    """
+    try:
+        return request.deserialized[name]
+    except TypeError as e:
+        if(request.deserialized is None):
+            raise BadRequest("No params on request or params are malformed, "
+                "'{}' is a required param.".format(name))
+        else:
+            raise e
+    except KeyError:
+        raise BadRequest("'{}' not found in request parameters.".format(name))
+
+def get_standard_user_obj():
+    """This method should be used instead of 'current_user'
+    to prevent issues arising when the user object is accessed
+    later on.  'current_user' is actually of type LocalProxy
+    rather than 'User'.
+
+    Returns
+    -------
+    simoc_server.database.db_model.User
+        The current user entity for the request.
+    """
+    return current_user._get_current_object()

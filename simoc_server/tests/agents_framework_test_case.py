@@ -1,8 +1,10 @@
 import random
 import unittest
+import datetime
 
 from simoc_server import db
-from simoc_server.agent_model import AgentModel
+from simoc_server.agent_model import (AgentModel, AgentModelInitializationParams,
+    BaseLineAgentInitializerRecipe)
 from simoc_server.agent_model.agents import (BaseAgent, get_agent_by_type_name,
     _add_agent_class_to_mapping)
 from simoc_server.agent_model.attribute_meta import AttributeHolder
@@ -19,6 +21,11 @@ class AgentsFrameworkTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         setup_db()
+        cls.default_model_params = AgentModelInitializationParams()
+        (cls.default_model_params.set_grid_width(100)
+                    .set_grid_height(100)
+                    .set_starting_model_time(datetime.timedelta()))
+        cls.default_agent_init_recipe = BaseLineAgentInitializerRecipe()
 
     @classmethod
     def tearDownClass(cls):
@@ -42,7 +49,8 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         _add_agent_class_to_mapping(AgentA)
 
         # create agent_model
-        agent_model = AgentModel.create_new(100,100)
+        agent_model = AgentModel.create_new(self.default_model_params,
+            self.default_agent_init_recipe)
 
         # create agent
         agent_a = AgentA(agent_model)
@@ -135,7 +143,8 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         _add_agent_class_to_mapping(AgentB)
 
         # create agent_model
-        agent_model = AgentModel.create_new(100,100)
+        agent_model = AgentModel.create_new(self.default_model_params,
+            self.default_agent_init_recipe)
 
         # create agent
         agent_a = AgentA(agent_model)
@@ -196,7 +205,7 @@ class AgentsFrameworkTestCase(unittest.TestCase):
 
         # get agents
         loaded_agents_two = loaded_agent_model_two.get_agents()
-        print(loaded_agents_two)
+
         # make sure agent exists and only exists once
         matching_agents_a_two = list(filter(lambda x: x.unique_id == agent_a.unique_id, loaded_agents_two))
         matching_agents_b_two = list(filter(lambda x: x.unique_id == agent_b.unique_id, loaded_agents_two))
@@ -263,7 +272,8 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         _add_agent_class_to_mapping(AgentB)
 
         # create agent_model
-        agent_model = AgentModel.create_new(100,100)
+        agent_model = AgentModel.create_new(self.default_model_params,
+            self.default_agent_init_recipe)
 
         # create agent
         agent_a = AgentA(agent_model)
@@ -277,7 +287,6 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         agent_a_state = agent_a_dto.get_state()
         agent_b_state = agent_b_dto.get_state()
 
-        print(agent_a_state)
         self.assertEqual(agent_a_state["attributes"]["agent_b_ref"], agent_b.unique_id)
         self.assertEqual(agent_b_state["attributes"]["agent_a_ref"], agent_a.unique_id)
 
@@ -313,7 +322,8 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         db.session.add(agent_child)
         db.session.commit()
 
-        agent_model = AgentModel.create_new(100, 100)
+        agent_model = AgentModel.create_new(self.default_model_params,
+            self.default_agent_init_recipe)
         agent = AgentChild(agent_model)
 
         self.assertTrue(hasattr(agent, "parent_attribute"))
@@ -419,7 +429,8 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         _add_agent_class_to_mapping(AgentChildOne)
         _add_agent_class_to_mapping(AgentChildTwo)
 
-        agent_model = AgentModel.create_new(100,100)
+        agent_model = AgentModel.create_new(self.default_model_params,
+            self.default_agent_init_recipe)
 
         # initialize agents in random order
         agents = {}

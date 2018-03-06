@@ -65,12 +65,9 @@ class Structure(BaseAgent):
     #TODO: Implement structure sprites
 
     def __init__(self, *args, **kwargs):
-        plumbing_system = kwargs.pop("plumbing_system", None)
-        atmosphere = kwargs.pop("atmosphere", None)
-
         super().__init__(*args, **kwargs)
 
-        self._attr("plumbing_system", None, _type=Atmosphere, is_client_attr=True, is_persisted_attr=True)
+        self._attr("plumbing_system", None, _type=PlumbingSystem, is_client_attr=True, is_persisted_attr=True)
         self._attr("atmosphere", None, _type=Atmosphere, is_client_attr=True, is_persisted_attr=True)
 
         self._attr("width", self.get_agent_type_attribute("width"), is_client_attr=True,
