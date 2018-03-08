@@ -221,8 +221,14 @@ class Kitchen(EnclosedAgent):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.food==0
 
     def step(self):
+        storage_facility=self.model.get_agents("storage_facility")
+        edible_mass=storage_facility.supply("edible_mass",12)
+        inedible_mass=storage_facility.supply("inedible_mass"_mass,12)
+        self.food=edible_mass +inedible_mass
+   
         #if(plantmass >= increment)
         #    plantmass -= increment
         #   ediblemass += (efficiency * increment)
