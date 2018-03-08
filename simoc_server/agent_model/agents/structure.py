@@ -1,3 +1,5 @@
+
+from simoc_server.agent_model import agent_model_util
 from simoc_server.agent_model.agents.core import BaseAgent
 from simoc_server.agent_model.agents.plants import PlantAgent
 from simoc_server.exceptions import AgentModelError
@@ -46,12 +48,6 @@ class PlumbingSystem(BaseAgent):
 class Atmosphere(BaseAgent):
     _agent_type_name = "atmosphere"
 
-    GAS_CONSTANT = .0083145 # kL kPa / mol·K = 8.3145 L kPa / mol·K
-    OXYGEN_MOLAR_MASS = 31.998
-    CARBON_DIOXIDE_MOLAR_MASS = 44.009
-    NITROGEN_MOLAR_MASS = 28.014
-    ARGON_MOLAR_MASS = 39.948
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -71,23 +67,43 @@ class Atmosphere(BaseAgent):
     @property
     def total_moles(self):
         # n = (PV)/(RT)
-        return (self.total_pressure * self.volume) / (self.GAS_CONSTANT * self.temp)
+        return agent_model_util.moles_of_gas(self.total_pressure, self.volume, self.temp)
 
     @property
     def moles_oxygen(self):
-        return (self.oxygen * self.volume) / (self.GAS_CONSTANT * self.temp)
+        return agent_model_util.moles_of_gas(self.oxygen, self.volume, self.temp)
 
     @property
     def moles_carbon_dioxide(self):
-        return (self.carbon_dioxide * self.volume) / (self.GAS_CONSTANT * self.temp)
+        return agent_model_util.moles_of_gas(self.carbon_dioxide, self.volume, self.temp)
 
     @property
     def moles_nitrogen(self):
-        return (self.nitrogen * self.volume) / (self.GAS_CONSTANT * self.temp)
+        return agent_model_util.moles_of_gas(self.nitrogen, self.volume, self.temp)
 
     @property
     def moles_argon(self):
-        return (self.argon * self.volume) / (self.GAS_CONSTANT * self.temp)
+        return agent_model_util.moles_of_gas(self.argon, self.volume, self.temp)
+
+    def change_temp(self, temp_delta, maintain_pressure=False):
+        new_temp = self.temp + temp_delta
+
+        if not maintain_pressure:
+            # PV = nRT
+            # P1/T1 = P2/T2
+            # P2 = (P1T1)/T2
+
+            p2 = (self.total_pressure * self.temp) / float(new_temp)
+
+            ratio = p2/self.pressure
+
+            self.oxygen *= ratio
+            self.carbon_dioxide *= ratio
+            self.nitrogen *= ratio
+            self.argon *= ratio
+
+        self.temp = new_temp
+
 
     def change_volume(self, volume_delta, maintain_pressure=False):
         new_volume = self.volume + volume_delta
@@ -108,41 +124,146 @@ class Atmosphere(BaseAgent):
 
         self.volume = new_volume
 
-    def modify_oxygen_by_mass(self, mass):
-        self.oxygen += self.mass_to_pressure(mass, self.OXYGEN_MOLAR_MASS)
+    def convert_o2_to_co2(self, mass_o2_in, mass_co2_out, min_o2_pressure=0.0):
+        """Convert o2 to co2 at known ratio
 
-    def modify_carbon_dioxide_by_mass(self, mass):
-        self.carbon_dioxide += self.mass_to_pressure(mass, self.CARBON_DIOXIDE_MOLAR_MASS)
+        Parameters
+        ----------
+        mass_o2_in : float
+            Mass of o2 in kilograms to convert to co2
+        mass_co2_out : float
+            Mass of co2 in kilograms to create from reaction
+        min_o2_pressure : float, optional
+            Minimum pressure needed to conduct reaction, if o2 pressure
+            drops below this value, the reaction will be done partially
+            up till this value
 
-    def modify_nitrogen_by_mass(self, mass):
-        self.nitrogen += self.mass_to_pressure(mass, self.NITROGEN_MOLAR_MASS)
+        Returns
+        -------
+        tuple containing
+            actual_o2_mass_in float
+                the actual mass of o2 in limited by the minimum o2 pressure
+            actual_co2_mass_out float
+                the actual mass of co2 out limited by the minimum o2 pressure
 
-    def modify_argon_by_mass(self, mass):
-        self.argon += self.mass_to_pressure(mass, self.ARGON_MOLAR_MASS)
+        Raises
+        ------
+        AgentModelError
+            If min_o2_pressure is negative
 
-    def mass_to_pressure(self, mass_kg, molar_mass):
-        """Get the pressure of a gas from a given mass
-        using the ideal gas law and the molar mass of
-        the gas
+        """
+        if min_o2_pressure < 0:
+            raise AgentModelError("Minimum o2 level cannot be below 0.")
+
+        expected_o2_pressure_in = agent_model_util.mass_o2_to_pressure(mass_o2_in, self.temp, self.volume)
+        expected_co2_pressure_out = agent_model_util.mass_co2_to_pressure(mass_co2_out, self.temp, self.volume)
+
+        if self.oxygen - expected_o2_pressure_in < min_o2_pressure:
+            quotient = mass_co2_out/float(mass_o2_in)
+            # partial breath
+            actual_o2_pressure_in = max(0, self.oxygen - min_o2_pressure)
+            actual_co2_pressure_out = actual_o2_pressure_in * quotient
+        else:
+            actual_o2_pressure_in = expected_o2_pressure_in
+            actual_co2_pressure_out = expected_co2_pressure_out
+
+        self.oxygen -= actual_o2_pressure_in
+        self.carbon_dioxide += actual_co2_pressure_out
+
+        actual_o2_mass_in = (actual_o2_pressure_in / expected_o2_pressure_in) * mass_o2_in
+        actual_co2_mass_out = (actual_co2_pressure_out / expected_co2_pressure_out) * mass_co2_out
+        return actual_o2_mass_in, actual_co2_mass_out
+
+    def convert_co2_to_o2(self, mass_co2_in, mass_o2_out, min_co2_pressure=0.0):
+        """Convert co2 to o2 at known ratio
+
+        Parameters
+        ----------
+        mass_co2_in : float
+            Mass of co2 in kilograms to convert to o2
+        mass_o2_out : float
+            Mass of o2 in kilograms to create from reaction
+        min_co2_pressure : float, optional
+            Minimum pressure needed to conduct reaction, if co2 pressure
+            drops below this value, the reaction will be done partially
+            up till this value
+
+        Returns
+        -------
+        tuple containing
+            actual_co2_mass_in float
+                the actual mass of co2 in limited by the minimum co2 pressure
+            actual_o2_mass_out float
+                the actual mass of o2 out limited by the minimum co2 pressure
+
+        Raises
+        ------
+        AgentModelError
+            If min_co2_pressure is negative
+
+        """
+        if min_co2_pressure < 0:
+            raise AgentModelError("Minimum co2 level cannot be below 0.")
+
+        expected_co2_pressure_in = agent_model_util.mass_co2_to_pressure(mass_co2_in, self.temp, self.volume)
+        expected_o2_pressure_out = agent_model_util.mass_o2_to_pressure(mass_o2_out, self.temp, self.volume)
+
+        if self.carbon_dioxide - expected_co2_pressure_in < min_co2_pressure:
+            quotient = mass_o2_out/float(mass_co2_in)
+            # partial breath
+            actual_co2_pressure_in = max(0, self.carbon_dioxide - min_co2_pressure)
+            actual_o2_pressure_out = actual_co2_pressure_in * quotient
+        else:
+            actual_co2_pressure_in = expected_co2_pressure_in
+            actual_o2_pressure_out = expected_o2_pressure_out
+
+        self.carbon_dioxide -= actual_co2_pressure_in
+        self.oxygen += actual_o2_pressure_out
+
+        actual_co2_mass_in = (actual_co2_pressure_in / expected_co2_pressure_in) * mass_co2_in
+        actual_o2_mass_out = (actual_o2_pressure_out / expected_o2_pressure_out) * mass_o2_out
+        return actual_co2_mass_in, actual_o2_mass_out
+
+    def modify_oxygen_by_mass(self, mass_kg):
+        """Change the oxygen pressure by the given delta of oxygen in kgs
 
         Parameters
         ----------
         mass_kg : float
-            The mass to convert in kg
-        molar_mass : float
-            The molar mass of the the gas in g/mol
-
-        Returns
-        -------
-        float
-            The pressure of the gas in kPa
-
+            Mass of oxygen to modify atmosphere by
         """
+        self.oxygen += agent_model_util.mass_o2_to_pressure(mass_kg, self.temp, self.volume)
 
-        # PV = nRT
-        n = mass_kg / (molar_mass/1000.0)
+    def modify_carbon_dioxide_by_mass(self, mass_kg):
+        """Change the co2 pressure by the given delta of co2 in kgs
 
-        return (n * self.GAS_CONSTANT * self.temp) / self.volume
+        Parameters
+        ----------
+        mass_kg : float
+            Mass of co2 to modify atmosphere by
+        """
+        self.carbon_dioxide += agent_model_util.mass_co2_to_pressure(mass_kg, self.temp, self.volume)
+
+    def modify_nitrogen_by_mass(self, mass_kg):
+        """Change the nitrogen pressure by the given delta of nitrogen in kgs
+
+        Parameters
+        ----------
+        mass_kg : float
+            Mass of nitrogen to modify atmosphere by
+        """
+        self.nitrogen += agent_model_util.mass_nitrogen_to_pressure(mass_kg)
+
+    def modify_argon_by_mass(self, mass_kg):
+        """Change the argon pressure by the given delta of argon in kgs
+
+        Parameters
+        ----------
+        mass_kg : float
+            Mass of argon to modify atmosphere by
+        """
+        self.argon += agent_model_util.mass_argon_to_pressure(mass_kg)
+
 
 
 class Structure(BaseAgent):

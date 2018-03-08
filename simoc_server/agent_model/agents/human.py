@@ -1,6 +1,7 @@
 import math
 import datetime
 
+from simoc_server.agent_model import agent_model_util
 from simoc_server.agent_model.agents.core import EnclosedAgent
 from simoc_server.util import timedelta_to_days, timedelta_hour_of_day
 from simoc_server.exceptions import AgentModelError
@@ -48,7 +49,7 @@ class HumanAgent(EnclosedAgent):
         self._attr("mass", initial_mass,is_client_attr=True, is_persisted_attr=True)
         self._attr("age", initial_age, is_client_attr=True, is_persisted_attr=True)
         self._attr("height", initial_height, is_client_attr=True, is_persisted_attr=True)
-        self._attr("days_without_water", default_value=0.0, is_client_attr=True, is_persisted_attr=True)
+        self._attr("days_without_water", 0.0, is_client_attr=True, is_persisted_attr=True)
 
     def step(self):
         if self.structure is None:
@@ -81,15 +82,26 @@ class HumanAgent(EnclosedAgent):
 
             total_water_usage = self._total_water_usage_per_day() * days_per_step
 
+            moles_oxygen_output = 0
+            moles_oxygen_input = 0
             # TODO intelligent water usage
             if total_water_usage <= plumbing_system.water and plumbing_system is not None:
                 self.days_without_water = 0.0
-                plumbing_system.water -= total_water_usage
-                plumbing_system.grey_water += self.get_agent_type_attribute("grey_water_output") * days_per_step
-                plumbing_system.waste_water += total_waste_water_output * days_per_step
-                plumbing_system.grey_water_solids += self.get_agent_type_attribute("grey_water_solid_output") * days_per_step
-                plumbing_system.solid_waste += self.get_agent_type_attribute("solid_waste_output") * days_per_step
 
+                grey_water = self.get_agent_type_attribute("grey_water_output") * days_per_step
+                grey_water_solids = self.get_agent_type_attribute("grey_water_solid_output") * days_per_step
+                solid_waste = self.get_agent_type_attribute("solid_waste_output") * days_per_step
+                waste_water = total_waste_water_output * days_per_step
+
+                plumbing_system.water -= total_water_usage
+                plumbing_system.grey_water += grey_water
+                plumbing_system.waste_water += waste_water
+                plumbing_system.grey_water_solids += grey_water_solids
+                plumbing_system.solid_waste += solid_waste
+
+                moles_oxygen_input += agent_model_util.mass_water_to_moles(total_water_usage)
+                moles_oxygen_output += agent_model_util.mass_water_to_moles(grey_water)
+                moles_oxygen_output += agent_model_util.mass_water_to_moles(waste_water)
                 # TODO temporary fix, violates conservation of mass
                 if plumbing_system.water < 0:
                     self.plumbing_system = 0
@@ -100,16 +112,20 @@ class HumanAgent(EnclosedAgent):
                 self.days_without_water += days_per_step
 
 
-            co2_before = atmosphere.carbon_dioxide
-            o2_before = atmosphere.oxygen
+            oxygen_input = self.get_agent_type_attribute("oxygen_consumption") * days_per_step
+            carbon_output = self.get_agent_type_attribute("carbon_produced") * days_per_step
 
-            atmosphere.modify_oxygen_by_mass(-1 * self.get_agent_type_attribute("oxygen_consumption") * days_per_step)
-            atmosphere.modify_carbon_dioxide_by_mass(self.get_agent_type_attribute("carbon_produced") * days_per_step)
+            actual_oxygen_in, actual_carbon_out = atmosphere.convert_o2_to_co2(oxygen_input, carbon_output, 
+                self.get_agent_type_attribute("fatal_o2_lower"))
 
-            # TODO temporary fix right here, this violates
-            # conservation of matter, and that's bad
-            if atmosphere.oxygen < 0:
-                atmosphere.oxygen = 0
+            # MAKE UP FOR LOST MOLES HERE
+
+
+            moles_oxygen_input += agent_model_util.mass_o2_to_moles(actual_oxygen_in)
+            moles_oxygen_output += agent_model_util.mass_co2_to_moles(actual_carbon_out)
+
+            print("oxygen in: {} oxygen out: {}".format(moles_oxygen_input, moles_oxygen_output))
+
 
     def _metabolize(self, is_working, days_per_step):
         # metabolism function from BVAD

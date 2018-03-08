@@ -5,7 +5,8 @@ from simoc_server.agent_model.sprite_mappers import PlantSpriteMapper
 from simoc_server.agent_model.agents.core import EnclosedAgent
 
 class PlantAgent(EnclosedAgent):
-    # TODO implement each plant and abstract this class
+    # Each plant agent is 1 meter squared worth of that plant
+    # TODO possibly parameterize this
 
     _agent_type_name = "default_plant"
     _sprite_mapper = PlantSpriteMapper
@@ -56,7 +57,7 @@ class PlantAgent(EnclosedAgent):
             atmosphere.modify_oxygen_by_mass((self.get_agent_type_attribute("oxygen_produced") / 1000) * days_per_step)
             atmosphere.modify_carbon_dioxide_by_mass((-1 * self.get_agent_type_attribute("carbon_uptake") / 1000) * days_per_step)
 
-            # TODO Temporary fix right here, this voilates conservation
+            # TODO Temporary fix right here, this violates conservation
             # of matter
             if(atmosphere.carbon_dioxide < 0):
                 print("WARNING Reseting carbon dioxide from negative value")
