@@ -1,0 +1,63 @@
+﻿body
+{
+  background: url('../../assets/img/bg/mars_background.jpg') no-repeat center center fixed;
+  font-family:'jupiter';
+  color:#ffffff;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
+}
+body.game
+{
+  background: url('../../assets/img/bg/gameui.png') no-repeat center center fixed;
+  font-family:'jupiter';
+  color:#ffffff;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
+}
+@font-face{
+    font-family:'jupiter';
+    src:url('../../assets/fonts/Jupiter.ttf')
+}
+div .row .sf_window{
+   width:500px;
+   height:500px;
+   margin:0 auto;
+   background:url('../../assets/img/bg/SF_Window.png') no-repeat;
+   background-size:auto;
+}
+div .row .sf_lg_window{
+   width:500px;
+   height:500px;
+   margin:0 auto;
+   background:url('../../assets/img/bg/SF_lg_Window.png') no-repeat;
+   background-size:auto;
+}
+.btn.btn-success {
+    color: #ffffff;
+    background-color: #2283d8;
+    background-image: linear-gradient(to bottom, #2283d8, #2283d8);
+    border-color: #2283d8 #2283d8 #2283d8;
+}
+.btn.btn-success:hover {
+    color: #ffffff;
+    background-color: #2283d8;
+    background-image: linear-gradient(to bottom, #2283d8, #2283d8);
+    border-color: #2283d8 #2283d8 #2283d8;
+}
+.btn {
+    width:25%
+}
+.logform{
+    width:50%; 
+    margin:0 auto;
+}
+.logform .alert{
+  line-height: 20px;
+  padding: 0px 10px;
+  opacity: .7;
+  display: hidden;
+}

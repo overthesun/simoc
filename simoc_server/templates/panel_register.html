@@ -1,0 +1,82 @@
+﻿{% extends "base_home.html" %}
+
+{% block panel %}
+<div class="text-center SF_lg_Window">
+    <div class="pt-5 center">
+        <form class="logform">
+            <div id="logformAlert" class="alert"></div>
+            <div class="form-group ">
+                <input type="text" name="username" class="form-control " id="username" placeholder="Create username">
+                <input type="password" name="password" class="form-control " id="password" placeholder="Create Password">
+                <input type="password" name="validatepassword" class="form-control " id="validatepassword" placeholder="Confirm Password">
+            </div>
+
+             <span id="msg" class="form-text " ></span>
+            <button type="button" id="registerbtn" class="btn btn-primary">Submit</button>
+            <button type="button" id="menuoptionbackbtn" class="btn btn-primary">Back</button>
+        </form>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    $(function () {
+        $('#menuoptionbackbtn').click(function () {
+            gotourl('/');
+        });
+        function isEmpty(str) {
+            return (!str || 0 === str.length);
+        }
+        $('#registerbtn').click(function () {
+
+            var alertForm = function(message, alertClass){
+                $("#logformAlert").html("<strong>" + message + "</strong>")
+                $("#logformAlert").css({
+                        "visibility":"visible",
+                    })
+                $("#logformAlert").attr("class", "alert " + alertClass)
+            }
+
+            // alert($('form').());
+            $('#msg').html('');
+            var user = $('#username').val();
+            var pass = $('#password').val();
+            var vpass = $('#validatepassword').val();
+            //alert(pass + '=' + vpass);
+            //alert('user is empty: ' + isEmpty(user));
+            if (pass != vpass) {
+                $('#msg').html('Password does not match!');
+            }
+            else if (isEmpty(user) || isEmpty(pass) || isEmpty(vpass)) {
+                $('#msg').html('Enter username or password!');
+            }
+            else {
+               var obj = { "username": user, "password": pass };
+                //alert(JSON.stringify(obj));
+                postFormatted('/register', obj, function (data, status) {
+                    //alert(data.message +'status:'+status);
+                    if (status=='success') {
+                        alertForm("Registration Success!", "alert-success")
+                    }
+
+                }).fail(function(jqXHR, textStatus, errorThrown){
+                    var responseJSON = jqXHR.responseJSON;
+                    if(responseJSON){
+                        var message = responseJSON.message;
+                        alertForm("Registration failed. " + responseJSON.message, "alert-danger");
+                    }
+                    else{
+                        console.log("ERROR: " + errorThrown + " " + textStatus);
+                        alertForm("Registration failed. Contact System Admin.", "alert-json");
+                    }
+                });
+                return false;
+            }
+
+        });
+    });
+
+
+</script>
+{% endblock %}

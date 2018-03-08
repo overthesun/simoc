@@ -4,14 +4,12 @@
 
 SIMOC - A Scalable Model of an Isolated, Off-world Colony
 
-- This is the server side backend for SIMOC, to view the client [click here](https://github.com/gschober/simoc_client)
-
 ## Getting Started
 
 ### Setup
 
 #### Clone Repository
-`git clone --recursive https://github.com/bdmccord/simoc_server.git`
+`git clone --recursive https://github.com/bdmccord/simoc.git`
 
 #### Install dependencies:
 

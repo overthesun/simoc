@@ -3,50 +3,23 @@ import numbers
 import threading
 import datetime
 import numpy as np
-from .agent_name_mapping import agent_name_mapping
-from . import HumanAgent, PlantAgent
+import functools
+import operator
+from abc import ABCMeta, abstractmethod
+from uuid import uuid4
+
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
-from simoc_server.database.db_model import AgentModelState, AgentState, \
-    AgentType, AgentModelSnapshot, SnapshotBranch, AgentModelParam
-from simoc_server import db
-from uuid import uuid4
 from sqlalchemy.orm.exc import StaleDataError
 
-class AgentModelInitializationParams(object):
+from simoc_server.database.db_model import AgentModelState, AgentState, \
+    AgentType, AgentModelSnapshot, SnapshotBranch, AgentModelParam
 
-    snapshot_branch = None
-    seed = None
-    random_state = None
+from simoc_server import db
+from simoc_server.agent_model import agents
+from simoc_server.util import sum_attributes
 
-    def set_grid_width(self, grid_width):
-        self.grid_width = grid_width
-        return self
-
-    def set_grid_height(self, grid_height):
-        self.grid_height = grid_height
-        return self
-
-    def set_starting_step_num(self, starting_step_num):
-        self.starting_step_num = starting_step_num
-        return self
-
-    def set_starting_model_time(self, starting_model_time):
-        self.starting_model_time = starting_model_time
-        return self
-
-    def set_snapshot_branch(self, snapshot_branch):
-        self.snapshot_branch = snapshot_branch
-        return self
-
-    def set_seed(self, seed):
-        self.seed = seed
-        return self
-
-    def set_random_state(self, random_state):
-        self.random_state = random_state
-        return self
 
 class AgentModel(Model):
 
@@ -59,6 +32,9 @@ class AgentModel(Model):
         self.snapshot_branch = init_params.snapshot_branch
         self.seed = init_params.seed
         self.random_state = init_params.random_state
+
+        self.atmospheres = []
+        self.plumbing_systems = []
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -74,6 +50,29 @@ class AgentModel(Model):
 
         self.scheduler.steps = init_params.starting_step_num
 
+    @property
+    def total_water(self):
+        return sum_attributes(self.plumbing_systems, "water")
+
+    @property
+    def total_waste_water(self):
+        return sum_attributes(self.plumbing_systems, "waste_water")
+
+    @property
+    def total_oxygen(self):
+        return sum_attributes(self.atmospheres, "oxygen")
+
+    @property
+    def total_carbon_dioxide(self):
+        return sum_attributes(self.atmospheres, "carbon_dioxide")
+
+    @property
+    def total_nitrogen(self):
+        return sum_attributes(self.atmospheres, "nitrogen")
+
+    @property
+    def total_argon(self):
+        return sum_attributes(self.atmospheres, "argon")
 
     @property
     def step_num(self):
@@ -113,35 +112,59 @@ class AgentModel(Model):
 
         for agent_state in agent_model_state.agent_states:
             agent_type_name = agent_state.agent_type.name
-            agent_class = agent_name_mapping[agent_type_name]
+            agent_class = agents.get_agent_by_type_name(agent_type_name)
             agent = agent_class(model, agent_state)
-            model.add_agent(agent, agent.pos)
+            model.add_agent(agent)
             print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
+
+        for agent in model.get_agents():
+            agent.post_db_load()
+
         return model
 
     @classmethod
-    def create_new(self, grid_width, grid_height):
-        init_params = AgentModelInitializationParams()
-        (init_params.set_grid_width(grid_width)
-                    .set_grid_height(grid_height)
-                    .set_starting_step_num(0)
-                    .set_starting_model_time(datetime.timedelta()))
-
-        model = AgentModel(init_params)
-        # for testing
-        human_agent = HumanAgent(model)
-        model.add_agent(human_agent, (0,0))
-        human_agent = HumanAgent(model)
-        model.add_agent(human_agent, (1,2))
-        plant_agent = PlantAgent(model)
-        model.add_agent(plant_agent, (12, 1))
-        plant_agent = PlantAgent(model)
-        model.add_agent(plant_agent, (4, 4))
+    def create_new(cls, model_init_params, agent_init_recipe):
+        model = AgentModel(model_init_params)
+        agent_init_recipe.init_agents(model)
         return model
 
-    def add_agent(self, agent, pos):
+    @classmethod
+    def create_atmosphere(cls, model, structures):
+        atmosphere = agents.Atmosphere(model)
+
+        atmosphere.temp = model.initial_temp
+        atmosphere.oxygen = model.initial_oxygen
+        atmosphere.carbon_dioxide = model.initial_carbon_dioxide
+        atmosphere.nitrogen = model.initial_nitrogen
+        atmosphere.argon = model.initial_argon
+
+        for structure in structures:
+            structure.set_atmosphere(atmosphere, maintain_pressure=True)
+
+        return atmosphere
+
+    @classmethod
+    def create_plumbing_system(cls, model, structures):
+        plumbing_system = agents.PlumbingSystem(model)
+        plumbing_system.water = model.initial_water
+        plumbing_system.waste_water = model.initial_waste_water
+
+        for structure in structures:
+            structure.set_plumbing_system(plumbing_system)
+
+        return plumbing_system
+
+    def add_agent(self, agent, pos=None):
+        if pos is None and hasattr(agent, "pos"):
+            pos = agent.pos
         self.scheduler.add(agent)
-        self.grid.place_agent(agent, pos)
+        if pos is not None:
+            self.grid.place_agent(agent, pos)
+
+        if isinstance(agent, agents.Atmosphere):
+            self.atmospheres.append(agent)
+        elif isinstance(agent, agents.PlumbingSystem):
+            self.plumbing_systems.append(agent)
 
     def num_agents(self):
         return len(self.schedule.agents)
@@ -189,6 +212,9 @@ class AgentModel(Model):
         self.model_time += self.timedelta_per_step()
         self.scheduler.step()
         print("{0} step_num {1}".format(self, self.step_num))
+        print("o2: {} co2: {} n2: {} ar: {} h2o: {} waste_h2o: {}".format(
+            self.total_oxygen, self.total_carbon_dioxide, self.total_nitrogen,
+            self.total_argon, self.total_water, self.total_waste_water))
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)
@@ -205,11 +231,109 @@ class AgentModel(Model):
             raise TypeError("Expected number or tuple of numbers")
 
     def remove(self, agent):
-        self.grid.remove_agent(agent)
         self.scheduler.remove(agent)
+        if hasattr(agent, "pos"):
+            self.grid.remove_agent(agent)
+
+        if isinstance(agent, agents.Atmosphere):
+            self.atmospheres.remove(agent)
+        elif isinstance(agent, agents.PlumbingSystem):
+            self.plumbing_systems.remove(agent)
 
     def get_agents(self, agent_type=None):
         if agent_type is None:
             return self.scheduler.agents
         else:
             return [agent for agent in self.scheduler.agents if isinstance(agent, agent_type)]
+
+    def agent_by_id(self, unique_id):
+        for agent in self.get_agents():
+            if(agent.unique_id == unique_id):
+                return agent
+        return None
+
+class AgentModelInitializationParams(object):
+
+    snapshot_branch = None
+    seed = None
+    random_state = None
+    starting_step_num = 0
+
+    def set_grid_width(self, grid_width):
+        self.grid_width = grid_width
+        return self
+
+    def set_grid_height(self, grid_height):
+        self.grid_height = grid_height
+        return self
+
+    def set_starting_step_num(self, starting_step_num):
+        self.starting_step_num = starting_step_num
+        return self
+
+    def set_starting_model_time(self, starting_model_time):
+        self.starting_model_time = starting_model_time
+        return self
+
+    def set_snapshot_branch(self, snapshot_branch):
+        self.snapshot_branch = snapshot_branch
+        return self
+
+    def set_seed(self, seed):
+        self.seed = seed
+        return self
+
+    def set_random_state(self, random_state):
+        self.random_state = random_state
+        return self
+
+class AgentInitializerRecipe(metaclass=ABCMeta):
+
+    @abstractmethod
+    def init_agents(self, model):
+        pass
+
+
+class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
+
+    NUM_HUMANS = 4
+
+    # plants
+    NUM_CABBAGE = 2
+    NUM_CARROTS = 2
+    NUM_RICE = 10
+    NUM_WHITE_POTATOS = 5
+
+    def init_agents(self, model):
+        crew_quarters = agents.CrewQuarters(model)
+        greenhouse = agents.Greenhouse(model)
+
+        model.add_agent(crew_quarters, (0,0))
+
+        # place green house next to crew quarters
+        greenhouse_x = crew_quarters.width
+        model.add_agent(greenhouse, (greenhouse_x, 0))
+
+        structures = [crew_quarters, greenhouse]
+
+        atmosphere = AgentModel.create_atmosphere(model, structures)
+        plumbing_system = AgentModel.create_plumbing_system(model, structures)
+        model.add_agent(atmosphere)
+        model.add_agent(plumbing_system)
+        for i in range(self.NUM_HUMANS):
+            model.add_agent(agents.HumanAgent(model, structure=crew_quarters))
+
+        # TODO determine number of plants for base line model
+        for i in range(self.NUM_CABBAGE):
+            model.add_agent(agents.CabbageAgent(model, structure=greenhouse))
+
+        for i in range(self.NUM_CARROTS):
+            model.add_agent(agents.CarrotAgent(model, structure=greenhouse))
+
+        for i in range(self.NUM_RICE):
+            model.add_agent(agents.RiceAgent(model, structure=greenhouse))
+
+        for i in range(self.NUM_WHITE_POTATOS):
+            model.add_agent(agents.WhitePotatoAgent(model, structure=greenhouse))
+
+        return model
