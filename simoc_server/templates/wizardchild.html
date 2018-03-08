@@ -1,0 +1,40 @@
+{% extends "basewizard.html" %}
+
+{% block concent %}
+<div class="col-12 step-title">
+  {{step.title}}
+</div>
+<div class="col-6 selection">
+  <div class="row">
+    <div class="option-block col-12 order-{{step.roneorder}}" style="display:{{step.ronedisplay}}"> <!--Radio Button One -->      
+    </div>
+
+    <div class="option-block col-12 order-{{step.rtwoorder}}" style="display:{{step.rtwodisplay}}"> <!--Radio Button Two -->      
+    </div>
+
+    <div class="option-block col-12 order-{{step.rtwoorder}}" style="display:{{step.rtwodisplay}}"> <!--Radio Button Three -->      
+    </div>
+
+    <div class="option-block col-12 order-{{step.dropdownorder}}" style="display:{{step.dropdowndisplay}}"> <!--Select Dropdown -->
+    </div>
+
+    <div class="option-block col-12 order-{{step.selectbuttonorder}}" style="display:{{step.selectbuttondisplay}}"> <!-- Import/Payload Button -->
+    </div>
+
+    <div class="option-block col-12 order-{{step.integerorder}}" style="display:{{step.integerdisplay">
+    </div>
+
+  </div>
+</div>
+<div class="col-6 information">
+  {{step.information}}
+</div>
+<div class="col-6 cancel-btns">
+  <button type="button">CANCEL</button>
+</div>
+<div class="col-6 navigation-btns">
+  <button type="button" {{step.previousstate}}>PREVIOUS</button>
+  <button type="button" {{step.nextstate}}>NEXT</button>
+</div>
+
+{% endblock content %}
