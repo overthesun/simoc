@@ -84,6 +84,7 @@ class HumanAgent(EnclosedAgent):
 
             moles_oxygen_output = 0
             moles_oxygen_input = 0
+            waste_water_added = 0
             # TODO intelligent water usage
             if total_water_usage <= plumbing_system.water and plumbing_system is not None:
                 self.days_without_water = 0.0
@@ -99,12 +100,13 @@ class HumanAgent(EnclosedAgent):
                 plumbing_system.grey_water_solids += grey_water_solids
                 plumbing_system.solid_waste += solid_waste
 
+                waste_water_added += waste_water
                 moles_oxygen_input += agent_model_util.mass_water_to_moles(total_water_usage)
                 moles_oxygen_output += agent_model_util.mass_water_to_moles(grey_water)
                 moles_oxygen_output += agent_model_util.mass_water_to_moles(waste_water)
                 # TODO temporary fix, violates conservation of mass
                 if plumbing_system.water < 0:
-                    self.plumbing_system = 0
+                    self.plumbing_system.water = 0
             else:
                 # TODO determine metabolic waste water to output in a dehydration scenario
                 # if this is conserved by the body, it will need to be expelled later
@@ -118,14 +120,33 @@ class HumanAgent(EnclosedAgent):
             actual_oxygen_in, actual_carbon_out = atmosphere.convert_o2_to_co2(oxygen_input, carbon_output, 
                 self.get_agent_type_attribute("fatal_o2_lower"))
 
-            # MAKE UP FOR LOST MOLES HERE
 
 
-            moles_oxygen_input += agent_model_util.mass_o2_to_moles(actual_oxygen_in)
-            moles_oxygen_output += agent_model_util.mass_co2_to_moles(actual_carbon_out)
+            # divide both values by 2 since there are 2 oxygen molecules
+            moles_oxygen_input += agent_model_util.mass_o2_to_moles(actual_oxygen_in) * 2
+            moles_oxygen_output += agent_model_util.mass_co2_to_moles(actual_carbon_out) * 2
 
-            print("oxygen in: {} oxygen out: {}".format(moles_oxygen_input, moles_oxygen_output))
-
+            # Temporary solution to prevent loss of oxygen atoms
+            if moles_oxygen_input > moles_oxygen_output:
+                # if we input more than we output add to waste water
+                # this could happen if we had no more water and
+                # did not calculate output waste water, it also
+                # appears to happen under normal conditions to some extent
+                # right now
+                moles_diff = moles_oxygen_input - moles_oxygen_output
+                plumbing_system.waste_water += agent_model_util.moles_water_to_mass(moles_diff)
+            elif moles_oxygen_input < moles_oxygen_output:
+                # if we output more then we took in, first take it back from the waste
+                # water, then take it back from the co2 this could happen
+                # if we went negative for water input and set it back to 0
+                moles_diff = moles_oxygen_output - moles_oxygen_input
+                diff_water_mass = agent_model_util.moles_water_to_mass(moles_diff)
+                if waste_water_added > 0:
+                    removed_waste_water = min(waste_water_added, diff_water_mass)
+                    moles_diff -= agent_model_util.mass_water_to_moles(removed_waste_water)
+                    plumbing_system.waste_water -= removed_waste_water
+                if moles_diff > 0:
+                    atmosphere.modify_carbon_dioxide_by_mass(agent_model_util.moles_co2_to_mass(moles_diff / 2))
 
     def _metabolize(self, is_working, days_per_step):
         # metabolism function from BVAD

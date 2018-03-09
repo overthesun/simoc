@@ -8,6 +8,7 @@ from simoc_server import db, app
 from simoc_server.tests.test_util import setup_db, clear_db
 from simoc_server.agent_model import (AgentModel, AgentModelInitializationParams,
     BaseLineAgentInitializerRecipe)
+from simoc_server.agent_model.agents import Atmosphere
 from simoc_server.database.db_model import AgentModelState
 
 class AgentModelTestCase(unittest.TestCase):
@@ -74,6 +75,20 @@ class AgentModelTestCase(unittest.TestCase):
         self.assertEqual(m1, 10)
         m2 = agent_model.grid_units_to_meters((20, 60))
         self.assertEqual(m2, (20, 60))
+
+
+    # def testAtmosphereGasConversion(self):
+    #     agent_model = AgentModel.create_new(self.default_model_params,
+    #         self.default_agent_init_recipe)
+
+    #     atmosphere = agents.Atmosphere(model)
+
+    #     atmosphere.temp = 280
+    #     atmosphere.oxygen = 50
+    #     atmosphere.carbon_dioxide = .4
+    #     atmosphere.volume = 100
+
+    #     atmosphere.convert_o2_to_co2()
 
 
 if __name__ == "__main__":

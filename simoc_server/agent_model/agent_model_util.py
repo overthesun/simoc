@@ -1,5 +1,22 @@
 from simoc_server.agent_model.global_model_constants import global_model_constants
 
+def moles_to_mass(moles, molar_mass):
+    """Convert moles  to mass in *kilograms*
+
+    Parameters
+    ----------
+    moles : float
+        Number of moles to convert to mass
+    molar_mass : float
+        The molar mass of the substance in *g/mol*
+
+    Returns
+    -------
+    float
+        The mass in kg
+    """
+    return (moles * molar_mass) / 1000.0
+
 def mass_to_moles(mass_kg, molar_mass):
     """Convert kilograms to moles
 
@@ -17,6 +34,21 @@ def mass_to_moles(mass_kg, molar_mass):
     """
     return (mass_kg * 1000.0) / molar_mass
 
+def moles_o2_to_mass(moles):
+    """Convert moles of o2 to mass in *kilograms*
+
+    Parameters
+    ----------
+    moles : float
+        Number of moles to convert to mass
+
+    Returns
+    -------
+    float
+        The mass in kg
+    """
+    return moles_to_mass(moles, global_model_constants["oxygen_molar_mass"])
+
 def mass_o2_to_moles(mass_kg):
     """Convert kilograms of oxygen to moles
 
@@ -31,6 +63,21 @@ def mass_o2_to_moles(mass_kg):
         The number of moles of oxygen
     """
     return mass_to_moles(mass_kg, global_model_constants["oxygen_molar_mass"])
+
+def moles_co2_to_mass(moles):
+    """Convert moles of co2 to mass in *kilograms*
+
+    Parameters
+    ----------
+    moles : float
+        Number of moles to convert to mass
+
+    Returns
+    -------
+    float
+        The mass in kg
+    """
+    return moles_to_mass(moles, global_model_constants["carbon_dioxide_molar_mass"])
 
 def mass_co2_to_moles(mass_kg):
     """Convert kilograms of carbon dioxide to moles
@@ -47,6 +94,21 @@ def mass_co2_to_moles(mass_kg):
     """
     return mass_to_moles(mass_kg, global_model_constants["carbon_dioxide_molar_mass"])
 
+def moles_nitrogen_to_mass(moles):
+    """Convert moles of nitrogen to mass in *kilograms*
+
+    Parameters
+    ----------
+    moles : float
+        Number of moles to convert to mass
+
+    Returns
+    -------
+    float
+        The mass in kg
+    """
+    return moles_to_mass(moles, global_model_constants["nitrogen_molar_mass"])
+
 def mass_nitrogen_to_moles(mass_kg):
     """Convert kilograms of nitrogen to moles
 
@@ -62,6 +124,21 @@ def mass_nitrogen_to_moles(mass_kg):
     """
     return mass_to_moles(mass_kg, global_model_constants["nitrogen_molar_mass"])
 
+def moles_argon_to_mass(moles):
+    """Convert moles of argon to mass in *kilograms*
+
+    Parameters
+    ----------
+    moles : float
+        Number of moles to convert to mass
+
+    Returns
+    -------
+    float
+        The mass in kg
+    """
+    return moles_to_mass(moles, global_model_constants["argon_molar_mass"])
+
 def mass_argon_to_moles(mass_kg):
     """Convert kilograms of argon to moles
 
@@ -76,6 +153,22 @@ def mass_argon_to_moles(mass_kg):
         The number of moles of argon
     """
     return mass_to_moles(mass_kg, global_model_constants["argon_molar_mass"])
+
+
+def moles_water_to_mass(moles):
+    """Convert moles of argon to water in *kilograms*
+
+    Parameters
+    ----------
+    moles : float
+        Number of moles to convert to mass
+
+    Returns
+    -------
+    float
+        The mass in kg
+    """
+    return moles_to_mass(moles, global_model_constants["water_molar_mass"])
 
 def mass_water_to_moles(mass_kg):
     """Convert kilograms of water to moles
