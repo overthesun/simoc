@@ -8,9 +8,20 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css">
-    <title>Hello, world!</title>
+    <title>SIMOC</title>
+
+    <!-- Chart.JS Scripts -->
+    <script src="static/Chart.bundle.js"></script>
+    <script src="static/utils.js"></script>
 
     <style>
+
+      canvas {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+  }
+    
       .col-12,.col-6, .col-3{
         outline: 1px solid orange;
       }
@@ -99,6 +110,15 @@
           </div>
           
           <div class="tab-content">
+            <!-- THIS NEEDS TO BE DELETED LATER! REFERENCE ONLY! 
+            <input type="text" name="names" value="tester.txt" form="wizardform"/>
+            <input type="text" name="namer" value="tester" form="wizardform"/> 
+            <input id="clickMe" type="button" value="clickMe" onClick="download();"/>-->
+
+            <form id="wizardform"></form>
+
+            
+
             <!-- Start of the Include Content -->
              
               {%set step = start%}
@@ -121,15 +141,17 @@
       </div>
     </div>
 
-    <div class="container dashboard d-visible" style="margin: 0 auto; width:1280px; height:720px; outline: 1px solid red; padding-top:16px; padding-bottom: 16px;">
+    <div class="container dashboard d-none" style="margin: 0 auto; width:1280px; height:720px; outline: 1px solid red; padding-top:16px; padding-bottom: 16px;">
       {%include 'dashboard.html' %}
     </div>
-
-
-
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script src="/static/wizardnavigation.js"></script>
+    <script src="/static/wizardexport.js"></script>
+
+
   </body>
 </html>

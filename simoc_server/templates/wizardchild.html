@@ -33,8 +33,8 @@
   <button type="button">CANCEL</button>
 </div>
 <div class="col-6 navigation-btns">
-  <button type="button" {{step.previousstate}}>PREVIOUS</button>
-  <button type="button" {{step.nextstate}}>NEXT</button>
+  <button type="button" {{step.previousstate}} {{step.previousbtnname}}>PREVIOUS</button>
+  <button type="button" class="{{step.nextbtnname}}" {{step.nextstate}} >NEXT2</button>
 </div>
 
 {% endblock content %}
