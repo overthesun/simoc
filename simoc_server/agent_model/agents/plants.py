@@ -20,6 +20,9 @@ class PlantAgent(EnclosedAgent):
 
         self._growth_period = datetime.timedelta(days=self.get_agent_type_attribute("growth_period"))
 
+    @property
+    def age(self):
+        return self.model.model_time - self.model_time_created
     def step(self):
         if self.structure is None:
             raise AgentModelError("Enclosing structure was not set for plant agent.")
@@ -36,10 +39,8 @@ class PlantAgent(EnclosedAgent):
 
             self.destroy()
         else:
-            current_time_delta = self.model.model_time
-            age = (current_time_delta - self.model_time_created)
-
             if not self.is_grown():
+                age = self.age
                 if age > self._growth_period:
                     self.status = "grown"
                 self.growth = min(1.0, age/self._growth_period)
