@@ -159,10 +159,10 @@ class Atmosphere(BaseAgent):
         expected_co2_pressure_out = agent_model_util.mass_co2_to_pressure(mass_co2_out, self.temp, self.volume)
 
         if self.oxygen - expected_o2_pressure_in < min_o2_pressure:
-            quotient = mass_co2_out/float(mass_o2_in)
             # partial breath
             actual_o2_pressure_in = max(0, self.oxygen - min_o2_pressure)
-            actual_co2_pressure_out = actual_o2_pressure_in * quotient
+            ratio = actual_o2_pressure_in/expected_o2_pressure_in
+            actual_co2_pressure_out = expected_co2_pressure_out * ratio
         else:
             actual_o2_pressure_in = expected_o2_pressure_in
             actual_co2_pressure_out = expected_co2_pressure_out
@@ -209,10 +209,10 @@ class Atmosphere(BaseAgent):
         expected_o2_pressure_out = agent_model_util.mass_o2_to_pressure(mass_o2_out, self.temp, self.volume)
 
         if self.carbon_dioxide - expected_co2_pressure_in < min_co2_pressure:
-            quotient = mass_o2_out/float(mass_co2_in)
             # partial breath
             actual_co2_pressure_in = max(0, self.carbon_dioxide - min_co2_pressure)
-            actual_o2_pressure_out = actual_co2_pressure_in * quotient
+            ratio = actual_co2_pressure_in/expected_co2_pressure_in
+            actual_o2_pressure_out = expected_o2_pressure_out * ratio
         else:
             actual_co2_pressure_in = expected_co2_pressure_in
             actual_o2_pressure_out = expected_o2_pressure_out
