@@ -7,7 +7,7 @@
               <select id="{{select.id}}" form="{{step.formid}}">
                 {{select.options}}
                 {% for option in select.options %}
-                  <option value="{{option.value}}">{{option.label}}</option>
+                  <option value="{{option.value}}" {{option.selected}}>{{option.label}}</option>
                 {% endfor %}
               </select>
               </div>

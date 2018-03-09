@@ -28,8 +28,9 @@ function getFormValues(){
     console.log(elem.length);
 
     for (var index = 0; index < elem.length; index++) {
-        text += elem.elements[index].name + ":" + elem.elements[index].value + "\n";
-        console.log(elem.elements[index].name);
+        text += String(elem.elements[index].id) + ":" + String(elem.elements[index].checked) + "\n";
+        console.log(String(elem.elements[index].checked) + "\n");
+      
     }
 
   return text;
@@ -38,8 +39,10 @@ function getFormValues(){
 
 function exportConfiguration() {
 
-  var filename ="text.txt";
+  var filename ="test.txt";
   var input = getFormValues();
+
+  console.log(input);
 
   var element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(input));
@@ -53,13 +56,13 @@ function exportConfiguration() {
   document.body.removeChild(element);
 }
 
-document.getElementById('finalize-step').addEventListener('click',finalizeExport);
+/*document.getElementById('finalize-step').addEventListener('click',finalizeExport);
 
 function finalizeExport(){
 
     var permanentBox = document.getElementById('permanent-checkbox').value;
 
     if(permanentBox){
-        exportConfiguration();
+        //Disable The Text Box
     }
-}
+}*/
