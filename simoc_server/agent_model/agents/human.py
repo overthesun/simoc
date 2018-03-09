@@ -1,27 +1,10 @@
 import math
 import datetime
 
+from simoc_server.agent_model import agent_model_util
 from simoc_server.agent_model.agents.core import EnclosedAgent
 from simoc_server.util import timedelta_to_days, timedelta_hour_of_day
 from simoc_server.exceptions import AgentModelError
-
-# metabolism_work_factor_working
-# metabolism_work_factor_idle
-# metabolism_C
-# metabolism_height_factor
-# metabolism_mass_factor
-# metabolism_B
-# metabolism_age_factor
-# metabolism_A
-# fatal_co2_upper
-# fatal_o2_lower
-# medical_water_usage
-# hygiene_water_usage
-# consumed_water_usage
-# max_energy
-# max_arrival_age
-# min_arrival_age
-
 
 class HumanAgent(EnclosedAgent):
 
@@ -29,7 +12,7 @@ class HumanAgent(EnclosedAgent):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         # TODO populate std values with non-zero values in database
         mass_mean = self.get_agent_type_attribute("initial_mass_mean")
         mass_std = self.get_agent_type_attribute("initial_mass_std")
@@ -48,6 +31,7 @@ class HumanAgent(EnclosedAgent):
         self._attr("mass", initial_mass,is_client_attr=True, is_persisted_attr=True)
         self._attr("age", initial_age, is_client_attr=True, is_persisted_attr=True)
         self._attr("height", initial_height, is_client_attr=True, is_persisted_attr=True)
+        self._attr("days_without_water", 0.0, is_client_attr=True, is_persisted_attr=True)
 
     def step(self):
         if self.structure is None:
@@ -61,18 +45,91 @@ class HumanAgent(EnclosedAgent):
 
         if(atmosphere is None
             or atmosphere.oxygen < self.get_agent_type_attribute("fatal_o2_lower")
-            or atmosphere.carbon_dioxide > self.get_agent_type_attribute("fatal_co2_upper")):
+            or atmosphere.carbon_dioxide > self.get_agent_type_attribute("fatal_co2_upper")
+            or self.days_without_water > self.get_agent_type_attribute("max_dehydration_days")):
 
             self.destroy()
         else:
             is_working = hour_of_day < self.get_agent_type_attribute("work_day_hours")
             self._metabolize(is_working, days_per_step)
 
-            #atmosphere
+            # plumbing_system.water_to_waste_water(self._total_water_usage_per_day() * days_per_step)
 
-            plumbing_system.water_to_waste(self._total_water_usage_per_day() * days_per_step)
+            # Values based on agent model specification
+            # TODO figure out discrepency between water consumption and
+            # output, this is likely due to repiration output products
+            # including water
+            total_waste_water_output = self.get_agent_type_attribute("waste_water_output") + \
+                self.get_agent_type_attribute("solid_waste_water_output")
+
+            total_water_usage = self._total_water_usage_per_day() * days_per_step
+
+            moles_oxygen_output = 0
+            moles_oxygen_input = 0
+            waste_water_added = 0
+            # TODO intelligent water usage
+            if total_water_usage <= plumbing_system.water and plumbing_system is not None:
+                self.days_without_water = 0.0
+
+                grey_water = self.get_agent_type_attribute("grey_water_output") * days_per_step
+                grey_water_solids = self.get_agent_type_attribute("grey_water_solid_output") * days_per_step
+                solid_waste = self.get_agent_type_attribute("solid_waste_output") * days_per_step
+                waste_water = total_waste_water_output * days_per_step
+
+                plumbing_system.water -= total_water_usage
+                plumbing_system.grey_water += grey_water
+                plumbing_system.waste_water += waste_water
+                plumbing_system.grey_water_solids += grey_water_solids
+                plumbing_system.solid_waste += solid_waste
+
+                waste_water_added += waste_water
+                moles_oxygen_input += agent_model_util.mass_water_to_moles(total_water_usage)
+                moles_oxygen_output += agent_model_util.mass_water_to_moles(grey_water)
+                moles_oxygen_output += agent_model_util.mass_water_to_moles(waste_water)
+                # TODO temporary fix, violates conservation of mass, this is fixed
+                # at the end as a temporary solution
+                if plumbing_system.water < 0:
+                    self.plumbing_system.water = 0
+            else:
+                # TODO determine metabolic waste water to output in a dehydration scenario
+                # if this is conserved by the body, it will need to be expelled later
+                # to stay in the model
+                self.days_without_water += days_per_step
 
 
+            oxygen_input = self.get_agent_type_attribute("oxygen_consumption") * days_per_step
+            carbon_output = self.get_agent_type_attribute("carbon_produced") * days_per_step
+
+            actual_oxygen_in, actual_carbon_out = atmosphere.convert_o2_to_co2(oxygen_input, carbon_output, 
+                self.get_agent_type_attribute("fatal_o2_lower"))
+
+
+
+            # multiply both values by 2 since there are 2 oxygen molecules
+            moles_oxygen_input += agent_model_util.mass_o2_to_moles(actual_oxygen_in) * 2
+            moles_oxygen_output += agent_model_util.mass_co2_to_moles(actual_carbon_out) * 2
+
+            # Temporary solution to prevent loss of oxygen atoms
+            if moles_oxygen_input > moles_oxygen_output:
+                # if we input more than we output add to waste water
+                # this could happen if we had no more water and
+                # did not calculate output waste water, it also
+                # appears to happen under normal conditions to some extent
+                # right now
+                moles_diff = moles_oxygen_input - moles_oxygen_output
+                plumbing_system.waste_water += agent_model_util.moles_water_to_mass(moles_diff)
+            elif moles_oxygen_input < moles_oxygen_output:
+                # if we output more then we took in, first take it back from the waste
+                # water, then take it back from the co2 this could happen
+                # if we went negative for water input and set it back to 0
+                moles_diff = moles_oxygen_output - moles_oxygen_input
+                diff_water_mass = agent_model_util.moles_water_to_mass(moles_diff)
+                if waste_water_added > 0:
+                    removed_waste_water = min(waste_water_added, diff_water_mass)
+                    moles_diff -= agent_model_util.mass_water_to_moles(removed_waste_water)
+                    plumbing_system.waste_water -= removed_waste_water
+                if moles_diff > 0:
+                    atmosphere.modify_carbon_dioxide_by_mass(agent_model_util.moles_co2_to_mass(moles_diff / 2))
 
     def _metabolize(self, is_working, days_per_step):
         # metabolism function from BVAD
@@ -82,19 +139,30 @@ class HumanAgent(EnclosedAgent):
             work_factor = self.get_agent_type_attribute("metabolism_work_factor_working")
         else:
             work_factor = self.get_agent_type_attribute("metabolism_work_factor_idle")
-            
+
 
         A = self.get_agent_type_attribute("metabolism_A")
-        B = self.get_agent_type_attribute("metabolism_A")
+        B = self.get_agent_type_attribute("metabolism_B")
         C = self.get_agent_type_attribute("metabolism_C")
         age_factor = self.get_agent_type_attribute("metabolism_age_factor")
         mass_factor = self.get_agent_type_attribute("metabolism_mass_factor")
         height_factor = self.get_agent_type_attribute("metabolism_height_factor")
 
-        self.energy -= (A - (age_factor * self.age) + (B * (mass_factor * self.mass) + 
-            (height_factor * self.height)))/(C * work_factor * days_per_step)
-           
+        self.energy -= ((A - (age_factor * self.age) + B * ((mass_factor * self.mass) + 
+            (height_factor * self.height)))/(C)) * (work_factor * days_per_step)
+
     def _total_water_usage_per_day(self):
+        """Calculates the total water usage per day
+        from consumed_water, hygiene water, and medical
+
+        If this value is already calculated, return
+        cached value
+
+        Returns
+        -------
+        float
+            Total human waste water per day
+        """
         try:
             # try cached value
             return self._cached_total_water_usage_per_day

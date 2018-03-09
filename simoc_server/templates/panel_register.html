@@ -1,19 +1,22 @@
 ﻿{% extends "base_home.html" %}
 
 {% block panel %}
-<div class="text-center SF_lg_Window">
+<div class="card-header configuration-title common-text">
+Registration Menu
+</div>
+<div class="menu-buttons-container">
     <div class="pt-5 center">
         <form class="logform">
             <div id="logformAlert" class="alert"></div>
             <div class="form-group ">
-                <input type="text" name="username" class="form-control " id="username" placeholder="Create username">
-                <input type="password" name="password" class="form-control " id="password" placeholder="Create Password">
-                <input type="password" name="validatepassword" class="form-control " id="validatepassword" placeholder="Confirm Password">
+                <p><input type="text" name="username" class="form-control " id="username" placeholder="Create username"></p>
+                <p><input type="password" name="password" class="form-control " id="password" placeholder="Create Password"></p>
+                <p><input type="password" name="validatepassword" class="form-control " id="validatepassword" placeholder="Confirm Password"></p>
             </div>
 
              <span id="msg" class="form-text " ></span>
-            <button type="button" id="registerbtn" class="btn btn-primary">Submit</button>
-            <button type="button" id="menuoptionbackbtn" class="btn btn-primary">Back</button>
+            <button type="button" id="registerbtn" class="buttons">Submit</button>
+            <button type="button" id="menuoptionbackbtn" class="buttons">Back</button>
         </form>
     </div>
 
