@@ -402,28 +402,26 @@ class Harvester(EnclosedAgent):
 
 class Planter(EnclosedAgent):
     agent_type_name = "planter"
-    # TODO right now just grows generic plant, the planter should choose a specific type somehow
     # TODO planter plants everything in one step, should be incremental
     # TODO planter should use soil
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.counter = 0
+        print(len(self.model.menu))
 
     def step(self):
-        #FOR TESTING print(self.structure.plants_housed)
-        #FOR TESTING print(self.structure.max_plants)
 
         if(len(self.structure.plants) < self.structure.max_plants):
             to_plant = self.structure.max_plants - len(self.structure.plants)
             self.plant(to_plant) 
 
-        #FOR TESTING print(self.structure.plants[0].status)
-
     def plant(self, number_to_plant):
         for x in range(0, number_to_plant):
-            plant_agent = agents.PlantAgent(self.model, structure=self.structure)
+            plant_agent = self.model.menu[self.counter % len(self.model.menu)]
+            self.counter += 1
             self.model.add_agent(plant_agent)
             self.structure.place_agent_inside(plant_agent)
-            self.structure.place_plant_inside(plant_agent)             
+            self.structure.place_plant_inside(plant_agent)           
 
 #Converts plant mass to food
 #Input: Plant Mass
@@ -519,7 +517,7 @@ class StorageFacility(EnclosedAgent):
 
         if hasattr(self, resource):
             amount_stored = getattr(self, resource)
-            if(quantity > amount_stored):
+            if(quantity >= amount_stored):
                 amount_supplied = quantity - amount_stored
                 delattr(self, resource)
 

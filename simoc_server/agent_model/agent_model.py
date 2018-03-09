@@ -35,6 +35,7 @@ class AgentModel(Model):
 
         self.atmospheres = []
         self.plumbing_systems = []
+        self.menu = []
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -325,10 +326,12 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
     NUM_HUMANS = 4
 
     # plants
-    NUM_CABBAGE = 2
-    NUM_CARROTS = 2
+    NUM_PEANUT = 5
+    NUM_SOYBEAN = 10
     NUM_RICE = 10
     NUM_WHITE_POTATOS = 5
+    NUM_WHEAT = 15
+    NNUM_TOMATO = 5
 
     def init_agents(self, model):
         crew_quarters = agents.CrewQuarters(model)
@@ -344,22 +347,32 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
         atmosphere = AgentModel.create_atmosphere(model, structures)
         plumbing_system = AgentModel.create_plumbing_system(model, structures)
+
         model.add_agent(atmosphere)
         model.add_agent(plumbing_system)
         for i in range(self.NUM_HUMANS):
             model.add_agent(agents.HumanAgent(model, structure=crew_quarters))
 
         # TODO determine number of plants for base line model
-        for i in range(self.NUM_CABBAGE):
-            model.add_agent(agents.CabbageAgent(model, structure=greenhouse))
+        for i in range(self.NUM_PEANUT):
+            model.menu.append(agents.PeanutAgent(model, structure=greenhouse))
 
-        for i in range(self.NUM_CARROTS):
-            model.add_agent(agents.CarrotAgent(model, structure=greenhouse))
+        for i in range(self.NUM_SOYBEAN):
+            model.menu.append(agents.SoybeanAgent(model, structure=greenhouse))
 
         for i in range(self.NUM_RICE):
-            model.add_agent(agents.RiceAgent(model, structure=greenhouse))
+            model.menu.append(agents.RiceAgent(model, structure=greenhouse))
 
         for i in range(self.NUM_WHITE_POTATOS):
-            model.add_agent(agents.WhitePotatoAgent(model, structure=greenhouse))
+            model.menu.append(agents.WhitePotatoAgent(model, structure=greenhouse))
+
+        for i in range(self.NUM_WHEAT):
+            model.menu.append(agents.WheatAgent(model, structure=greenhouse))
+
+        for i in range(self.NNUM_TOMATO):
+            model.menu.append(agents.TomatoAgent(model, structure=greenhouse))
+
+        model.add_agent(agents.Planter(model, structure=greenhouse))
+        model.add_agent(agents.Harvester(model, structure=greenhouse))
 
         return model
