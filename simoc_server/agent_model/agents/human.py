@@ -6,24 +6,6 @@ from simoc_server.agent_model.agents.core import EnclosedAgent
 from simoc_server.util import timedelta_to_days, timedelta_hour_of_day
 from simoc_server.exceptions import AgentModelError
 
-# metabolism_work_factor_working
-# metabolism_work_factor_idle
-# metabolism_C
-# metabolism_height_factor
-# metabolism_mass_factor
-# metabolism_B
-# metabolism_age_factor
-# metabolism_A
-# fatal_co2_upper
-# fatal_o2_lower
-# medical_water_usage
-# hygiene_water_usage
-# consumed_water_usage
-# max_energy
-# max_arrival_age
-# min_arrival_age
-
-
 class HumanAgent(EnclosedAgent):
 
     _agent_type_name = "human"
@@ -123,7 +105,7 @@ class HumanAgent(EnclosedAgent):
 
 
 
-            # divide both values by 2 since there are 2 oxygen molecules
+            # multiply both values by 2 since there are 2 oxygen molecules
             moles_oxygen_input += agent_model_util.mass_o2_to_moles(actual_oxygen_in) * 2
             moles_oxygen_output += agent_model_util.mass_co2_to_moles(actual_carbon_out) * 2
 
