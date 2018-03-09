@@ -24,11 +24,13 @@ class PlantAgent(EnclosedAgent):
     def age(self):
         return self.model.model_time - self.model_time_created
     def step(self):
+
         if self.structure is None:
             raise AgentModelError("Enclosing structure was not set for plant agent.")
 
         # TODO determine how long plants can go without water
         water_uptake = self.get_agent_type_attribute("water_uptake")
+
 
         atmosphere = self.structure.atmosphere
         plumbing_system = self.structure.plumbing_system
@@ -75,6 +77,7 @@ class CarrotAgent(PlantAgent):
 
 class ChardAgent(PlantAgent):
     _agent_type_name = "chard"
+
 
 class DryBeanAgent(PlantAgent):
     _agent_type_name = "dry_bean"

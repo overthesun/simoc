@@ -152,3 +152,4 @@ def avg_attributes(objects, attribute_name):
         The average of all of the attributes
     """
     return sum_attributes(objects, attribute_name)/float(len(objects))
+
