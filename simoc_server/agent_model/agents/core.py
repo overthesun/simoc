@@ -177,7 +177,10 @@ class EnclosedAgent(BaseAgent):
 
         from .structure import Structure
 
-        self._attr("structure", structure, _type=Structure, is_persisted_attr=True, is_client_attr=True)
+        self._attr("structure", None, _type=Structure, is_persisted_attr=True, is_client_attr=True)
+
+        if structure is not None:
+            self.add_to_structure(structure)
 
     def destroy(self):
         super().destroy()
@@ -186,4 +189,10 @@ class EnclosedAgent(BaseAgent):
     def add_to_structure(self, target):
         if self.structure is not None:
             self.structure.remove_agent_from(self)
-        target.add_agent_to(self)
+        target.place_agent_inside(self)
+        self.structure = target
+
+    def post_db_load(self):
+        super().post_db_load()
+        if self.structure is not None:
+            self.structure.place_agent_inside(self)

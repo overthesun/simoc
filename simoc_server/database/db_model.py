@@ -134,9 +134,12 @@ class SnapshotBranch(BaseEntity):
         return node
 
 class SavedGame(BaseEntity):
-     id = db.Column(db.Integer, primary_key=True)
-     name = db.Column(db.String(120), default=lambda:str(datetime.datetime.utcnow()))
-     agent_model_snapshot_id = db.Column(db.Integer, db.ForeignKey("agent_model_snapshot.id"))
-     agent_model_snapshot = db.relationship("AgentModelSnapshot")
-     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-     user = db.relationship("User")
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), default=lambda:str(datetime.datetime.utcnow()))
+    agent_model_snapshot_id = db.Column(db.Integer, db.ForeignKey("agent_model_snapshot.id"))
+    agent_model_snapshot = db.relationship("AgentModelSnapshot")
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user = db.relationship("User")
+
+class GlobalModelConstant(DescriptiveAttribute):
+    id = db.Column(db.Integer, primary_key=True)

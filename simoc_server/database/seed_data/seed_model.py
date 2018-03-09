@@ -1,13 +1,15 @@
 from . import util
 from collections import OrderedDict
-from simoc_server.database.db_model import AgentModelParam
+from simoc_server.database.db_model import AgentModelParam, GlobalModelConstant
 
 
 
 def seed():
     params = gen_params()
+    global_constants = gen_globals()
 
     util.add_all(params)
+    util.add_all(global_constants)
 
 def gen_params():
     def create_param(name, value, description, units=None):
@@ -37,5 +39,27 @@ def gen_params():
     data["initial_temp"] = create_param(name="initial_temp",
         value=293.0, description="Initial temperature of the system.", units="K")
 
+
+    return data
+
+def gen_globals():
+    data = OrderedDict()
+
+    def create_global(name, value, description, units=None):
+        return GlobalModelConstant(name=name, value=value, 
+            value_type=str(type(value).__name__), description=description, units=units)
+
+    data["globals_gas_constant"] = create_global("gas_constant",  .0083145,
+        "Ideal gas constant, denoted R. Uses kL, equiv. to meters^3", units="(kL * kPa)/(mol * K)")
+    data["globals_oxygen_molar_mass"] = create_global("oxygen_molar_mass", 31.998, 
+        "The molar mass of oxygen", units="g/mol")
+    data["globals_carbon_dioxide_molar_mass"] = create_global("carbon_dioxide_molar_mass", 44.009, 
+        "The molar mass of carbon dioxide", units="g/mol")
+    data["globals_nitrogen_molar_mass"] = create_global("nitrogen_molar_mass", 28.014, 
+        "The molar mass of nitrogen", units="g/mol")
+    data["globals_argon_molar_mass"] = create_global("argon_molar_mass", 39.948, 
+        "The molar mass of argon", units="g/mol")
+    data["globals_water_molar_mass"] = create_global("water_molar_mass", 18.015, 
+        "The molar mass of water", units="g/mol")
 
     return data
