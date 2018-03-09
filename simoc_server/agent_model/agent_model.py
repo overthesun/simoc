@@ -96,6 +96,18 @@ class AgentModel(Model):
         return avg_attributes(self.atmospheres, "temp")
 
     @property
+    def total_food(self):
+        return sum_attributes(self.get_agents(StorageFacility), "food")
+
+    @property
+    def total_inedible_mass(self):
+        return sum_attributes(self.get_agents(StorageFacility), "inedible_mass")
+
+    @property
+    def total_edible_mass(self):
+        return sum_attributes(self.get_agents(StorageFacility), "edible_mass")
+
+    @property
     def step_num(self):
         return self.scheduler.steps
 
