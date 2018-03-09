@@ -104,7 +104,8 @@ class HumanAgent(EnclosedAgent):
                 moles_oxygen_input += agent_model_util.mass_water_to_moles(total_water_usage)
                 moles_oxygen_output += agent_model_util.mass_water_to_moles(grey_water)
                 moles_oxygen_output += agent_model_util.mass_water_to_moles(waste_water)
-                # TODO temporary fix, violates conservation of mass
+                # TODO temporary fix, violates conservation of mass, this is fixed
+                # at the end as a temporary solution
                 if plumbing_system.water < 0:
                     self.plumbing_system.water = 0
             else:
