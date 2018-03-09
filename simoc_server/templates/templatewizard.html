@@ -115,16 +115,14 @@
             <input type="text" name="namer" value="tester" form="wizardform"/> 
             <input id="clickMe" type="button" value="clickMe" onClick="download();"/>-->
 
-            <form id="wizardform"></form>
-
-            
+            <form id="wizardform"></form>            
 
             <!-- Start of the Include Content -->
              
               {%set step = start%}
               {%include 'wizardpane.html'%}
 
-              {%set step = configuration%}
+              {# {%set step = configuration%}
               {%include 'wizardpane.html'%}
 
               {%set step = location%}
@@ -135,6 +133,22 @@
 
               {%set step = terrain%}
               {%include 'wizardpane.html'%}
+
+              {%set step = launchwindow %}
+              {%include 'wizardpane.html'%}
+
+              {%set step = transportation %}
+              {%include 'wizardpane.html'%}
+
+              {%set step = payload %}
+              {%include 'wizardpane.html'%}
+
+              {%set step = model %}
+              {%include 'wizardpane.html'%}
+
+              {%set step = finalize %}
+              {%include 'wizardpane.html'%} #}
+
             <!-- End of the Include Content -->            
           </div>
         </div>

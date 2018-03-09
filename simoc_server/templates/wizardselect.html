@@ -1,0 +1,15 @@
+        <div class="option-block col-12 order-{{select.roworder}}" style="display:{{select.display}};padding: 0px;"> <!--Select Dropdown -->
+          <div class="row">
+            <div class="col-6" style="padding: 0px">
+              {{select.label}}
+            </div>    
+            <div class="col-6" style="padding: 0px">
+              <select id="{{select.id}}" form="{{step.formid}}">
+                {{select.options}}
+                {% for option in select.options %}
+                  <option value="{{option.value}}">{{option.label}}</option>
+                {% endfor %}
+              </select>
+              </div>
+          </div>  
+        </div>

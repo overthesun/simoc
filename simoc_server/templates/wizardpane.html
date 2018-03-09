@@ -1,0 +1,48 @@
+<div class="tab-pane fade {{step.show}} {{step.active}}" id="{{step.id}}" role="tabpanel " style="outline:1px solid blue;">
+  <div class="row" style="outline: 1px solid red;">
+    
+    <div class="col-12 step-title">
+      {{step.title}}
+    </div>
+
+    <div class="col-6 selection">
+      <div class="row">
+
+        {%set radio=step.radioOne%}
+        {%include 'wizardradio.html'%}
+
+        {%set radio=step.radioTwo%}
+        {%include 'wizardradio.html'%}
+
+        {%set radio=step.radioThree%}
+        {%include 'wizardradio.html'%}
+
+        {%set select=step.select%}
+        {%include 'wizardselect.html'%}
+
+        {%set integer=step.integer%}
+        {%set checkbox=step.checkbox%}
+        {%include 'wizardinteger.html'%}
+
+        {%set button=step.ipbutton%}
+        {%include 'wizardbutton.html'%}
+
+      </div>      
+    </div>
+
+    <div class="col-6 information">
+      {{step.information}}
+    </div>
+    <div class="col-6 cancel-btns">
+      {%set button=step.cancelButton%}
+      <button type="button" {{button.btnOneState}} class="{{button.btnOneClass}}">{{button.btnOneLabel}}</button>
+    </div>
+
+    <div class="col-6 navigation-btns">
+
+      {%set button=step.navButton%}
+      <button type="button" {{button.btnOneState}} class="{{button.btnOneClass}}">{{button.btnOneLabel}}</button>
+      <button type="button" {{button.btnTwoState}} class="{{button.btnTwoClass}}">{{button.btnTwoLabel}}</button>
+    </div>
+  </div>
+</div>
