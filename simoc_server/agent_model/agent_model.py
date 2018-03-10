@@ -18,7 +18,7 @@ from simoc_server.database.db_model import AgentModelState, AgentState, \
 
 from simoc_server import db
 from simoc_server.agent_model import agents
-from simoc_server.util import sum_attributes
+from simoc_server.util import sum_attributes, avg_attributes
 
 
 class AgentModel(Model):
@@ -55,6 +55,10 @@ class AgentModel(Model):
         self.scheduler.steps =getattr(init_params,"starting_step_num", 0) #init_params.starting_step_num
 
     @property
+    def total_moles_atmosphere(self):
+        return sum_attributes(self.atmospheres, "total_moles")
+
+    @property
     def total_water(self):
         return sum_attributes(self.plumbing_systems, "water")
 
@@ -63,20 +67,36 @@ class AgentModel(Model):
         return sum_attributes(self.plumbing_systems, "waste_water")
 
     @property
-    def total_oxygen(self):
-        return sum_attributes(self.atmospheres, "oxygen")
+    def total_grey_water(self):
+        return sum_attributes(self.plumbing_systems, "grey_water")
 
     @property
-    def total_carbon_dioxide(self):
-        return sum_attributes(self.atmospheres, "carbon_dioxide")
+    def total_solid_waste(self):
+        return sum_attributes(self.plumbing_systems, "solid_waste")
 
     @property
-    def total_nitrogen(self):
-        return sum_attributes(self.atmospheres, "nitrogen")
+    def total_grey_water_solids(self):
+        return sum_attributes(self.plumbing_systems, "grey_water_solids")
 
     @property
-    def total_argon(self):
-        return sum_attributes(self.atmospheres, "argon")
+    def avg_oxygen_pressure(self):
+        return avg_attributes(self.atmospheres, "oxygen")
+
+    @property
+    def avg_carbon_dioxide_pressure(self):
+        return avg_attributes(self.atmospheres, "carbon_dioxide")
+
+    @property
+    def avg_nitrogen_pressure(self):
+        return avg_attributes(self.atmospheres, "nitrogen")
+
+    @property
+    def avg_argon_pressure(self):
+        return avg_attributes(self.atmospheres, "argon")
+
+    @property
+    def avg_temp(self):
+        return avg_attributes(self.atmospheres, "temp")
 
     @property
     def total_power_capacity(self):
@@ -263,9 +283,15 @@ class AgentModel(Model):
         self.model_time += self.timedelta_per_step()
         self.scheduler.step()
         print("{0} step_num {1}".format(self, self.step_num))
-        print("o2: {} co2: {} n2: {} ar: {} h2o: {} waste_h2o: {}".format(
-            self.total_oxygen, self.total_carbon_dioxide, self.total_nitrogen,
-            self.total_argon, self.total_water, self.total_waste_water))
+
+        # TODO remove this when it is no longer needed
+        to_print = ["avg_oxygen_pressure", "avg_carbon_dioxide_pressure", "avg_nitrogen_pressure",
+                    "avg_argon_pressure", "total_water", "total_waste_water",
+                    "total_grey_water", "total_grey_water_solids", "total_solid_waste",
+                    "avg_temp", "total_moles_atmosphere"]
+
+        status_string = " ".join(["{}: {:.5g}".format(name, getattr(self, name)) for name in to_print])
+        print(status_string)
         print("Power: Total Capacity kwh: {}, Total Usage kw: {}, Total Charge kwh: {}, Max Output kw: {}, Total Production kw {}".format(
             self.total_power_capacity, self.total_power_usage,self.total_power_charge, self.total_power_output, self.total_power_production
         ))
