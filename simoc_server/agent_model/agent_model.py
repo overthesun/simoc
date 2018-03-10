@@ -35,7 +35,7 @@ class AgentModel(Model):
 
         self.atmospheres = []
         self.plumbing_systems = []
-        self.menu = []
+        self.plants_available = []
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -367,22 +367,22 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
         # TODO determine number of plants for base line model
         for i in range(self.NUM_PEANUT):
-            model.menu.append(agents.PeanutAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.PeanutAgent(model, structure=greenhouse))
 
         for i in range(self.NUM_SOYBEAN):
-            model.menu.append(agents.SoybeanAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.SoybeanAgent(model, structure=greenhouse))
 
         for i in range(self.NUM_RICE):
-            model.menu.append(agents.RiceAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.RiceAgent(model, structure=greenhouse))
 
         for i in range(self.NUM_WHITE_POTATOS):
-            model.menu.append(agents.WhitePotatoAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.WhitePotatoAgent(model, structure=greenhouse))
 
         for i in range(self.NUM_WHEAT):
-            model.menu.append(agents.WheatAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.WheatAgent(model, structure=greenhouse))
 
         for i in range(self.NNUM_TOMATO):
-            model.menu.append(agents.TomatoAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.TomatoAgent(model, structure=greenhouse))
 
         model.add_agent(agents.Planter(model, structure=greenhouse))
         model.add_agent(agents.Harvester(model, structure=greenhouse))
