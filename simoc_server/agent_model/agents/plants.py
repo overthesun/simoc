@@ -39,6 +39,7 @@ class PlantAgent(EnclosedAgent):
             or atmosphere.carbon_dioxide < self.get_agent_type_attribute("fatal_co2_lower")
             or water_uptake > plumbing_system.water):
 
+            self.structure.remove_plant(self)
             self.destroy()
         else:
             if not self.is_grown():
