@@ -204,8 +204,8 @@ def gen_equipment():
     data = OrderedDict()
 
     # set up default equipment values
-    data["default_equipment_agent_type"] = AgentType(name="Equipment")
-    data["equipment_agent_type"] = AgentType(name="Power_Module")
+    data["default_equipment_agent_type"] = AgentType(name="default_equipment")
+    data["power_module"] = AgentType(name="power_module")
 
     return data
 

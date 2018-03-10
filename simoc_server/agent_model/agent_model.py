@@ -25,13 +25,13 @@ class AgentModel(Model):
 
     def __init__(self, init_params):
         self.load_params()
-
-        self.grid_width = init_params.grid_width
-        self.grid_height = init_params.grid_height
-        self.model_time = init_params.starting_model_time
-        self.snapshot_branch = init_params.snapshot_branch
-        self.seed = init_params.seed
-        self.random_state = init_params.random_state
+        #Added - issue creating and testing agent model & agents by themselves added defualt values
+        self.grid_width = getattr(init_params,"grid_width", 100) #init_params.grid_width
+        self.grid_height = getattr(init_params,"grid_height", 100) #init_params.grid_height
+        self.model_time = getattr(init_params,"starting_model_time", None) #init_params.starting_model_time
+        self.snapshot_branch = getattr(init_params,"snapshot_branch", None)  #init_params.snapshot_branch
+        self.seed = getattr(init_params,"seed", 0) #init_params.seed
+        self.random_state = getattr(init_params,"random_state", None) #init_params.random_state
 
         self.atmospheres = []
         self.plumbing_systems = []
@@ -46,10 +46,13 @@ class AgentModel(Model):
 
         if not isinstance(self.seed, int):
             raise Exception("Seed value must be of type 'int', got type '{}'".format(type(self.seed)))
-        self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state)
-        self.scheduler = RandomActivation(self, random_state=self.random_state)
 
-        self.scheduler.steps = init_params.starting_step_num
+        # T.T random_state kept crashing my runs, why is it added? where is it being calculated?
+        self.grid = MultiGrid(self.grid_width, self.grid_height, True) #, random_state=self.random_state
+        # T.T random_state kept crashing my runs, why is it added? where is it being calculated?
+        self.scheduler = RandomActivation(self) # , random_state=self.random_state
+
+        self.scheduler.steps =getattr(init_params,"starting_step_num", 0) #init_params.starting_step_num
 
     @property
     def total_water(self):
@@ -90,6 +93,10 @@ class AgentModel(Model):
     @property
     def total_power_charge(self):
         return sum_attributes(self.power_grid,"power_charge")
+
+    @property
+    def total_power_production(self):
+        return sum_attributes(self.power_grid,"power_production")
 
     @property
     def step_num(self):
@@ -133,10 +140,21 @@ class AgentModel(Model):
             agent = agent_class(model, agent_state)
             model.add_agent(agent)
             print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
-
+            """
+            try:
+                agent_type_name = agent_state.agent_type.name
+                agent_class = agents.get_agent_by_type_name(agent_type_name)
+                agent = agent_class(model, agent_state)
+                model.add_agent(agent)
+                #print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
+            except:
+                print("Error Loading " + agent_type_name)
+            else:
+                print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
+        """
         for agent in model.get_agents():
             agent.post_db_load()
-
+        print("returning model")
         return model
 
     @classmethod
@@ -174,10 +192,11 @@ class AgentModel(Model):
     @classmethod
     def create_power_grid(cls, model, structures):
         power_grid = agents.PowerModule(model=model)
-        power_grid.power_storage_capacity = 500
-        power_grid.power_output_capacity = 15
+        power_grid.power_storage_capacity = 25
+        power_grid.power_output_capacity = 5
         power_grid.power_charge = 0
-        power_grid.power_usage = .5
+        power_grid.power_usage = .002
+        power_grid.power_production = .25
 
         for structure in structures:
             structure.set_power_grid(power_grid)
@@ -247,8 +266,8 @@ class AgentModel(Model):
         print("o2: {} co2: {} n2: {} ar: {} h2o: {} waste_h2o: {}".format(
             self.total_oxygen, self.total_carbon_dioxide, self.total_nitrogen,
             self.total_argon, self.total_water, self.total_waste_water))
-        print("Power: Total Capacity kwh: {}, Total Usage kwh: {}, Total Charge kwh: {}, Max Output kwh: {}".format(
-            self.total_power_capacity, self.total_power_usage,self.total_power_charge, self.total_power_output
+        print("Power: Total Capacity kwh: {}, Total Usage kw: {}, Total Charge kwh: {}, Max Output kw: {}, Total Production kw {}".format(
+            self.total_power_capacity, self.total_power_usage,self.total_power_charge, self.total_power_output, self.total_power_production
         ))
 
     def timedelta_per_step(self):
@@ -327,7 +346,6 @@ class AgentInitializerRecipe(metaclass=ABCMeta):
     @abstractmethod
     def init_agents(self, model):
         pass
-
 
 class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 

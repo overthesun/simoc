@@ -1,5 +1,6 @@
 from simoc_server.agent_model.agents.human import HumanAgent
 
+#if __name__ == '__main__':  #for testing equipment agent without causing circular import
 from simoc_server.agent_model.agents.equipment import Equipment, PowerModule
 
 from simoc_server.agent_model.agents.plants import (PlantAgent, CabbageAgent, CarrotAgent, ChardAgent, 
@@ -17,7 +18,7 @@ from simoc_server.agent_model.agents.structure import (PlumbingSystem, Atmospher
 _agent_classes = [ BaseAgent, EnclosedAgent, HumanAgent ]
 
 # structure agents
-_agent_classes += [ PlumbingSystem, Atmosphere, Structure, Airlock, CrewQuarters, 
+_agent_classes += [ PlumbingSystem, Atmosphere, Structure, Airlock, CrewQuarters,
     Greenhouse, Kitchen, PowerStation, RocketPad, RoverDock, StorageFacility ]
 
 # plant agents
@@ -25,6 +26,8 @@ _agent_classes += [ PlantAgent, CabbageAgent, CarrotAgent, ChardAgent,
     CryBeanAgent, LettuceAgent, PeaAgent, PeanutAgent, PepperAgent, RedBeetAgent, RiceAgent, SnapBeanAgent, 
     SoybeanAgent, SpinachAgent, StrawberryAgent, SweetPotatoAgent, TomatoAgent, WheatAgent, WhitePotatoAgent ]
 
+# equipment agents
+_agent_classes +=[Equipment, PowerModule]
 
 agent_name_mapping = {}
 

@@ -63,6 +63,8 @@ class Structure(BaseAgent):
         plumbing_system = kwargs.pop("plumbing_system", None)
         atmosphere = kwargs.pop("atmosphere", None)
 
+        #model power grid refrence
+        self.power_grid = kwargs.get("power_grid", None)
         super().__init__(*args, **kwargs)
 
         self._attr("plumbing_system", None, _type=Atmosphere, is_client_attr=True, is_persisted_attr=True)
@@ -77,7 +79,6 @@ class Structure(BaseAgent):
 
         #self._attr("power_grid", self.get_agent_type_attribute("power_grid"), is_client_attr=True,
         #           is_persisted_attr=True)
-        self.power_grid = kwargs.get("power_grid", None)
 
         self.agents = []
 
