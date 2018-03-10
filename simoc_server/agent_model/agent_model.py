@@ -35,6 +35,7 @@ class AgentModel(Model):
 
         self.atmospheres = []
         self.plumbing_systems = []
+        self.power_grid = []
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -73,6 +74,22 @@ class AgentModel(Model):
     @property
     def total_argon(self):
         return sum_attributes(self.atmospheres, "argon")
+
+    @property
+    def total_power_capacity(self):
+        return sum_attributes(self.power_grid,"power_storage_capacity")
+
+    @property
+    def total_power_usage(self):
+        return sum_attributes(self.power_grid,"power_usage")
+
+    @property
+    def total_power_output(self):
+        return sum_attributes(self.power_grid,"power_output_capacity")
+
+    @property
+    def total_power_charge(self):
+        return sum_attributes(self.power_grid,"power_charge")
 
     @property
     def step_num(self):
@@ -154,6 +171,19 @@ class AgentModel(Model):
 
         return plumbing_system
 
+    @classmethod
+    def create_power_grid(cls, model, structures):
+        power_grid = agents.PowerModule(model=model)
+        power_grid.power_storage_capacity = 500
+        power_grid.power_output_capacity = 15
+        power_grid.power_charge = 0
+        power_grid.power_usage = .5
+
+        for structure in structures:
+            structure.set_power_grid(power_grid)
+
+        return power_grid
+
     def add_agent(self, agent, pos=None):
         if pos is None and hasattr(agent, "pos"):
             pos = agent.pos
@@ -165,6 +195,8 @@ class AgentModel(Model):
             self.atmospheres.append(agent)
         elif isinstance(agent, agents.PlumbingSystem):
             self.plumbing_systems.append(agent)
+        elif isinstance(agent, agents.PowerModule):
+            self.power_grid.append(agent)
 
     def num_agents(self):
         return len(self.schedule.agents)
@@ -215,6 +247,9 @@ class AgentModel(Model):
         print("o2: {} co2: {} n2: {} ar: {} h2o: {} waste_h2o: {}".format(
             self.total_oxygen, self.total_carbon_dioxide, self.total_nitrogen,
             self.total_argon, self.total_water, self.total_waste_water))
+        print("Power: Total Capacity kwh: {}, Total Usage kwh: {}, Total Charge kwh: {}, Max Output kwh: {}".format(
+            self.total_power_capacity, self.total_power_usage,self.total_power_charge, self.total_power_output
+        ))
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)
@@ -318,8 +353,12 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
         atmosphere = AgentModel.create_atmosphere(model, structures)
         plumbing_system = AgentModel.create_plumbing_system(model, structures)
+        power_grid = AgentModel.create_power_grid(model, structures)
+
         model.add_agent(atmosphere)
         model.add_agent(plumbing_system)
+        model.add_agent(power_grid)
+
         for i in range(self.NUM_HUMANS):
             model.add_agent(agents.HumanAgent(model, structure=crew_quarters))
 

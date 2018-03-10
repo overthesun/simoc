@@ -9,11 +9,13 @@ def seed():
     human_data = gen_human()
     plant_data = gen_plants()
     structure_data = gen_structures()
+    equipment_data = gen_equipment()
     misc = gen_misc()
 
     util.add_all(human_data)
     util.add_all(plant_data)
     util.add_all(structure_data)
+    util.add_all(equipment_data)
     util.add_all(misc)
 
 def gen_misc():
@@ -21,6 +23,7 @@ def gen_misc():
     data["enclosed_agent_type"] = AgentType(name="enclosed_agent")
     data["atmosphere"] = AgentType(name="atmosphere")
     data["plumbing_system"] = AgentType(name="plumbing_system")
+    data["power_grid"] = AgentType(name="power_grid")
     return data
 
 def gen_human():
@@ -92,7 +95,7 @@ def gen_human():
     metabolic_description_format = \
         "{} in metabolic function: (A - (age_factor*age(years)) + B(mass_factor*mass(kg) + height_factor*height(m)))/(C * work_factor * time(days))"
         
-    data["human_metabolism_A"] = create_agent_type_attr(
+    data["human_mmetabolism_A"] = create_agent_type_attr(
         _type, "metabolism_A", 622.0, units=UNKNOWN_UNITS,
         description=metabolic_description_format.format("A"))
     data["human_metabolism_age_factor"] = create_agent_type_attr(
@@ -194,6 +197,17 @@ def add_structure(data, name, length, width, height, mass, efficiency,
     create_agent_type_attr(agent_type, "efficiency", efficiency, "", "The efficiency (if applicable) of the structure.")
     create_agent_type_attr(agent_type, "build_time", build_time, "hours", "Time to build the structure.")
     create_agent_type_attr(agent_type, "power_consumption", power_consumed, "kW/day", "How much power is consumed by the structure.")
+
+
+
+def gen_equipment():
+    data = OrderedDict()
+
+    # set up default equipment values
+    data["default_equipment_agent_type"] = AgentType(name="Equipment")
+    data["equipment_agent_type"] = AgentType(name="Power_Module")
+
+    return data
 
 
 def create_agent_type_attr(agent_type, name, value, units=None, description=None):

@@ -60,9 +60,12 @@ class Structure(BaseAgent):
     #TODO: Implement structure sprites
 
     def __init__(self, *args, **kwargs):
+        plumbing_system = kwargs.pop("plumbing_system", None)
+        atmosphere = kwargs.pop("atmosphere", None)
+
         super().__init__(*args, **kwargs)
 
-        self._attr("plumbing_system", None, _type=PlumbingSystem, is_client_attr=True, is_persisted_attr=True)
+        self._attr("plumbing_system", None, _type=Atmosphere, is_client_attr=True, is_persisted_attr=True)
         self._attr("atmosphere", None, _type=Atmosphere, is_client_attr=True, is_persisted_attr=True)
 
         self._attr("width", self.get_agent_type_attribute("width"), is_client_attr=True,
@@ -71,6 +74,10 @@ class Structure(BaseAgent):
             is_persisted_attr=True)
         self._attr("length", self.get_agent_type_attribute("length"), is_client_attr=True,
             is_persisted_attr=True)
+
+        #self._attr("power_grid", self.get_agent_type_attribute("power_grid"), is_client_attr=True,
+        #           is_persisted_attr=True)
+        self.power_grid = kwargs.get("power_grid", None)
 
         self.agents = []
 
@@ -87,6 +94,9 @@ class Structure(BaseAgent):
         # use function for later operations that may be applied
         # when adding a plumbing system
         self.plumbing_system = plumbing_system
+
+    def set_power_grid(self, power_grid):
+        self.power_grid = power_grid
 
     def place_agent_inside(self, agent):
         self.agents.append(agent)

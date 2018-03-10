@@ -1,5 +1,7 @@
 from simoc_server.agent_model.agents.human import HumanAgent
 
+from simoc_server.agent_model.agents.equipment import Equipment, PowerModule
+
 from simoc_server.agent_model.agents.plants import (PlantAgent, CabbageAgent, CarrotAgent, ChardAgent, 
     CryBeanAgent, LettuceAgent, PeaAgent, PeanutAgent, PepperAgent, RedBeetAgent, RiceAgent, SnapBeanAgent, 
     SoybeanAgent, SpinachAgent, StrawberryAgent, SweetPotatoAgent, TomatoAgent, WheatAgent, WhitePotatoAgent)
