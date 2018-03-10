@@ -35,11 +35,14 @@ class PlantAgent(EnclosedAgent):
         atmosphere = self.structure.atmosphere
         plumbing_system = self.structure.plumbing_system
 
-        if (atmosphere is None or plumbing_system is None
-            or atmosphere.carbon_dioxide < self.get_agent_type_attribute("fatal_co2_lower")
-            or water_uptake > plumbing_system.water):
-
-            self.destroy()
+        if atmosphere is None:
+            self.kill("No atmosphere.")
+        elif plumbing_system is None:
+            self.kill("Dehydration (No plumbing system).")
+        elif atmosphere.carbon_dioxide < self.get_agent_type_attribute("fatal_co2_lower"):
+            self.kill("Insufficient carbon dioxide: {} kpa".format(atmosphere.carbon_dioxide))
+        elif water_uptake > plumbing_system.water:
+            self.kill("Dehydration (Ran out of water): Water Levels: {} kg.".format(plumbing_system.water))
         else:
             if not self.is_grown():
                 age = self.age
@@ -68,6 +71,10 @@ class PlantAgent(EnclosedAgent):
 
     def is_grown(self):
         return self.status == "grown"
+
+    def kill(self, reason):
+        print("Plant Died! Reason: {}".format(reason))
+        self.destroy()
 
 class CabbageAgent(PlantAgent):
     _agent_type_name = "cabbage"
