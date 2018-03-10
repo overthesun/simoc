@@ -15,13 +15,6 @@
     <!-- Chart.JS Scripts -->
     <script src="static/Chart.bundle.js"></script>
     <script src="static/utils.js"></script>
-
-    <script src="/static/js/jquery/jquery.min.js "></script>
-    <script src="/static/js/bootstrap/bootstrap.min.js"></script>
-    <script src="/static/js/msgpack/msgpack.min.js') }}"></script>
-    <script src="/static/js/custom/connectionhandler.js"></script>
-    <script src="/static/js/custom/custom_util.js"></script>
-
     <style>
 
       canvas {
@@ -30,7 +23,7 @@
     -ms-user-select: none;
   }
     
-      .col-12{
+      .col-12,.col-6, .col-3{
         outline: 1px solid orange;
       }
 
@@ -49,7 +42,7 @@
 
 }
 .panel-inner {
-    
+    outline: 2px solid orange;
 }
 
 .row {
@@ -61,7 +54,7 @@
   </head>
   <body>
 
-    <div class="container wizard-container d-none">
+    <div class="container wizard-container d-visible">
       <div class="wizard">
         <div class="wizard-inner">
           <div class="row">
@@ -142,16 +135,10 @@
       </div>
     </div>
 
-    <div class="container dashboard d-visible" style="margin: 0 auto; width:1280px; height:720px; outline: 1px solid red; padding:0px;">
-      <div class="row">
+    <div class="container dashboard d-none" style="margin: 0 auto; width:1280px; height:720px; outline: 1px solid red; padding-top:16px; padding-bottom: 16px;">
+      {%include 'dashboard.html' %}
+    </div>
 
-        {%include 'dashboardleft.html'%}
-
-        {%include 'dashboardmiddle.html'%}
-
-        {%include 'dashboardright.html'%}
-
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
