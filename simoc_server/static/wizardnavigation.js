@@ -19,6 +19,17 @@ $(document).ready(function () {
           UpdateFinal();
         }
       });
+
+    $(".finalize-step").click(function (e){
+        $.ajax({
+          type: 'POST',
+          url: 'new_game',
+
+          success: function(result){
+            console.log(result);  
+          }});
+    });
+
 });
 
 function nextTab(elem) {
