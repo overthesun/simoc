@@ -407,7 +407,6 @@ class Planter(EnclosedAgent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.counter = 0
-        print(len(self.model.menu))
 
     def step(self):
 
@@ -417,7 +416,7 @@ class Planter(EnclosedAgent):
 
     def plant(self, number_to_plant):
         for x in range(0, number_to_plant):
-            plant_agent = self.model.menu[self.counter % len(self.model.menu)]
+            plant_agent = self.model.plants_available[self.counter % len(self.model.plants_available)]
             self.counter += 1
             self.model.add_agent(plant_agent)
             self.structure.place_agent_inside(plant_agent)
