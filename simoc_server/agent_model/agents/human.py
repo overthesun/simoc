@@ -43,12 +43,14 @@ class HumanAgent(EnclosedAgent):
         atmosphere = self.structure.atmosphere
         plumbing_system = self.structure.plumbing_system
 
-        if(atmosphere is None
-            or atmosphere.oxygen < self.get_agent_type_attribute("fatal_o2_lower")
-            or atmosphere.carbon_dioxide > self.get_agent_type_attribute("fatal_co2_upper")
-            or self.days_without_water > self.get_agent_type_attribute("max_dehydration_days")):
-
-            self.destroy()
+        if atmosphere is None:
+            self.kill("No atmosphere.")
+        elif atmosphere.oxygen < self.get_agent_type_attribute("fatal_o2_lower"):
+            self.kill("Insufficient oxygen.")
+        elif atmosphere.carbon_dioxide > self.get_agent_type_attribute("fatal_co2_upper"):
+            self.kill("Excess carbon dioxide.")
+        elif self.days_without_water > self.get_agent_type_attribute("max_dehydration_days"):
+            self.kill("Dehydration.")
         else:
             is_working = hour_of_day < self.get_agent_type_attribute("work_day_hours")
             self._metabolize(is_working, days_per_step)
@@ -130,6 +132,10 @@ class HumanAgent(EnclosedAgent):
                     plumbing_system.waste_water -= removed_waste_water
                 if moles_diff > 0:
                     atmosphere.modify_carbon_dioxide_by_mass(agent_model_util.moles_co2_to_mass(moles_diff / 2))
+
+    def kill(self, reason):
+        print("Human Died! Reason: {}".format(reason))
+        self.destroy()
 
     def _metabolize(self, is_working, days_per_step):
         # metabolism function from BVAD
