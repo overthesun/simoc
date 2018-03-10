@@ -20,14 +20,16 @@ $(document).ready(function () {
         }
       });
 
-    $(".finalize-step").click(function (e){
-        $.ajax({
-          type: 'POST',
-          url: 'new_game',
+      $(".finalize-step").click(function (e){
+        var obj = {};
 
-          success: function(result){
-            console.log(result);  
-          }});
+            postFormatted('/login', obj, function (data,status) {
+                //alert(JSON.stringify(data+'status:'+status));
+                if (status == 'success') {
+                    alertForm("Login Success!", "alert-success")
+                    gotourl('/gameinit');
+                }
+          });
     });
 
 });
@@ -39,3 +41,9 @@ function previousTab(elem) {
     $(elem).prev().find('a[data-toggle="tab"]').click();
 }
 
+function postFormatted(url, data, callback){
+    return ajaxFormatted(url, data, {
+        method:"POST",
+        success: callback
+    });
+}
