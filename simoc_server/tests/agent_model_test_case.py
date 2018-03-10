@@ -8,6 +8,7 @@ from simoc_server import db, app
 from simoc_server.tests.test_util import setup_db, clear_db
 from simoc_server.agent_model import (AgentModel, AgentModelInitializationParams,
     BaseLineAgentInitializerRecipe)
+from simoc_server.agent_model.agents import Atmosphere
 from simoc_server.database.db_model import AgentModelState
 
 class AgentModelTestCase(unittest.TestCase):
@@ -74,6 +75,36 @@ class AgentModelTestCase(unittest.TestCase):
         self.assertEqual(m1, 10)
         m2 = agent_model.grid_units_to_meters((20, 60))
         self.assertEqual(m2, (20, 60))
+
+
+    def testAtmosphereGasConversion(self):
+        agent_model = AgentModel.create_new(self.default_model_params,
+            self.default_agent_init_recipe)
+
+        atmosphere = Atmosphere(agent_model)
+
+        atmosphere.temp = 283
+        atmosphere.oxygen = 50
+        atmosphere.carbon_dioxide = 30
+        atmosphere.volume = 100
+        # initial kg 67.9939490102 o2
+        # 20 kpa -> moles 849.977486221 -> 27.1975796041 kg o2
+        expected_o2_mass_in = 40.7963694061 #67.9939490102 - 27.1975796041
+        expected_co2_mass_out = 19.42684257433333
+        actual_o2_mass_in, actual_co2_mass_out = atmosphere.convert_o2_to_co2(42, 20, 20)
+        self.assertAlmostEqual(actual_o2_mass_in, expected_o2_mass_in, delta=.001, msg="Invalid o2 value in conversion from o2 to co2")
+        self.assertAlmostEqual(actual_co2_mass_out, expected_co2_mass_out, delta=.001, msg="Invalid co2 value in from o2 to co2")
+
+        atmosphere.oxygen = 30
+        atmosphere.carbon_dioxide = 50
+
+        # intial kg 93.51664797778669 co2
+        # 20 kpa -> moles 37.40665919111467 o2
+        expected_co2_mass_in = 56.10998878667202
+        expected_o2_mass_out = 18.703329595557342
+        actual_co2_mass_in, actual_o2_mass_out = atmosphere.convert_co2_to_o2(60, 20, 20)
+        self.assertAlmostEqual(actual_co2_mass_in, expected_co2_mass_in, delta=.001, msg="Invalid co2 value in conversion from co2 to o2")
+        self.assertAlmostEqual(actual_o2_mass_out, expected_o2_mass_out, delta=.001, msg="Invalid o2 value in from co2 to o2")
 
 
 if __name__ == "__main__":

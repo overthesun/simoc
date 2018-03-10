@@ -2,13 +2,27 @@ from . import BaseDTO, AgentDTO
 
 class AgentModelDTO(BaseDTO):
 
+    AGENT_MODEL_ATTRIBUTES = [
+        "step_num",
+        "avg_oxygen_pressure",
+        "avg_carbon_dioxide_pressure",
+        "avg_nitrogen_pressure",
+        "avg_argon_pressure",
+        "total_water",
+        "total_waste_water",
+        "total_grey_water",
+        "total_grey_water_solids",
+        "total_solid_waste"
+    ]
+
     def __init__(self, agent_model):
         self.agent_model = agent_model
 
     def get_state(self):
-        state = {
-            "step_num":self.agent_model.step_num,
-        }
+        state = {}
+
+        for model_attr in self.AGENT_MODEL_ATTRIBUTES:
+            state[model_attr] = getattr(self.agent_model, model_attr)
 
         agents = []
         for agent in self.agent_model.scheduler.agents:
