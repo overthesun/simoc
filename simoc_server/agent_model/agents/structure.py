@@ -307,7 +307,8 @@ class Structure(BaseAgent):
         self.agents.append(agent)
 
     def remove_agent_from(self, agent):
-        self.agents.remove(agent)
+        if(agent in self.agents):
+            self.agents.remove(agent)
 
 
 # Structure sub-agents
@@ -355,7 +356,8 @@ class Greenhouse(Structure):
         self.plants.append(plant)
 
     def remove_plant(self, plant):
-        self.plants.remove(plant)
+        if(plant in self.plants):
+            self.plants.remove(plant)
 
 
 #Harvester 
