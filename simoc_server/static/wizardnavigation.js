@@ -23,11 +23,10 @@ $(document).ready(function () {
       $(".finalize-step").click(function (e){
         var obj = {};
 
-            postFormatted('/login', obj, function (data,status) {
+            postFormatted('/new_game', obj, function (data,status) {
                 //alert(JSON.stringify(data+'status:'+status));
                 if (status == 'success') {
-                    alertForm("Login Success!", "alert-success")
-                    gotourl('/gameinit');
+                    alert("IT WORKED!");
                 }
           });
       });
