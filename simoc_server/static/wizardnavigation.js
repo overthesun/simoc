@@ -11,22 +11,21 @@ $(document).ready(function () {
         previousTab($active);
     });
 
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        var target = $(e.target).attr("href")
-        console.log(target);
-        if(target == '#finalize'){
-          
-          UpdateFinal();
-        }
-      });
+
 
       $(".finalize-step").click(function (e){
-        var obj = {};
+        var obj = {'mode':'.','launch_date':'.','duration_days':'.','payload':'.','location':'.','region':'.','regolith':'.'}; 
 
-            postFormatted('/new_game', obj, function (data,status) {
-                //alert(JSON.stringify(data+'status:'+status));
+            postFormatted('/test_route', obj, function (data,status) {
+                
+                console.log("TEST");
+
                 if (status == 'success') {
                     alert("IT WORKED!");
+                }
+
+                else{
+                    console.log("TEST");
                 }
           });
       });

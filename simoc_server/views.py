@@ -28,11 +28,11 @@ start={
 'title':'Step 1: Welcome To SIMOC', 
 'formid':'wizardform',
 
-'radioOne':{'roworder':'1','display':'visible','label':'Scientific','id':'mode','group':'mode'},
+'radioOne':{'roworder':'1','display':'visible','label':'Scientific','value':'Scientific','id':'Scientific','group':'Mode'},
 
-'radioTwo':{'roworder':'2','display':'visible','label':'Interactive','id':'mode','group':'mode'},
+'radioTwo':{'roworder':'2','display':'visible','label':'Interactive','value':'Interactive','id':'Interactive','group':'Mode'},
 
-'radioThree':{'roworder':'3','display':'none','label':'TestingRadio','id':'TestingRadio','group':''},
+'radioThree':{'roworder':'3','display':'none','label':'TestingRadio','value':'TestingRadio','id':'TestingRadio','group':''},
 
 'select':{'roworder':'4','display':'visible','label':'Testing','id':'TestingSelect', 'options':[{'value':'value','label':'Value'}]},
 'integer':{'roworder':'5','display':'visible','label':'TestingInteger','id':'TestingInteger'},
@@ -184,6 +184,10 @@ def logout():
     logout_user()
     return success("Logged Out.")
 
+
+@app.route("/test_route",methods=["POST"])
+def test_route():
+    return success("You made it!")
 
 @app.route("/new_game", methods=["POST"])
 #@login_required
