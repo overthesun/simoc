@@ -334,6 +334,7 @@ def get_sprite(sprite_path):
 def ping():
     """Ping the server to prevent clean up of active game
     """
+    app.logger.info("shping")
     game_runner_manager.ping(get_standard_user_obj())
     return success("Pong")
 
