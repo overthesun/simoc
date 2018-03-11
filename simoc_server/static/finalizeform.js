@@ -22,12 +22,9 @@ $(document).ready(function(){
         updateFinalize();
     })
 
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        var target = $(e.target).attr("href")
-        console.log(target);
-        if(target == '#finalize'){          
-            updateFinalize();
-        }
+    $('a[href="#finalize"]').on('shown.bs.tab', function (e) {
+        updateFinalize();
+        
     });
 });
 

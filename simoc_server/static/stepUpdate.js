@@ -34,6 +34,6 @@ function getStep(){
     });
 }
 
-function updateOxygen(avg_oxygen){
-    oxygenChartData
+function getOxygen(){
+    return avg_oxygen_pressure;
 }

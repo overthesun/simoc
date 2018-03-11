@@ -4,7 +4,7 @@
               {{select.label}}
             </div>    
             <div class="col-6" style="padding: 0px">
-              <select id="{{select.id}}" form="{{step.formid}}">
+              <select id="{{select.id}}" form="{{step.formid}}" name="{{select.label}}">
                 {{select.options}}
                 {% for option in select.options %}
                   <option value="{{option.value}}" {{option.selected}}>{{option.label}}</option>

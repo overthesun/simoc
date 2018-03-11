@@ -39,7 +39,7 @@ start={
 
 'checkbox':{'roworder':'5','display':'none','label':'','id':'permanent'},
 
-'ipbutton':{'roworder':'6','display':'visible','label':'Test Button','id':'','state':'active','class':'Test-Button'},
+'ipbutton':{'roworder':'6','display':'none','label':'Test Button','id':'','state':'active','class':'Test-Button'},
 
 'cancelButton':{'btnOneState':'active','btnOneLabel':'Cancel','btnOneClass':'cancel-step'},
 
@@ -55,27 +55,27 @@ configuration={
 'title':'Step 2: Welcome To SIMOC', 
 'formid':'wizardform',
 
-'radioOne':{'roworder':'1','display':'visible','label':'Testing One','id':'Testing One','group':'model'},
+'radioOne':{'roworder':'1','display':'none','label':'Testing One','id':'Testing One','group':'model'},
 
-'radioTwo':{'roworder':'2','display':'visible','label':'Testing Two','id':'Testing Two','group':'model'},
+'radioTwo':{'roworder':'2','display':'none','label':'Testing Two','id':'Testing Two','group':'model'},
 
-'radioThree':{'roworder':'3','display':'visible','label':'TestingThree','id':'Testing Radio 3','group':''},
+'radioThree':{'roworder':'3','display':'none','label':'TestingThree','id':'Testing Radio 3','group':''},
 
-'select':{'roworder':'4','display':'visible','label':'Testing','id':'configuration',
+'select':{'roworder':'4','display':'visible','label':'Configuration','id':'configuration',
     'options':
         [{'value':'SIMOC Baseline','label':'SIMOC Baseline'},
         {'value':"NASA 'Astronaut In A Can'",'label':"NASA 'Astronaut In A Can'"},
         {'value':"Mars One",'label':"Mars One"}]},
 
-'integer':{'roworder':'5','display':'visible','label':'TestingInteger','id':'duration'},
+'integer':{'roworder':'5','display':'none','label':'TestingInteger','id':'duration'},
 
-'checkbox':{'roworder':'5','display':'visible','label':'Permanent','id':'permanent'},
+'checkbox':{'roworder':'5','display':'none','label':'Permanent','id':'permanent'},
 
-'ipbutton':{'roworder':'6','display':'visible','label':'Test Button','id':'','state':'active','class':'Test-Button'},
+'ipbutton':{'roworder':'6','display':'none','label':'Test Button','id':'','state':'active','class':'Test-Button'},
 
 'cancelButton':{'btnOneState':'active','btnOneLabel':'Cancel','btnOneClass':'cancel-step'},
 
-'navButton':{'btnOneState':'disabled','btnOneLabel':'Previous','btnOneClass':'previous-step','btnTwoState':'active','btnTwoLabel':'Next','btnTwoClass':'next-step'},
+'navButton':{'btnOneState':'active','btnOneLabel':'Previous','btnOneClass':'previous-step','btnTwoState':'active','btnTwoLabel':'Next','btnTwoClass':'next-step'},
 
 'information':'This is a test', #Information Section
 }
@@ -89,7 +89,7 @@ finalize={
 
 'cancelButton':{'btnOneState':'active','btnOneLabel':'Cancel','btnOneClass':'cancel-step'},
 
-'navButton':{'btnOneState':'active','btnOneLabel':'Previous','btnOneClass':'previous-step','btnTwoState':'active','btnTwoLabel':'Finalize','btnTwoClass':'finalize-step'},
+'navButton':{'btnOneState':'disabled','btnOneLabel':'Previous','btnOneClass':'previous-step','btnTwoState':'active','btnTwoLabel':'Finalize','btnTwoClass':'finalize-step'},
 
 'information':'This is a test', #Information Section
 }
