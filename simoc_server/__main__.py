@@ -33,8 +33,10 @@ def setup_logging(logger_level, logger_level_file, debug):
         logger_level_file = logger_level_file.upper()
     if not os.path.isdir("logs"):
         os.makedirs("logs")
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler = RotatingFileHandler(os.path.join("logs", "app.log"), maxBytes=10000, backupCount=10)
     file_handler.setLevel(logger_level)
+    file_handler.setFormatter(formatter)
 
     for handler in app.logger.handlers:
         handler.setLevel(logger_level)
