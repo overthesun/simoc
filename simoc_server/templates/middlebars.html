@@ -1,0 +1,270 @@
+<div class="col-2; outline: 2px solid red">
+  <canvas id="single-food" width="95" height="165" ></canvas>
+</div>
+
+<div class="col-2; outline: 2px solid red">
+  <canvas id="single-oxygen" width="95" height="165" ></canvas>
+</div>
+
+<div class="col-2; outline: 2px solid red">
+  <canvas id="single-water" width="95" height="165" ></canvas>
+</div>
+
+<div class="col-2; outline: 2px solid red">
+  <canvas id="single-carbonDioxide" width="95" height="165" ></canvas>
+</div>
+
+<div class="col-2; outline: 2px solid red">
+  <canvas id="single-kwh" width="95" height="165" ></canvas>
+</div>
+
+  <script>
+
+    var foodChartData = {
+      labels: ['Food'],
+      datasets: [{
+        label: 'Food Level',
+        backgroundColor: window.chartColors.red,
+        stack: 'Stack 0',
+        data: [randomScalingFactor()]
+      }]
+    };
+
+    var oxygenChartData = {
+      labels: ['O2'],
+      datasets: [{
+        label: 'O2 Level',
+        backgroundColor: window.chartColors.red,
+        stack: 'Stack 0',
+        data: [avg_oxygen_pressure,10]
+      }]
+    };
+
+    var waterChartData = {
+      labels: ['H2O'],
+      datasets: [{
+        label: 'H2O Level',
+        backgroundColor: window.chartColors.red,
+        stack: 'Stack 0',
+        data: [randomScalingFactor()]
+      }]
+    };
+
+    var carbonDioxideChartData = {
+      labels: ['CO2'],
+      datasets: [{
+        label: 'CO2 Level',
+        backgroundColor: window.chartColors.red,
+        stack: 'Stack 0',
+        data: [randomScalingFactor()]
+      }]
+    };
+
+    var kwhChartData = {
+      labels: ['KW/H'],
+      datasets: [{
+        label: 'KH/W',
+        backgroundColor: window.chartColors.red,
+        stack: 'Stack 0',
+        data: [randomScalingFactor()]
+      }]
+    };
+
+    window.onload = function() {
+        var datapoints = [0, 20, 20, 60, 60, 120, 160, 180, 120, 125, 105, 110, 170];
+    var config = {
+      type: 'line',
+      data: {
+        labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+        datasets: [{
+          label: 'Linear interpolation',
+          data: datapoints,
+          borderColor: window.chartColors.green,
+          backgroundColor: 'rgba(0, 0, 0, 0)',
+          fill: false,
+          lineTension: 0
+        }]
+      },
+      options: {
+        legend:{
+            display:false
+          },
+        responsive: true,
+        title: {
+          display: false,
+          text: 'Chart.js Line Chart - Cubic interpolation mode'
+        },
+        tooltips: {
+          mode: 'index'
+        },
+        scales: {
+          xAxes: [{
+            display: true,
+            scaleLabel: {
+              display: true
+
+            }
+          }],
+          yAxes: [{
+            display: true,
+            scaleLabel: {
+              display: false,
+              labelString: 'Value'
+            },
+            ticks: {
+              suggestedMin: -10,
+              suggestedMax: 200,
+            }
+          }]
+        }
+      }
+    };
+
+
+    var cti = document.getElementById('single-food').getContext('2d');
+      window.myBar = new Chart(cti, {
+        type: 'bar',
+        data: foodChartData,
+        options: {
+          legend:{
+            display:false
+          },
+          title: {
+            display: false,
+            text: 'Chart.js Bar Chart - Stacked'
+          },
+          tooltips: {
+            mode: 'index',
+            intersect: false
+          },
+          responsive: true,
+          scales: {
+            xAxes: [{
+              stacked: true,
+            }],
+            yAxes: [{
+              stacked: true
+            }]
+          }
+        }
+      });
+
+    
+      var cth = document.getElementById('single-oxygen').getContext('2d');
+      window.myBar = new Chart(cth, {
+        type: 'bar',
+        data: oxygenChartData,
+        options: {
+          legend:{
+            display:false
+          },
+          title: {
+            display: false,
+            text: 'Chart.js Bar Chart - Stacked'
+          },
+          tooltips: {
+            mode: 'index',
+            intersect: false
+          },
+          responsive: true,
+          scales: {
+            xAxes: [{
+              stacked: true,
+            }],
+            yAxes: [{
+              stacked: true
+            }]
+          }
+        }
+      });
+      
+      var ctj = document.getElementById('single-water').getContext('2d');
+      window.myBar = new Chart(ctj, {
+        type: 'bar',
+        data: waterChartData,
+        options: {
+          legend:{
+            display:false
+          },
+          title: {
+            display: false,
+            text: 'Chart.js Bar Chart - Stacked'
+          },
+          tooltips: {
+            mode: 'index',
+            intersect: false
+          },
+          responsive: true,
+          scales: {
+            xAxes: [{
+              stacked: true,
+            }],
+            yAxes: [{
+              stacked: true
+            }]
+          }
+        }
+      });
+    
+
+      var ctl = document.getElementById('single-kwh').getContext('2d');
+      window.myBar = new Chart(ctl, {
+        type: 'bar',
+        data: kwhChartData,
+        options: {
+          legend:{
+            display:false
+          },
+          title: {
+            display: false,
+            text: 'Chart.js Bar Chart - Stacked'
+          },
+          tooltips: {
+            mode: 'index',
+            intersect: false
+          },
+          responsive: true,
+          scales: {
+            xAxes: [{
+              stacked: true,
+            }],
+            yAxes: [{
+              stacked: true
+            }]
+          }
+        }
+      });
+    
+      
+      var ctm = document.getElementById('single-carbonDioxide').getContext('2d');
+      window.myBar = new Chart(ctm, {
+        type: 'bar',
+        data: carbonDioxideChartData,
+        options: {
+          legend:{
+            display:false
+          },
+          title: {
+            display: false,
+            text: 'Chart.js Bar Chart - Stacked'
+          },
+          tooltips: {
+            mode: 'index',
+            intersect: false
+          },
+          responsive: true,
+          scales: {
+            xAxes: [{
+              stacked: true,
+            }],
+            yAxes: [{
+              stacked: true
+            }]
+          }
+        }
+      });
+    };
+
+
+  </script>
+

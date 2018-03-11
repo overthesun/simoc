@@ -23,17 +23,19 @@ function getFormValues(formID){
 }*/
 
 function getFormValues(){
-    var elem = document.getElementById("wizardform");
-    var text = "";
-    console.log(elem.length);
+  var elem = JSON.stringify($(document.getElementById('wizardform')).serializeArray());
+  //var elem = document.getElementById("wizardform");
+  /*var text = "";
+  console.log(elem.length);
 
-    for (var index = 0; index < elem.length; index++) {
-        text += String(elem.elements[index].id) + ":" + String(elem.elements[index].checked) + "\n";
-        console.log(String(elem.elements[index].checked) + "\n");
-      
-    }
+  for (var index = 0; index < elem.length; index++) {
+      text += String(elem.elements[index].id) + ":" + String(elem.elements[index].checked) + "\n";
+      console.log(String(elem.elements[index].checked) + "\n");
+    
+  }
 
-  return text;
+  return text;*/
+  return elem;
 }
 
 

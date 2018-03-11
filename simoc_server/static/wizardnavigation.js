@@ -13,23 +13,33 @@ $(document).ready(function () {
 
 
 
-      $(".finalize-step").click(function (e){
-        var obj = {'mode':'.','launch_date':'.','duration_days':'.','payload':'.','location':'.','region':'.','regolith':'.'}; 
+    $(".finalize-step").click(function (e){
 
-            postFormatted('/test_route', obj, function (data,status) {
+        if(document.getElementById('Scientific').checked){
+            exportConfiguration();
+        }
+
+        else if( document.getElementById('Interactive').checked){
+            var obj = {'mode':'.','launch_date':'.','duration_days':'.','payload':'.','location':'.','region':'.','regolith':'.'}; 
+            postFormatted('/new_game', obj, function (data,status) {
                 
                 console.log("TEST");
 
                 if (status == 'success') {
-                    alert("IT WORKED!");
-                }
-
-                else{
                     console.log("TEST");
-                }
-          });
-      });
+                    $('.wizard-container').removeClass('d-visible');
+                    $('.dashboard-container').removeClass('d-none');
 
+                    $('.dashboard-container').addClass('d-visible');
+                    $('.wizard-container').addClass('d-none');
+
+                    paused = false;
+                    intervalUpdate();
+                }
+
+            });
+        }
+    });
 });
 
 function nextTab(elem) {

@@ -32,12 +32,12 @@ start={
 
 'radioTwo':{'roworder':'2','display':'visible','label':'Interactive','value':'Interactive','id':'Interactive','group':'Mode'},
 
-'radioThree':{'roworder':'3','display':'none','label':'TestingRadio','value':'TestingRadio','id':'TestingRadio','group':''},
+'radioThree':{'roworder':'','display':'none','label':'','value':'','id':'','group':''},
 
-'select':{'roworder':'4','display':'visible','label':'Testing','id':'TestingSelect', 'options':[{'value':'value','label':'Value'}]},
-'integer':{'roworder':'5','display':'visible','label':'TestingInteger','id':'TestingInteger'},
+'select':{'roworder':'4','display':'none','label':'','id':'', 'options':[{'value':'value','label':'Value'}]},
+'integer':{'roworder':'5','display':'none','label':'TestingInteger','id':'TestingInteger'},
 
-'checkbox':{'roworder':'5','display':'visible','label':'Permanent','id':'permanent'},
+'checkbox':{'roworder':'5','display':'none','label':'','id':'permanent'},
 
 'ipbutton':{'roworder':'6','display':'visible','label':'Test Button','id':'','state':'active','class':'Test-Button'},
 

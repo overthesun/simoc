@@ -6,50 +6,7 @@
     </div>
 
     <div class="col-12 finalize" style="padding: 0px">
-      <div class="row" id="row-finalize">
-       <!-- <script>
-          function UpdateFinal(){
-            var elem = document.getElementById("wizardform");
-            document.getElementById('row-finalize').innerHTML = "";
-
-            for (var index = 0; index < elem.length; index++) {
-              
-              var current = elem[index];
-              var viewBlock = '<div class="col-12">';
-
-              if(current.type == 'radio'){                
-                if(current.checked && current.id == 'mode'){
-
-                  viewBlock += 'Mode: ' + current.value + '<div>';
-                  document.getElementById('row-finalize').innerHTML += viewBlock;     
-                }
-              }
-              console.log(current.type);
-              if(current.type =='select-one'){
-
-                if(current.id =='configuration'){
-                  viewBlock+= 'Configuration: ' + current.options[current.selectedIndex].value + '<div>';
-                  document.getElementById('row-finalize').innerHTML += viewBlock;   
-                }
-              }
-
-              if(current.type=='number'){
-                console.log(current.id);
-                if(current.id =='duration'){
-                  if(document.getElementById('permanent').checked){
-                    viewBlock+= 'Duration: ' + 'Permanent' + '<div>';
-                  }
-                  else{
-                    viewBlock+= 'Duration: ' + current.value + " Days" + '<div>';
-                  }
-                }
-                                
-                document.getElementById('row-finalize').innerHTML += viewBlock;   
-              }      
-            }
-          }
-
-        </script>-->        
+      <div class="row" id="row-finalize">     
       </div>
     </div>
 
