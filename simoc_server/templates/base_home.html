@@ -22,6 +22,11 @@
     <script src="{{ url_for('static', filename='js/custom/connectionhandler.js') }}"></script>
     <script src="{{ url_for('static', filename='js/custom/custom_util.js') }}"></script>
 
+        <script type="text/javascript">
+        $SCRIPT_ROOT = 'http://localhost:8000';
+        //alert({{request.script_root|tojson|safe}});
+    </script>
+
     
 	<style>
 

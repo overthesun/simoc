@@ -94,6 +94,11 @@ finalize={
 'information':'This is a test', #Information Section
 }
 
+
+@app.route("/loadroute")
+def loadtest():
+    return render_template('loadtest.html')
+
 @app.before_request
 def deserialize_before_request():
     deserialize_request(request)

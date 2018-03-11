@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css">
     <title>SIMOC</title>
 
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+
     <!-- Chart.JS Scripts -->
     <script src="static/Chart.bundle.js"></script>
     <script src="static/utils.js"></script>
@@ -28,7 +30,7 @@
     -ms-user-select: none;
   }
     
-      .col-12,.col-6, .col-3{
+      .col-12{
         outline: 1px solid orange;
       }
 
@@ -47,7 +49,7 @@
 
 }
 .panel-inner {
-    outline: 2px solid orange;
+    
 }
 
 .row {
@@ -140,16 +142,25 @@
       </div>
     </div>
 
-    <div class="container dashboard d-none" style="margin: 0 auto; width:1280px; height:720px; outline: 1px solid red; padding-top:16px; padding-bottom: 16px;">
-      {%include 'dashboard.html' %}
-    </div>
+    <div class="container dashboard-container d-visible" style="margin: 0 auto; width:1280px; height:720px; outline: 1px solid red; padding:0px;">
+      <div class="row">
 
-    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>-->
+        {%include 'dashboardleft.html'%}
+
+        {%include 'dashboardmiddle.html'%}
+
+        {%include 'dashboardright.html'%}
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
+    <script src="/static/finalizeform.js"></script>
     <script src="/static/wizardnavigation.js"></script>
     <script src="/static/wizardexport.js"></script>
-    <script src="/static/finalizeform.js"></script>
+    <script src="/static/stepUpdate.js"></script>
+
 
 
   </body>
