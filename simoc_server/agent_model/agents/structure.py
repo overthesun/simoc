@@ -218,22 +218,25 @@ class Planter(EnclosedAgent):
 class Kitchen(EnclosedAgent):
 
     _agent_type_name = "kitchen"
-
+    #number_of_crew=len(self.agent_model.get_agents(HumanAgent))
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.food==0
+        #self.food_per_day = 80*number_of_crew #Need accurate value here
 
     def step(self):
-        storage_facility=self.model.get_agents("storage_facility")
-        edible_mass=storage_facility.supply("edible_mass",12)
-        inedible_mass=storage_facility.supply("inedible_mass"_mass,12)
-        self.food=edible_mass +inedible_mass
-   
-        #if(plantmass >= increment)
-        #    plantmass -= increment
-        #   ediblemass += (efficiency * increment)
-        #    inediblemass += (increment - (efficiency * increment))
-        pass
+        increment = (self.food_per_day/1440) * self.model.timedelta_per_step() #1440 is minutes in the day
+        if(self.model.total.edible_mass > increment):
+            #Convert edible mass to energy using 1 g = 5 J
+            self.energy = increment * 5            
+
+    
+    def prepare_meal(self, energy_required):
+        storage = self.model.get_agents(StorageFacility)
+        needed_mass=energy_required/5
+        if(increment > needed_mass):
+            self.energy -=needed_energy
+            storage.edible_mass-=needed_mass
+            return energy_required
 
 
 #Generates power (assume 100% for now)
