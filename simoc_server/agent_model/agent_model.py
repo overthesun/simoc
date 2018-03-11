@@ -48,11 +48,11 @@ class AgentModel(Model):
             raise Exception("Seed value must be of type 'int', got type '{}'".format(type(self.seed)))
 
         # T.T random_state kept crashing my runs, why is it added? where is it being calculated?
-        self.grid = MultiGrid(self.grid_width, self.grid_height, True) #, random_state=self.random_state
+        self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state) #, random_state=self.random_state
         # T.T random_state kept crashing my runs, why is it added? where is it being calculated?
-        self.scheduler = RandomActivation(self) # , random_state=self.random_state
+        self.scheduler = RandomActivation(self, random_state=self.random_state) # , random_state=self.random_state
 
-        self.scheduler.steps =getattr(init_params,"starting_step_num", 0) #init_params.starting_step_num
+        self.scheduler.steps = getattr(init_params,"starting_step_num", 0) #init_params.starting_step_num
 
     @property
     def total_moles_atmosphere(self):
