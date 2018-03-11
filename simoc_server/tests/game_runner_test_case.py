@@ -1,7 +1,7 @@
 import unittest
 import time
 
-from simoc_server import db
+from simoc_server import db, app
 from simoc_server.tests.test_util import setup_db, clear_db
 from simoc_server.database.db_model import User
 from simoc_server.game_runner import (GameRunnerManager,
@@ -106,5 +106,5 @@ class GameRunnerTestCase(unittest.TestCase):
         finally:
             # ensure cleanup thread is closed even
             # if test fails
-            print("stopping test cleanup thread")
+            app.logger.info("stopping test cleanup thread")
             game_runner_manager.stop_cleanup_thread()
