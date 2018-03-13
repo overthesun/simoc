@@ -74,6 +74,7 @@ class PlantAgent(EnclosedAgent):
 
     def kill(self, reason):
         print("Plant Died! Reason: {}".format(reason))
+        self.structure.remove_plant(self)
         self.destroy()
 
 class CabbageAgent(PlantAgent):

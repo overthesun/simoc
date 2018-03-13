@@ -152,35 +152,36 @@ def gen_human():
 
 def gen_plants():
     data = OrderedDict()
-                                      #oxygen, carbon, water, edible, inedible, growth period  fatal co2
-    add_plant(data, "cabbage",          7.19,    9.88, 1.77,  75.78,  6.74,     85.0)
-    add_plant(data, "carrot",           16.36,  22.50, 1.77,  74.83,  59.87,    75.0)
-    add_plant(data, "chard",            11.49,  15.79, 1.77,  87.50,  37.69,    45.0)
-    add_plant(data, "celery",           12.24,  16.83, 1.24,  103.27, 11.47,    75.0)
-    add_plant(data, "dry_bean",         30.67,  42.17, 2.53,  11.11,  150.00,   85.0)
-    add_plant(data, "green_onion",      10.67,  14.67, 1.74,  81.82,  10.00,    50.0)
-    add_plant(data, "lettuce",          7.78,   10.70, 1.77,  131.35, 7.30,     28.0)
-    add_plant(data, "pea",              12.0,   16.50, 1.74,  12.20,  161.00,   75.0)
-    add_plant(data, "peanut",           35.84,  49.28, 2.77,  5.96,   168.75,   104.0)
-    add_plant(data, "pepper",           24.71,  33.98, 1.77,  148.94, 127.43,   85.0)
-    add_plant(data, "radish",           11.86,  16.31, 1.77,  91.67,  55.00,    25.0)
-    add_plant(data, "red_beet",         7.11,   9.77,  1.77,  32.50,  35.00,    38.0)
-    add_plant(data, "rice",             36.55,  50.26, 3.43,  10.30,  211.58,   85.0)
-    add_plant(data, "snap_bean",        36.43,  50.09, 2.46,  148.50, 178.20,   85.0)
-    add_plant(data, "soybean",          13.91,  19.13, 2.88,  5.04,   68.04,    97.0)
-    add_plant(data, "spinach",          7.78,   10.70, 1.77,  72.97,  7.30,     30.0)
-    add_plant(data, "strawberry",       25.32,  34.82, 2.22,  77.88,  144.46,   85.0)
-    add_plant(data, "sweet_potato",     41.12,  56.54, 2.88,  51.72,  225.00,   85.0)
-    add_plant(data, "tomato",           26.36,  36.24, 2.77,  173.76, 127.43,   85.0)
-    add_plant(data, "wheat",            56.0,   77.0,  11.79, 22.73,  300.00,   79.0)
-    add_plant(data, "white_potato",     32.23,  45.23, 2.88,  105.30, 90.25,    132.0)
-    add_plant(data, "default_plant",    30.0,   40.0,  5.0,   50.0,   50.0,     85.0,           .015)
+    #max_height estimates as well as any density with 250.00
+                                      #oxygen, carbon, water, edible, inedible, growth period, density, max_height,  fatal co2
+    add_plant(data, "cabbage",          7.19,    9.88, 1.77,  75.78,  6.74,     85.0,           295.87,      0.508)
+    add_plant(data, "carrot",           16.36,  22.50, 1.77,  74.83,  59.87,    75.0,           541.02,      0.406)
+    add_plant(data, "chard",            11.49,  15.79, 1.77,  87.50,  37.69,    45.0,           152.16,      1.000)
+    add_plant(data, "celery",           12.24,  16.83, 1.24,  103.27, 11.47,    75.0,           501.21,      0.762)
+    add_plant(data, "dry_bean",         30.67,  42.17, 2.53,  11.11,  150.00,   85.0,           811.54,      0.965)
+    add_plant(data, "green_onion",      10.67,  14.67, 1.74,  81.82,  10.00,    50.0,           250.00,      0.508)
+    add_plant(data, "lettuce",          7.78,   10.70, 1.77,  131.35, 7.30,     28.0,           232.47,      1.219)
+    add_plant(data, "pea",              12.0,   16.50, 1.74,  12.20,  161.00,   75.0,           250.00,      2.435)
+    add_plant(data, "peanut",           35.84,  49.28, 2.77,  5.96,   168.75,   104.0,          641.00,      1.219)
+    add_plant(data, "pepper",           24.71,  33.98, 1.77,  148.94, 127.43,   85.0,           506.00,      2.134)
+    add_plant(data, "radish",           11.86,  16.31, 1.77,  91.67,  55.00,    25.0,           250.00,      0.305)
+    add_plant(data, "red_beet",         7.11,   9.77,  1.77,  32.50,  35.00,    38.0,           574.84,      0.914)
+    add_plant(data, "rice",             36.55,  50.26, 3.43,  10.30,  211.58,   85.0,           250.00,      1.524)
+    add_plant(data, "snap_bean",        36.43,  50.09, 2.46,  148.50, 178.20,   85.0,           250.00,      1.524)
+    add_plant(data, "soybean",          13.91,  19.13, 2.88,  5.04,   68.04,    97.0,           753.00,      1.600)
+    add_plant(data, "spinach",          7.78,   10.70, 1.77,  72.97,  7.30,     30.0,           126.80,      0.610)
+    add_plant(data, "strawberry",       25.32,  34.82, 2.22,  77.88,  144.46,   85.0,           642.47,      0.610)
+    add_plant(data, "sweet_potato",     41.12,  56.54, 2.88,  51.72,  225.00,   85.0,           634.01,      0.584)
+    add_plant(data, "tomato",           26.36,  36.24, 2.77,  173.76, 127.43,   85.0,           760.82,      2.134)
+    add_plant(data, "wheat",            56.0,   77.0,  11.79, 22.73,  300.00,   79.0,           250.00,      1.321)
+    add_plant(data, "white_potato",     32.23,  45.23, 2.88,  105.30, 90.25,    132.0,          634.01,      1.372)
+    add_plant(data, "default_plant",    30.0,   40.0,  5.0,   50.0,   50.0,     85.0,           250.00,      1.000,      .015)
 
     return data
 
 
 def add_plant(data, name, oxygen, carbon, water, edible,
-        inedible, growth_period, fatal_co2_lower=None):
+        inedible, growth_period, density, max_height, fatal_co2_lower=None):
     agent_type = AgentType(name=name)
     data["{0}_plant_agent_type".format(name)] = agent_type
 
@@ -197,6 +198,10 @@ def add_plant(data, name, oxygen, carbon, water, edible,
         "The inedible mass created by the plant per day.")
     create_agent_type_attr(agent_type, "growth_period", growth_period, units="days [after planted]", 
         description="Days until plant reaches maturity after planting.")
+    create_agent_type_attr(agent_type, "density", density, units="kg/m^3", 
+        description="Density of the plant matter")
+    create_agent_type_attr(agent_type, "max_height", max_height, units="m", 
+        description="The total height of the plant agent including root length")
 
     if fatal_co2_lower is not None:
         create_agent_type_attr(agent_type, "fatal_co2_lower", fatal_co2_lower, units="kPa",

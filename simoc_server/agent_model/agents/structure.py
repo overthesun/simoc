@@ -307,7 +307,8 @@ class Structure(BaseAgent):
         self.agents.append(agent)
 
     def remove_agent_from(self, agent):
-        self.agents.remove(agent)
+        if(agent in self.agents):
+            self.agents.remove(agent)
 
 
 # Structure sub-agents
@@ -345,18 +346,19 @@ class Greenhouse(Structure):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.needed_agents = ['Planter','Harvester']
-        self._attr("plants_ready", 0,is_client_attr=True, is_persisted_attr=True)
         self._attr("max_plants", 50,is_client_attr=True, is_persisted_attr=True)
         self.plants = []
 
     def step(self):
         pass
 
-    def place_plant_inside(self, agent):
-        self.plants.append(agent)
+    def place_plant(self, plant):
+        self.plants.append(plant)
 
-    def remove_plant(self, agent):
-        self.plants.remove(agent)
+    def remove_plant(self, plant):
+        if(plant in self.plants):
+            self.plants.remove(plant)
+
 
 #Harvester 
 
@@ -369,22 +371,22 @@ class Harvester(EnclosedAgent):
         self.plant_mass_density = 721 #NOT ACTUAL DENSITY kg/m^3
 
     def step(self):
-        if (self.structure.plants_ready > 0):
-            self.harvest()
-
-    def harvest(self):
+        plants_ready = []
         for x in self.structure.plants:
-            if(x.status == "grown"):
-                plant_age = timedelta_to_days(self.model.model_time - x.model_time_created)
-                edible_mass = x.get_agent_type_attribute("edible") * plant_age
-                inedible_mass = x.get_agent_type_attribute("inedible") * plant_age
-                #Needs different densities for inedible/edible, add to plant attr
-                self.ship(to_volume(edible_mass, self.plant_mass_density), to_volume(inedible_mass, self.plant_mass_density))
-                self.structure.remove_plant(x)
-                x.destroy()
-                self.structure.plants_ready -= 1
-            if(self.structure.plants_ready == 0):
-                break
+            if(x.is_grown()):
+                plants_ready.append(x)
+        self.harvest(plants_ready)
+
+    def harvest(self, plants):
+        for x in plants:
+            plant_age = timedelta_to_days(self.model.model_time - x.model_time_created)
+            edible_mass = x.get_agent_type_attribute("edible") * plant_age
+            inedible_mass = x.get_agent_type_attribute("inedible") * plant_age
+            #Needs different densities for inedible/edible, add to plant attr
+            self.ship(to_volume(edible_mass, self.plant_mass_density), to_volume(inedible_mass, self.plant_mass_density))
+            self.structure.remove_plant(x)
+            self.remove_plant(x)
+            x.destroy()
 
     def ship(self, edible, inedible):
         possible_storage = self.model.get_agents(StorageFacility)
@@ -402,45 +404,52 @@ class Harvester(EnclosedAgent):
 
 class Planter(EnclosedAgent):
     agent_type_name = "planter"
-    # TODO right now just grows generic plant, the planter should choose a specific type somehow
     # TODO planter plants everything in one step, should be incremental
     # TODO planter should use soil
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.counter = 0
 
     def step(self):
-        #FOR TESTING print(self.structure.plants_housed)
-        #FOR TESTING print(self.structure.max_plants)
-
         if(len(self.structure.plants) < self.structure.max_plants):
             to_plant = self.structure.max_plants - len(self.structure.plants)
             self.plant(to_plant) 
 
-        #FOR TESTING print(self.structure.plants[0].status)
-
     def plant(self, number_to_plant):
         for x in range(0, number_to_plant):
-            plant_agent = agents.PlantAgent(self.model, structure=self.structure)
+            plant_agent = self.model.plants_available[self.counter % len(self.model.plants_available)]
+            self.counter += 1
             self.model.add_agent(plant_agent)
-            self.structure.place_agent_inside(plant_agent)
-            self.structure.place_plant_inside(plant_agent)             
+            plant_agent.structure = self.structure
+            self.structure.agents.append(plant_agent)
+            self.structure.place_plant(plant_agent)        
 
-#Converts plant mass to food
-#Input: Plant Mass
-#Output: Edible and Inedible Biomass
+#Converts plant mass to energy
+#Input: Edible Plant Mass
+#Output: Energy
 class Kitchen(EnclosedAgent):
 
     _agent_type_name = "kitchen"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.joules_per_gram = 5
 
     def step(self):
-        #if(plantmass >= increment)
-        #    plantmass -= increment
-        #   ediblemass += (efficiency * increment)
-        #    inediblemass += (increment - (efficiency * increment))
         pass
+
+    def cook_meal(self, energy):
+        storage = self.model.get_agents(StorageFacility)
+        edible_to_cook = energy / self.joules_per_gram
+        actual_cooked = 0
+        for x in storage:
+            if(edible_to_cook > 0):
+                amount = x.supply("edible_mass", edible_to_cook)
+                edible_to_cook -= amount
+                actual_cooked += amount
+            if(edible_to_cook == 0):
+                return actual_cooked
+        return actual_cooked
 
 
 #Generates power (assume 100% for now)
@@ -519,7 +528,7 @@ class StorageFacility(EnclosedAgent):
 
         if hasattr(self, resource):
             amount_stored = getattr(self, resource)
-            if(quantity > amount_stored):
+            if(quantity >= amount_stored):
                 amount_supplied = quantity - amount_stored
                 delattr(self, resource)
 

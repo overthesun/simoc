@@ -35,6 +35,7 @@ class AgentModel(Model):
 
         self.atmospheres = []
         self.plumbing_systems = []
+        self.plants_available = []
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -93,6 +94,18 @@ class AgentModel(Model):
     @property
     def avg_temp(self):
         return avg_attributes(self.atmospheres, "temp")
+
+    @property
+    def total_food(self):
+        return sum_attributes(self.get_agents(StorageFacility), "food")
+
+    @property
+    def total_inedible_mass(self):
+        return sum_attributes(self.get_agents(StorageFacility), "inedible_mass")
+
+    @property
+    def total_edible_mass(self):
+        return sum_attributes(self.get_agents(StorageFacility), "edible_mass")
 
     @property
     def step_num(self):
@@ -325,10 +338,12 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
     NUM_HUMANS = 4
 
     # plants
-    NUM_CABBAGE = 2
-    NUM_CARROTS = 2
+    NUM_PEANUT = 5
+    NUM_SOYBEAN = 10
     NUM_RICE = 10
     NUM_WHITE_POTATOS = 5
+    NUM_WHEAT = 15
+    NNUM_TOMATO = 5
 
     def init_agents(self, model):
         crew_quarters = agents.CrewQuarters(model)
@@ -344,22 +359,35 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
         atmosphere = AgentModel.create_atmosphere(model, structures)
         plumbing_system = AgentModel.create_plumbing_system(model, structures)
+
         model.add_agent(atmosphere)
         model.add_agent(plumbing_system)
         for i in range(self.NUM_HUMANS):
             model.add_agent(agents.HumanAgent(model, structure=crew_quarters))
 
         # TODO determine number of plants for base line model
-        for i in range(self.NUM_CABBAGE):
-            model.add_agent(agents.CabbageAgent(model, structure=greenhouse))
+        for i in range(self.NUM_PEANUT):
+            model.plants_available.append(agents.PeanutAgent(model))
 
-        for i in range(self.NUM_CARROTS):
-            model.add_agent(agents.CarrotAgent(model, structure=greenhouse))
+        for i in range(self.NUM_SOYBEAN):
+            model.plants_available.append(agents.SoybeanAgent(model))
 
         for i in range(self.NUM_RICE):
-            model.add_agent(agents.RiceAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.RiceAgent(model))
 
         for i in range(self.NUM_WHITE_POTATOS):
-            model.add_agent(agents.WhitePotatoAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.WhitePotatoAgent(model))
+
+        for i in range(self.NUM_WHEAT):
+            model.plants_available.append(agents.WheatAgent(model))
+
+        for i in range(self.NNUM_TOMATO):
+            model.plants_available.append(agents.TomatoAgent(model))
+
+        model.add_agent(agents.Planter(model, structure=greenhouse))
+        model.add_agent(agents.Harvester(model, structure=greenhouse))
+        model.add_agent(agents.StorageFacility(model, structure=greenhouse))
+        model.add_agent(agents.StorageFacility(model, structure=crew_quarters))
+        model.add_agent(agents.Kitchen(model, structure=crew_quarters))
 
         return model
