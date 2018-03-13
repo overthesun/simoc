@@ -212,11 +212,11 @@ class AgentModel(Model):
     @classmethod
     def create_power_grid(cls, model, structures):
         power_grid = agents.PowerModule(model=model)
-        power_grid.power_storage_capacity = 25
-        power_grid.power_output_capacity = 5
-        power_grid.power_charge = 0
-        power_grid.power_usage = .002
-        power_grid.power_production = .25
+        #power_grid.power_storage_capacity = 25
+        #power_grid.power_output_capacity = 5
+        #power_grid.power_charge = 0
+        #power_grid.power_usage = .002
+        #power_grid.power_production = .25
 
         for structure in structures:
             structure.set_power_grid(power_grid)

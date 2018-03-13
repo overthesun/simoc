@@ -241,11 +241,15 @@ def add_structure(data, name, length, width, height, mass, efficiency,
 
 
 def gen_equipment():
+    kilowatts = "kW"
+    kilowatt_hours = "kWh"
+    #pwer
     data = OrderedDict()
 
     # set up default equipment values
     data["default_equipment_agent_type"] = AgentType(name="default_equipment")
-    data["power_module"] = AgentType(name="power_module")
+    _type = data["power_module"] = AgentType(name="power_module")
+    data["power_module_power_usage"] = create_agent_type_attr(_type,"power_usage", .002, kilowatts, "Total Usage in Kilowatts")
 
     return data
 
