@@ -367,24 +367,27 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
         # TODO determine number of plants for base line model
         for i in range(self.NUM_PEANUT):
-            model.plants_available.append(agents.PeanutAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.PeanutAgent(model))
 
         for i in range(self.NUM_SOYBEAN):
-            model.plants_available.append(agents.SoybeanAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.SoybeanAgent(model))
 
         for i in range(self.NUM_RICE):
-            model.plants_available.append(agents.RiceAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.RiceAgent(model))
 
         for i in range(self.NUM_WHITE_POTATOS):
-            model.plants_available.append(agents.WhitePotatoAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.WhitePotatoAgent(model))
 
         for i in range(self.NUM_WHEAT):
-            model.plants_available.append(agents.WheatAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.WheatAgent(model))
 
         for i in range(self.NNUM_TOMATO):
-            model.plants_available.append(agents.TomatoAgent(model, structure=greenhouse))
+            model.plants_available.append(agents.TomatoAgent(model))
 
         model.add_agent(agents.Planter(model, structure=greenhouse))
         model.add_agent(agents.Harvester(model, structure=greenhouse))
+        model.add_agent(agents.StorageFacility(model, structure=greenhouse))
+        model.add_agent(agents.StorageFacility(model, structure=crew_quarters))
+        model.add_agent(agents.Kitchen(model, structure=crew_quarters))
 
         return model

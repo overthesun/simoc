@@ -385,6 +385,7 @@ class Harvester(EnclosedAgent):
             #Needs different densities for inedible/edible, add to plant attr
             self.ship(to_volume(edible_mass, self.plant_mass_density), to_volume(inedible_mass, self.plant_mass_density))
             self.structure.remove_plant(x)
+            self.remove_plant(x)
             x.destroy()
 
     def ship(self, edible, inedible):
@@ -419,38 +420,36 @@ class Planter(EnclosedAgent):
             plant_agent = self.model.plants_available[self.counter % len(self.model.plants_available)]
             self.counter += 1
             self.model.add_agent(plant_agent)
-            self.structure.place_plant(plant_agent)
-            self.structure.place_agent_inside(plant_agent)           
+            plant_agent.structure = self.structure
+            self.structure.agents.append(plant_agent)
+            self.structure.place_plant(plant_agent)        
 
-#Converts plant mass to food
-#Input: Plant Mass
-#Output: Edible and Inedible Biomass
+#Converts plant mass to energy
+#Input: Edible Plant Mass
+#Output: Energy
 class Kitchen(EnclosedAgent):
 
     _agent_type_name = "kitchen"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.food_per_day = 2500 #Need accurate value here
+        self.joules_per_gram = 5
 
     def step(self):
-        increment = (250/1440) * self.model.timedelta_per_step() #1440 is minutes in the day
-        if(self.model.total.edible_mass > increment):
-            #Convert edible mass to energy using 1 g = 5 J
-            energy = increment * 5
-            cook(increment, energy)
+        pass
 
-    def cook(self, amount, energy):
+    def cook_meal(self, energy):
         storage = self.model.get_agents(StorageFacility)
-        edible_to_cook = amount
-        energy_to_store = energy
+        edible_to_cook = energy / self.joules_per_gram
+        actual_cooked = 0
         for x in storage:
             if(edible_to_cook > 0):
-                edible_to_cook -= x.supply("edible_mass", edible_to_cook)
-            if(energy_to_store > 0):
-                energy_to_store -= x.store("energy", energy_to_store)
-            if(edible_to_cook == 0 and energy_to_store == 0):
-                break
+                amount = x.supply("edible_mass", edible_to_cook)
+                edible_to_cook -= amount
+                actual_cooked += amount
+            if(edible_to_cook == 0):
+                return actual_cooked
+        return actual_cooked
 
 
 #Generates power (assume 100% for now)
