@@ -53,7 +53,6 @@ class AgentModelTestCase(unittest.TestCase):
         for thread in threads:
             thread.join()
 
-        #print(branch_ids)
         for i in range(len(branch_ids)):
             for j in range(i+1, len(branch_ids)):
                 self.assertNotEqual(branch_ids[i], branch_ids[j])
@@ -64,7 +63,6 @@ class AgentModelTestCase(unittest.TestCase):
             self.default_agent_init_recipe)
         for i in range(100):
             agent_model.step()
-            #print(agent_model.model_time)
         delta = agent_model.model_time
         self.assertEqual(delta.days, 4)
 

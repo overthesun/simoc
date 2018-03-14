@@ -44,7 +44,7 @@ class JsonSerializer(Serializer):
             try:
                 request.__dict__["deserialized"] = flask.json.loads(data)
             except JSONDecodeError:
-                print("Error deserializing json: {}".format(data))
+                app.logger.error("Error deserializing json: {}".format(data))
 
     @classmethod
     def get_format_name(cls):
@@ -67,7 +67,7 @@ class MsgPackSerializer(Serializer):
             try:
                 request.__dict__["deserialized"] = msgpack.unpackb(data, encoding='utf-8')
             except (UnpackException, ExtraData) as e:
-                print("Error deserializing msgpack: {}".format(data))
+                app.logger.error("Error deserializing msgpack: {}".format(data))
 
     @classmethod
     def get_format_name(cls):
@@ -85,7 +85,7 @@ def data_format_name():
 def set_serializer(serializer):
     global _serializer
     _serializer = serializer
-    print(_serializer)
+    app.logger.info("Using serializer: {}".format(_serializer.__class__.__name__))
 
 def init_serializer():
     global _serializer

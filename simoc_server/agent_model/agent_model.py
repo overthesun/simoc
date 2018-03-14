@@ -16,10 +16,9 @@ from sqlalchemy.orm.exc import StaleDataError
 from simoc_server.database.db_model import AgentModelState, AgentState, \
     AgentType, AgentModelSnapshot, SnapshotBranch, AgentModelParam
 
-from simoc_server import db
+from simoc_server import db, app
 from simoc_server.agent_model import agents
 from simoc_server.util import sum_attributes, avg_attributes
-
 
 class AgentModel(Model):
 
@@ -50,6 +49,10 @@ class AgentModel(Model):
         self.scheduler = RandomActivation(self, random_state=self.random_state)
 
         self.scheduler.steps = init_params.starting_step_num
+
+    @property
+    def logger(self):
+        return app.logger
 
     @property
     def total_moles_atmosphere(self):
@@ -148,7 +151,7 @@ class AgentModel(Model):
             agent_class = agents.get_agent_by_type_name(agent_type_name)
             agent = agent_class(model, agent_state)
             model.add_agent(agent)
-            print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
+            app.logger.info("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
 
         for agent in model.get_agents():
             agent.post_db_load()
@@ -236,7 +239,7 @@ class AgentModel(Model):
 
             return snapshot
         except StaleDataError:
-            print("WARNING: StaleDataError during snapshot, probably a simultaneous save, changing branch.")
+            app.logger.warning("WARNING: StaleDataError during snapshot, probably a simultaneous save, changing branch.")
             db.session.rollback()
             self._branch()
             return self.snapshot()
@@ -244,7 +247,7 @@ class AgentModel(Model):
     def step(self):
         self.model_time += self.timedelta_per_step()
         self.scheduler.step()
-        print("{0} step_num {1}".format(self, self.step_num))
+        app.logger.info("{0} step_num {1}".format(self, self.step_num))
 
         # TODO remove this when it is no longer needed
         to_print = ["avg_oxygen_pressure", "avg_carbon_dioxide_pressure", "avg_nitrogen_pressure",
@@ -253,7 +256,7 @@ class AgentModel(Model):
                     "avg_temp", "total_moles_atmosphere"]
 
         status_string = " ".join(["{}: {:.5g}".format(name, getattr(self, name)) for name in to_print])
-        print(status_string)
+        app.logger.info(status_string)
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)
