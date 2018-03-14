@@ -26,16 +26,26 @@ class AgentModel(Model):
     def __init__(self, init_params):
         self.load_params()
         #Added - issue creating and testing agent model & agents by themselves added defualt values
-        self.grid_width = getattr(init_params,"grid_width", 100) #init_params.grid_width
-        self.grid_height = getattr(init_params,"grid_height", 100) #init_params.grid_height
-        self.model_time = getattr(init_params,"starting_model_time", None) #init_params.starting_model_time
-        self.snapshot_branch = getattr(init_params,"snapshot_branch", None)  #init_params.snapshot_branch
-        self.seed = getattr(init_params,"seed", 0) #init_params.seed
-        self.random_state = getattr(init_params,"random_state", None) #init_params.random_state
+        self.grid_width = init_params.grid_width #getattr(init_params,"grid_width", 100) #
+        self.grid_height = init_params.grid_height # getattr(init_params,"grid_height", 100) #
+        self.model_time = init_params.starting_model_time # getattr(init_params,"starting_model_time", None) #
+        self.snapshot_branch = init_params.snapshot_branch # getattr(init_params,"snapshot_branch", None)  #
+        self.seed = init_params.seed # getattr(init_params,"seed", 0) #init_params.seed
+        self.random_state = init_params.random_state # getattr(init_params,"random_state", None) #
 
         self.atmospheres = []
         self.plumbing_systems = []
+        #hold single power module // needs to hold multiple
         self.power_grid = []
+
+        # Power Grid - Holds Total Values for Power
+        """
+        self.power_storage_capacity = 0
+        self.power_output_capacity = 0
+        self.power_charge = 0
+        self.power_usage = 0
+        self.power_production = 0
+        """
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -47,11 +57,8 @@ class AgentModel(Model):
         if not isinstance(self.seed, int):
             raise Exception("Seed value must be of type 'int', got type '{}'".format(type(self.seed)))
 
-        # T.T random_state kept crashing my runs, why is it added? where is it being calculated?
-        self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state) #, random_state=self.random_state
-        # T.T random_state kept crashing my runs, why is it added? where is it being calculated?
-        self.scheduler = RandomActivation(self, random_state=self.random_state) # , random_state=self.random_state
-
+        self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state)
+        self.scheduler = RandomActivation(self, random_state=self.random_state)
         self.scheduler.steps = getattr(init_params,"starting_step_num", 0) #init_params.starting_step_num
 
     @property
@@ -174,7 +181,7 @@ class AgentModel(Model):
         """
         for agent in model.get_agents():
             agent.post_db_load()
-        print("returning model")
+        #print("returning model")
         return model
 
     @classmethod
@@ -210,16 +217,18 @@ class AgentModel(Model):
         return plumbing_system
 
     @classmethod
-    def create_power_grid(cls, model, structures):
+    def create_power_grid(cls, model):
         power_grid = agents.PowerModule(model=model)
         #power_grid.power_storage_capacity = 25
         #power_grid.power_output_capacity = 5
         #power_grid.power_charge = 0
         #power_grid.power_usage = .002
         #power_grid.power_production = .25
+        #for structure in structures:
+        #   structure.set_power_grid(power_grid)
 
-        for structure in structures:
-            structure.set_power_grid(power_grid)
+        #power_modules = [a for a in model.scheduler.agents if isinstance(a, agents.PowerModule)]
+        #power_modules.append(power_grid)
 
         return power_grid
 
@@ -397,7 +406,7 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
         atmosphere = AgentModel.create_atmosphere(model, structures)
         plumbing_system = AgentModel.create_plumbing_system(model, structures)
-        power_grid = AgentModel.create_power_grid(model, structures)
+        power_grid = AgentModel.create_power_grid(model)
 
         model.add_agent(atmosphere)
         model.add_agent(plumbing_system)
