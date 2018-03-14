@@ -1,0 +1,45 @@
+<div class="tab-pane fade show active" id="start" role="tabpanel"> 
+  <div class="row">
+    
+    <div class="col-12 tab title">
+    	  STEP 1: SIMOC Mode      
+    </div>
+
+    <div class="col-6 selection">
+      
+      <input type="hidden" value="Mode" form="{{content.formid}}">
+
+      <div class="option-block">
+        Please Select A Mode:
+      </div>
+
+      <div class="form-check option-block">
+        <input class="form-check-input" type="radio" name="mode" id="scientific-mode" value="Scientific Mode" form="{{content.formid}}">
+        <label class="form-check-label" for="scientific-mode">
+          Scientific Mode
+        </label>
+      </div>
+
+      <div class="form-check option-block">
+        <input class="form-check-input" type="radio" name="mode" id="interactive-mode" value="Interactive Mode" form="{{content.formid}}">
+        <label class="form-check-label" for="interactive-mode">
+          Interactive Mode
+        </label>
+      </div>
+
+    </div>
+
+    <div class="col-6 information ltr-outline">
+      {{wizard.startInformation}}
+    </div>
+
+    <div class="col-6 cancel buttons">
+      <button type="button" class="cancel-step btn raised">Cancel</button>
+    </div>
+
+    <div class="col-6 navigation buttons">
+      <button type="button" class="previous-step btn raised" disabled>Previous</button>
+      <button type="button" class="next-step btn raised">Next</button>
+    </div>
+  </div>
+</div>

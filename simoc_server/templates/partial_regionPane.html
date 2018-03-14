@@ -1,0 +1,67 @@
+<div class="tab-pane fade" id="region">
+  <div class="row">
+    
+    <div class="col-12 tab title">
+      Step 4: Region
+    </div>
+
+    <div class="col-6 selection">
+
+      <input type="hidden" value="Region" form="{{content.formid}}">
+      
+      <div class="option-block">
+        Please Select A Starting Region:          
+      </div>
+
+
+      <div class="form-check option-block">
+        <input class="form-check-input" type="radio" name="region" id="olympusmons-region" value="Olympus Mons" form="{{content.formid}}" checked>
+        <label class="form-check-label" for="olympusmons-region">
+          Olympus Mons
+        </label>
+      </div>
+
+      <div class="form-check option-block">
+        <input class="form-check-input" type="radio" name="region" id="syrtis-region" value="Syrtis Major" form="{{content.formid}}" disabled>
+        <label class="form-check-label" for="syrtis-region">
+          Syrtis Major
+        </label>
+      </div>
+
+      <div class="form-check option-block">
+        <input class="form-check-input" type="radio" name="region" id="hellasplanitia-region" value="Hellas Planitia" form="{{content.formid}}" disabled>
+        <label class="form-check-label" for="hellasplanitia-region">
+          Hellas Planitia
+        </label>
+      </div>
+
+      <div class="form-check option-block">
+        <input class="form-check-input" type="radio" name="region" id="lacusmoeris-region" value="Lacus Moeris" form="{{content.formid}}" disabled>
+        <label class="form-check-label" for="lacusmoeris-region">
+          Lacus Moeris
+        </label>
+      </div>
+
+      <div class="form-check option-block">
+        <input class="form-check-input" type="radio" name="region" id="maretyrrhenum-region" value="Mare Tyrrhenum" form="{{content.formid}}" disabled>
+        <label class="form-check-label" for="maretyrrhenum-region">
+          Mare Tyrrhenum
+        </label>
+      </div>
+    </div>
+
+    <div class="col-6 information">
+      {{wizard.regionInformation}}
+    </div>
+
+    <div class="col-6 cancel buttons">
+      <button type="button" class="cancel-step btn raised">Cancel</button>
+    </div>
+
+    <div class="col-6 navigation buttons">
+      <button type="button" class="previous-step btn raised">Previous</button>
+      <button type="button" class="next-step btn raised">Next</button>
+    </div>
+  </div>
+
+</div>

@@ -21,92 +21,22 @@ login_manager.init_app(app)
 
 game_runner_manager = GameRunnerManager()
 
-start={
-'show':'show', #Show pane
-'active':'active', #Active State
-'id':'start', #HREF
-'title':'Step 1: Welcome To SIMOC', 
-'formid':'wizardform',
-
-'radioOne':{'roworder':'1','display':'visible','label':'Scientific','value':'Scientific','id':'Scientific','group':'Mode'},
-
-'radioTwo':{'roworder':'2','display':'visible','label':'Interactive','value':'Interactive','id':'Interactive','group':'Mode'},
-
-'radioThree':{'roworder':'','display':'none','label':'','value':'','id':'','group':''},
-
-'select':{'roworder':'4','display':'none','label':'','id':'', 'options':[{'value':'value','label':'Value'}]},
-'integer':{'roworder':'5','display':'none','label':'TestingInteger','id':'TestingInteger'},
-
-'checkbox':{'roworder':'5','display':'none','label':'','id':'permanent'},
-
-'ipbutton':{'roworder':'6','display':'none','label':'Test Button','id':'','state':'active','class':'Test-Button'},
-
-'cancelButton':{'btnOneState':'active','btnOneLabel':'Cancel','btnOneClass':'cancel-step'},
-
-'navButton':{'btnOneState':'disabled','btnOneLabel':'Previous','btnOneClass':'previous-step','btnTwoState':'active','btnTwoLabel':'Next','btnTwoClass':'next-step'},
-
-'information':'Welcome to SIMOC, a scalable model of an isolated, off-world community. Here you will enjoy the challenges and rewards of growing your habitat to a thriving city, or exploring the surrounding terrain with a limited crew. Whatever your mode of operation, be warned that closed ecosystems are a delicate thing, easy to unbalance and difficult to recover. Select from Play Mode or Science Run. In Play Mode you will interact regularly, making decisions that alter the course of the growth of your community. In a Science Run you will configure the model up-front and let it run its full course without interaction, then collect the data when done.', #Information Section
-}
-
-configuration={
-'show':'show', #Show pane
-'active':'disabled', #Active State
-'id':'configuration', #HREF
-'title':'Step 2: Welcome To SIMOC', 
-'formid':'wizardform',
-
-'radioOne':{'roworder':'1','display':'none','label':'Testing One','id':'Testing One','group':'model'},
-
-'radioTwo':{'roworder':'2','display':'none','label':'Testing Two','id':'Testing Two','group':'model'},
-
-'radioThree':{'roworder':'3','display':'none','label':'TestingThree','id':'Testing Radio 3','group':''},
-
-'select':{'roworder':'4','display':'visible','label':'Configuration','id':'configuration',
-    'options':
-        [{'value':'SIMOC Baseline','label':'SIMOC Baseline'},
-        {'value':"NASA 'Astronaut In A Can'",'label':"NASA 'Astronaut In A Can'"},
-        {'value':"Mars One",'label':"Mars One"}]},
-
-'integer':{'roworder':'5','display':'none','label':'TestingInteger','id':'duration'},
-
-'checkbox':{'roworder':'5','display':'none','label':'Permanent','id':'permanent'},
-
-'ipbutton':{'roworder':'6','display':'none','label':'Test Button','id':'','state':'active','class':'Test-Button'},
-
-'cancelButton':{'btnOneState':'active','btnOneLabel':'Cancel','btnOneClass':'cancel-step'},
-
-'navButton':{'btnOneState':'active','btnOneLabel':'Previous','btnOneClass':'previous-step','btnTwoState':'active','btnTwoLabel':'Next','btnTwoClass':'next-step'},
-
-'information':'This is a test', #Information Section
-}
-
-finalize={
-'show':'show', #Show pane
-'active':'', #Active State
-'id':'finalize', #HREF
-'title':'Step 10: Finalize', 
-'formid':'wizardform',
-
-'cancelButton':{'btnOneState':'active','btnOneLabel':'Cancel','btnOneClass':'cancel-step'},
-
-'navButton':{'btnOneState':'disabled','btnOneLabel':'Previous','btnOneClass':'previous-step','btnTwoState':'active','btnTwoLabel':'Finalize','btnTwoClass':'finalize-step'},
-
-'information':'This is a test', #Information Section
-}
 
 
-@app.route("/loadroute")
-def loadtest():
-    return render_template('loadtest.html')
 
 @app.before_request
 def deserialize_before_request():
     deserialize_request(request)
 
 
+content={'formid':'wizardform',
+'wizard':{
+'startInformation':'Welcome to SIMOC, a scalable model of an isolated, off-world community. Here you will enjoy the challenges and rewards of growing your habitat to a thriving city, or exploring the surrounding terrain with a limited crew. Whatever your mode of operation, be warned that closed ecosystems are a delicate thing, easy to unbalance and difficult to recover.Select from Play Mode or Science Run. In Play Mode you will interact regularly, making decisions that alter the course of the growth of your community. In a Science Run you will configure the model up-front and let it run its full course without interaction, then collect the data when done.',
+'configurationInformation':'Select from Preset models or Configure your own SIMOC community. The Preset models are each based upon a real-world experiment or base-line configuration. They require very little input and as such, the outcome is anticipated within a certain margin of error. These are used primarily for Science Runs. If you select to Configure your own model, you will be taken step-by-step through the panels in this Configuration Wizard.'}}
+
 @app.route("/")
-def home():
-   return render_template('panel_content.html')
+def index():
+    return render_template('base_template.html',content=content)
 
 @app.route("/loginpanel", methods=["GET"])
 def loginpanel():

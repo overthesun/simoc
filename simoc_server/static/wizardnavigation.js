@@ -15,11 +15,11 @@ $(document).ready(function () {
 
     $(".finalize-step").click(function (e){
 
-        if(document.getElementById('Scientific').checked){
+        if(document.getElementById('scientific-mode').checked){
             exportConfiguration();
         }
 
-        else if( document.getElementById('Interactive').checked){
+
             var obj = {'mode':'.','launch_date':'.','duration_days':'.','payload':'.','location':'.','region':'.','regolith':'.'}; 
             postFormatted('/new_game', obj, function (data,status) {
                 
@@ -38,8 +38,9 @@ $(document).ready(function () {
                 }
 
             });
-        }
+        
     });
+
 });
 
 function nextTab(elem) {
