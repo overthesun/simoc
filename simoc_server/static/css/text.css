@@ -37,7 +37,7 @@ body{
 .tab.title{
   font-size:30px;
   height: 60px;
-  background-image: url("blue-transparent.png")
+  background-image: url("/static/assets/blue-transparent.png")
 }
 
 .information{

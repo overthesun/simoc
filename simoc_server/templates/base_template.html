@@ -9,16 +9,14 @@
 
     <script src="./static/Chart.bundle.js"></script>
     <script src="./static/utils.js"></script>
-    <script src="./static/js/jquery/jquery.min.js"></script>
+    <script src="./static/js/jquery/jquery.min.js"></script>Or 
     <script src="./static/js/bootstrap/bootstrap.min.js"></script>
     <script src="./static/js/msgpack/msgpack.min.js"></script>
     <script src="./static/js/custom/connectionhandler.js"></script>
     <script src="./static/js/custom/custom_util.js"></script>
 
     <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
-
     <link rel="stylesheet" type="text/css" href="/static/css/text.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css">
 
     <!-- Make sure to remove this and change it to the local location -->
@@ -137,31 +135,26 @@
           </div>
           <div class="tab-content panel-content col-12 common-text">        
             <form id="{{content.formid}}"></form>
-            {%include '/partials/wizard/partial_startPane.html'%}
-            {%include '/partials/wizard/partial_configurationPane.html'%}
-            {%include '/partials/wizard/partial_locationPane.html'%}
-            {%include '/partials/wizard/partial_regionPane.html'%}
-            {%include '/partials/wizard/partial_terrainPane.html'%}
-            {%include '/partials/wizard/partial_launchPane.html'%}
-            {%include '/partials/wizard/partial_transportationPane.html'%}
-            {%include '/partials/wizard/partial_payloadPane.html'%}
-            {%include '/partials/wizard/partial_modelPane.html'%}
-            {%include '/partials/wizard/partial_finalizePane.html'%}
-
+            {%include '/partial_startPane.html'%}
+            {%include '/partial_configurationPane.html'%}
+            {%include '/partial_locationPane.html'%}
+            {%include '/partial_regionPane.html'%}
+            {%include '/partial_terrainPane.html'%}
+            {%include '/partial_launchPane.html'%}
+            {%include '/partial_transportationPane.html'%}
+            {%include '/partial_payloadPane.html'%}
+            {%include '/partial_modelPane.html'%}
+            {%include '/partial_finalizePane.html'%}
           </div>
         </div>
   	</div>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
     <script src="/static/js/finalizeform.js"></script>
     <script src="/static/js/wizardnavigation.js"></script>
     <script src="/static/js/wizardexport.js"></script>
-    <script src="/static/js/stepUpdate.js"></script>
-
-
 </body>
 </html>    	
