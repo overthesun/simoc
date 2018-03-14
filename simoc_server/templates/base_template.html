@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>SIMOC</title>
+
+    <script src="./static/Chart.bundle.js"></script>
+    <script src="./static/utils.js"></script>
+    <script src="./static/js/jquery/jquery.min.js"></script>
+    <script src="./static/js/bootstrap/bootstrap.min.js"></script>
+    <script src="./static/js/msgpack/msgpack.min.js"></script>
+    <script src="./static/js/custom/connectionhandler.js"></script>
+    <script src="./static/js/custom/custom_util.js"></script>
+
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/static/text.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css">
+
+    <!-- Make sure to remove this and change it to the local location -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+
+
+</head>
+
+<body>
+
+	<div class="container base-container"> 
+
+    {%set wizard = content.wizard%}
+      <div class="wizard">
+        <div class="row">
+          <div class="col-12 main title">
+            SIMOC
+          </div>
+          <div class="col-12 main subtitle">
+            CONFIGURATION WIZARD
+          </div>
+          <div class="tabs col-12">
+            <div class="connecting-line"></div>
+            <div class="d-flex justify-content-md-center tabs-inner">            
+              <ul class="nav" role="tablist">
+
+                <li class="nav-item p-1">
+                  <a class="nav-link fa-3x fa-layers fa-fw active" data-toggle="tab" href="#start">
+                    <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                    <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+
+                    <i class="far fa-window-minimize inner-icon" data-fa-transform="rotate-135 down-2 right-3 shrink-6"></i>
+                    <i class="fas fa-flask inner-icon" data-fa-transform="shrink-11 up-4 left-3 "></i>
+                    <i class="fas fa-gamepad inner-icon" data-fa-transform="shrink-11 down-3 right-3"></i>
+
+                  </a>
+                </li>
+
+                <li class="nav-item p-1">
+                  <a class="nav-link fa-3x fa-layers fa-fw disabled" data-toggle="tab" href="#configuration">
+                    <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                    <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                    <i class="fas fa-clipboard inner-icon" data-fa-transform="shrink-7"></i>
+                  </a>
+                </li>
+
+                <li class="nav-item p-1">
+                  <a class="nav-link fa-3x fa-layers fa-fw disabled" data-toggle="tab" href="#location">
+                    <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                    <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                    <i class="fas fa-globe inner-icon" data-fa-transform="shrink-7"></i>
+                  </a>
+                </li>
+
+                <li class="nav-item p-1">
+                  <a class="nav-link fa-3x fa-layers fa-fw disabled" data-toggle="tab" href="#region">
+                    <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                    <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                    <i class="far fa-map inner-icon" data-fa-transform="shrink-7"></i>
+                  </a>
+                </li>
+
+                <li class="nav-item p-1">
+                  <a class="nav-link fa-3x fa-layers fa-fw disabled" data-toggle="tab" href="#terrain">
+                    <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                    <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                    <i class="fas fa-map-pin inner-icon" data-fa-transform="shrink-7"></i>
+                  </a>
+                </li>
+
+                <li class="nav-item p-1">
+                  <a class="nav-link fa-3x fa-layers fa-fw disabled" data-toggle="tab" href="#launch">
+                    <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                    <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                    <i class="fas fa-calendar-alt inner-icon" data-fa-transform="shrink-7"></i>
+                  </a>
+                </li>
+
+                <li class="nav-item p-1">
+                  <a class="nav-link fa-3x fa-layers fa-fw disabled" data-toggle="tab" href="#transportation">
+                    <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                    <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                    <i class="fas fa-rocket inner-icon" data-fa-transform="shrink-7 rotate-315"></i>
+                    <!--<i class="fas fa-rocket inner-icon" data-fa-transform="rotate-315 shrink-9 up-2"></i>
+                    <i class="fas fa-ellipsis-v inner-icon" data-fa-transform="shrink-11 down-2"></i>-->
+                  </a>
+                </li>
+
+                <li class="nav-item p-1">
+                  <a class="nav-link fa-3x fa-layers fa-fw disabled" data-toggle="tab" href="#payload">
+                    <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                    <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                    <i class="fas fa-archive inner-icon" data-fa-transform="shrink-7"></i>
+                  </a>
+                </li>
+
+                <li class="nav-item p-1">
+                  <a class="nav-link fa-3x fa-layers fa-fw disabled" data-toggle="tab" href="#model">
+                    <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                    <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                    <i class="fas fa-chart-bar inner-icon" data-fa-transform="shrink-7"></i>
+                  </a>
+                </li>
+
+                <li class="nav-item p-1">
+                  <a class="nav-link fa-3x fa-layers fa-fw disabled" data-toggle="tab" href="#finalize">
+                    <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                    <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                    <i class="fas fa-play-circle inner-icon" data-fa-transform="shrink-7"></i>
+                  </a>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+          <div class="tab-content panel-content col-12 common-text">        
+            <form id="{{content.formid}}"></form>
+            {%include '/partials/wizard/partial_startPane.html'%}
+            {%include '/partials/wizard/partial_configurationPane.html'%}
+            {%include '/partials/wizard/partial_locationPane.html'%}
+            {%include '/partials/wizard/partial_regionPane.html'%}
+            {%include '/partials/wizard/partial_terrainPane.html'%}
+            {%include '/partials/wizard/partial_launchPane.html'%}
+            {%include '/partials/wizard/partial_transportationPane.html'%}
+            {%include '/partials/wizard/partial_payloadPane.html'%}
+            {%include '/partials/wizard/partial_modelPane.html'%}
+            {%include '/partials/wizard/partial_finalizePane.html'%}
+          </div>
+        </div>
+  	</div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script src="/static/finalizeform.js"></script>
+    <script src="/static/wizardnavigation.js"></script>
+    <script src="/static/wizardexport.js"></script>
+    <script src="/static/stepUpdate.js"></script>
+
+</body>
+</html>    	
