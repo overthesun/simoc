@@ -19,7 +19,12 @@ from simoc_server.exceptions import InvalidLogin, BadRequest, \
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-game_runner_manager = GameRunnerManager()
+game_runner_manager = None
+
+@app.before_first_request
+def create_game_runner_manager():
+    global game_runner_manager
+    game_runner_manager = GameRunnerManager()
 
 
 
@@ -27,7 +32,6 @@ game_runner_manager = GameRunnerManager()
 @app.before_request
 def deserialize_before_request():
     deserialize_request(request)
-
 
 content={'formid':'wizardform',
 'wizard':{
@@ -37,7 +41,6 @@ content={'formid':'wizardform',
 @app.route("/")
 def index():
     return render_template('base_template.html',content=content)
-
 @app.route("/loginpanel", methods=["GET"])
 def loginpanel():
     return render_template("panel_login.html")
@@ -315,7 +318,6 @@ def sprite_mappings():
     for key, val in agent_name_mapping.items():
         # initialize the sprite mapper class and serialize it
         response[key] = val._sprite_mapper().to_serializable()
-    print(response)
     return serialize_response(response)
 
 @app.route("/sprite/<path:sprite_path>", methods=["GET"])
@@ -333,11 +335,9 @@ def get_sprite(sprite_path):
     sprite_path : str
         The path to the sprite
     '''
-    print(sprite_path)
     root_path = "res/sprites"
     full_path = safe_join(app.root_path, root_path, sprite_path)
     if not os.path.isfile(full_path):
-        print(full_path)
         raise NotFound("Requested sprite not found: {0}".format(sprite_path))
     return send_from_directory(root_path, sprite_path)
 
@@ -379,7 +379,7 @@ def success(message, status_code=200):
     status_code : int
         The status code to send on the response (default is 200)
     '''
-    print(message)
+    app.logger.info("Success: {}".format(message))
     response = serialize_response(
         {
             "message":message

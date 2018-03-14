@@ -1,0 +1,53 @@
+<div class="tab-pane fade" id="launch">
+  <div class="row">
+    
+    <div class="col-12 tab title">
+      Step 7: Launch Window - Duration Of Stay
+    </div>
+
+    <div class="col-6 selection">
+
+      <input type="hidden" value="Launch Window" form="{{content.formid}}">
+      
+      <div class="option-block">
+        Please Select Launch Window (Departure | Arrival):      
+      </div>
+
+      <div class="form-check option-block">
+        <select class="custom-select option-block" form="{{content.formid}}">
+          <option selected>July 18, 2020 | March 4 2021</option>
+        </select>
+      </div>
+
+      <input type="hidden" value="Duration Of Stay" form="{{content.formid}}">
+
+      <div class="option-block">
+        Please Select Duration Of Stay<br>(In Months):
+      </div>
+
+      <div class="form-check option-block">
+        <input class="form-control" type="number" value="0" id="duration-input" form="{{content.formid}}">
+      </div>
+
+      <div class="form-check option-block">
+        <input class="form-check-input" id="permanent-check" type="checkbox" value="Permanent" form="{{content.formid}}">
+        <label class="form-check-label" for="permanent-check">Permanent</label>
+      </div>         
+
+    </div>
+
+    <div class="col-6 information">
+      {{wizard.launchInformation}}
+    </div>
+
+    <div class="col-6 cancel buttons">
+      <button type="button" class="cancel-step btn raised">Cancel</button>
+    </div>
+
+    <div class="col-6 navigation buttons">
+      <button type="button" class="previous-step btn raised">Previous</button>
+      <button type="button" class="next-step btn raised">Next</button>
+    </div>
+  </div>
+
+</div>

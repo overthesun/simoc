@@ -1,0 +1,58 @@
+<div class="tab-pane fade" id="payload">
+  <div class="row">
+    
+    <div class="col-12 tab title">
+      Step 8: Payload
+    </div>
+
+    <div class="col-6 selection">
+
+      <input type="hidden" value="Payload" form="{{content.formid}}">
+      
+      <div class="form-check option-block">
+        <input class="form-check-input" type="radio" name="payload" id="preset-payload" vaue="preset-payload" checked>
+        <label class="form-check-label" for="custom-configuration">
+          Calculated Payload
+        </label>
+      </div>
+
+      <div class="option-block">
+        Please Select Number Of Humans 
+        (Cargo Automatically Configured) 
+      </div>
+
+      <div class="form-check option-block">
+        <input class="form-control" type="number" value="0" id="payload-input" form="{{content.formid}}">
+      </div>
+
+      <div class="form-check option-block" disabled>
+        <input class="form-check-input" type="radio" name="payload" id="preset-payload" vaue="preset-payload" disabled>
+        <label class="form-check-label" for="custom-configuration">
+          Custom Payload
+        </label>
+      </div>
+
+      <input type="hidden" value="" id="custom-payload" disabled>
+
+      <div class="form-check option-block">
+        <button type="button" class="payload-Wizard btn raised" disabled>Create Payload</button>
+      </div>
+   
+
+    </div>
+
+    <div class="col-6 information">
+      {{wizard.payloadInformation}}
+    </div>
+
+    <div class="col-6 cancel buttons">
+      <button type="button" class="cancel-step btn raised">Cancel</button>
+    </div>
+
+    <div class="col-6 navigation buttons">
+      <button type="button" class="previous-step btn raised">Previous</button>
+      <button type="button" class="next-step btn raised">Next</button>
+    </div>
+  </div>
+
+</div>

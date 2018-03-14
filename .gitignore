@@ -7,6 +7,9 @@ test_settings.py
 # Secret Settings Files
 settings.py
 
+# logs
+logs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
