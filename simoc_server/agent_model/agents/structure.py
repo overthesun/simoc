@@ -379,13 +379,11 @@ class Harvester(EnclosedAgent):
 
     def harvest(self, plants):
         for x in plants:
-            plant_age = timedelta_to_days(self.model.model_time - x.model_time_created)
-            edible_mass = x.get_agent_type_attribute("edible") * plant_age
-            inedible_mass = x.get_agent_type_attribute("inedible") * plant_age
+            edible_mass = x.get_agent_type_attribute("edible") * x.get_agent_type_attribute("growth_period")
+            inedible_mass = x.get_agent_type_attribute("inedible") * x.get_agent_type_attribute("growth_period")
             #Needs different densities for inedible/edible, add to plant attr
             self.ship(to_volume(edible_mass, self.plant_mass_density), to_volume(inedible_mass, self.plant_mass_density))
             self.structure.remove_plant(x)
-            self.remove_plant(x)
             x.destroy()
 
     def ship(self, edible, inedible):
@@ -408,7 +406,7 @@ class Planter(EnclosedAgent):
     # TODO planter should use soil
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.counter = 0
+        self._attr("counter", 0,is_client_attr=True, is_persisted_attr=True)
 
     def step(self):
         if(len(self.structure.plants) < self.structure.max_plants):
@@ -447,8 +445,6 @@ class Kitchen(EnclosedAgent):
                 amount = x.supply("edible_mass", edible_to_cook)
                 edible_to_cook -= amount
                 actual_cooked += amount
-            if(edible_to_cook == 0):
-                return actual_cooked
         return actual_cooked
 
 
