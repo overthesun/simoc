@@ -26,6 +26,9 @@ def create_game_runner_manager():
     global game_runner_manager
     game_runner_manager = GameRunnerManager()
 
+
+
+
 @app.before_request
 def deserialize_before_request():
     deserialize_request(request)
@@ -35,11 +38,9 @@ content={'formid':'wizardform',
 'startInformation':'Welcome to SIMOC, a scalable model of an isolated, off-world community. Here you will enjoy the challenges and rewards of growing your habitat to a thriving city, or exploring the surrounding terrain with a limited crew. Whatever your mode of operation, be warned that closed ecosystems are a delicate thing, easy to unbalance and difficult to recover.Select from Play Mode or Science Run. In Play Mode you will interact regularly, making decisions that alter the course of the growth of your community. In a Science Run you will configure the model up-front and let it run its full course without interaction, then collect the data when done.',
 'configurationInformation':'Select from Preset models or Configure your own SIMOC community. The Preset models are each based upon a real-world experiment or base-line configuration. They require very little input and as such, the outcome is anticipated within a certain margin of error. These are used primarily for Science Runs. If you select to Configure your own model, you will be taken step-by-step through the panels in this Configuration Wizard.'}}
 
-
 @app.route("/")
-def home():
-    return render_template('base_template.html', content=content)
-
+def index():
+    return render_template('base_template.html',content=content)
 @app.route("/loginpanel", methods=["GET"])
 def loginpanel():
     return render_template("panel_login.html")
@@ -50,7 +51,7 @@ def registerpanel():
 
 @app.route("/gameinit", methods=["GET"])
 def gameinit():
-    return render_template("base_game.html")
+    return render_template('templatewizard.html',start=start,configuration=configuration,finalize=finalize)
 
 @app.route("/data_format", methods=["GET"])
 def data_format():
@@ -122,8 +123,12 @@ def logout():
     return success("Logged Out.")
 
 
+@app.route("/test_route",methods=["POST"])
+def test_route():
+    return success("You made it!")
+
 @app.route("/new_game", methods=["POST"])
-@login_required
+#@login_required
 def new_game():
     '''
     Creates a new game on the current session and adds

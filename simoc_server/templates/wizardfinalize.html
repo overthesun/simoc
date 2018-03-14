@@ -1,0 +1,26 @@
+<div class="tab-pane fade {{step.show}} {{step.active}}" id="{{step.id}}" role="tabpanel " style="outline:1px solid blue;">
+  <div class="row" style="outline: 1px solid red;">
+    
+    <div class="col-12 step-title">
+      {{step.title}}
+    </div>
+
+    <div class="col-12 finalize" style="padding: 0px">
+      <div class="row" id="row-finalize">     
+      </div>
+    </div>
+
+    <div class="col-6 cancel-btns">
+      {%set button=step.cancelButton%}
+      <button type="button" {{button.btnOneState}} class="{{button.btnOneClass}}">{{button.btnOneLabel}}
+    </div>
+
+    <div class="col-6 navigation-btns">
+
+      {%set button=step.navButton%}
+      <button type="button" {{button.btnOneState}} class="{{button.btnOneClass}}">{{button.btnOneLabel}}</button>
+      <button type="button" {{button.btnTwoState}} class="{{button.btnTwoClass}}">{{button.btnTwoLabel}}</button>
+      <button type="button" class="load-button">Load Button</button>
+    </div>
+  </div>
+</div>

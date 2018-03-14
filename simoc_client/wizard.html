@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
+  <style>
+    
+    .container, div{
+      border:1px solid #000;
+    }
+
+    .tab-content{
+      position:relative;
+    }
+
+    .container.tab-content.tab-pane{
+      position:absolute;
+    }
+
+    .container .navigation-buttons.container{
+      position:absolute;
+      width: auto;
+      height:auto;
+      right:0px;
+      bottom:0px;
+    }
+
+    .wizard{
+      display:block;
+      width:50%;
+      margin:auto;
+      flex-wrap: nowrap;
+    }
+
+
+  </style>
+
+</head>
+<body>
+
+  <div class="container">
+    <div class="wizard">
+      <ul class="nav flex-column nav-tabs" role="tablist" id="wizard-tabs">
+
+        {% for tab in wizard-tabs %}
+          <li class="nav-item">
+            <a class="nav-link {{ tab.active }}" href="{{ tab.href }}">
+              <i class="{{ tab.icon }}"></i>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <br>
+    <!--<form action= "{{wizard_post_route}}" method="post">
+      <div class="form-group">
+        <div class="tab-content" id="wizard-tab-content">
+
+          {% for panel in wizard-tabs %}
+            <div id="{{ panel.id }}" class="container tab-pane {{ panel.active }}">
+              <label for="{{ panel.selectorid }}">{{panel.description}}</label>
+              <select class="form-control col-sm-4" id="{{ panel.selectorid }}">
+
+
+                 Add in different conditionals for the pages that will require things like
+                  the input integer fields, and radio buttons.
+                {% for item in options %}
+                  {% if panel.id == item.id}
+                    <option value="{{ item.value }}" >{{ item.value }}</option>
+                  {% endif %}
+                {% endfor %}
+
+
+
+    </form>-->
+
+</body>
+</html>
