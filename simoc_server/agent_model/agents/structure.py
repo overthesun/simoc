@@ -1,4 +1,3 @@
-
 from simoc_server.agent_model import agent_model_util
 from simoc_server.agent_model.agents.core import BaseAgent
 from simoc_server.agent_model.agents.plants import PlantAgent
@@ -379,9 +378,13 @@ class Harvester(EnclosedAgent):
 
     def harvest(self, plants):
         for x in plants:
-            plant_age = timedelta_to_days(self.model.model_time - x.model_time_created)
-            edible_mass = x.get_agent_type_attribute("edible") * plant_age
-            inedible_mass = x.get_agent_type_attribute("inedible") * plant_age
+            plant_age = x.age
+            mature_age = timedelta_to_days(x.growth_period)
+
+            # limit growth to maturity age
+            maturity_coefficient = max(plant_age, mature_age)
+            edible_mass = x.get_agent_type_attribute("edible") * maturity_coefficient
+            inedible_mass = x.get_agent_type_attribute("inedible") * maturity_coefficient
             #Needs different densities for inedible/edible, add to plant attr
             self.ship(to_volume(edible_mass, self.plant_mass_density), to_volume(inedible_mass, self.plant_mass_density))
             self.structure.remove_plant(x)
@@ -403,26 +406,30 @@ class Harvester(EnclosedAgent):
 #Planter
 
 class Planter(EnclosedAgent):
-    agent_type_name = "planter"
+    _agent_type_name = "planter"
     # TODO planter plants everything in one step, should be incremental
     # TODO planter should use soil
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.counter = 0
 
     def step(self):
-        if(len(self.structure.plants) < self.structure.max_plants):
-            to_plant = self.structure.max_plants - len(self.structure.plants)
-            self.plant(to_plant) 
+        self.plant()
 
-    def plant(self, number_to_plant):
-        for x in range(0, number_to_plant):
-            plant_agent = self.model.plants_available[self.counter % len(self.model.plants_available)]
-            self.counter += 1
-            self.model.add_agent(plant_agent)
-            plant_agent.structure = self.structure
-            self.structure.agents.append(plant_agent)
-            self.structure.place_plant(plant_agent)        
+    def plant(self):
+        current_plants = dict(self.structure.plants) # make copy
+        needed_plants = self.model.plants_available
+
+        for plant in current_plants:
+            try:
+                needed_plants[plant._agent_type_name] -= 1
+            except KeyError:
+                pass
+
+        for plant_name, num_needed in needed_plants.items():
+            for i in range(num_needed):
+                plant_agent_class = agents.get_agent_by_type_name(plant_name)
+                plant_agent = plant_agent_class(self.model, structure=self.structure)
+                self.model.add_agent(plant_agent)
 
 #Converts plant mass to energy
 #Input: Edible Plant Mass
@@ -448,7 +455,7 @@ class Kitchen(EnclosedAgent):
                 edible_to_cook -= amount
                 actual_cooked += amount
             if(edible_to_cook == 0):
-                return actual_cooked
+                break
         return actual_cooked
 
 
@@ -498,6 +505,9 @@ class StorageFacility(EnclosedAgent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+
+    def post_db_load(self):
+        super().post_db_load()
         self.storage_capacity = self.structure.volume
 
     def step(self):
@@ -508,18 +518,17 @@ class StorageFacility(EnclosedAgent):
 
         if(self.storage_capacity == 0):
             amount_stored = 0
-            return amount_stored
-
-        if(self.storage_capacity < quantity):
+        elif(self.storage_capacity < quantity):
             amount_stored = self.storage_capacity
 
-        if hasattr(self, resource):
-            temp = getattr(self, resource) + amount_stored
-            setattr(self, resource, temp)
-            self.storage_capacity -= amount_stored
-        else:
-            self._attr(resource, amount_stored, is_client_attr=True, is_persisted_attr=True)
-            self.storage_capacity -= amount_stored
+            if hasattr(self, resource):
+                temp = getattr(self, resource) + amount_stored
+                setattr(self, resource, temp)
+                self.storage_capacity -= amount_stored
+            else:
+                # not sure if this will cause issues, definitely need to take a look a this later
+                self._attr(resource, amount_stored, is_client_attr=True, is_persisted_attr=True)
+                self.storage_capacity -= amount_stored
 
         return amount_stored
 
@@ -531,14 +540,9 @@ class StorageFacility(EnclosedAgent):
             if(quantity >= amount_stored):
                 amount_supplied = quantity - amount_stored
                 delattr(self, resource)
-
-                return amount_supplied
-
-            if(quantity < amount_stored):
+            elif(quantity < amount_stored):
                 amount_supplied = quantity
                 temp = getattr(self, resource) - amount_supplied
                 setattr(self, resource, temp)
-
-                return amount_supplied
 
         return amount_supplied

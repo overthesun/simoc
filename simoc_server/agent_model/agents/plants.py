@@ -18,7 +18,7 @@ class PlantAgent(EnclosedAgent):
         # value to track percentage of growth complete, not persisted
         self._attr("growth", default_value=0.0, is_client_attr=True, is_persisted_attr=False)
 
-        self._growth_period = datetime.timedelta(days=self.get_agent_type_attribute("growth_period"))
+        self.growth_period = datetime.timedelta(days=self.get_agent_type_attribute("growth_period"))
 
     @property
     def age(self):
@@ -46,9 +46,9 @@ class PlantAgent(EnclosedAgent):
         else:
             if not self.is_grown():
                 age = self.age
-                if age > self._growth_period:
+                if age > self.growth_period:
                     self.status = "grown"
-                self.growth = min(1.0, age/self._growth_period)
+                self.growth = min(1.0, age/self.growth_period)
 
             timedelta_per_step = self.model.timedelta_per_step()
             days_per_step = timedelta_to_days(timedelta_per_step)
@@ -66,14 +66,14 @@ class PlantAgent(EnclosedAgent):
             # TODO Temporary fix right here, this violates conservation
             # of matter
             if(atmosphere.carbon_dioxide < 0):
-                self.model.logger("WARNING Reseting carbon dioxide from negative value")
+                self.model.logger.info("WARNING Reseting carbon dioxide from negative value")
                 atmosphere.carbon_dioxide = 0
 
     def is_grown(self):
         return self.status == "grown"
 
     def kill(self, reason):
-        self.model.logger("Plant Died! Reason: {}".format(reason))
+        self.model.logger.info("Plant Died! Reason: {}".format(reason))
         self.destroy()
 
 class CabbageAgent(PlantAgent):
