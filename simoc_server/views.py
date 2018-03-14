@@ -32,7 +32,7 @@ def deserialize_before_request():
 
 @app.route("/")
 def home():
-    return render_template('panel_content.html')
+    return render_template('base_template.html')
 
 @app.route("/loginpanel", methods=["GET"])
 def loginpanel():
