@@ -388,7 +388,6 @@ class Harvester(EnclosedAgent):
             #Needs different densities for inedible/edible, add to plant attr
             self.ship(to_volume(edible_mass, self.plant_mass_density), to_volume(inedible_mass, self.plant_mass_density))
             self.structure.remove_plant(x)
-            self.remove_plant(x)
             x.destroy()
 
     def ship(self, edible, inedible):
@@ -454,8 +453,9 @@ class Kitchen(EnclosedAgent):
                 amount = x.supply("edible_mass", edible_to_cook)
                 edible_to_cook -= amount
                 actual_cooked += amount
-            if(edible_to_cook == 0):
+            else:
                 break
+
         return actual_cooked
 
 
