@@ -169,24 +169,8 @@ class AgentModel(Model):
             agent_class = agents.get_agent_by_type_name(agent_type_name)
             agent = agent_class(model, agent_state)
             model.add_agent(agent)
-<<<<<<< HEAD
-            print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
-            """
-            try:
-                agent_type_name = agent_state.agent_type.name
-                agent_class = agents.get_agent_by_type_name(agent_type_name)
-                agent = agent_class(model, agent_state)
-                model.add_agent(agent)
-                #print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
-            except:
-                print("Error Loading " + agent_type_name)
-            else:
-                print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
-        """
-=======
             app.logger.info("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
 
->>>>>>> master
         for agent in model.get_agents():
             agent.post_db_load()
         #print("returning model")
