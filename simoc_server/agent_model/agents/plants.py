@@ -66,14 +66,14 @@ class PlantAgent(EnclosedAgent):
             # TODO Temporary fix right here, this violates conservation
             # of matter
             if(atmosphere.carbon_dioxide < 0):
-                print("WARNING Reseting carbon dioxide from negative value")
+                self.model.logger("WARNING Reseting carbon dioxide from negative value")
                 atmosphere.carbon_dioxide = 0
 
     def is_grown(self):
         return self.status == "grown"
 
     def kill(self, reason):
-        print("Plant Died! Reason: {}".format(reason))
+        self.model.logger("Plant Died! Reason: {}".format(reason))
         self.destroy()
 
 class CabbageAgent(PlantAgent):
