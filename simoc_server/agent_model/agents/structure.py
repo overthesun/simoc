@@ -1,8 +1,7 @@
-<<<<<<< HEAD
+
 from collections import OrderedDict
-=======
 from datetime import timedelta
->>>>>>> US_117_110
+
 
 from simoc_server.agent_model import agent_model_util
 from simoc_server.agent_model.agents.core import BaseAgent
@@ -428,7 +427,7 @@ class Harvester(EnclosedAgent):
 
     def step(self):
         plants_ready = []
-        if self.structure.powered = 1:
+        if self.structure.powered == 1:
             for x in self.structure.plants:
                 if(x.is_grown()):
                     plants_ready.append(x)
@@ -472,7 +471,7 @@ class Planter(EnclosedAgent):
 
     def step(self):
 
-        if self.stucture.powered = 1:
+        if self.structure.powered == 1:
             self.plant()
             
         else:
@@ -521,18 +520,23 @@ class Kitchen(EnclosedAgent):
         pass
 
     def cook_meal(self, energy):
-        storage = self.model.get_agents(StorageFacility)
-        edible_to_cook = energy / self.joules_per_gram
-        actual_cooked = 0
-        for x in storage:
-            if(edible_to_cook > 0):
-                amount = x.supply("edible_mass", edible_to_cook)
-                edible_to_cook -= amount
-                actual_cooked += amount
-            else:
-                break
+        if self.structure.powered == 1:
+            storage = self.model.get_agents(StorageFacility)
+            edible_to_cook = energy / self.joules_per_gram
+            actual_cooked = 0
+            for x in storage:
+                if(edible_to_cook > 0):
+                    amount = x.supply("edible_mass", edible_to_cook)
+                    edible_to_cook -= amount
+                    actual_cooked += amount
+                else:
+                    break
+            return actual_cooked
+        else:
+            print("Kitchen has no power")
+            return 0
 
-        return actual_cooked
+       
 
 
 #Generates power (assume 100% for now)
