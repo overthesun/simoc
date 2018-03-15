@@ -25,16 +25,27 @@ class AgentModel(Model):
 
     def __init__(self, init_params):
         self.load_params()
-
-        self.grid_width = init_params.grid_width
-        self.grid_height = init_params.grid_height
-        self.model_time = init_params.starting_model_time
-        self.snapshot_branch = init_params.snapshot_branch
-        self.seed = init_params.seed
-        self.random_state = init_params.random_state
+        #Added - issue creating and testing agent model & agents by themselves added defualt values
+        self.grid_width = init_params.grid_width #getattr(init_params,"grid_width", 100) #
+        self.grid_height = init_params.grid_height # getattr(init_params,"grid_height", 100) #
+        self.model_time = init_params.starting_model_time # getattr(init_params,"starting_model_time", None) #
+        self.snapshot_branch = init_params.snapshot_branch # getattr(init_params,"snapshot_branch", None)  #
+        self.seed = init_params.seed # getattr(init_params,"seed", 0) #init_params.seed
+        self.random_state = init_params.random_state # getattr(init_params,"random_state", None) #
 
         self.atmospheres = []
         self.plumbing_systems = []
+        #hold single power module // needs to hold multiple
+        self.power_grid = []
+
+        # Power Grid - Holds Total Values for Power
+        """
+        self.power_storage_capacity = 0
+        self.power_output_capacity = 0
+        self.power_charge = 0
+        self.power_usage = 0
+        self.power_production = 0
+        """
 
         # plants_available is an ordered dict to ensure consistent
         # execution of agent steps when using the same random seed
@@ -49,10 +60,10 @@ class AgentModel(Model):
 
         if not isinstance(self.seed, int):
             raise Exception("Seed value must be of type 'int', got type '{}'".format(type(self.seed)))
+
         self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state)
         self.scheduler = RandomActivation(self, random_state=self.random_state)
-
-        self.scheduler.steps = init_params.starting_step_num
+        self.scheduler.steps = getattr(init_params,"starting_step_num", 0) #init_params.starting_step_num
 
     @property
     def logger(self):
@@ -114,6 +125,25 @@ class AgentModel(Model):
     def total_edible_mass(self):
         return sum_attributes(self.get_agents(StorageFacility), "edible_mass")
 
+    def total_power_capacity(self):
+        return sum_attributes(self.power_grid,"storage_capacity")
+
+    @property
+    def total_power_usage(self):
+        return sum_attributes(self.power_grid,"power_usage_per_day")
+
+    @property
+    def total_power_output(self):
+        return sum_attributes(self.power_grid,"output_capacity")
+
+    @property
+    def total_power_charge(self):
+        return sum_attributes(self.power_grid,"charge")
+
+    @property
+    def total_power_production(self):
+        return sum_attributes(self.power_grid,"power_produced_per_day")
+
     @property
     def step_num(self):
         return self.scheduler.steps
@@ -159,7 +189,7 @@ class AgentModel(Model):
 
         for agent in model.get_agents():
             agent.post_db_load()
-
+        #print("returning model")
         return model
 
     @classmethod
@@ -194,6 +224,15 @@ class AgentModel(Model):
 
         return plumbing_system
 
+    @classmethod
+    def create_power_module(cls, model, structures):
+
+        power_module = agents.PowerModule(model)
+
+        for structure in structures:
+            structure.set_power_module(power_module)
+        return power_module
+
     def add_agent(self, agent, pos=None):
         if pos is None and hasattr(agent, "pos"):
             pos = agent.pos
@@ -205,6 +244,8 @@ class AgentModel(Model):
             self.atmospheres.append(agent)
         elif isinstance(agent, agents.PlumbingSystem):
             self.plumbing_systems.append(agent)
+        elif isinstance(agent, agents.PowerModule):
+            self.power_grid.append(agent)
 
     def num_agents(self):
         return len(self.schedule.agents)
@@ -260,6 +301,11 @@ class AgentModel(Model):
                     "avg_temp", "total_moles_atmosphere"]
 
         status_string = " ".join(["{}: {:.5g}".format(name, getattr(self, name)) for name in to_print])
+
+        print(status_string)
+        print("Power: Total Capacity kwh: {}, Total Usage kw: {}, Total Charge kwh: {}, Max Output kw: {}, Total Production kw {}".format(
+            self.total_power_capacity, self.total_power_usage,self.total_power_charge, self.total_power_output, self.total_power_production
+        ))
         app.logger.info(status_string)
 
     def timedelta_per_step(self):
@@ -339,7 +385,6 @@ class AgentInitializerRecipe(metaclass=ABCMeta):
     def init_agents(self, model):
         pass
 
-
 class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
     NUM_HUMANS = 4
@@ -368,9 +413,12 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
         atmosphere = AgentModel.create_atmosphere(model, structures)
         plumbing_system = AgentModel.create_plumbing_system(model, structures)
+        power_module = AgentModel.create_power_module(model, structures)
 
         model.add_agent(atmosphere)
         model.add_agent(plumbing_system)
+        model.add_agent(power_module)
+
         for i in range(self.NUM_HUMANS):
             model.add_agent(agents.HumanAgent(model, structure=crew_quarters))
 

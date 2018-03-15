@@ -9,11 +9,13 @@ def seed():
     human_data = gen_human()
     plant_data = gen_plants()
     structure_data = gen_structures()
+    equipment_data = gen_equipment()
     misc = gen_misc()
 
     util.add_all(human_data)
     util.add_all(plant_data)
     util.add_all(structure_data)
+    #util.add_all(equipment_data)
     util.add_all(misc)
 
 def gen_misc():
@@ -21,6 +23,7 @@ def gen_misc():
     data["enclosed_agent_type"] = AgentType(name="enclosed_agent")
     data["atmosphere"] = AgentType(name="atmosphere")
     data["plumbing_system"] = AgentType(name="plumbing_system")
+    data["power_module"] = AgentType(name="power_module")
     return data
 
 def gen_human():
@@ -130,7 +133,6 @@ def gen_human():
     # Metabolism function values
     metabolic_description_format = \
         "{} in metabolic function: work_factor * time(days) * (A - (age_factor*age(years)) + B(mass_factor*mass(kg) + height_factor*height(m)))/C"
-
     data["human_metabolism_A"] = create_agent_type_attr(
         _type, "metabolism_A", 622.0, units=UNITLESS,
         description=metabolic_description_format.format("A"))
@@ -229,8 +231,8 @@ def gen_structures():
     add_structure(data, "rocket_pad",       10, 10, 10, 50, 0.9, 10, 10)
     add_structure(data, "rover_dock",       10, 10, 10, 50, 0.9, 10, 0)
     add_structure(data, "storage_facility", 10, 10, 10, 50, 0.9, 10, 0)
-    add_structure(data, "harvester",        10, 10, 10, 50, 0.9, 10, 0)
-    add_structure(data, "planter",          10, 10, 10, 50, 0.9, 10, 0)
+    add_structure(data, "harvester",        10, 10, 10, 50, 0.9, 10, 10)
+    add_structure(data, "planter",          10, 10, 10, 50, 0.9, 10, 10)
 
     # greenhouse specific values
     create_agent_type_attr(data["greenhouse_structure_agent_type"], "max_plants", 50)
@@ -253,6 +255,21 @@ def add_structure(data, name, length, width, height, mass, efficiency,
     create_agent_type_attr(agent_type, "power_consumption", power_consumed, "kW/day", "How much power is consumed by the structure.")
 
     return agent_type
+
+
+def gen_equipment():
+    kilowatts = "kW"
+    kilowatt_hours = "kWh"
+    #pwer
+    data = OrderedDict()
+
+    # set up default equipment values
+    #data["default_equipment_agent_type"] = AgentType(name="default_equipment")
+    #_type = data["power_module"] = AgentType(name="power_module")
+    #data["power_module_power_usage"] = create_agent_type_attr(_type,"power_usage", .002, kilowatts, "Total Usage in Kilowatts")
+
+    return data
+
 
 def create_agent_type_attr(agent_type, name, value, units=None, description=None):
     return AgentTypeAttribute(name=name, agent_type=agent_type, value=str(value),
