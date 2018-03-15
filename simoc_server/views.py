@@ -68,7 +68,7 @@ def login():
         be found.
     '''
     username = try_get_param("username")
-    password = try_get_param("password")
+    password = try_get_param("password")    
     user = User.query.filter_by(username=username).first()
     if user and user.validate_password(password):
         login_user(user)
@@ -93,10 +93,20 @@ def register():
     '''
     username = try_get_param("username")
     password = try_get_param("password")
+    email = try_get_param("email")
+    if(User().validate_login(username) == "None"):
+       raise BadRegistration("Invalid username")
+    if(User().validate_login(password) == "None"):
+       raise BadRegistration("Invalid password")
+    if(User().validate_email(email) == "None"):
+       raise BadRegistration("Invalid email")
     if(User.query.filter_by(username=username).first()):
         raise BadRegistration("User already exists")
+    if(User.query.filter_by(email=email).first()):
+         raise BadRegistration("Email already exists")    
     user = User(username=username)
     user.set_password(password)
+    user.set_email(email)
     db.session.add(user)
     db.session.commit()
     login_user(user)

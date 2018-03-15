@@ -12,6 +12,7 @@ Registration Menu
                 <p><input type="text" name="username" class="form-control "  style="width:100%"  id="username" placeholder="Create username"></p>
                 <p><input type="password" name="password" class="form-control "  style="width:100%"  id="password" placeholder="Create Password"></p>
                 <p><input type="password" name="validatepassword" class="form-control "  style="width:100%"  id="validatepassword" placeholder="Confirm Password"></p>
+				<p><input type="email" name="email" class="form-control" style="width:100%"  id="email" placeholder="Email" />  </p>
             </div>
              <div id="logformAlert" style="width:250px;margin:0;padding:1px;height:45px;"  class="alert"></div>
 			<div style="width:100%">
@@ -33,6 +34,10 @@ Registration Menu
         function isEmpty(str) {
             return (!str || 0 === str.length);
         }
+		function validEmail(e) {
+			var filter = /^\s*[\w\-\+_]+(\.[\w\-\+_]+)*\@[\w\-\+_]+\.[\w\-\+_]+(\.[\w\-\+_]+)*\s*$/;
+			return String(e).search (filter) != -1;
+		}
         $('#registerbtn').click(function () {
 
             var alertForm = function(message, alertClass){
@@ -43,21 +48,32 @@ Registration Menu
                 $("#logformAlert").attr("class", "alert " + alertClass)
             }
 
-            // alert($('form').());
+             var regex =RegExp('^[A-z0-9_-]{6,25}$');
+			 var regexemail=RegExp('^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$');
             $('#msg').html('');
             var user = $('#username').val();
             var pass = $('#password').val();
             var vpass = $('#validatepassword').val();
-            //alert(pass + '=' + vpass);
+			var email=$('#email').val();
+            alert(regexemail.test(email));
             //alert('user is empty: ' + isEmpty(user));
             if (pass != vpass) {
                 alertForm("Password does not match!","alert-danger");
             }
-            else if (isEmpty(user) || isEmpty(pass) || isEmpty(vpass)) {
+            else if (isEmpty(user) || isEmpty(pass) || isEmpty(vpass) || isEmpty(email)) {
                  alertForm('Enter username or password!',"alert-danger");
             }
+			else if(!regex.test(user)){
+				alertForm('Username wrong format!',"alert-danger");
+			}
+			else if(!regex.test(pass)){
+			    alertForm('Password wrong format!',"alert-danger");
+			}
+			else if(!validEmail(email)){
+			    alertForm('Email wrong format!',"alert-danger");
+			}
             else {
-               var obj = { "username": user, "password": pass };
+               var obj = { "username": user, "password": pass, "email":email };
                 //alert(JSON.stringify(obj));
                 postFormatted('/register', obj, function (data, status) {
                     //alert(data.message +'status:'+status);

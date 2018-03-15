@@ -11,7 +11,8 @@ Login Menu
             <div style="margin-top:5px;">
                 <p><input type="text" name="username" class="form-control " style="width:100%" id="username" placeholder="Enter username" /></p>
             
-                <p><input type="password" name="password" class="form-control" style="width:100%"  id="password" placeholder="Password" />  </p>          
+                <p><input type="password" name="password" class="form-control" style="width:100%"  id="password" placeholder="Password" />  </p> 
+								
             </div>
 			<div id="logformAlert" style="width:250px;margin:0;padding:1px;height:45px" class="alert"></div>
 			<div style="width:100%">
@@ -39,13 +40,13 @@ Login Menu
                 $("#logformAlert").attr("class", "alert " + alertClass)
             }
 
-           // alert($('form').());
+           
             var user = $('#username').val();
             var pass = $('#password').val();
             var obj = { "username": user, "password": pass };
             if (isEmpty(user) || isEmpty(pass)) {
                 alertForm('Enter username or password!',"alert-danger");
-            }
+            }			
 			else{
             //alert(JSON.stringify(obj));
             postFormatted('/login', obj, function (data,status) {
