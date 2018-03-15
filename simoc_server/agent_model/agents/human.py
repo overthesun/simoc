@@ -1,7 +1,7 @@
 import math
 import datetime
 
-from simoc_server.agent_model import agent_model_util
+from simoc_server.agent_model import agents, agent_model_util
 from simoc_server.agent_model.agents.core import EnclosedAgent
 from simoc_server.util import timedelta_to_days, timedelta_hour_of_day
 from simoc_server.exceptions import AgentModelError
@@ -51,10 +51,22 @@ class HumanAgent(EnclosedAgent):
             self.kill("Excess carbon dioxide.")
         elif self.days_without_water > self.get_agent_type_attribute("max_dehydration_days"):
             self.kill("Dehydration.")
+        elif self.energy <= 0:
+            self.kill("Starvation")
         else:
+            # TODO decide what kitches are available to human if seperated colonys exist
+            kitchens = self.model.get_agents(agents.Kitchen)
+            consumed_energy = 0
+            for kitchen in kitchens:
+                consumed_energy = kitchen.cook_meal(self.get_agent_type_attribute("required_food_energy"))
+                if consumed_energy >= self.get_agent_type_attribute("required_food_energy"):
+                    break
+
+            self.energy += consumed_energy
+            self.energy = min(self.get_agent_type_attribute("max_energy"), self.energy)
+
             is_working = hour_of_day < self.get_agent_type_attribute("work_day_hours")
             self._metabolize(is_working, days_per_step)
-
             # plumbing_system.water_to_waste_water(self._total_water_usage_per_day() * days_per_step)
 
             # Values based on agent model specification
@@ -134,7 +146,7 @@ class HumanAgent(EnclosedAgent):
                     atmosphere.modify_carbon_dioxide_by_mass(agent_model_util.moles_co2_to_mass(moles_diff / 2))
 
     def kill(self, reason):
-        self.model.logger("Human Died! Reason: {}".format(reason))
+        self.model.logger.info("Human Died! Reason: {}".format(reason))
         self.destroy()
 
     def _metabolize(self, is_working, days_per_step):

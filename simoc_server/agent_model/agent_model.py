@@ -5,6 +5,7 @@ import datetime
 import numpy as np
 import functools
 import operator
+from collections import OrderedDict
 from abc import ABCMeta, abstractmethod
 from uuid import uuid4
 
@@ -34,7 +35,10 @@ class AgentModel(Model):
 
         self.atmospheres = []
         self.plumbing_systems = []
-        self.plants_available = []
+
+        # plants_available is an ordered dict to ensure consistent
+        # execution of agent steps when using the same random seed
+        self.plants_available = OrderedDict()
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -341,12 +345,14 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
     NUM_HUMANS = 4
 
     # plants
-    NUM_PEANUT = 5
-    NUM_SOYBEAN = 10
-    NUM_RICE = 10
-    NUM_WHITE_POTATOS = 5
-    NUM_WHEAT = 15
-    NNUM_TOMATO = 5
+    PLANTS = {
+        "peanut":15,
+        "soybean":15,
+        "rice":15,
+        "white_potato":15,
+        "wheat":15,
+        "tomato":15
+    }
 
     def init_agents(self, model):
         crew_quarters = agents.CrewQuarters(model)
@@ -369,23 +375,8 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
             model.add_agent(agents.HumanAgent(model, structure=crew_quarters))
 
         # TODO determine number of plants for base line model
-        for i in range(self.NUM_PEANUT):
-            model.plants_available.append(agents.PeanutAgent(model))
-
-        for i in range(self.NUM_SOYBEAN):
-            model.plants_available.append(agents.SoybeanAgent(model))
-
-        for i in range(self.NUM_RICE):
-            model.plants_available.append(agents.RiceAgent(model))
-
-        for i in range(self.NUM_WHITE_POTATOS):
-            model.plants_available.append(agents.WhitePotatoAgent(model))
-
-        for i in range(self.NUM_WHEAT):
-            model.plants_available.append(agents.WheatAgent(model))
-
-        for i in range(self.NNUM_TOMATO):
-            model.plants_available.append(agents.TomatoAgent(model))
+        for plant_type_name, num_to_plant in self.PLANTS.items():
+            model.plants_available[plant_type_name] = num_to_plant
 
         model.add_agent(agents.Planter(model, structure=greenhouse))
         model.add_agent(agents.Harvester(model, structure=greenhouse))
