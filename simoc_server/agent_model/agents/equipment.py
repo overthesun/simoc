@@ -14,7 +14,6 @@ class Equipment(BaseAgent):
         self.name = kwargs.get("name","equipment")
         self.power_usage = kwargs.get("power_usage", 0)
         self.power_grid = kwargs.get("power_grid", None)
-        pass
 
     def step(self):
         pass
@@ -42,14 +41,12 @@ class PowerModule(Equipment):
         self._attr(name="power_charge", default_value=kwargs.get("power_charge", 0), _type=None, is_client_attr=True, is_persisted_attr=True)
         self._attr(name="power_production", default_value=kwargs.get("power_production", .25), _type=None, is_client_attr=True,
                    is_persisted_attr=True)
-        pass
 
     def step(self):
         if self.power_grid is None:
             self.power_charge += (self.power_usage + self.power_production)
         else:
             self.power_grid += (self.power_usage + self.power_production)
-        pass
 
     def set_power_grid(self, power_grid):
         self.power_grid = power_grid

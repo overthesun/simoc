@@ -1,3 +1,4 @@
+from datetime import timedelta
 
 from simoc_server.agent_model import agent_model_util
 from simoc_server.agent_model.agents.core import BaseAgent
@@ -7,6 +8,39 @@ from simoc_server.agent_model import agents
 from simoc_server.exceptions import AgentModelError
 from simoc_server.util import to_volume, timedelta_to_days
 
+class PowerModule(BaseAgent):
+    _agent_type_name = "power_module"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        #In kW-hour
+
+        self._attr("power_usage_per_day", 0.0, is_client_attr=True, is_persisted_attr=True)
+        #About 2 weeks of power
+        self._attr("storage_capacity", 8400, is_client_attr=True, is_persisted_attr=True)
+        self._attr("output_capacity", 70, is_client_attr=True, is_persisted_attr=True)
+        self._attr("charge", 0, is_client_attr=True, is_persisted_attr=True)
+        self._attr("power_produced_per_day", 100, is_client_attr=True, is_persisted_attr=True)
+
+    def step(self):
+        self.power_usage_per_day = 0
+        step_increment = self.model.timedelta_per_step()/timedelta(days=1)
+        usage_per_step = self.power_usage_per_day * step_increment
+        produced_per_step = self.power_produced_per_day * step_increment
+        agents = self.model.get_agents()
+        for agent in agents:
+            if hasattr(agent, "power_consumption"):
+                power_use = agent.get_agent_type_attribute("power_consumption")
+                consumption_per_step = power_use * step_increment
+                if (usage_per_step + consumption_per_step) <= self.output_capacity and (power_use + self.power_usage_per_day) <= self.power_produced_per_day:
+                    self.power_usage_per_day += power_use
+                    agent.powered = 1
+                else:
+                    agent.powered = 0
+                    print("Not enough powaahh")
+        if usage_per_step < produced_per_step and (self.charge + (produced_per_step + usage_per_step)) <= self.storage_capacity:
+            self.charge += (produced_per_step - usage_per_step)
 
 class PlumbingSystem(BaseAgent):
     _agent_type_name = "plumbing_system"
@@ -279,11 +313,12 @@ class Structure(BaseAgent):
         atmosphere = kwargs.pop("atmosphere", None)
 
         #model power grid refrence
-        self.power_grid = kwargs.get("power_grid", None)
+        self.power_module = kwargs.get("power_module", None)
         super().__init__(*args, **kwargs)
 
-        self._attr("plumbing_system", None, _type=Atmosphere, is_client_attr=True, is_persisted_attr=True)
+        self._attr("plumbing_system", None, _type=PlumbingSystem, is_client_attr=True, is_persisted_attr=True)
         self._attr("atmosphere", None, _type=Atmosphere, is_client_attr=True, is_persisted_attr=True)
+        self._attr("power_module", None, _type=PowerModule, is_client_attr=True, is_persisted_attr=True)
 
         self._attr("width", self.get_agent_type_attribute("width"), is_client_attr=True,
             is_persisted_attr=True)
@@ -291,9 +326,13 @@ class Structure(BaseAgent):
             is_persisted_attr=True)
         self._attr("length", self.get_agent_type_attribute("length"), is_client_attr=True,
             is_persisted_attr=True)
+        self._attr("power_consumption", self.get_agent_type_attribute("power_consumption"), is_client_attr=True,
+            is_persisted_attr=True)
+        self._attr("powered", 1, is_client_attr=True, is_persisted_attr=True)
 
         #self._attr("power_grid", self.get_agent_type_attribute("power_grid"), is_client_attr=True,
         #           is_persisted_attr=True)
+
 
         self.agents = []
 
@@ -311,8 +350,8 @@ class Structure(BaseAgent):
         # when adding a plumbing system
         self.plumbing_system = plumbing_system
 
-    def set_power_grid(self, power_grid):
-        self.power_grid = power_grid
+    def set_power_module(self, power_module):
+        self.power_module = power_module
 
     def place_agent_inside(self, agent):
         self.agents.append(agent)

@@ -15,7 +15,7 @@ def seed():
     util.add_all(human_data)
     util.add_all(plant_data)
     util.add_all(structure_data)
-    util.add_all(equipment_data)
+    #util.add_all(equipment_data)
     util.add_all(misc)
 
 def gen_misc():
@@ -23,7 +23,7 @@ def gen_misc():
     data["enclosed_agent_type"] = AgentType(name="enclosed_agent")
     data["atmosphere"] = AgentType(name="atmosphere")
     data["plumbing_system"] = AgentType(name="plumbing_system")
-    data["power_grid"] = AgentType(name="power_grid")
+    data["power_module"] = AgentType(name="power_module")
     return data
 
 def gen_human():
@@ -218,8 +218,8 @@ def gen_structures():
     add_structure(data, "rocket_pad",       10, 10, 10, 50, 0.9, 10, 10)
     add_structure(data, "rover_dock",       10, 10, 10, 50, 0.9, 10, 0)
     add_structure(data, "storage_facility", 10, 10, 10, 50, 0.9, 10, 0)
-    add_structure(data, "harvester",        10, 10, 10, 50, 0.9, 10, 0)
-    add_structure(data, "planter",          10, 10, 10, 50, 0.9, 10, 0)
+    add_structure(data, "harvester",        10, 10, 10, 50, 0.9, 10, 10)
+    add_structure(data, "planter",          10, 10, 10, 50, 0.9, 10, 10)
     
     return data
 
@@ -244,8 +244,8 @@ def gen_equipment():
     data = OrderedDict()
 
     # set up default equipment values
-    data["default_equipment_agent_type"] = AgentType(name="default_equipment")
-    data["power_module"] = AgentType(name="power_module")
+    #data["default_equipment_agent_type"] = AgentType(name="default_equipment")
+    #data["power_module"] = AgentType(name="power_module")
 
     return data
 

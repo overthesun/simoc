@@ -100,23 +100,23 @@ class AgentModel(Model):
 
     @property
     def total_power_capacity(self):
-        return sum_attributes(self.power_grid,"power_storage_capacity")
+        return sum_attributes(self.power_grid,"storage_capacity")
 
     @property
     def total_power_usage(self):
-        return sum_attributes(self.power_grid,"power_usage")
+        return sum_attributes(self.power_grid,"power_usage_per_day")
 
     @property
     def total_power_output(self):
-        return sum_attributes(self.power_grid,"power_output_capacity")
+        return sum_attributes(self.power_grid,"output_capacity")
 
     @property
     def total_power_charge(self):
-        return sum_attributes(self.power_grid,"power_charge")
+        return sum_attributes(self.power_grid,"charge")
 
     @property
     def total_power_production(self):
-        return sum_attributes(self.power_grid,"power_production")
+        return sum_attributes(self.power_grid,"power_produced_per_day")
 
     @property
     def step_num(self):
@@ -210,18 +210,14 @@ class AgentModel(Model):
         return plumbing_system
 
     @classmethod
-    def create_power_grid(cls, model, structures):
-        power_grid = agents.PowerModule(model=model)
-        power_grid.power_storage_capacity = 25
-        power_grid.power_output_capacity = 5
-        power_grid.power_charge = 0
-        power_grid.power_usage = .002
-        power_grid.power_production = .25
+    def create_power_module(cls, model, structures):
+
+        power_module = agents.PowerModule(model)
 
         for structure in structures:
-            structure.set_power_grid(power_grid)
+            structure.set_power_module(power_module)
 
-        return power_grid
+        return power_module
 
     def add_agent(self, agent, pos=None):
         if pos is None and hasattr(agent, "pos"):
@@ -397,11 +393,11 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
         atmosphere = AgentModel.create_atmosphere(model, structures)
         plumbing_system = AgentModel.create_plumbing_system(model, structures)
-        power_grid = AgentModel.create_power_grid(model, structures)
+        power_module = AgentModel.create_power_module(model, structures)
 
         model.add_agent(atmosphere)
         model.add_agent(plumbing_system)
-        model.add_agent(power_grid)
+        model.add_agent(power_module)
 
         for i in range(self.NUM_HUMANS):
             model.add_agent(agents.HumanAgent(model, structure=crew_quarters))
