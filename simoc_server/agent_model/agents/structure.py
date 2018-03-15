@@ -411,6 +411,7 @@ class Planter(EnclosedAgent):
         self.counter = 0
 
     def step(self):
+
         if(len(self.structure.plants) < self.structure.max_plants):
             to_plant = self.structure.max_plants - len(self.structure.plants)
             self.plant(to_plant) 
