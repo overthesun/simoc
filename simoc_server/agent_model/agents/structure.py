@@ -419,8 +419,11 @@ class Harvester(EnclosedAgent):
         self.plant_mass_density = 721 #NOT ACTUAL DENSITY kg/m^3
 
     def step(self):
-        if (self.structure.plants_ready > 0):
-            self.harvest()
+        if self.structure.powered = 1:
+            if (self.structure.plants_ready > 0):
+                self.harvest()
+        else:
+            print("Harvester has no power")
 
     def harvest(self):
         for x in self.structure.plants:
@@ -462,9 +465,12 @@ class Planter(EnclosedAgent):
         #FOR TESTING app.logger.info(self.structure.plants_housed)
         #FOR TESTING app.logger.info(self.structure.max_plants)
 
-        if(len(self.structure.plants) < self.structure.max_plants):
-            to_plant = self.structure.max_plants - len(self.structure.plants)
-            self.plant(to_plant) 
+        if self.stucture.powered = 1:
+            if(len(self.structure.plants) < self.structure.max_plants):
+                to_plant = self.structure.max_plants - len(self.structure.plants)
+                self.plant(to_plant) 
+        else:
+            print("Planter has no power")
 
         #FOR TESTING app.logger.info(self.structure.plants[0].status)
 
