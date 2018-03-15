@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from simoc_server.agent_model import agent_model_util
 from simoc_server.agent_model.agents.core import BaseAgent
 from simoc_server.agent_model.agents.plants import PlantAgent
@@ -345,18 +347,20 @@ class Greenhouse(Structure):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.needed_agents = ['Planter','Harvester']
-        self._attr("max_plants", 50,is_client_attr=True, is_persisted_attr=True)
         self.plants = []
 
     def step(self):
         pass
 
-    def place_plant(self, plant):
-        self.plants.append(plant)
+    def place_agent_inside(self, agent):
+        super().place_agent_inside(agent)
+        if isinstance(agent, agents.PlantAgent):
+            self.plants.append(agent)
 
-    def remove_plant(self, plant):
-        if(plant in self.plants):
-            self.plants.remove(plant)
+    def remove_agent_from(self, agent):
+        super().remove_agent_from(agent)
+        if(agent in self.plants):
+            self.plants.remove(agent)
 
 
 #Harvester 
@@ -387,7 +391,6 @@ class Harvester(EnclosedAgent):
             inedible_mass = x.get_agent_type_attribute("inedible") * maturity_coefficient
             #Needs different densities for inedible/edible, add to plant attr
             self.ship(to_volume(edible_mass, self.plant_mass_density), to_volume(inedible_mass, self.plant_mass_density))
-            self.structure.remove_plant(x)
             x.destroy()
 
     def ship(self, edible, inedible):
@@ -415,8 +418,12 @@ class Planter(EnclosedAgent):
         self.plant()
 
     def plant(self):
-        current_plants = dict(self.structure.plants) # make copy
-        needed_plants = self.model.plants_available
+        current_plants = self.structure.plants
+
+        # make copy of the plants_available, maintaining order
+        # to ensure consistent execution of the model
+        # when using the same random seed
+        needed_plants = OrderedDict(self.model.plants_available)
 
         for plant in current_plants:
             try:
@@ -424,8 +431,16 @@ class Planter(EnclosedAgent):
             except KeyError:
                 pass
 
-        for plant_name, num_needed in needed_plants.items():
+        random_state = self.model.random_state
+
+        needed_plant_names = list(needed_plants.keys())
+        random_state.shuffle(needed_plant_names)
+
+        for plant_name in needed_plant_names:
+            num_needed = needed_plants[plant_name]
             for i in range(num_needed):
+                if len(self.structure.plants) >= self.structure.get_agent_type_attribute("max_plants"):
+                    break
                 plant_agent_class = agents.get_agent_by_type_name(plant_name)
                 plant_agent = plant_agent_class(self.model, structure=self.structure)
                 self.model.add_agent(plant_agent)

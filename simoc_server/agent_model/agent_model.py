@@ -5,6 +5,7 @@ import datetime
 import numpy as np
 import functools
 import operator
+from collections import OrderedDict
 from abc import ABCMeta, abstractmethod
 from uuid import uuid4
 
@@ -34,7 +35,10 @@ class AgentModel(Model):
 
         self.atmospheres = []
         self.plumbing_systems = []
-        self.plants_available = {}
+
+        # plants_available is an ordered dict to ensure consistent
+        # execution of agent steps when using the same random seed
+        self.plants_available = OrderedDict()
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -342,12 +346,12 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
     # plants
     PLANTS = {
-        "peanut":5,
-        "soybean":10,
-        "rice":10,
-        "white_potato":5,
+        "peanut":15,
+        "soybean":15,
+        "rice":15,
+        "white_potato":15,
         "wheat":15,
-        "tomato":5
+        "tomato":15
     }
 
     def init_agents(self, model):

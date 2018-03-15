@@ -32,6 +32,7 @@ def gen_human():
     age_units = "years"
     mass_usage_units = "Kg/CrewMember*d"
     gas_units = "kPa"
+    food_energy_units = "MJ"
 
 
     # specifies age limits for earth-to-colony humans
@@ -46,7 +47,7 @@ def gen_human():
 
     # max energy a human can have
     data["human_max_energy"] = create_agent_type_attr(
-        _type, "max_energy", 21.0 * 13, units="MJ",
+        _type, "max_energy", 21.0 * 13, units=food_energy_units,
         description="Number of days a person can go with "
             "food times metabolic rate in MJ")
 
@@ -66,9 +67,16 @@ def gen_human():
     data["human_initial_height_std"] = create_agent_type_attr(
         _type, "initial_height_std", 0.0, units="", description="Standard deviation of initial height of a human.")
 
+    # food
+    data["human_required_food_energy"] = create_agent_type_attr(
+        _type, "required_food_energy", 13.0, units=food_energy_units,
+        description="Required food energy content")
+    data["human_max_starvation_days"] = create_agent_type_attr(
+        _type, "max_starvation_days", 21.0, units="days",
+        description="Max time a human can go without food.")
     # water usage
     data["human_max_dehydration_days"] = create_agent_type_attr(
-        _type, "max_dehydration_days", 21.0, units="days",
+        _type, "max_dehydration_days", 3.0, units="days",
         description="Max time a human can go without water.")
     data["human_consumed_water_usage"] = create_agent_type_attr(
         _type, "consumed_water_usage", 2.5, units=mass_usage_units,
@@ -223,13 +231,16 @@ def gen_structures():
     add_structure(data, "storage_facility", 10, 10, 10, 50, 0.9, 10, 0)
     add_structure(data, "harvester",        10, 10, 10, 50, 0.9, 10, 0)
     add_structure(data, "planter",          10, 10, 10, 50, 0.9, 10, 0)
-    
+
+    # greenhouse specific values
+    create_agent_type_attr(data["greenhouse_structure_agent_type"], "max_plants", 50)
+
     return data
 
 
 
 def add_structure(data, name, length, width, height, mass, efficiency, 
-        build_time, power_consumed,):
+        build_time, power_consumed):
     agent_type = AgentType(name=name)
     data["{0}_structure_agent_type".format(name)] = agent_type
 
@@ -241,6 +252,7 @@ def add_structure(data, name, length, width, height, mass, efficiency,
     create_agent_type_attr(agent_type, "build_time", build_time, "hours", "Time to build the structure.")
     create_agent_type_attr(agent_type, "power_consumption", power_consumed, "kW/day", "How much power is consumed by the structure.")
 
+    return agent_type
 
 def create_agent_type_attr(agent_type, name, value, units=None, description=None):
     return AgentTypeAttribute(name=name, agent_type=agent_type, value=str(value),
