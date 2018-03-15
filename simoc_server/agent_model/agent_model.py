@@ -16,26 +16,35 @@ from sqlalchemy.orm.exc import StaleDataError
 from simoc_server.database.db_model import AgentModelState, AgentState, \
     AgentType, AgentModelSnapshot, SnapshotBranch, AgentModelParam
 
-from simoc_server import db
+from simoc_server import db, app
 from simoc_server.agent_model import agents
 from simoc_server.util import sum_attributes, avg_attributes
-
 
 class AgentModel(Model):
 
     def __init__(self, init_params):
         self.load_params()
         #Added - issue creating and testing agent model & agents by themselves added defualt values
-        self.grid_width = getattr(init_params,"grid_width", 100) #init_params.grid_width
-        self.grid_height = getattr(init_params,"grid_height", 100) #init_params.grid_height
-        self.model_time = getattr(init_params,"starting_model_time", None) #init_params.starting_model_time
-        self.snapshot_branch = getattr(init_params,"snapshot_branch", None)  #init_params.snapshot_branch
-        self.seed = getattr(init_params,"seed", 0) #init_params.seed
-        self.random_state = getattr(init_params,"random_state", None) #init_params.random_state
+        self.grid_width = init_params.grid_width #getattr(init_params,"grid_width", 100) #
+        self.grid_height = init_params.grid_height # getattr(init_params,"grid_height", 100) #
+        self.model_time = init_params.starting_model_time # getattr(init_params,"starting_model_time", None) #
+        self.snapshot_branch = init_params.snapshot_branch # getattr(init_params,"snapshot_branch", None)  #
+        self.seed = init_params.seed # getattr(init_params,"seed", 0) #init_params.seed
+        self.random_state = init_params.random_state # getattr(init_params,"random_state", None) #
 
         self.atmospheres = []
         self.plumbing_systems = []
+        #hold single power module // needs to hold multiple
         self.power_grid = []
+
+        # Power Grid - Holds Total Values for Power
+        """
+        self.power_storage_capacity = 0
+        self.power_output_capacity = 0
+        self.power_charge = 0
+        self.power_usage = 0
+        self.power_production = 0
+        """
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -47,12 +56,13 @@ class AgentModel(Model):
         if not isinstance(self.seed, int):
             raise Exception("Seed value must be of type 'int', got type '{}'".format(type(self.seed)))
 
-        # T.T random_state kept crashing my runs, why is it added? where is it being calculated?
-        self.grid = MultiGrid(self.grid_width, self.grid_height, True) #, random_state=self.random_state
-        # T.T random_state kept crashing my runs, why is it added? where is it being calculated?
-        self.scheduler = RandomActivation(self) # , random_state=self.random_state
+        self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state)
+        self.scheduler = RandomActivation(self, random_state=self.random_state)
+        self.scheduler.steps = getattr(init_params,"starting_step_num", 0) #init_params.starting_step_num
 
-        self.scheduler.steps =getattr(init_params,"starting_step_num", 0) #init_params.starting_step_num
+    @property
+    def logger(self):
+        return app.logger
 
     @property
     def total_moles_atmosphere(self):
@@ -159,22 +169,11 @@ class AgentModel(Model):
             agent_class = agents.get_agent_by_type_name(agent_type_name)
             agent = agent_class(model, agent_state)
             model.add_agent(agent)
-            print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
-            """
-            try:
-                agent_type_name = agent_state.agent_type.name
-                agent_class = agents.get_agent_by_type_name(agent_type_name)
-                agent = agent_class(model, agent_state)
-                model.add_agent(agent)
-                #print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
-            except:
-                print("Error Loading " + agent_type_name)
-            else:
-                print("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
-        """
+            app.logger.info("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
+
         for agent in model.get_agents():
             agent.post_db_load()
-        print("returning model")
+        #print("returning model")
         return model
 
     @classmethod
@@ -216,7 +215,6 @@ class AgentModel(Model):
 
         for structure in structures:
             structure.set_power_module(power_module)
-
         return power_module
 
     def add_agent(self, agent, pos=None):
@@ -270,7 +268,7 @@ class AgentModel(Model):
 
             return snapshot
         except StaleDataError:
-            print("WARNING: StaleDataError during snapshot, probably a simultaneous save, changing branch.")
+            app.logger.warning("WARNING: StaleDataError during snapshot, probably a simultaneous save, changing branch.")
             db.session.rollback()
             self._branch()
             return self.snapshot()
@@ -278,7 +276,7 @@ class AgentModel(Model):
     def step(self):
         self.model_time += self.timedelta_per_step()
         self.scheduler.step()
-        print("{0} step_num {1}".format(self, self.step_num))
+        app.logger.info("{0} step_num {1}".format(self, self.step_num))
 
         # TODO remove this when it is no longer needed
         to_print = ["avg_oxygen_pressure", "avg_carbon_dioxide_pressure", "avg_nitrogen_pressure",
@@ -287,10 +285,12 @@ class AgentModel(Model):
                     "avg_temp", "total_moles_atmosphere"]
 
         status_string = " ".join(["{}: {:.5g}".format(name, getattr(self, name)) for name in to_print])
+
         print(status_string)
         print("Power: Total Capacity kwh: {}, Total Usage kw: {}, Total Charge kwh: {}, Max Output kw: {}, Total Production kw {}".format(
             self.total_power_capacity, self.total_power_usage,self.total_power_charge, self.total_power_output, self.total_power_production
         ))
+        app.logger.info(status_string)
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)
@@ -394,6 +394,7 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         atmosphere = AgentModel.create_atmosphere(model, structures)
         plumbing_system = AgentModel.create_plumbing_system(model, structures)
         power_module = AgentModel.create_power_module(model, structures)
+
 
         model.add_agent(atmosphere)
         model.add_agent(plumbing_system)

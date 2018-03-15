@@ -459,14 +459,14 @@ class Planter(EnclosedAgent):
         super().__init__(*args, **kwargs)
 
     def step(self):
-        #FOR TESTING print(self.structure.plants_housed)
-        #FOR TESTING print(self.structure.max_plants)
+        #FOR TESTING app.logger.info(self.structure.plants_housed)
+        #FOR TESTING app.logger.info(self.structure.max_plants)
 
         if(len(self.structure.plants) < self.structure.max_plants):
             to_plant = self.structure.max_plants - len(self.structure.plants)
             self.plant(to_plant) 
 
-        #FOR TESTING print(self.structure.plants[0].status)
+        #FOR TESTING app.logger.info(self.structure.plants[0].status)
 
     def plant(self, number_to_plant):
         for x in range(0, number_to_plant):
