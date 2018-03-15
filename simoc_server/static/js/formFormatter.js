@@ -40,7 +40,7 @@ $(document).ready(function(){
         });
     }
 
-    function dictToJSon(dict){
+    function dictToJSON(dict){
         console.log(JSON.stringify(dict));
         return JSON.stringify(dict);
     }
@@ -55,7 +55,6 @@ $(document).ready(function(){
         var target = $(e.target).attr("href")
         if(target == '#finalize'){    
             displayDict(formDict());
-            dictToJSon(formDict());
         }
     });
 });

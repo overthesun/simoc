@@ -34,7 +34,7 @@ body{
   margin-bottom: 32px;
 }
 
-.tab.title{
+.tab.title, .dashboard.title{
   font-size:30px;
   height: 60px;
   background-image: url("/static/assets/blue-transparent.png")
@@ -48,6 +48,30 @@ body{
 
 
 /* Below here needs to be move to other files */
+
+.dashboard > .left-panel, .dashboard > .middle-panel, .dashboard > .right-panel{
+  padding: 16px;
+}
+
+.dashboard > .left-panel > .inner, .dashboard > .middle-panel > .inner, .dashboard > .right-panel > .inner{
+  border-right: 2px solid #3b7493 ;
+  border-top: 2px solid #3b7493 ;
+  border-left: 2px solid #3b7493 ;
+  height: 688px;
+  padding-left: 16px;
+  padding-right:16px;
+}
+
+
+
+.container-fluid.base-container{
+  outline: 2px solid red;
+  padding: 0px;
+  
+
+  width: 1280px;
+  height: 720px;
+}
 
 .container, .row{
   padding: 0px;
@@ -107,7 +131,7 @@ body{
   border-left: 2px solid #3b7493 ;
 }
 
-.cancel.buttons, .navigation.buttons{
+.cancel.buttons, .navigation.buttons, .dashboard .title, .dashboard-block{
   border-bottom: 2px solid #3b7493 ;
 }
 

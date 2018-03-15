@@ -19,24 +19,16 @@ $(document).ready(function () {
             exportConfiguration();
         }
 
-            console.log("TEST");
-            var obj = {'mode':'.','launch_date':'.','duration_days':'.','payload':'.','location':'.','region':'.','regolith':'.'}; 
-            postFormatted('/new_game', obj, function (data,status) {
-                
-                
 
-                if (status == 'success') {
-                    var stateObj = {} // Use this to pass in the form data.
-                    window.history.pushState(stateObj,'SIMOC Dashboard',"dashboard.html"); //Dashboard route will just call current session
-                    //Logic for replacing div with dashboard div.
-                    $('#base-container').load(obj);
-                    console.log("TEST");
-                    paused = false;
-                    intervalUpdate(); // Change this to somewhere else?
+        var obj = {'mode':'.','launch_date':'.','duration_days':'.','payload':'.','location':'.','region':'.','regolith':'.'}; 
+        postFormatted('/new_game', obj, function (data,status) {
+            if (status == 'success') {
+                var stateObj ={};
+                history.pushState(stateObj, "SIMOC Dashboard","/dashboard");
+                $('#base-container').load("/test_route");
+            }
+        });
 
-                }
-
-            });
         
     });
 

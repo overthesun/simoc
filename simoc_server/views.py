@@ -36,9 +36,13 @@ content={'formid':'wizardform',
 'configurationInformation':'Select from Preset models or Configure your own SIMOC community. The Preset models are each based upon a real-world experiment or base-line configuration. They require very little input and as such, the outcome is anticipated within a certain margin of error. These are used primarily for Science Runs. If you select to Configure your own model, you will be taken step-by-step through the panels in this Configuration Wizard.'}}
 
 
+@app.route("/test_route", methods=["GET"])
+def testroute():
+    return render_template('partial_dashboard.html')
+
 @app.route("/")
 def home():
-    return render_template('base_template.html', content=content)
+    return render_template('panel_content.html')
 
 @app.route("/loginpanel", methods=["GET"])
 def loginpanel():
@@ -50,7 +54,7 @@ def registerpanel():
 
 @app.route("/gameinit", methods=["GET"])
 def gameinit():
-    return render_template("base_game.html")
+    return render_template("base_template.html",content=content)
 
 @app.route("/data_format", methods=["GET"])
 def data_format():
@@ -145,7 +149,7 @@ def new_game():
     game_runner_init_params = GameRunnerInitializationParams(mode, launch_date,
         duration_days, payload, location, region, regolith)
     game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
-    return success("New game created.")
+    return success("New Game Starts")
 
 @app.route("/get_step", methods=["GET"])
 @login_required
