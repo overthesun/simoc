@@ -28,8 +28,8 @@ class PowerModule(BaseAgent):
 
     def step(self):
         self.power_usage_per_day = 0
+        usage_per_step = 0
         step_increment = self.model.timedelta_per_step()/timedelta(days=1)
-        usage_per_step = self.power_usage_per_day * step_increment
         produced_per_step = self.power_produced_per_day * step_increment
         agents = self.model.get_agents()
         for agent in agents:
@@ -38,11 +38,12 @@ class PowerModule(BaseAgent):
                 consumption_per_step = power_use * step_increment
                 if (usage_per_step + consumption_per_step) <= self.output_capacity and (power_use + self.power_usage_per_day) <= self.power_produced_per_day:
                     self.power_usage_per_day += power_use
+                    usage_per_step = self.power_usage_per_day * step_increment
                     agent.powered = 1
                 else:
                     agent.powered = 0
                     print("Not enough powaahh")
-        if usage_per_step < produced_per_step and (self.charge + (produced_per_step + usage_per_step)) <= self.storage_capacity:
+        if usage_per_step < produced_per_step and (self.charge + (produced_per_step - usage_per_step)) <= self.storage_capacity:
             self.charge += (produced_per_step - usage_per_step)
 
 class PlumbingSystem(BaseAgent):
