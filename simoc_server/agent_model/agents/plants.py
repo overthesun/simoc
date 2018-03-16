@@ -1,5 +1,6 @@
 import datetime
 
+from simoc_server.exceptions import AgentModelError
 from simoc_server.util import timedelta_to_days
 from simoc_server.agent_model.sprite_mappers import PlantSpriteMapper
 from simoc_server.agent_model.agents.core import EnclosedAgent
@@ -59,15 +60,12 @@ class PlantAgent(EnclosedAgent):
 
             # TODO sort out discrepency between o2 and co2
             # consumption/production
-            # TODO convert gas exchange values to kgs in database
-            atmosphere.modify_oxygen_by_mass((self.get_agent_type_attribute("oxygen_produced") / 1000) * days_per_step)
-            atmosphere.modify_carbon_dioxide_by_mass((-1 * self.get_agent_type_attribute("carbon_uptake") / 1000) * days_per_step)
+            carbon_input = self.get_agent_type_attribute("carbon_uptake") * days_per_step
+            oxygen_output = self.get_agent_type_attribute("oxygen_produced") * days_per_step
 
-            # TODO Temporary fix right here, this violates conservation
-            # of matter
-            if(atmosphere.carbon_dioxide < 0):
-                self.model.logger.info("WARNING Reseting carbon dioxide from negative value")
-                atmosphere.carbon_dioxide = 0
+            actual_carbon_in, actual_oxygen_out = atmosphere.convert_co2_to_o2(carbon_input, oxygen_output, 
+                            self.get_agent_type_attribute("fatal_co2_lower"))
+
 
     def is_grown(self):
         return self.status == "grown"

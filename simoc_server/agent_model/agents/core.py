@@ -125,8 +125,12 @@ class BaseAgent(Agent, AttributeHolder):
         for name, attribute_descriptor in self.attribute_descriptors.items():
             if(issubclass(attribute_descriptor._type, BaseAgent)):
                 id_value = self.__dict__[name]
+                # TODO remove check for str value 'None' and move it elsewhere, make better
                 if id_value is not None:
-                    self.__dict__[name] = self.model.agent_by_id(id_value)
+                    if id_value == "None":
+                        self.__dict__[name] = None
+                    else:
+                        self.__dict__[name] = self.model.agent_by_id(id_value)
 
     def snapshot(self, agent_model_state, commit=True):
         pos = self.pos if hasattr(self, "pos") else (None, None)
