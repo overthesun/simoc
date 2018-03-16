@@ -34,7 +34,7 @@ class PowerModule(BaseAgent):
         agents = self.model.get_agents()
         for agent in agents:
             if hasattr(agent, "power_consumption"):
-                power_use = agent.get_agent_type_attribute("power_consumption")
+                power_use = getattr(agent, "power_consumption")
                 consumption_per_step = power_use * step_increment
                 if (usage_per_step + consumption_per_step) <= self.output_capacity and (power_use + self.power_usage_per_day) <= self.power_produced_per_day:
                     self.power_usage_per_day += power_use
@@ -424,6 +424,8 @@ class Harvester(EnclosedAgent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.plant_mass_density = 721 #NOT ACTUAL DENSITY kg/m^3
+        self._attr("power_consumption", 10, is_client_attr=True, is_persisted_attr=True)
+
 
     def step(self):
         plants_ready = []
@@ -468,6 +470,7 @@ class Planter(EnclosedAgent):
     # TODO planter should use soil
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._attr("power_consumption", 10, is_client_attr=True, is_persisted_attr=True)
 
     def step(self):
 
@@ -514,6 +517,7 @@ class Kitchen(EnclosedAgent):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._attr("power_consumption", 10, is_client_attr=True, is_persisted_attr=True)
         self.joules_per_gram = 5
 
     def step(self):
