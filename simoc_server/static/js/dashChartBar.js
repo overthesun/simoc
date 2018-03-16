@@ -160,4 +160,36 @@ function updateBarChart(avg_oxygen){
 
   waterBar.data.datasets[0].data[0] = total_water;
   waterBar.update();
+
+
+  if(oxygenLine.data.datasets[0].data.length >= 10)
+    oxygenLine.data.datasets[0].data.pop();
+  
+  oxygenLine.data.datasets[0].data.unshift(avg_oxygen);
+  oxygenLine.update();
+
 }
+
+
+var oxygenLine = new Chart(document.getElementById("test-bar-chart"), {
+    type: 'line',
+    data: {
+      labels: [0,1,2,3,4,5,6,7,8,9],
+      datasets: [
+        {
+          label: "KW/H",
+          borderColor: ["#e9f0f4"],
+          data: [],
+          fill: false
+        }
+      ]
+    },
+    options: {
+      legend: { display: false },
+      title: {
+        display: true,
+      }
+    }
+});
+
+Chart.defaults.global.defaultFontColor = "#fff";

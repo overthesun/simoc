@@ -3,58 +3,47 @@
   <div class="container col-3 left-panel">
     <div class="inner">
 
-      <div class="container config-dash eco" >
+      <div class="container config-dash model" >
         <div class="row">
           <div class="col-12 dashboard title">
             Mission Configuration
           </div>
-
-          <div class="col-12 config-block-eco" id="mode-id"></div>
-
-          <div class="col-12 config-block-eco" id="configuration-id"></div>  
-
-          <div class="col-12 config-block-eco" id="location-id"></div>
-
-          <div class="col-12 config-block-eco" id="region-id"></div>
-          
-          <div class="col-12 config-block-eco" id="terrain-id"></div>
-
-          <div class="col-12 config-block-eco" id="durationofstay-id"></div>   
-
-          <div class="col-12 config-block-eco" id="lengthofday-id">Length Of Day: </div>
-
-          <div class="col-12 config-block-eco" id="regolith-id">Minerals In Regolith: </div>   
-        </div>
-      </div>
-
-      <div class="container config-dash launch">
-        <div class="row">
-          <div class="col-12 dashboard title">
-            Launch Window
-          </div>
-
-          <div class="col-12 config-block-launch" id="launchwindow-id"></div>
-          <div class="col-12 config-block-launch" id="transportation-id"></div>
-
-        </div>
-      </div>
-
-      <div class="container config-dash payload" >
-        <div class="row">
-          <div class="col-12 dashboard title">
-            Payload
-          </div>
-
-          <div class="col-12 config-block-payload" id="payload-id"></div> 
-        </div>
-      </div>
-
-      <div class="container config-dash model" >
-        <div class="row">
-          <div class="col-12 dashboard title">
-            Model
-          </div>
+          <div class="col-12 config-block" id="mode-id"></div>
           <div class="col-12 config-block-model" id="model-id"></div>
+          <div class="col-12 config-block" id="configuration-id"></div>
+          
+        </div>
+      </div>
+
+      <div class="container config-dash">
+        <div class="row">
+          <div class="col-12 config-block" id="transportation-id"></div>
+          <div class="col-12 config-block" id="payload-id"></div>
+          <div class="col-12 config-block" id="launchwindow-id"></div> 
+          <div class="col-12 config-block" id="durationofstay-id"></div>
+        </div>
+      </div>
+
+      <div class="container config-dash" >
+        <div class="row">
+
+
+          <div class="col-12 config-block" id="location-id"></div>
+
+          <div class="col-12 config-block" id="region-id"></div>
+          
+          <div class="col-12 config-block" id="terrain-id"></div>
+          <div class="col-12 config-block" id="lengthofday-id">Length Of Day: </div>
+          <div class="col-12 config-block" id="regolith-id">
+          Minerals In Regolith:
+          <div class="col-12 config-block" style="font-size: 14px">
+                Magnesium:
+               <br/> Aluminium:
+               <br/> Titanium:
+               <br/> Iron:
+               <br/> Chromium: 
+          </div>
+        </div>   
         </div>
       </div>
 
@@ -143,6 +132,9 @@
       <div class="row">
         <div class="col-12 dashboard title">
           Ecosystem
+        </div>
+        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px">
+          <canvas id="test-bar-chart" style="width:100%; height: 100%"></canvas>
         </div>
       </div>
     </div>

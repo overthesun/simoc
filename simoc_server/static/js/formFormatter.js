@@ -28,7 +28,7 @@ $(document).ready(function(){
 
     function displayDict(dict){
         
-        var displayDescriptions = ['Mode','Configuration','Location','Region','Terrain','Launch Window','Duration Of Stay', 'Transportation','Payload','Model'];
+        var displayDescriptions = ['Mode','Model','Location','Region','Terrain','Launch Window','Duration Of Stay', 'Transportation','Payload'];
 
         var index = 0;
 

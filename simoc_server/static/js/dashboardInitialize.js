@@ -6,7 +6,7 @@ $(document).ready(function () {
 
     function displayDict(dict){
         
-        var displayDescriptions = ['Mode','Config','Location','Region','Terrain','Launch Window','Duration Of Stay', 'Transportation','Payload','Model'];
+        var displayDescriptions = ['Mode','Model','Location','Region','Terrain','Launch Window','Duration Of Stay', 'Transportation','Payload'];
 
         var index = 0;
 

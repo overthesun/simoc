@@ -56,12 +56,8 @@ body{
 
 /* Below here needs to be move to other files */
 
-.config-block-eco,.config-block-launch, .config-block-model, .config-block-payload{
+.config-block{
   margin: 2px;
-}
-
-.config-block-model, .config-block-payload{
-  text-align: center;
 }
 
 .config-dash, .main-dash{
@@ -119,7 +115,7 @@ body{
     height: 5px;
     background: #3b7493;
     position: absolute;
-    width: 600px;
+    width: 80%;
     margin: 0 auto;
     left: 0;
     right: 0;
@@ -208,4 +204,8 @@ a > .selector-icon{
 
 a.disabled > .inner-icon{
   color: #8b97a4;
+}
+
+.testChart{
+  background-color:gray;
 }
