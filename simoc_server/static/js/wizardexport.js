@@ -1,9 +1,8 @@
 function exportConfiguration() {
 
+  console.log(formDict());
   var filename ="test.txt";
-  var input = $.getScript('/static/js/formFormatter',function(){
-    formDict();
-  });
+  var input = JSON.stringify(formDict()); 
 
   var element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(input));

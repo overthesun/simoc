@@ -23,12 +23,16 @@ $(document).ready(function () {
         var obj = {'mode':'.','launch_date':'.','duration_days':'.','payload':'.','location':'.','region':'.','regolith':'.'}; 
         postFormatted('/new_game', obj, function (data,status) {
             if (status == 'success') {
-                var stateObj ={};
-                history.pushState(stateObj, "SIMOC Dashboard","/dashboard");
-                $('#base-container').load("/test_route");
+                var obj = {};                
+                //history.pushState(obj, "SIMOC Dashboard","/dashboard");
+                $('#base-container').load("/test_route",function(){
+                    $.getScript('/static/js/dashboardInitialize.js');
+                    $.getScript('/static/js/dashChartBar.js');
+                    $.getScript('/static/js/updateInterval.js');
+                    //$.getScript('/static/css/text.css');
+                });
             }
         });
-
         
     });
 

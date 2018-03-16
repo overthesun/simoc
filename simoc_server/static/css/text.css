@@ -34,10 +34,17 @@ body{
   margin-bottom: 32px;
 }
 
-.tab.title, .dashboard.title{
+.tab.title{
   font-size:30px;
   height: 60px;
   background-image: url("/static/assets/blue-transparent.png")
+}
+
+.dashboard.title{
+  font-size:20px;
+  height: 30px;
+  background-image: url("/static/assets/blue-transparent.png");
+  text-align:center;
 }
 
 .information{
@@ -49,11 +56,26 @@ body{
 
 /* Below here needs to be move to other files */
 
+.config-block-eco,.config-block-launch, .config-block-model, .config-block-payload{
+  margin: 2px;
+}
+
+.config-block-model, .config-block-payload{
+  text-align: center;
+}
+
+.config-dash, .main-dash{
+  border: 2px solid #3b7493 ;
+
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
 .dashboard > .left-panel, .dashboard > .middle-panel, .dashboard > .right-panel{
   padding: 16px;
 }
 
-.dashboard > .left-panel > .inner, .dashboard > .middle-panel > .inner, .dashboard > .right-panel > .inner{
+/*.dashboard > .left-panel > .inner, .dashboard > .middle-panel > .inner,*/ .dashboard > .right-panel > .inner{
   border-right: 2px solid #3b7493 ;
   border-top: 2px solid #3b7493 ;
   border-left: 2px solid #3b7493 ;
@@ -62,10 +84,18 @@ body{
   padding-right:16px;
 }
 
+.dashboard.map{
+  background-image: url("/static/assets/mars_map.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  height: 414px;
+}
 
+.main-dash.bars{
+  height: 144px;
+}
 
 .container-fluid.base-container{
-  outline: 2px solid red;
   padding: 0px;
   
 
@@ -165,18 +195,17 @@ body{
 
 /* This is a test of the hover nothing permanent*/
 
-li.nav-item > a.active > .selector-icon, li.nav-item > a:hover > .selector-icon{
+a.active > .selector-icon, a:hover > .selector-icon{
   color: #5bc0f6;
 }
 
-li.nav-item > a.disabled > .selector-icon{
+a.disabled > .selector-icon{
   color: transparent;
 }
-
-li.nav-item > a > .selector-icon{
+a > .selector-icon{
   color: #3c4f59;
 }
 
-li.nav-item > a.disabled > .inner-icon{
+a.disabled > .inner-icon{
   color: #8b97a4;
 }

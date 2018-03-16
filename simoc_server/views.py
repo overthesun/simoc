@@ -36,9 +36,10 @@ content={'formid':'wizardform',
 'configurationInformation':'Select from Preset models or Configure your own SIMOC community. The Preset models are each based upon a real-world experiment or base-line configuration. They require very little input and as such, the outcome is anticipated within a certain margin of error. These are used primarily for Science Runs. If you select to Configure your own model, you will be taken step-by-step through the panels in this Configuration Wizard.'}}
 
 
-@app.route("/test_route", methods=["GET"])
+@app.route("/test_route", methods=["GET","POST"])
 def testroute():
-    return render_template('partial_dashboard.html')
+
+    return render_template('partial_dashboard.html',static_url_path='/static')
 
 @app.route("/")
 def home():

@@ -5,7 +5,7 @@ $(document).ready(function(){
 
         var dict = {};
 
-        for(var i=0; i< configuration.length; i++){
+        for(var i=0; i<configuration.length; i++){
             if(configuration[i].type =='hidden' ){
                 for(var k=i+1; k<configuration.length; k++){
                     if(configuration[k].type =='radio' || configuration[k].type =='check'){
@@ -22,7 +22,6 @@ $(document).ready(function(){
                 }
             }        
         }
-
         
         return dict;
     }
