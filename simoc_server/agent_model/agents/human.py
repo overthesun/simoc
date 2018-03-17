@@ -134,7 +134,7 @@ class HumanAgent(EnclosedAgent):
                     atmosphere.modify_carbon_dioxide_by_mass(agent_model_util.moles_co2_to_mass(moles_diff / 2))
 
     def kill(self, reason):
-        self.model.logger("Human Died! Reason: {}".format(reason))
+        self.model.logger.info("Human Died! Reason: {}".format(reason))
         self.destroy()
 
     def _metabolize(self, is_working, days_per_step):
