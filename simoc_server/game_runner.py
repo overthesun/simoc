@@ -186,7 +186,10 @@ class GameRunner(object):
             at the requested step.
         """
         if(step_num is None):
-            step_num = self.agent_model.step_num + 1
+            if len(self.step_buffer) > 0:
+                step_num = min(self.step_buffer.keys()) + 1
+            else:
+                step_num = self.agent_model.step_num + 1
         self._step_to(step_num, False)
         return self._get_step_from_buffer(step_num)
 
@@ -222,7 +225,7 @@ class GameRunner(object):
         """
         pruned_buffer = {}
         for n, step in self.step_buffer.items():
-            if n > step_num:
+            if step_num <= n:
                 pruned_buffer[n] = step
 
         if step_num not in self.step_buffer.keys():
