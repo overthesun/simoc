@@ -597,16 +597,52 @@ class StoredFood(StoredMass):
             return float('nan')
 
     def accumulate(self, mass_kg, density, energy_density):
-        print("mass_kg: {} density: {} energy_density: {}".format(mass_kg, density, energy_density))
+        """Add food to the total amount
+
+        Parameters
+        ----------
+        mass_kg : float
+            Mass of the food to add
+        density : float
+            Density of the food to add in kG/m^3
+        energy_density : float
+            Energy density of the food in kJ/kG
+
+        Returns
+        -------
+        actual_mass : float
+            The actual mass stored limited by the storage capacity
+        actual_energy : float
+            The actual energy stored based on the mass stored and the energy density
+        """
         actual_mass = super().accumulate(mass_kg, density)
         actual_energy = actual_mass * energy_density
         self.food_energy += actual_energy
-        print("actual mass: {} actual_energy: {}".format(actual_mass, actual_energy))
         return actual_mass, actual_energy
 
     def supply_mass(self, requested_mass, return_energy=False):
+        """Decrement and return the requested mass if available otherwise,
+        will return the amount available.  Return energy is available
+        as an optional parameter, to keep this function compatible with
+        the parent class
+
+        Parameters
+        ----------
+        requested_mass : float
+            The amount of mass that should be supplied if available
+        return_energy : bool, optional
+            If True, return energy available on requested mass of food
+
+        Returns
+        -------
+        actual_mass : float
+            The mass that is available to supply and has been decremented from internal
+            stores
+        actual_energy : float
+            The energy that has been decremented as a result of the decrease in mass
+        """
         actual_mass = 0
-        energy_lost = 0
+        actual_energy = 0
 
         if self.mass > 0:
             # get food energy density before changing mass
@@ -618,19 +654,36 @@ class StoredFood(StoredMass):
             if self.mass == 0:
                 # if all mass is spent, explicitly
                 # set energy lost to avoid rounding error
-                energy_lost = self.food_energy
+                actual_energy = self.food_energy
             else:
                 # calculate resultant energy loss
-                energy_lost = actual_mass * food_energy_density
+                actual_energy = actual_mass * food_energy_density
             # subtract energy lost from total energy
-            self.food_energy -= energy_lost
+            self.food_energy -= actual_energy
 
         if return_energy:
-            return actual_mass, energy_lost
+            return actual_mass, actual_energy
         else:
             return actual_mass
 
     def supply_energy(self, requested_energy):
+        """Decrement and return the requested energy if available otherwise,
+        return the available energy
+
+        Parameters
+        ----------
+        requested_energy : float
+            The amount of energy to supply, if available
+
+        Returns
+        -------
+        actual_energy : float
+            The energy that is available to supply and has been decremented from
+            internal stores
+        actual_mass : float
+            The mass of the food returned based on the energy density and
+            the amount of energy supplied
+        """
         actual_energy = 0
         actual_mass = 0
         if self.food_energy > 0:
@@ -693,14 +746,11 @@ class StorageFacility(Structure, EnclosedAgent):
         pass
 
     def store_volume(self, requested_volume):
-        print("in: {}".format(requested_volume))
         storable = min(requested_volume, self.storage_capacity)
         self.storage_capacity += storable
-        print("actual in: {}".format(storable))
         return storable
 
     def release_volume(self, requested_volume):
-        print("out: {}".format(requested_volume))
         new_capacity = self.storage_capacity - requested_volume
 
         if new_capacity < 0:

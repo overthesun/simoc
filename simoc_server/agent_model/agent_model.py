@@ -103,16 +103,12 @@ class AgentModel(Model):
         return avg_attributes(self.atmospheres, "temp")
 
     @property
-    def total_food(self):
-        return sum_attributes(self.get_agents(StorageFacility), "food")
+    def total_food_energy(self):
+        return sum_attributes(self.get_agents(agents.StoredFood), "food_energy")
 
     @property
-    def total_inedible_mass(self):
-        return sum_attributes(self.get_agents(StorageFacility), "inedible_mass")
-
-    @property
-    def total_edible_mass(self):
-        return sum_attributes(self.get_agents(StorageFacility), "edible_mass")
+    def total_food_mass(self):
+        return sum_attributes(self.get_agents(agents.StoredFood), "mass")
 
     @property
     def step_num(self):
@@ -387,12 +383,32 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
             model.plants_available[plant_type_name] = num_to_plant
 
         crew_quarters_storage = agents.StorageFacility(model, structure=crew_quarters)
-        stored_food = crew_quarters_storage.get_stored_food()
+        greenhouse_storage = agents.StorageFacility(model, structure=greenhouse)
 
-        stored_food.accumulate(self.INITIAL_FOOD_MASS, self.INITIAL_FOOD_DENSITY, self.INITIAL_FOOD_ENERGY_DENSITY)
+        cq_stored_food = crew_quarters_storage.get_stored_food()
+        gh_stored_food = greenhouse_storage.get_stored_food()
+
+        to_store = self.INITIAL_FOOD_MASS
+        energy_to_store = self.INITIAL_FOOD_ENERGY_DENSITY
+
+        for stored_food in [cq_stored_food, gh_stored_food]:
+            actual_mass, actual_energy = stored_food.accumulate(to_store,
+                self.INITIAL_FOOD_DENSITY, self.INITIAL_FOOD_ENERGY_DENSITY)
+
+            to_store -= actual_mass
+            energy_to_store -= actual_energy
+
+        if(to_store > 0):
+            actual_mass_total = self.INITIAL_FOOD_MASS - to_store
+            actual_energy_stored = self.INITIAL_FOOD_ENERGY - energy_to_store
+
+            logger.info("Unable to store all of initial food. Stored {} kg out of {} kg"
+                " and {} kJ out of {} kJ".format(actual_mass_total, self.INITIAL_FOOD_MASS,
+                    actual_energy_stored, self.INITIAL_FOOD_ENERGY))
+
         model.add_agent(agents.Planter(model, structure=greenhouse))
         model.add_agent(agents.Harvester(model, structure=greenhouse))
-        model.add_agent(agents.StorageFacility(model, structure=greenhouse))
+        model.add_agent(greenhouse_storage)
         model.add_agent(crew_quarters_storage)
         model.add_agent(agents.Kitchen(model, structure=crew_quarters))
 
