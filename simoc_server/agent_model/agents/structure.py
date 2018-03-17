@@ -9,7 +9,7 @@ from simoc_server.agent_model.agents.plants import PlantAgent
 from simoc_server.agent_model.agents.core import EnclosedAgent
 from simoc_server.agent_model import agents
 from simoc_server.exceptions import AgentModelError
-from simoc_server.util import to_volume, timedelta_to_days
+from simoc_server.util import timedelta_to_days
 
 class PowerModule(BaseAgent):
     _agent_type_name = "power_module"
@@ -424,9 +424,7 @@ class Harvester(EnclosedAgent):
     # Plant matter densities
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.plant_mass_density = 721 #NOT ACTUAL DENSITY kg/m^3
         self._attr("power_consumption", 10, is_client_attr=True, is_persisted_attr=True)
-
 
     def step(self):
         plants_ready = []
@@ -440,26 +438,33 @@ class Harvester(EnclosedAgent):
 
     def harvest(self, plants):
         for x in plants:
-            plant_age = x.age
+            plant_age = timedelta_to_days(x.age)
             mature_age = timedelta_to_days(x.growth_period)
 
             # limit growth to maturity age
             maturity_coefficient = max(plant_age, mature_age)
             edible_mass = x.get_agent_type_attribute("edible") * maturity_coefficient
             inedible_mass = x.get_agent_type_attribute("inedible") * maturity_coefficient
+            plant_density = x.get_agent_type_attribute("density")
+            energy_density = x.get_agent_type_attribute("energy_density")
             #Needs different densities for inedible/edible, add to plant attr
-            self.ship(to_volume(edible_mass, self.plant_mass_density), to_volume(inedible_mass, self.plant_mass_density))
+            self.ship(edible_mass, inedible_mass, plant_density, energy_density)
             x.destroy()
 
-    def ship(self, edible, inedible):
+    def ship(self, edible, inedible, plant_density, energy_density):
         possible_storage = self.model.get_agents(StorageFacility)
         edible_to_store = edible
         inedible_to_store = inedible
+
         for x in possible_storage:
+            stored_food_unit = x.get_stored_food()
+            inedible_mass_unit = x.get_inedible_mass()
             if(edible_to_store > 0):
-                edible_to_store -= x.store("edible_mass", edible)
+                stored_energy, stored_mass = stored_food_unit.accumulate(edible, plant_density, energy_density)
+                edible_to_store -= stored_mass
             if(inedible_to_store > 0):
-                inedible_to_store -= x.store("inedible_mass", inedible)
+                stored_mass = inedible_mass_unit.accumulate(inedible, plant_density)
+                inedible_to_store -= stored_mass
             if(edible_to_store == 0 and inedible_to_store == 0):
                 break
 
@@ -477,7 +482,7 @@ class Planter(EnclosedAgent):
 
         if self.structure.powered == 1:
             self.plant()
-            
+
         else:
             print("Planter has no power")
 
@@ -519,29 +524,21 @@ class Kitchen(EnclosedAgent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._attr("power_consumption", 10, is_client_attr=True, is_persisted_attr=True)
-        self.joules_per_gram = 5
 
     def step(self):
         pass
 
     def cook_meal(self, energy):
-        if self.structure.powered == 1:
-            storage = self.model.get_agents(StorageFacility)
-            edible_to_cook = energy / self.joules_per_gram
-            actual_cooked = 0
-            for x in storage:
-                if(edible_to_cook > 0):
-                    amount = x.supply("edible_mass", edible_to_cook)
-                    edible_to_cook -= amount
-                    actual_cooked += amount
-                else:
-                    break
-            return actual_cooked
-        else:
-            print("Kitchen has no power")
-            return 0
+        storage = self.model.get_agents(StorageFacility)
 
-       
+        needed_energy = energy
+        actual_energy = 0
+        for x in storage:
+            stored_food_unit = x.get_stored_food()
+            energy_delta, supplied_mass = stored_food_unit.supply_energy(needed_energy)
+            needed_energy -= energy_delta
+            actual_energy += energy_delta
+        return actual_energy
 
 
 #Generates power (assume 100% for now)
@@ -582,52 +579,260 @@ class RoverDock(Structure):
     def step(self):
         pass
 
+class StoredMass(EnclosedAgent):
+    _agent_type_name = "stored_mass"
+
+    def __init__(self, *args, **kwargs):
+        volume = float(kwargs.pop("volume", 0.0))
+        mass = float(kwargs.pop("mass", 0.0))
+
+        structure = getattr(kwargs, "structure", None)
+        if structure is not None and not isinstance(structure, StorageFacility):
+            raise AgentModelError("StoredMass must be stored in StorageFacility")
+
+        super().__init__(*args, **kwargs)
+
+        self._attr("volume", default_value=volume, is_client_attr=True, is_persisted_attr=True)
+        self._attr("mass", default_value=mass, is_client_attr=True, is_persisted_attr=True)
+
+    @property
+    def current_density(self):
+        if self.volume > 0:
+            return self.mass/self.volume
+        else:
+            return float('nan')
+
+    def accumulate(self, mass_kg, density):
+        requested_volume = mass_kg / density
+        actual_volume = self.structure.store_volume(requested_volume)
+        actual_mass = actual_volume * density
+
+        self.volume += actual_volume
+        self.mass += actual_mass
+
+        return actual_mass
+
+    def supply_mass(self, requested_mass):
+        actual_mass = 0
+        if self.mass > 0:
+            actual_mass = min(requested_mass, self.mass)
+
+            # get density before changing volume
+            density = self.current_density
+
+            self.mass -= actual_mass
+
+            if self.mass == 0:
+                # if all mass is spent, explicitly set
+                # volume to 0 to avoid rounding error
+                lost_volume = self.volume
+            else:
+                # calculate volume lost
+                lost_volume = actual_mass / density
+
+            self.volume -= lost_volume
+
+            # update storage volume
+            self.structure.release_volume(lost_volume)
+        return actual_mass
+
+class StoredFood(StoredMass):
+    _agent_type_name = "stored_food"
+
+    def __init__(self, *args, **kwargs):
+        food_energy = float(kwargs.pop("food_energy", 0.0))
+
+        super().__init__(*args, **kwargs)
+
+        self._attr("food_energy", default_value=food_energy, is_client_attr=True, is_persisted_attr=True)
+
+    @property
+    def current_food_energy_density(self):
+        """Current food energy density in kJ/kg
+
+        Returns
+        -------
+        float
+            The energy density
+        """
+        if self.mass > 0:
+            return self.food_energy/self.mass
+        else:
+            return float('nan')
+
+    def accumulate(self, mass_kg, density, energy_density):
+        """Add food to the total amount
+
+        Parameters
+        ----------
+        mass_kg : float
+            Mass of the food to add
+        density : float
+            Density of the food to add in kG/m^3
+        energy_density : float
+            Energy density of the food in kJ/kG
+
+        Returns
+        -------
+        actual_mass : float
+            The actual mass stored limited by the storage capacity
+        actual_energy : float
+            The actual energy stored based on the mass stored and the energy density
+        """
+        actual_mass = super().accumulate(mass_kg, density)
+        actual_energy = actual_mass * energy_density
+        self.food_energy += actual_energy
+        return actual_mass, actual_energy
+
+    def supply_mass(self, requested_mass, return_energy=False):
+        """Decrement and return the requested mass if available otherwise,
+        will return the amount available.  Return energy is available
+        as an optional parameter, to keep this function compatible with
+        the parent class
+
+        Parameters
+        ----------
+        requested_mass : float
+            The amount of mass that should be supplied if available
+        return_energy : bool, optional
+            If True, return energy available on requested mass of food
+
+        Returns
+        -------
+        actual_mass : float
+            The mass that is available to supply and has been decremented from internal
+            stores
+        actual_energy : float
+            The energy that has been decremented as a result of the decrease in mass
+        """
+        actual_mass = 0
+        actual_energy = 0
+
+        if self.mass > 0:
+            # get food energy density before changing mass
+            food_energy_density = self.current_food_energy_density
+
+            # modifies mass and volume
+            actual_mass = super().supply_mass(requested_mass)
+
+            if self.mass == 0:
+                # if all mass is spent, explicitly
+                # set energy lost to avoid rounding error
+                actual_energy = self.food_energy
+            else:
+                # calculate resultant energy loss
+                actual_energy = actual_mass * food_energy_density
+            # subtract energy lost from total energy
+            self.food_energy -= actual_energy
+
+        if return_energy:
+            return actual_mass, actual_energy
+        else:
+            return actual_mass
+
+    def supply_energy(self, requested_energy):
+        """Decrement and return the requested energy if available otherwise,
+        return the available energy
+
+        Parameters
+        ----------
+        requested_energy : float
+            The amount of energy to supply, if available
+
+        Returns
+        -------
+        actual_energy : float
+            The energy that is available to supply and has been decremented from
+            internal stores
+        actual_mass : float
+            The mass of the food returned based on the energy density and
+            the amount of energy supplied
+        """
+        actual_energy = 0
+        actual_mass = 0
+        if self.food_energy > 0:
+            # calculate the available energy to give
+            calculated_energy = min(requested_energy, self.food_energy)
+
+            # calculate the resultant mass
+            calculated_mass = calculated_energy / self.current_food_energy_density
+
+            # calculate the actual energy (may be slightly different with rounding error)
+            # and actual energy (again rounding error may change this value slightly)
+            actual_mass, actual_energy = self.supply_mass(calculated_mass, return_energy=True)
+
+        return actual_energy, actual_mass
+
+
+# class StoredItem(EnclosedAgent):
+#     # Potential implementation of Stored item for later Use
+#     _agent_type_name = "stored_item"
+
+#     def __init__(self, *args, **kwargs):
+#         volume_per_item = float(kwargs.pop("volume_per_item", 0.0))
+#         mass_per_item = float(kwargs.pop("mass_per_item", 0.0))
+#         count = int(kwargs.pop("count", 0))
+
+#         super().__init__(*args, **kwargs)
+
+#         self._attr("volume_per_item", default_value=volume_per_item, is_client_attr=True, is_persisted_attr=True)
+#         self._attr("mass_per_item", default_value=mass_per_item, is_client_attr=True, is_persisted_attr=True)
+#         self._attr("count", default_value=count, is_client_attr=True, is_persisted_attr=True)
+
+#     @property
+#     def volume(self):
+#         return self.volume_per_item * self.count
+
+#     @property
+#     def mass(self):
+#         return self.mass_per_item * self.count
+
 #Storage for raw materials and finished goods
-class StorageFacility(EnclosedAgent):
+class StorageFacility(Structure, EnclosedAgent):
 
     _agent_type_name = "storage_facility"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        if "structure" in kwargs:
+            self.set_capacity()
 
     def post_db_load(self):
         super().post_db_load()
-        self.storage_capacity = self.structure.volume
+        self.set_capacity()
+
+    def set_capacity(self):
+        if self.structure:
+            self.storage_capacity = self.structure.volume
 
     def step(self):
         pass
 
-    def store(self, resource, quantity):
-        amount_stored = quantity
+    def store_volume(self, requested_volume):
+        storable = min(requested_volume, self.storage_capacity)
+        self.storage_capacity += storable
+        return storable
 
-        if(self.storage_capacity == 0):
-            amount_stored = 0
-        elif(self.storage_capacity < quantity):
-            amount_stored = self.storage_capacity
+    def release_volume(self, requested_volume):
+        new_capacity = self.storage_capacity - requested_volume
 
-            if hasattr(self, resource):
-                temp = getattr(self, resource) + amount_stored
-                setattr(self, resource, temp)
-                self.storage_capacity -= amount_stored
-            else:
-                # not sure if this will cause issues, definitely need to take a look a this later
-                self._attr(resource, amount_stored, is_client_attr=True, is_persisted_attr=True)
-                self.storage_capacity -= amount_stored
+        if new_capacity < 0:
+            raise AgentModelError("Requested release of more volume than is available.")
 
-        return amount_stored
+        self.storage_capacity = new_capacity
 
-    def supply(self, resource, quantity):
-        amount_supplied = 0
+    def get_or_create(self, resource_name, agent_class, *args, **kwargs):
+        kwargs["structure"] = self
+        resource = getattr(self, resource_name, None)
+        if not resource:
+            resource = agent_class(self.model, *args, **kwargs)
+            self.model.add_agent(resource)
+            self._attr(resource_name, resource, is_client_attr=True, is_persisted_attr=True)
+        return resource
 
-        if hasattr(self, resource):
-            amount_stored = getattr(self, resource)
-            if(quantity >= amount_stored):
-                amount_supplied = quantity - amount_stored
-                delattr(self, resource)
-            elif(quantity < amount_stored):
-                amount_supplied = quantity
-                temp = getattr(self, resource) - amount_supplied
-                setattr(self, resource, temp)
+    def get_stored_food(self):
+        return self.get_or_create("stored_food", StoredFood)
 
-        return amount_supplied
+    def get_inedible_mass(self):
+        return self.get_or_create("inedible_mass", StoredMass)

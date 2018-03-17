@@ -19,7 +19,7 @@ from simoc_server.database.db_model import AgentModelState, AgentState, \
 
 from simoc_server import db, app
 from simoc_server.agent_model import agents
-from simoc_server.util import sum_attributes, avg_attributes
+from simoc_server.util import sum_attributes, avg_attributes, timedelta_to_days
 
 class AgentModel(Model):
 
@@ -114,16 +114,12 @@ class AgentModel(Model):
         return avg_attributes(self.atmospheres, "temp")
 
     @property
-    def total_food(self):
-        return sum_attributes(self.get_agents(StorageFacility), "food")
+    def total_food_energy(self):
+        return sum_attributes(self.get_agents(agents.StoredFood), "food_energy")
 
     @property
-    def total_inedible_mass(self):
-        return sum_attributes(self.get_agents(StorageFacility), "inedible_mass")
-
-    @property
-    def total_edible_mass(self):
-        return sum_attributes(self.get_agents(StorageFacility), "edible_mass")
+    def total_food_mass(self):
+        return sum_attributes(self.get_agents(agents.StoredFood), "mass")
 
     def total_power_capacity(self):
         return sum_attributes(self.power_grid,"storage_capacity")
@@ -183,7 +179,7 @@ class AgentModel(Model):
         for agent_state in agent_model_state.agent_states:
             agent_type_name = agent_state.agent_type.name
             agent_class = agents.get_agent_by_type_name(agent_type_name)
-            agent = agent_class(model, agent_state)
+            agent = agent_class(model, agent_state=agent_state)
             model.add_agent(agent)
             app.logger.info("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
 
@@ -399,6 +395,14 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         "tomato":15
     }
 
+    # TODO sort out way to pull this info from agent definitions
+    # while respecting inheritance
+    INITIAL_FOOD_DURATION = datetime.timedelta(days=6*30)
+    INITIAL_FOOD_ENERGY = 13000.0 * NUM_HUMANS * timedelta_to_days(INITIAL_FOOD_DURATION)
+    INITIAL_FOOD_ENERGY_DENSITY = 4444.0 # kJ / kg
+    INITIAL_FOOD_DENSITY = 450.0
+    INITIAL_FOOD_MASS = INITIAL_FOOD_ENERGY/INITIAL_FOOD_ENERGY_DENSITY
+
     def init_agents(self, model):
         crew_quarters = agents.CrewQuarters(model)
         greenhouse = agents.Greenhouse(model)
@@ -426,10 +430,34 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         for plant_type_name, num_to_plant in self.PLANTS.items():
             model.plants_available[plant_type_name] = num_to_plant
 
+        crew_quarters_storage = agents.StorageFacility(model, structure=crew_quarters)
+        greenhouse_storage = agents.StorageFacility(model, structure=greenhouse)
+
+        cq_stored_food = crew_quarters_storage.get_stored_food()
+        gh_stored_food = greenhouse_storage.get_stored_food()
+
+        to_store = self.INITIAL_FOOD_MASS
+        energy_to_store = self.INITIAL_FOOD_ENERGY_DENSITY
+
+        for stored_food in [cq_stored_food, gh_stored_food]:
+            actual_mass, actual_energy = stored_food.accumulate(to_store,
+                self.INITIAL_FOOD_DENSITY, self.INITIAL_FOOD_ENERGY_DENSITY)
+
+            to_store -= actual_mass
+            energy_to_store -= actual_energy
+
+        if(to_store > 0):
+            actual_mass_total = self.INITIAL_FOOD_MASS - to_store
+            actual_energy_stored = self.INITIAL_FOOD_ENERGY - energy_to_store
+
+            logger.info("Unable to store all of initial food. Stored {} kg out of {} kg"
+                " and {} kJ out of {} kJ".format(actual_mass_total, self.INITIAL_FOOD_MASS,
+                    actual_energy_stored, self.INITIAL_FOOD_ENERGY))
+
         model.add_agent(agents.Planter(model, structure=greenhouse))
         model.add_agent(agents.Harvester(model, structure=greenhouse))
-        model.add_agent(agents.StorageFacility(model, structure=greenhouse))
-        model.add_agent(agents.StorageFacility(model, structure=crew_quarters))
+        model.add_agent(greenhouse_storage)
+        model.add_agent(crew_quarters_storage)
         model.add_agent(agents.Kitchen(model, structure=crew_quarters))
 
         return model

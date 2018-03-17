@@ -12,7 +12,9 @@ class AgentModelDTO(BaseDTO):
         "total_waste_water",
         "total_grey_water",
         "total_grey_water_solids",
-        "total_solid_waste"
+        "total_solid_waste",
+        "total_food_energy",
+        "total_food_mass"
     ]
 
     def __init__(self, agent_model):
