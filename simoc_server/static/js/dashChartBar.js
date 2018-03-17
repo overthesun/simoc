@@ -125,7 +125,7 @@ new Chart(document.getElementById("kwh-bar-chart"), {
       labels: ["KW/H"],
       datasets: [
         {
-          label: "KW/H",
+          label: "KWH",
           backgroundColor: ["#e9f0f4"],
           data: [10]
         }
@@ -187,6 +187,7 @@ var oxygenLine = new Chart(document.getElementById("oxygen-line-chart"), {
     options: {
       legend: { display: false },
       title: {
+        text:"Oxygen Pressure",
         display: true,
       }
     }
