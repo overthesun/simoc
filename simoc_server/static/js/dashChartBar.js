@@ -162,8 +162,8 @@ function updateBarChart(avg_oxygen){
   waterBar.update();
 
 
-  if(oxygenLine.data.datasets[0].data.length >= 10)
-    oxygenLine.data.datasets[0].data.pop();
+  //if(oxygenLine.data.datasets[0].data.length >= 10)
+  //  oxygenLine.data.datasets[0].data.pop();
   
   oxygenLine.data.datasets[0].data.unshift(avg_oxygen);
   oxygenLine.update();
@@ -171,7 +171,7 @@ function updateBarChart(avg_oxygen){
 }
 
 
-var oxygenLine = new Chart(document.getElementById("test-bar-chart"), {
+var oxygenLine = new Chart(document.getElementById("oxygen-line-chart"), {
     type: 'line',
     data: {
       labels: [0,1,2,3,4,5,6,7,8,9],
