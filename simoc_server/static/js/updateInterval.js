@@ -30,7 +30,7 @@ $(document).ready(function(){
                 total_water= data.total_water;
                 current_step = data.step_num;
                 updateBarChart(avg_oxygen,avg_carbonDioxide,total_water);
-                //updateSolarDay(data.step.num)
+                updateSolarDay(data.step_num)
                 
             }
         });
@@ -40,6 +40,10 @@ $(document).ready(function(){
     $('#dashboard-pause').click(function(){
 
     })
+
+    function updateSolarDay(date){
+        document.getElementById('currentDate-id').innerHTML = "Mars: Sol " + Math.floor(1+(date / 24.65));
+    }
 
 
 });
