@@ -1,5 +1,5 @@
 function gotourl(url) {
-    window.location =  url;
+     window.location =  url;
 }
 
 function isEmpty(str) {

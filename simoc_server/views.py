@@ -30,6 +30,26 @@ def create_game_runner_manager():
 def deserialize_before_request():
     deserialize_request(request)
 
+content={'formid':'wizardform',
+'wizard':{
+'startInformation':'Welcome to SIMOC, a scalable model of an isolated, off-world community. Here you will enjoy the challenges and rewards of growing your habitat to a thriving city, or exploring the surrounding terrain with a limited crew. Whatever your mode of operation, be warned that closed ecosystems are a delicate thing, easy to unbalance and difficult to recover.',
+'startInformationp2':'Select from Play Mode or Science Run. In Play Mode you will interact regularly, making decisions that alter the course of the growth of your community. In a Science Run you will configure the model up-front and let it run its full course without interaction, then collect the data when done.',
+'configurationInformation':'Select from Preset models or Configure your own SIMOC community. The Preset models are each based upon a real-world experiment or base-line configuration. They require very little input and as such, the outcome is anticipated within a certain margin of error. These are used primarily for Science Runs. If you select to Configure your own model, you will be taken step-by-step through the panels in this Configuration Wizard.',
+'locationInformation':'Where you place your initial habitat and build your community is perhaps the single most important decision made. In Earth orbit you are just hours away from a launch pad and supplies and realtime communications. On the Moon things become more challenging, yet you remain relatively close to home where an evacuation puts you safely on terra firma within a matter of days. But on Mars, in the asteroid belt, or on the distant moons of Jupiter or Saturn you are months from home even with the fastest rocket available. Truly isolated, successful in situ resource utilization may be the difference between success and failure.',
+'regionInformation':'Within the Location you must choose where on the celestial body you desire to place your foundational habitat. You may take into consideration the overall mission objective: to grow a massive, thriving city, to conduct geologic exploration, or to search for life.',
+'terrainInformation':'Your mission may be to explore a unique geological area, but that same area is devoid of water in relatively dry soil, forcing you to import water or extract it from a distant region at the cost of fuel for transport. With regolith rich in minerals you can more rapidly build new structures. With longer days you gain more energy by means of solar panels.',
+'launchInformation':'Select the date of launch and how long your crew remains at the habitat dictates whether you are to rely solely upon imported goods and supplies, or those enabled through in situ resource utilization.',
+'transportationInformation':'Select the type of rocket, resulting in how long it takes to arrive to the destination. A shorter flight consumes more fuel and thereby forces a smaller payload. A longer flight enables more humans and/or supplies, but requires more time to arrive.',
+'payloadInformation':'Select a balance between cargo (goods, machinery, habitat modules, food and water stores) and humans. This is governed by the total kilograms (Kg) of carrying capacity for the given rocket. The user must select the number of humans taken along for the ride, which invokes a certain mass of water, food, and breathable atmosphere. What remains is for cargo.',
+'modelInformation':'The Model defines the basic mode of operation, and the underlying algorithm that will govern the growth policy of the community. Based upon the prior screen (PAYLOAD), the system will auto-select provisions, rovers, structures, manufacturing equipment. These are listed as preloaded configurations. In a later version, the player can manually select the specific payload.'
+}}
+
+
+@app.route("/test_route", methods=["GET","POST"])
+def testroute():
+
+    return render_template('partial_dashboard.html',static_url_path='/static')
+
 @app.route("/")
 def home():
     return render_template('panel_content.html')
@@ -44,7 +64,7 @@ def registerpanel():
 
 @app.route("/gameinit", methods=["GET"])
 def gameinit():
-    return render_template("base_game.html")
+    return render_template("base_template.html",content=content)
 
 @app.route("/data_format", methods=["GET"])
 def data_format():
@@ -117,7 +137,7 @@ def logout():
 
 
 @app.route("/new_game", methods=["POST"])
-@login_required
+#@login_required
 def new_game():
     '''
     Creates a new game on the current session and adds
@@ -139,7 +159,7 @@ def new_game():
     game_runner_init_params = GameRunnerInitializationParams(mode, launch_date,
         duration_days, payload, location, region, regolith)
     game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
-    return success("New game created.")
+    return success("New Game Starts")
 
 @app.route("/get_step", methods=["GET"])
 @login_required

@@ -114,4 +114,8 @@ ENV/
 
 *.sqlite
 
+simoc_client/wizard.html
+
+
 .idea/
+

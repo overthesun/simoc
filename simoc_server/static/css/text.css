@@ -1,0 +1,226 @@
+/* TEXT CSS */
+
+@font-face {
+  font-family: 'Nasalization';
+  src: URL('/static/assets/nasalization-rg.ttf') format('truetype');
+}
+
+
+body{
+  background-image: url("/static/assets/simoc-background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.title,.subtitle,.information,.common-text{
+  color: #e9f0f4;
+  font-family:'Nasalization';
+  font-size: 18px;
+
+}
+
+.main.title, .main.subtitle, .tab.title{
+    text-align:center;
+}
+
+.main.title{
+  font-size:48px;
+  margin-bottom:0px;
+}
+
+.main.subtitle{
+  font-size:18px;
+  margin-top: -20px;
+  margin-bottom: 32px;
+}
+
+.tab.title{
+  font-size:30px;
+  height: 60px;
+  background-image: url("/static/assets/blue-transparent.png")
+}
+
+.dashboard.title{
+  font-size:20px;
+  height: 30px;
+  background-image: url("/static/assets/blue-transparent.png");
+  text-align:center;
+}
+
+.information{
+  font-size:12px;
+  padding-top: 8px;
+  padding-bottom:8px;
+}
+
+
+/* Below here needs to be move to other files */
+
+.config-block{
+  margin: 2px;
+}
+
+.config-dash, .main-dash{
+  border: 2px solid #3b7493 ;
+
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.dashboard > .left-panel, .dashboard > .middle-panel, .dashboard > .right-panel{
+  padding: 16px;
+}
+
+ .dashboard > .right-panel > .inner{
+  border-right: 2px solid #3b7493 ;
+  border-top: 2px solid #3b7493 ;
+  border-left: 2px solid #3b7493 ;
+  border-bottom:2px solid #3b7493;
+  height: 688px;
+  padding-left: 16px;
+  padding-right:16px;
+}
+
+
+
+.dashboard.map{
+  background-image: url("/static/assets/mars_map.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  height: 414px;
+}
+
+.main-dash.bars{
+  height: 144px;
+}
+
+.container-fluid.base-container{
+  padding: 0px;
+  
+
+  width: 1280px;
+  height: 720px;
+}
+
+.container, .row{
+  padding: 0px;
+}
+
+.outer-icon{
+  color: #e9f0f4;;
+}
+
+.inner-icon{
+  color: #212529;
+}
+
+.connecting-line {
+    height: 5px;
+    background: #3b7493;
+    position: absolute;
+    width: 80%;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    top: 50%;
+    z-index: -1;
+}
+.base-container{
+  margin: auto 0;
+  margin-top:10%;
+}
+
+.wizard{
+  width:700px;
+  height:600px;
+  margin: 0 auto;
+
+}
+
+.tabs-inner{
+  height: 100px;
+  margin: auto 0;
+  align-items: center;
+}
+
+
+.tabs, .tab.title,.selection,.finalize{
+  border-right: 2px solid #3b7493 ;
+  border-top: 2px solid #3b7493 ;
+  border-left: 2px solid #3b7493 ;
+}
+
+.information, .navigation.buttons{
+  border-top: 2px solid #3b7493 ;
+  border-right: 2px solid #3b7493 ;
+}
+
+.cancel.buttons{
+  border-top: 2px solid #3b7493 ;
+  border-left: 2px solid #3b7493 ;
+}
+
+.cancel.buttons, .navigation.buttons, .dashboard .title, .dashboard-block{
+  border-bottom: 2px solid #3b7493 ;
+}
+
+
+.option-block{
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.selection,.information,.finalize{
+  height: 350px;
+}
+
+.cancel.buttons  > button,.navigation.buttons > button{
+  margin: 8px;
+
+}
+
+.btn{
+  background:#e9f0f4;
+  box-shadow: none;
+}
+
+.final-left{
+  text-align: left;
+}
+
+.final-right{
+  text-align: right;
+}
+
+/* This is a test of the hover nothing permanent*/
+
+a.active > .selector-icon, a:hover > .selector-icon{
+  color: #5bc0f6;
+}
+
+a.disabled > .selector-icon{
+  color: transparent;
+}
+a > .selector-icon{
+  color: #3c4f59;
+}
+
+a.disabled > .inner-icon{
+  color: #8b97a4;
+}
+
+.testChart{
+  background-color:gray;
+}
+
+
+
+/*Delete this after Saturday */
+ .dashboard > .right-panel > .inner{
+  height: 607px;
+}
+
+
+.regolith{
+  height:192px;
+}

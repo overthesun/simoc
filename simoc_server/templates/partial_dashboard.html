@@ -1,0 +1,151 @@
+<div class="row dashboard common-text">
+
+  <div class="container col-3 left-panel">
+    <div class="inner">
+
+      <div class="container config-dash model" >
+        <div class="row">
+          <div class="col-12 dashboard title">
+            Mission Configuration
+          </div>
+          <div class="col-12 config-block" id="mode-id"></div>
+          <div class="col-12 config-block-model" id="model-id"></div>
+          <div class="col-12 config-block" id="configuration-id"></div>
+          
+        </div>
+      </div>
+
+      <div class="container config-dash">
+        <div class="row">
+          <div class="col-12 config-block" id="transportation-id"></div>
+          <div class="col-12 config-block" id="payload-id"></div>
+          <div class="col-12 config-block" id="launchwindow-id"></div> 
+          <div class="col-12 config-block" id="durationofstay-id"></div>
+        </div>
+      </div>
+
+      <div class="container config-dash" >
+        <div class="row">
+
+
+          <div class="col-12 config-block" id="location-id"></div>
+
+          <div class="col-12 config-block" id="region-id"></div>
+          
+          <div class="col-12 config-block" id="terrain-id"></div>
+          <div class="col-12 config-block" id="lengthofday-id">Length Of Day: 24h 39m</div>
+          <div class="col-12 config-block regolith" id="regolith-id">
+          Minerals In Regolith:
+          <div class="col-12 config-block" style="font-size: 14px">
+                Magnesium:
+               <br/> Aluminium:
+               <br/> Titanium:
+               <br/> Iron:
+               <br/> Chromium: 
+          </div>
+        </div>   
+        </div>
+      </div>
+
+      <div class="container reset-btn" >
+        <div class="row">
+          <div class="col-1 offset-2 reset buttons">
+            <button type="button" class="reconfigure-btn btn raised">Reconfigure</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="container col-6 middle-panel">
+    <div class="inner">
+
+      <div class="container main-dash map">
+        <div class="row">
+          <div class="col-12 dashboard title">
+            Mars  SOL XX 
+          </div>
+
+          <div class="col-12 dashboard map">
+          </div>
+        </div>
+      </div>
+
+      <div class="container main-dash bars">
+        <div class="row">
+          <div class="col-12 dashboard title">
+            Habitat Levels
+          </div>
+          <div class="col-2 container config-block-main bars" style="height: 110px; max-height:110px">
+              <canvas id="food-bar-chart" style="width:100%; height: 100%"></canvas>
+          </div>
+          <div class="col-2 container config-block-main bars" style="height: 110px; max-height:110px">
+              <canvas id="oxygen-bar-chart" style="width:100%; height: 100%"></canvas>
+          </div>
+          <div class="col-2 container config-block-main bars" style="height: 110px; max-height:110px">
+              <canvas id="cotwo-bar-chart" style="width:100%; height: 100%"></canvas>
+          </div>
+          <div class="col-2 container config-block-main bars" style="height: 110px; max-height:110px">
+              <canvas id="water-bar-chart" style="width:100%; height: 100%"></canvas>
+          </div>
+          <div class="col-2 container config-block-main bars" style="height: 110px; max-height:110px">
+              <canvas id="kwh-bar-chart" style="width:100%; height: 100%"></canvas>
+          </div>
+        </div>
+      </div>
+
+        <div class="container menu-btn">
+          <div class="row">
+            <div class="col-2 offset-3 save button">
+              <a class="fa-3x fa-layers fa-fw disabled" data-toggle="tab">
+                <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                <i class="fas fa-save inner-icon" data-fa-transform="shrink-7"></i>
+              </a>
+            </div>
+
+            <div class="col-2 pause button">
+              <a class="fa-3x fa-layers fa-fw" data-toggle="tab" id="dashboard-pause">
+                <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                <i class="fas fa-pause inner-icon" data-fa-transform="shrink-7"></i>
+              </a>
+
+            </div>            
+
+            <div class="col-2 load button">
+              <a class="fa-3x fa-layers fa-fw disabled" data-toggle="tab" id="dashboard-load">
+                <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
+                <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
+                <i class="fas fa-folder-open inner-icon" data-fa-transform="shrink-7"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+    </div>
+  </div>
+
+  <div class="container col-3 right-panel">
+    <div class="inner">
+      <div class="row">
+        <div class="col-12 dashboard title">
+          Ecosystem
+        </div >
+        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px; margin-bottom: 16px">
+          <canvas id="oxygen-line-chart" style="width:100%; height: 100%"></canvas>
+        </div>
+        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px;margin-bottom: 16px">
+          <canvas id="co2-line-chart" style="width:100%; height: 100%"></canvas>
+        </div>
+        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px;margin-bottom: 16px">
+          <canvas id="water-line-chart" style="width:100%; height: 100%"></canvas>
+        </div>
+        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px;margin-bottom: 16px">
+          <canvas id="food-line-chart" style="width:100%; height: 100%"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

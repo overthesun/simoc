@@ -1,0 +1,42 @@
+<div class="tab-pane fade" id="transportation">
+  <div class="row">
+    
+    <div class="col-12 tab title">
+      Step 7: Transportation
+    </div>
+
+    <div class="col-6 selection">
+
+      <input type="hidden" value="transportation-id" form="{{content.formid}}">
+
+      <div class="option-block">
+        Please Select Transportation:
+      </div>
+      
+      <div class="form-check option-block">
+        <select class="custom-select option-block" form="{{content.formid}}" disabled>
+          <option selected>NASA SLS</option>
+          <option>SpaceX Falcon Heavy</option>
+          <option>Mars One</option>
+          <option>SpaceX BFR</option>
+          <option>ULA Rocket</option>
+          <option>China Rocket</option>
+        </select>      
+      </div>
+    </div>
+
+    <div class="col-6 information">
+      {{wizard.transportationInformation}}
+    </div>
+
+    <div class="col-6 cancel buttons">
+      <button type="button" class="cancel-step btn raised">Cancel</button>
+    </div>
+
+    <div class="col-6 navigation buttons">
+      <button type="button" class="previous-step btn raised">Previous</button>
+      <button type="button" class="next-step btn raised">Next</button>
+    </div>
+  </div>
+
+</div>
