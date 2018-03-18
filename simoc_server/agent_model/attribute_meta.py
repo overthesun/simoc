@@ -14,10 +14,17 @@ class AttributeHolder(object):
         self.attribute_descriptors = {}
 
     def _attr(self, name, default_value=None, _type=None, is_client_attr=True, is_persisted_attr=True):
-        if _type is None:
-            _type = type(default_value)
+        value_exists = name in self.__dict__.keys()
 
-        if(name not in self.__dict__.keys()):
+        if _type is None:
+            if value_exists:
+                _type = type(self.__dict__[name])
+            else:
+                _type = type(default_value)
+
+        if not value_exists:
             self.__dict__[name] = default_value
 
+        if name is None:
+            raise Exception("'attribute' name cannot be equal to None.")
         self.attribute_descriptors[name] = AttributeDescriptor(_type, is_client_attr, is_persisted_attr)

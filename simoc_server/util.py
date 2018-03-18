@@ -1,18 +1,49 @@
 import datetime
+import importlib
 
-def load_db_attributes_into_dict(attributes, target=None):
+from simoc_server.exceptions import ServerError
+
+class NotLoaded(object):
+
+    """Placeholder value for object not yet loaded from database.
+    """
+
+    def __init__(self, raw_value):
+        self._db_raw_value = raw_value
+
+    def __get__(self):
+        raise ValueError("Object is not yet loaded from database.")
+
+    def __set__(self):
+        raise ValueError("Object is not yet loaded from database.")
+
+def load_db_attributes_into_dict(attributes, target=None, 
+        load_later=[]):
     if target is None:
         target = {}
 
     for attribute in attributes:
         # get type of attribute
+        attribute_name = attribute.name
         if attribute.value_type == type(None).__name__:
             value = None
         else:
-            value_type = eval(attribute.value_type)
+            try:
+                value_type = eval(attribute.value_type)
+            except NameError:
+                p, m = attribute.value_type.rsplit('.', 1)
+
+                mod = importlib.import_module(p)
+                value_type = getattr(mod, m)
             value_str = attribute.value
-            value = value_type(value_str)
-        attribute_name = attribute.name
+            if not any([issubclass(value_type, c) for c in load_later]):
+                try:
+                    value = value_type(value_str)
+                except ValueError as e:
+                    raise ValueError("Error loading db attribute '{}' into dict.".format(attribute_name)) from e
+            else:
+                value = NotLoaded(value_str)
+
         target[attribute_name] = value
 
     return target
@@ -152,19 +183,3 @@ def avg_attributes(objects, attribute_name):
         The average of all of the attributes
     """
     return sum_attributes(objects, attribute_name)/float(len(objects))
-
-def to_volume(mass, density):
-    """ Converts the givin mass (in grams) and density (kg per cubic meter) to volume 
-    Parameters
-    ----------
-    mass: grams
-        The mass of the substance to be converted
-    density: kg/m^3
-        The density of the substance
-    Returns
-    -------
-    Volume of the substance 
-        m^3
-    """
-
-    return (mass * .001) / density

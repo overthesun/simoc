@@ -6,8 +6,9 @@ from simoc_server.agent_model.agents.plants import (PlantAgent, CabbageAgent, Ca
 
 from simoc_server.agent_model.agents.core import BaseAgent, EnclosedAgent
 
-from simoc_server.agent_model.agents.structure import (PlumbingSystem, Atmosphere, Structure,
-    Airlock, CrewQuarters, Greenhouse, Kitchen, PowerStation, RocketPad, RoverDock, StorageFacility, Planter, Harvester)
+from simoc_server.agent_model.agents.structure import (PowerModule, PlumbingSystem, Atmosphere, Structure,
+    Airlock, CrewQuarters, Greenhouse, Kitchen, PowerStation, RocketPad, RoverDock, StorageFacility, Planter, Harvester,
+    StoredMass, StoredFood)
 
 # Until a better solution can be found, agents must be imported here and added to the below list
 
@@ -15,14 +16,17 @@ from simoc_server.agent_model.agents.structure import (PlumbingSystem, Atmospher
 _agent_classes = [ BaseAgent, EnclosedAgent, HumanAgent ]
 
 # structure agents
-_agent_classes += [ PlumbingSystem, Atmosphere, Structure, Airlock, CrewQuarters, 
-    Greenhouse, Kitchen, PowerStation, RocketPad, RoverDock, StorageFacility, Harvester, Planter ]
+_agent_classes += [ PowerModule, PlumbingSystem, Atmosphere, Structure, Airlock, CrewQuarters, 
+    Greenhouse, Kitchen, PowerStation, RocketPad, RoverDock, StorageFacility, Harvester, Planter,
+    StoredMass, StoredFood ]
 
 # plant agents
 _agent_classes += [ PlantAgent, CabbageAgent, CarrotAgent, ChardAgent, 
     DryBeanAgent, LettuceAgent, PeaAgent, PeanutAgent, PepperAgent, RedBeetAgent, RiceAgent, SnapBeanAgent, 
     SoybeanAgent, SpinachAgent, StrawberryAgent, SweetPotatoAgent, TomatoAgent, WheatAgent, WhitePotatoAgent ]
 
+# equipment agents
+#_agent_classes +=[Equipment, PowerModule]
 
 agent_name_mapping = {}
 

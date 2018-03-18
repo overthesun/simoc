@@ -319,3 +319,20 @@ def moles_of_gas(pressure, volume, temp):
     # PV = nRT
     # n = (PV)/(RT)
     return (pressure * volume) / (global_model_constants["gas_constant"] * temp)
+
+
+def to_volume(mass, density):
+    """ Converts the givin mass (in kg) and density (kg per cubic meter) to volume 
+    Parameters
+    ----------
+    mass: float
+        The mass of the substance to be converted in kg
+    density: float
+        The density of the substance in kg/m^3
+    Returns
+    -------
+    Volume of the substance 
+        m^3
+    """
+
+    return mass / density

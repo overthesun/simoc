@@ -113,4 +113,9 @@ ENV/
 .mypy_cache/
 
 *.sqlite
+
 simoc_client/wizard.html
+
+
+.idea/
+

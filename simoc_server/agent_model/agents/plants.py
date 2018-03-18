@@ -1,5 +1,6 @@
 import datetime
 
+from simoc_server.exceptions import AgentModelError
 from simoc_server.util import timedelta_to_days
 from simoc_server.agent_model.sprite_mappers import PlantSpriteMapper
 from simoc_server.agent_model.agents.core import EnclosedAgent
@@ -18,7 +19,7 @@ class PlantAgent(EnclosedAgent):
         # value to track percentage of growth complete, not persisted
         self._attr("growth", default_value=0.0, is_client_attr=True, is_persisted_attr=False)
 
-        self._growth_period = datetime.timedelta(days=self.get_agent_type_attribute("growth_period"))
+        self.growth_period = datetime.timedelta(days=self.get_agent_type_attribute("growth_period"))
 
     @property
     def age(self):
@@ -43,12 +44,14 @@ class PlantAgent(EnclosedAgent):
             self.kill("Insufficient carbon dioxide: {} kpa".format(atmosphere.carbon_dioxide))
         elif water_uptake > plumbing_system.water:
             self.kill("Dehydration (Ran out of water): Water Levels: {} kg.".format(plumbing_system.water))
+        elif self.structure.powered == 0:
+            self.model.logger.info("Greenhouse has no power to grow plant")
         else:
             if not self.is_grown():
                 age = self.age
-                if age > self._growth_period:
+                if age > self.growth_period:
                     self.status = "grown"
-                self.growth = min(1.0, age/self._growth_period)
+                self.growth = min(1.0, age/self.growth_period)
 
             timedelta_per_step = self.model.timedelta_per_step()
             days_per_step = timedelta_to_days(timedelta_per_step)
@@ -59,15 +62,12 @@ class PlantAgent(EnclosedAgent):
 
             # TODO sort out discrepency between o2 and co2
             # consumption/production
-            # TODO convert gas exchange values to kgs in database
-            atmosphere.modify_oxygen_by_mass((self.get_agent_type_attribute("oxygen_produced") / 1000) * days_per_step)
-            atmosphere.modify_carbon_dioxide_by_mass((-1 * self.get_agent_type_attribute("carbon_uptake") / 1000) * days_per_step)
+            carbon_input = self.get_agent_type_attribute("carbon_uptake") * days_per_step
+            oxygen_output = self.get_agent_type_attribute("oxygen_produced") * days_per_step
 
-            # TODO Temporary fix right here, this violates conservation
-            # of matter
-            if(atmosphere.carbon_dioxide < 0):
-                self.model.logger.info("WARNING Reseting carbon dioxide from negative value")
-                atmosphere.carbon_dioxide = 0
+            actual_carbon_in, actual_oxygen_out = atmosphere.convert_co2_to_o2(carbon_input, oxygen_output, 
+                            self.get_agent_type_attribute("fatal_co2_lower"))
+
 
     def is_grown(self):
         return self.status == "grown"

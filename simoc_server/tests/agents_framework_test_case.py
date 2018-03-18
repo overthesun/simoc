@@ -12,6 +12,7 @@ from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 from simoc_server.serialize import AgentDTO
 from simoc_server.tests.test_util import setup_db, clear_db
 
+
 class AgentsFrameworkTestCase(unittest.TestCase):
 
     """Test the agent framework including attribute inheritance
@@ -33,27 +34,21 @@ class AgentsFrameworkTestCase(unittest.TestCase):
 
     def testPersistedAttributes(self):
         # persisted attributes should be saved and loaded to/from the database
-        class AgentA(BaseAgent):
-            _agent_type_name = "agent_a"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                self._attr("agent_a_attribute", 16, is_persisted_attr=True)
 
         # add agent type data to database
-        agent_a_type = AgentType(name="agent_a")
+        agent_a_type = AgentType(name="agent_a_persisted_attributes")
         db.session.add(agent_a_type)
         db.session.commit()
 
         # add agent to agent_name_mappings
-        _add_agent_class_to_mapping(AgentA)
+        _add_agent_class_to_mapping(AgentAPersistedAttributes)
 
         # create agent_model
         agent_model = AgentModel.create_new(self.default_model_params,
             self.default_agent_init_recipe)
 
         # create agent
-        agent_a = AgentA(agent_model)
+        agent_a = AgentAPersistedAttributes(agent_model)
 
         # make sure attributes are set properly
         self.assertTrue(hasattr(agent_a, "agent_a_attribute"))
@@ -110,45 +105,25 @@ class AgentsFrameworkTestCase(unittest.TestCase):
 
     def testPersistedAgentReferences(self):
         # persisted attributes should be saved and loaded to/from the database
-        class AgentA(BaseAgent):
-            _agent_type_name = "agent_a"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                self._attr("agent_b_ref", None, _type=AgentB, is_persisted_attr=True)
-
-            def set_agent_b(self, agent_b):
-                self.agent_b_ref = agent_b
-
-        class AgentB(BaseAgent):
-            _agent_type_name = "agent_b"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                self._attr("agent_a_ref",  None, _type=AgentA, is_persisted_attr=True)
-
-            def set_agent_a(self, agent_a):
-                self.agent_a_ref = agent_a
-
 
         # add agent type data to database
-        agent_a_type = AgentType(name="agent_a")
-        agent_b_type = AgentType(name="agent_b")
+        agent_a_type = AgentType(name="agent_a_persisted_agent_references")
+        agent_b_type = AgentType(name="agent_b_persisted_agent_references")
         db.session.add(agent_a_type)
         db.session.add(agent_b_type)
         db.session.commit()
 
         # add agent to agent_name_mappings
-        _add_agent_class_to_mapping(AgentA)
-        _add_agent_class_to_mapping(AgentB)
+        _add_agent_class_to_mapping(AgentAPersistedAgentReferences)
+        _add_agent_class_to_mapping(AgentBPersistedAgentReferences)
 
         # create agent_model
         agent_model = AgentModel.create_new(self.default_model_params,
             self.default_agent_init_recipe)
 
         # create agent
-        agent_a = AgentA(agent_model)
-        agent_b = AgentB(agent_model)
+        agent_a = AgentAPersistedAgentReferences(agent_model)
+        agent_b = AgentBPersistedAgentReferences(agent_model)
         agent_a.set_agent_b(agent_b)
         agent_b.set_agent_a(agent_a)
 
@@ -187,8 +162,8 @@ class AgentsFrameworkTestCase(unittest.TestCase):
 
         ## Repeat above but change value this time
 
-        agent_a_new = AgentA(loaded_agent_model)
-        agent_b_new = AgentB(loaded_agent_model)
+        agent_a_new = AgentAPersistedAgentReferences(loaded_agent_model)
+        agent_b_new = AgentBPersistedAgentReferences(loaded_agent_model)
         loaded_agent_a.set_agent_b(agent_b_new)
         loaded_agent_b.set_agent_a(agent_a_new)
 
@@ -239,45 +214,25 @@ class AgentsFrameworkTestCase(unittest.TestCase):
     def testSerializedAgentReferences(self):
         # serialized agents should store unique_id of agent they are referencing in their
         # attributes
-        class AgentA(BaseAgent):
-            _agent_type_name = "agent_a"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                self._attr("agent_b_ref", None, _type=AgentB, is_client_attr=True)
-
-            def set_agent_b(self, agent_b):
-                self.agent_b_ref = agent_b
-
-        class AgentB(BaseAgent):
-            _agent_type_name = "agent_b"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                self._attr("agent_a_ref",  None, _type=AgentA, is_client_attr=True)
-
-            def set_agent_a(self, agent_a):
-                self.agent_a_ref = agent_a
-
 
         # add agent type data to database
-        agent_a_type = AgentType(name="agent_a")
-        agent_b_type = AgentType(name="agent_b")
+        agent_a_type = AgentType(name="agent_a_serialized_agent_references")
+        agent_b_type = AgentType(name="agent_b_serialized_agent_references")
         db.session.add(agent_a_type)
         db.session.add(agent_b_type)
         db.session.commit()
 
         # add agent to agent_name_mappings
-        _add_agent_class_to_mapping(AgentA)
-        _add_agent_class_to_mapping(AgentB)
+        _add_agent_class_to_mapping(AgentASerializedAgentReferences)
+        _add_agent_class_to_mapping(AgentBSerializedAgentReferences)
 
         # create agent_model
         agent_model = AgentModel.create_new(self.default_model_params,
             self.default_agent_init_recipe)
 
         # create agent
-        agent_a = AgentA(agent_model)
-        agent_b = AgentB(agent_model)
+        agent_a = AgentASerializedAgentReferences(agent_model)
+        agent_b = AgentBSerializedAgentReferences(agent_model)
         agent_a.set_agent_b(agent_b)
         agent_b.set_agent_a(agent_a)
 
@@ -295,28 +250,8 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         db.session.commit()
 
     def testAgentInstanceAttributeCreation(self):
-        class AgentParent(BaseAgent):
-            _agent_type_name = "agent_parent"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                self._attr("parent_attribute", 1)
-
-        class AgentMixin(AttributeHolder):
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                self._attr("mixin_attribute", 10)
-
-        class AgentChild(AgentParent, AgentMixin):
-            _agent_type_name = "agent_child"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                AgentMixin.__init__(self)
-                self._attr("child_attribute", 100)
-
-        agent_parent = AgentType(name="agent_parent")
-        agent_child  = AgentType(name="agent_child")
+        agent_parent = AgentType(name="agent_parent_instance_attribute_creation")
+        agent_child  = AgentType(name="agent_child_instance_attribute_creation")
 
         db.session.add(agent_parent)
         db.session.add(agent_child)
@@ -324,7 +259,7 @@ class AgentsFrameworkTestCase(unittest.TestCase):
 
         agent_model = AgentModel.create_new(self.default_model_params,
             self.default_agent_init_recipe)
-        agent = AgentChild(agent_model)
+        agent = AgentChildInstanceAttributeCreation(agent_model)
 
         self.assertTrue(hasattr(agent, "parent_attribute"))
         self.assertTrue(hasattr(agent, "mixin_attribute"))
@@ -342,42 +277,13 @@ class AgentsFrameworkTestCase(unittest.TestCase):
     def testInheritedAgentTypeAttributes(self):
         # Agent type attributes should be inherited following
         # the same rules as normal python inheritance
-        class AgentRoot(BaseAgent):
-            _agent_type_name = "agent_root"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-
-        class AgentParentOne(AgentRoot):
-            _agent_type_name = "agent_parent_one"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-
-        class AgentParentTwo(AgentRoot):
-            _agent_type_name = "agent_parent_two"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-
-        class AgentChildOne(AgentParentOne, AgentParentTwo):
-            _agent_type_name = "agent_child_one"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-
-        class AgentChildTwo(AgentParentTwo, AgentParentOne):
-            _agent_type_name = "agent_child_two"
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
 
         # add agent type data to database
-        agent_root_type       = AgentType(name="agent_root")
-        agent_parent_one_type = AgentType(name="agent_parent_one")
-        agent_parent_two_type = AgentType(name="agent_parent_two")
-        agent_child_one_type  = AgentType(name="agent_child_one")
-        agent_child_two_type  = AgentType(name="agent_child_two")
+        agent_root_type       = AgentType(name="agent_root_instance_attribute_creation")
+        agent_parent_one_type = AgentType(name="agent_parent_one_instance_attribute_creation")
+        agent_parent_two_type = AgentType(name="agent_parent_two_instance_attribute_creation")
+        agent_child_one_type  = AgentType(name="agent_child_one_instance_attribute_creation")
+        agent_child_two_type  = AgentType(name="agent_child_two_instance_attribute_creation")
 
         # set up agent type attributes
         AgentTypeAttribute(agent_type=agent_root_type,
@@ -423,11 +329,11 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         db.session.commit()
 
         # add agents to name mapping
-        _add_agent_class_to_mapping(AgentRoot)
-        _add_agent_class_to_mapping(AgentParentOne)
-        _add_agent_class_to_mapping(AgentParentTwo)
-        _add_agent_class_to_mapping(AgentChildOne)
-        _add_agent_class_to_mapping(AgentChildTwo)
+        _add_agent_class_to_mapping(AgentRootInheritedAgentTypeAttributes)
+        _add_agent_class_to_mapping(AgentParentOneInheritedAgentTypeAttributes)
+        _add_agent_class_to_mapping(AgentParentTwoInheritedAgentTypeAttributes)
+        _add_agent_class_to_mapping(AgentChildOneInheritedAgentTypeAttributes)
+        _add_agent_class_to_mapping(AgentChildTwoInheritedAgentTypeAttributes)
 
         agent_model = AgentModel.create_new(self.default_model_params,
             self.default_agent_init_recipe)
@@ -436,11 +342,11 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         agents = {}
 
         constructor_mapping = {
-            "root":AgentRoot,
-            "parent_one":AgentParentOne,
-            "parent_two":AgentParentTwo,
-            "child_one":AgentChildOne,
-            "child_two":AgentChildTwo,
+            "root":AgentRootInheritedAgentTypeAttributes,
+            "parent_one":AgentParentOneInheritedAgentTypeAttributes,
+            "parent_two":AgentParentTwoInheritedAgentTypeAttributes,
+            "child_one":AgentChildOneInheritedAgentTypeAttributes,
+            "child_two":AgentChildTwoInheritedAgentTypeAttributes,
         }
 
         keys = list(constructor_mapping.keys())
@@ -527,6 +433,113 @@ class AgentsFrameworkTestCase(unittest.TestCase):
         db.session.delete(agent_child_two_type)
         db.session.commit()
 
+
+class AgentAPersistedAttributes(BaseAgent):
+    _agent_type_name = "agent_a_persisted_attributes"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._attr("agent_a_attribute", 16, is_persisted_attr=True)
+
+#-----------------------
+
+class AgentAPersistedAgentReferences(BaseAgent):
+    _agent_type_name = "agent_a_persisted_agent_references"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._attr("agent_b_ref", None, _type=AgentBPersistedAgentReferences, is_persisted_attr=True)
+
+    def set_agent_b(self, agent_b):
+        self.agent_b_ref = agent_b
+
+class AgentBPersistedAgentReferences(BaseAgent):
+    _agent_type_name = "agent_b_persisted_agent_references"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._attr("agent_a_ref",  None, _type=AgentAPersistedAgentReferences, is_persisted_attr=True)
+
+    def set_agent_a(self, agent_a):
+        self.agent_a_ref = agent_a
+
+#-----------------------
+
+class AgentASerializedAgentReferences(BaseAgent):
+    _agent_type_name = "agent_a_serialized_agent_references"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._attr("agent_b_ref", None, _type=AgentBSerializedAgentReferences, is_client_attr=True)
+
+    def set_agent_b(self, agent_b):
+        self.agent_b_ref = agent_b
+
+class AgentBSerializedAgentReferences(BaseAgent):
+    _agent_type_name = "agent_b_serialized_agent_references"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._attr("agent_a_ref",  None, _type=AgentASerializedAgentReferences, is_client_attr=True)
+
+    def set_agent_a(self, agent_a):
+        self.agent_a_ref = agent_a
+
+#-----------------------
+
+class AgentParentInstanceAttributeCreation(BaseAgent):
+            _agent_type_name = "agent_parent_instance_attribute_creation"
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self._attr("parent_attribute", 1)
+
+class AgentMixinInstanceAttributeCreation(AttributeHolder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._attr("mixin_attribute", 10)
+
+class AgentChildInstanceAttributeCreation(AgentParentInstanceAttributeCreation, AgentMixinInstanceAttributeCreation):
+    _agent_type_name = "agent_child_instance_attribute_creation"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        AgentMixinInstanceAttributeCreation.__init__(self)
+        self._attr("child_attribute", 100)
+
+#-----------------------
+
+class AgentRootInheritedAgentTypeAttributes(BaseAgent):
+    _agent_type_name = "agent_root_instance_attribute_creation"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+class AgentParentOneInheritedAgentTypeAttributes(AgentRootInheritedAgentTypeAttributes):
+    _agent_type_name = "agent_parent_one_instance_attribute_creation"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+class AgentParentTwoInheritedAgentTypeAttributes(AgentRootInheritedAgentTypeAttributes):
+    _agent_type_name = "agent_parent_two_instance_attribute_creation"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+class AgentChildOneInheritedAgentTypeAttributes(AgentParentOneInheritedAgentTypeAttributes, 
+        AgentParentTwoInheritedAgentTypeAttributes):
+    _agent_type_name = "agent_child_one_instance_attribute_creation"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+class AgentChildTwoInheritedAgentTypeAttributes(AgentParentTwoInheritedAgentTypeAttributes,
+        AgentParentOneInheritedAgentTypeAttributes):
+    _agent_type_name = "agent_child_two_instance_attribute_creation"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 if __name__ == "__main__":
     unittest.main()
