@@ -33,8 +33,8 @@
           <div class="col-12 config-block" id="region-id"></div>
           
           <div class="col-12 config-block" id="terrain-id"></div>
-          <div class="col-12 config-block" id="lengthofday-id">Length Of Day: </div>
-          <div class="col-12 config-block" id="regolith-id">
+          <div class="col-12 config-block" id="lengthofday-id">Length Of Day: 24h 39m</div>
+          <div class="col-12 config-block regolith" id="regolith-id">
           Minerals In Regolith:
           <div class="col-12 config-block" style="font-size: 14px">
                 Magnesium:
@@ -132,15 +132,18 @@
       <div class="row">
         <div class="col-12 dashboard title">
           Ecosystem
-        </div>
-        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px">
+        </div >
+        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px; margin-bottom: 16px">
           <canvas id="oxygen-line-chart" style="width:100%; height: 100%"></canvas>
         </div>
-        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px">
+        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px;margin-bottom: 16px">
           <canvas id="co2-line-chart" style="width:100%; height: 100%"></canvas>
         </div>
-        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px">
+        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px;margin-bottom: 16px">
           <canvas id="water-line-chart" style="width:100%; height: 100%"></canvas>
+        </div>
+        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px;margin-bottom: 16px">
+          <canvas id="food-line-chart" style="width:100%; height: 100%"></canvas>
         </div>
       </div>
     </div>

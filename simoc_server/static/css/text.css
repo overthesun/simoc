@@ -71,14 +71,17 @@ body{
   padding: 16px;
 }
 
-/*.dashboard > .left-panel > .inner, .dashboard > .middle-panel > .inner,*/ .dashboard > .right-panel > .inner{
+ .dashboard > .right-panel > .inner{
   border-right: 2px solid #3b7493 ;
   border-top: 2px solid #3b7493 ;
   border-left: 2px solid #3b7493 ;
+  border-bottom:2px solid #3b7493;
   height: 688px;
   padding-left: 16px;
   padding-right:16px;
 }
+
+
 
 .dashboard.map{
   background-image: url("/static/assets/mars_map.png");
@@ -208,4 +211,16 @@ a.disabled > .inner-icon{
 
 .testChart{
   background-color:gray;
+}
+
+
+
+/*Delete this after Saturday */
+ .dashboard > .right-panel > .inner{
+  height: 607px;
+}
+
+
+.regolith{
+  height:192px;
 }

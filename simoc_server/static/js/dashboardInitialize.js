@@ -17,7 +17,10 @@ $(document).ready(function () {
                 document.getElementById(key.toString()).innerHTML = "Humans: ";
             else if(key != "model-id")
                 document.getElementById(key.toString()).innerHTML = displayDescriptions[index] + ": ";
-            
+
+            if(key == "durationofstay-id")
+                document.getElementById(key.toString()).innerHTML += dict[key].toString() + " Months";
+            else
             document.getElementById(key.toString()).innerHTML += dict[key].toString();
             index++;
         });
