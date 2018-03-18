@@ -32,15 +32,15 @@ def deserialize_before_request():
 
 @app.route("/")
 def home():
-    return render_template('panel_content.html')
+    return render_template('base_login.html')
 
-@app.route("/loginpanel", methods=["GET"])
-def loginpanel():
-    return render_template("panel_login.html")
+#@app.route("/loginpanel", methods=["GET"])
+#def loginpanel():
+ #   return render_template("panel_login.html")
 
 @app.route("/registerpanel", methods=["GET"])
 def registerpanel():
-    return render_template("panel_register.html")
+    return render_template("base_registration.html")
 
 @app.route("/gameinit", methods=["GET"])
 def gameinit():
