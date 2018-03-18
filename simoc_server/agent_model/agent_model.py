@@ -5,6 +5,7 @@ import datetime
 import numpy as np
 import functools
 import operator
+from collections import OrderedDict
 from abc import ABCMeta, abstractmethod
 from uuid import uuid4
 
@@ -18,13 +19,12 @@ from simoc_server.database.db_model import AgentModelState, AgentState, \
 
 from simoc_server import db, app
 from simoc_server.agent_model import agents
-from simoc_server.util import sum_attributes, avg_attributes
+from simoc_server.util import sum_attributes, avg_attributes, timedelta_to_days
 
 class AgentModel(Model):
 
     def __init__(self, init_params):
         self.load_params()
-
         self.grid_width = init_params.grid_width
         self.grid_height = init_params.grid_height
         self.model_time = init_params.starting_model_time
@@ -34,6 +34,21 @@ class AgentModel(Model):
 
         self.atmospheres = []
         self.plumbing_systems = []
+        #hold single power module // needs to hold multiple
+        self.power_grid = []
+
+        # Power Grid - Holds Total Values for Power
+        """
+        self.power_storage_capacity = 0
+        self.power_output_capacity = 0
+        self.power_charge = 0
+        self.power_usage = 0
+        self.power_production = 0
+        """
+
+        # plants_available is an ordered dict to ensure consistent
+        # execution of agent steps when using the same random seed
+        self.plants_available = OrderedDict()
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -44,10 +59,10 @@ class AgentModel(Model):
 
         if not isinstance(self.seed, int):
             raise Exception("Seed value must be of type 'int', got type '{}'".format(type(self.seed)))
+
         self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state)
         self.scheduler = RandomActivation(self, random_state=self.random_state)
-
-        self.scheduler.steps = init_params.starting_step_num
+        self.scheduler.steps = getattr(init_params,"starting_step_num", 0) #init_params.starting_step_num
 
     @property
     def logger(self):
@@ -98,6 +113,33 @@ class AgentModel(Model):
         return avg_attributes(self.atmospheres, "temp")
 
     @property
+    def total_food_energy(self):
+        return sum_attributes(self.get_agents(agents.StoredFood), "food_energy")
+
+    @property
+    def total_food_mass(self):
+        return sum_attributes(self.get_agents(agents.StoredFood), "mass")
+
+    def total_power_capacity(self):
+        return sum_attributes(self.power_grid,"storage_capacity")
+
+    @property
+    def total_power_usage(self):
+        return sum_attributes(self.power_grid,"power_usage_per_day")
+
+    @property
+    def total_power_output(self):
+        return sum_attributes(self.power_grid,"output_capacity")
+
+    @property
+    def total_power_charge(self):
+        return sum_attributes(self.power_grid,"charge")
+
+    @property
+    def total_power_production(self):
+        return sum_attributes(self.power_grid,"power_produced_per_day")
+
+    @property
     def step_num(self):
         return self.scheduler.steps
 
@@ -136,13 +178,12 @@ class AgentModel(Model):
         for agent_state in agent_model_state.agent_states:
             agent_type_name = agent_state.agent_type.name
             agent_class = agents.get_agent_by_type_name(agent_type_name)
-            agent = agent_class(model, agent_state)
+            agent = agent_class(model, agent_state=agent_state)
             model.add_agent(agent)
             app.logger.info("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
 
         for agent in model.get_agents():
             agent.post_db_load()
-
         return model
 
     @classmethod
@@ -177,6 +218,15 @@ class AgentModel(Model):
 
         return plumbing_system
 
+    @classmethod
+    def create_power_module(cls, model, structures):
+
+        power_module = agents.PowerModule(model)
+
+        for structure in structures:
+            structure.set_power_module(power_module)
+        return power_module
+
     def add_agent(self, agent, pos=None):
         if pos is None and hasattr(agent, "pos"):
             pos = agent.pos
@@ -188,6 +238,8 @@ class AgentModel(Model):
             self.atmospheres.append(agent)
         elif isinstance(agent, agents.PlumbingSystem):
             self.plumbing_systems.append(agent)
+        elif isinstance(agent, agents.PowerModule):
+            self.power_grid.append(agent)
 
     def num_agents(self):
         return len(self.schedule.agents)
@@ -243,6 +295,10 @@ class AgentModel(Model):
                     "avg_temp", "total_moles_atmosphere"]
 
         status_string = " ".join(["{}: {:.5g}".format(name, getattr(self, name)) for name in to_print])
+
+        app.logger.info("Power: Total Capacity kwh: {}, Total Usage kw: {}, Total Charge kwh: {}, Max Output kw: {}, Total Production kw {}".format(
+            self.total_power_capacity, self.total_power_usage,self.total_power_charge, self.total_power_output, self.total_power_production
+        ))
         app.logger.info(status_string)
 
     def timedelta_per_step(self):
@@ -322,16 +378,27 @@ class AgentInitializerRecipe(metaclass=ABCMeta):
     def init_agents(self, model):
         pass
 
-
 class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
     NUM_HUMANS = 4
 
     # plants
-    NUM_CABBAGE = 2
-    NUM_CARROTS = 2
-    NUM_RICE = 10
-    NUM_WHITE_POTATOS = 5
+    PLANTS = {
+        "peanut":15,
+        "soybean":15,
+        "rice":15,
+        "white_potato":15,
+        "wheat":15,
+        "tomato":15
+    }
+
+    # TODO sort out way to pull this info from agent definitions
+    # while respecting inheritance
+    INITIAL_FOOD_DURATION = datetime.timedelta(days=6*30)
+    INITIAL_FOOD_ENERGY = 13000.0 * NUM_HUMANS * timedelta_to_days(INITIAL_FOOD_DURATION)
+    INITIAL_FOOD_ENERGY_DENSITY = 4444.0 # kJ / kg
+    INITIAL_FOOD_DENSITY = 450.0
+    INITIAL_FOOD_MASS = INITIAL_FOOD_ENERGY/INITIAL_FOOD_ENERGY_DENSITY
 
     def init_agents(self, model):
         crew_quarters = agents.CrewQuarters(model)
@@ -347,22 +414,47 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
         atmosphere = AgentModel.create_atmosphere(model, structures)
         plumbing_system = AgentModel.create_plumbing_system(model, structures)
+        power_module = AgentModel.create_power_module(model, structures)
+
         model.add_agent(atmosphere)
         model.add_agent(plumbing_system)
+        model.add_agent(power_module)
+
         for i in range(self.NUM_HUMANS):
             model.add_agent(agents.HumanAgent(model, structure=crew_quarters))
 
         # TODO determine number of plants for base line model
-        for i in range(self.NUM_CABBAGE):
-            model.add_agent(agents.CabbageAgent(model, structure=greenhouse))
+        for plant_type_name, num_to_plant in self.PLANTS.items():
+            model.plants_available[plant_type_name] = num_to_plant
 
-        for i in range(self.NUM_CARROTS):
-            model.add_agent(agents.CarrotAgent(model, structure=greenhouse))
+        crew_quarters_storage = agents.StorageFacility(model, structure=crew_quarters)
+        greenhouse_storage = agents.StorageFacility(model, structure=greenhouse)
 
-        for i in range(self.NUM_RICE):
-            model.add_agent(agents.RiceAgent(model, structure=greenhouse))
+        cq_stored_food = crew_quarters_storage.get_stored_food()
+        gh_stored_food = greenhouse_storage.get_stored_food()
 
-        for i in range(self.NUM_WHITE_POTATOS):
-            model.add_agent(agents.WhitePotatoAgent(model, structure=greenhouse))
+        to_store = self.INITIAL_FOOD_MASS
+        energy_to_store = self.INITIAL_FOOD_ENERGY_DENSITY
+
+        for stored_food in [cq_stored_food, gh_stored_food]:
+            actual_mass, actual_energy = stored_food.accumulate(to_store,
+                self.INITIAL_FOOD_DENSITY, self.INITIAL_FOOD_ENERGY_DENSITY)
+
+            to_store -= actual_mass
+            energy_to_store -= actual_energy
+
+        if(to_store > 0):
+            actual_mass_total = self.INITIAL_FOOD_MASS - to_store
+            actual_energy_stored = self.INITIAL_FOOD_ENERGY - energy_to_store
+
+            logger.info("Unable to store all of initial food. Stored {} kg out of {} kg"
+                " and {} kJ out of {} kJ".format(actual_mass_total, self.INITIAL_FOOD_MASS,
+                    actual_energy_stored, self.INITIAL_FOOD_ENERGY))
+
+        model.add_agent(agents.Planter(model, structure=greenhouse))
+        model.add_agent(agents.Harvester(model, structure=greenhouse))
+        model.add_agent(greenhouse_storage)
+        model.add_agent(crew_quarters_storage)
+        model.add_agent(agents.Kitchen(model, structure=crew_quarters))
 
         return model

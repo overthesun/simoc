@@ -390,6 +390,8 @@ def handle_error(error):
     Serialized Response
         The response to send to the client
     """
+    if error.status_code >= 500:
+        app.logger.error(error.message, error)
     response = serialize_response(error.to_dict())
     response.status_code = error.status_code
     return response

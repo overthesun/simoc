@@ -188,6 +188,7 @@ class GameRunner(object):
         if(step_num is None):
             step_num = self.agent_model.step_num + 1
         self._step_to(step_num, False)
+        self.reset_last_accessed()
         return self._get_step_from_buffer(step_num)
 
     def ping(self):
