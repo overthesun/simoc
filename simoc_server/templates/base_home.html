@@ -56,15 +56,15 @@ button{
 /*Wizard CSS*/
 
 .simoc-title{
-  margin-top: 60px;
+  margin-top: 20px;
   text-align: center;
-  font-size: 60px;
+  font-size: 50px;
 }
 
 .configuration-title{
   text-align: center;
-  margin-bottom:40px;
-  font-size: 32px;
+  margin-bottom:10px;
+  font-size: 22px;
 }
 
 
@@ -158,16 +158,18 @@ button{
   flex-direction: column;
   justify-content: center; 
   color:#ffffff;  
-  margin:0 auto;
-  width:300px;
-  height:400px;
+  margin:15px auto;
+  width:160px;
+ 
  }
 .buttons{  
-  height: 80px;
+  height: 50px;
   width:100%;
-  margin-top: 8px;
+  margin-top: 1px;
   margin-left: 0;
   margin-right: 0;
+  font-family:'Nasalization';
+  font-size:12px
 }
 .step-buttons{
   display: flex;
@@ -221,6 +223,25 @@ li > a.active > .outer-icon{
   color: #e9f0f4;;
 }
 
+.menuframe{
+  width: 400px;
+
+  margin: 0 auto;
+  border: 2px solid #5bc0f6; 
+  background-color: transparent; 
+  padding: 0;
+  margin-bottom:15px
+}
+.menuframe-header{
+  width: 100%;
+  height: 50px;
+  margin: 0px;
+  padding: 8px;
+  justify-content: space-around;
+  align-items: center;
+  border-bottom: 1.5px solid #5bc0f6;  
+  background-color: transparent; 
+}
 
 </style>
 </head>
@@ -237,7 +258,7 @@ li > a.active > .outer-icon{
                     
                 </div>
             </div>
-            <div class="card">
+            <div class="menuframe">
                 {% block panel %}
 
                 {% endblock %}
