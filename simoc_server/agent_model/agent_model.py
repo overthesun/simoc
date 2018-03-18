@@ -289,7 +289,6 @@ class AgentModel(Model):
         app.logger.info("{0} step_num {1}".format(self, self.step_num))
 
         # TODO remove this when it is no longer needed
-        app.logger.info("#--------------------------------------#")
         to_print = ["avg_oxygen_pressure", "avg_carbon_dioxide_pressure", "avg_nitrogen_pressure",
                     "avg_argon_pressure", "total_water", "total_waste_water",
                     "total_grey_water", "total_grey_water_solids", "total_solid_waste",
