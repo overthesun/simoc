@@ -1,5 +1,5 @@
 function gotourl(url) {
-    window.location.href = $SCRIPT_ROOT+url;
+     window.location =  url;
 }
 
 function isEmpty(str) {
