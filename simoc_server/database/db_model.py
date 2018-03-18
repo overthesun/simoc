@@ -31,7 +31,7 @@ class User(BaseEntity, UserMixin):
 
     email_regex = re.compile('^\s*[\w\-\+_]+(\.[\w\-\+_]+)*\@[\w\-\+_]+\.[\w\-\+_]+(\.[\w\-\+_]+)*\s*$')
     username_regex = re.compile('^[a-z0-9_-]{6,25}$')
-    password_regex = re.compile('^.{6,512}$')
+    password_regex = re.compile('^.{8,512}$')
 
     def set_password(self, password):
         self.password_isvalid = self.password_regex.match(password)
