@@ -459,7 +459,6 @@ class AgentBPersistedAgentReferences(BaseAgent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._attr("agent_a_ref",  None, _type=AgentAPersistedAgentReferences, is_persisted_attr=True)
-        print(self.attribute_descriptors)
 
     def set_agent_a(self, agent_a):
         self.agent_a_ref = agent_a

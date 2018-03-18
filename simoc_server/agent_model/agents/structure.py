@@ -42,7 +42,8 @@ class PowerModule(BaseAgent):
                     agent.powered = 1
                 else:
                     agent.powered = 0
-                    print("Not enough powaahh")
+                    self.model.logger.info("Unable to supply power to agent '{}' of type '{}'"
+                        .format(agent.unique_id, agent.__class__.__name__))
         if usage_per_step < produced_per_step and (self.charge + (produced_per_step - usage_per_step)) <= self.storage_capacity:
             self.charge += (produced_per_step - usage_per_step)
 
@@ -434,7 +435,7 @@ class Harvester(EnclosedAgent):
                     plants_ready.append(x)
             self.harvest(plants_ready)
         else:
-            print("Harvester has no power")
+            self.model.logger.info("Harvester has no power")
 
     def harvest(self, plants):
         for x in plants:
@@ -484,7 +485,7 @@ class Planter(EnclosedAgent):
             self.plant()
 
         else:
-            print("Planter has no power")
+            self.model.logger.info("Planter has no power")
 
     def plant(self):
         current_plants = self.structure.plants

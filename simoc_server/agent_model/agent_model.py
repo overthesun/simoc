@@ -184,7 +184,6 @@ class AgentModel(Model):
 
         for agent in model.get_agents():
             agent.post_db_load()
-        #print("returning model")
         return model
 
     @classmethod
@@ -290,6 +289,7 @@ class AgentModel(Model):
         app.logger.info("{0} step_num {1}".format(self, self.step_num))
 
         # TODO remove this when it is no longer needed
+        app.logger.info("#--------------------------------------#")
         to_print = ["avg_oxygen_pressure", "avg_carbon_dioxide_pressure", "avg_nitrogen_pressure",
                     "avg_argon_pressure", "total_water", "total_waste_water",
                     "total_grey_water", "total_grey_water_solids", "total_solid_waste",
@@ -297,8 +297,7 @@ class AgentModel(Model):
 
         status_string = " ".join(["{}: {:.5g}".format(name, getattr(self, name)) for name in to_print])
 
-        print(status_string)
-        print("Power: Total Capacity kwh: {}, Total Usage kw: {}, Total Charge kwh: {}, Max Output kw: {}, Total Production kw {}".format(
+        app.logger.info("Power: Total Capacity kwh: {}, Total Usage kw: {}, Total Charge kwh: {}, Max Output kw: {}, Total Production kw {}".format(
             self.total_power_capacity, self.total_power_usage,self.total_power_charge, self.total_power_output, self.total_power_production
         ))
         app.logger.info(status_string)
