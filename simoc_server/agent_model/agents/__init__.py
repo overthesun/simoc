@@ -1,8 +1,5 @@
 from simoc_server.agent_model.agents.human import HumanAgent
 
-#if __name__ == '__main__':  #for testing equipment agent without causing circular import
-#from simoc_server.agent_model.agents.equipment import Equipment, PowerModule
-
 from simoc_server.agent_model.agents.plants import (PlantAgent, CabbageAgent, CarrotAgent, ChardAgent, 
     DryBeanAgent, LettuceAgent, PeaAgent, PeanutAgent, PepperAgent, RedBeetAgent, RiceAgent, SnapBeanAgent, 
     SoybeanAgent, SpinachAgent, StrawberryAgent, SweetPotatoAgent, TomatoAgent, WheatAgent, WhitePotatoAgent)

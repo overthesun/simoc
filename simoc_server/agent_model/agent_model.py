@@ -25,13 +25,12 @@ class AgentModel(Model):
 
     def __init__(self, init_params):
         self.load_params()
-        #Added - issue creating and testing agent model & agents by themselves added defualt values
-        self.grid_width = init_params.grid_width #getattr(init_params,"grid_width", 100) #
-        self.grid_height = init_params.grid_height # getattr(init_params,"grid_height", 100) #
-        self.model_time = init_params.starting_model_time # getattr(init_params,"starting_model_time", None) #
-        self.snapshot_branch = init_params.snapshot_branch # getattr(init_params,"snapshot_branch", None)  #
-        self.seed = init_params.seed # getattr(init_params,"seed", 0) #init_params.seed
-        self.random_state = init_params.random_state # getattr(init_params,"random_state", None) #
+        self.grid_width = init_params.grid_width
+        self.grid_height = init_params.grid_height
+        self.model_time = init_params.starting_model_time
+        self.snapshot_branch = init_params.snapshot_branch
+        self.seed = init_params.seed
+        self.random_state = init_params.random_state
 
         self.atmospheres = []
         self.plumbing_systems = []
