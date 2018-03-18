@@ -21,10 +21,10 @@ class PowerModule(BaseAgent):
 
         self._attr("power_usage_per_day", 0.0, is_client_attr=True, is_persisted_attr=True)
         #About 2 weeks of power
-        self._attr("storage_capacity", 8400, is_client_attr=True, is_persisted_attr=True)
-        self._attr("output_capacity", 70, is_client_attr=True, is_persisted_attr=True)
-        self._attr("charge", 0, is_client_attr=True, is_persisted_attr=True)
-        self._attr("power_produced_per_day", 100, is_client_attr=True, is_persisted_attr=True)
+        self._attr("storage_capacity", 8400.0, is_client_attr=True, is_persisted_attr=True)
+        self._attr("output_capacity", 70.0, is_client_attr=True, is_persisted_attr=True)
+        self._attr("charge", 0.0, is_client_attr=True, is_persisted_attr=True)
+        self._attr("power_produced_per_day", 100.0, is_client_attr=True, is_persisted_attr=True)
 
     def step(self):
         self.power_usage_per_day = 0
@@ -586,14 +586,29 @@ class StoredMass(EnclosedAgent):
         volume = float(kwargs.pop("volume", 0.0))
         mass = float(kwargs.pop("mass", 0.0))
 
-        structure = getattr(kwargs, "structure", None)
+        resource_name = kwargs.pop("resource_name", None)
+        structure = kwargs.get("structure", None)
+
         if structure is not None and not isinstance(structure, StorageFacility):
             raise AgentModelError("StoredMass must be stored in StorageFacility")
 
         super().__init__(*args, **kwargs)
 
+        if resource_name is None and not getattr(self, "resource_name", None) is not None:
+            raise AgentModelError("'resource_name' cannot be None, it should be passed or loaded from db.")
+        self._attr("resource_name", default_value=resource_name, is_client_attr=True, is_persisted_attr=True)
         self._attr("volume", default_value=volume, is_client_attr=True, is_persisted_attr=True)
         self._attr("mass", default_value=mass, is_client_attr=True, is_persisted_attr=True)
+
+        if self.structure and isinstance(self.structure, StorageFacility):
+            self.set_backref()
+
+    def post_db_load(self):
+        super().post_db_load()
+        self.set_backref()
+
+    def set_backref(self):
+        self.structure.set_resource(self.resource_name, self)
 
     @property
     def current_density(self):
@@ -641,7 +656,6 @@ class StoredFood(StoredMass):
 
     def __init__(self, *args, **kwargs):
         food_energy = float(kwargs.pop("food_energy", 0.0))
-
         super().__init__(*args, **kwargs)
 
         self._attr("food_energy", default_value=food_energy, is_client_attr=True, is_persisted_attr=True)
@@ -799,7 +813,8 @@ class StorageFacility(Structure, EnclosedAgent):
             self.set_capacity()
 
     def post_db_load(self):
-        super().post_db_load()
+        super(Structure, self).post_db_load()
+        super(EnclosedAgent, self).post_db_load()
         self.set_capacity()
 
     def set_capacity(self):
@@ -822,13 +837,16 @@ class StorageFacility(Structure, EnclosedAgent):
 
         self.storage_capacity = new_capacity
 
+    def set_resource(self, resource_name, value):
+        self._attr(resource_name, value, is_client_attr=True, is_persisted_attr=False)
+
     def get_or_create(self, resource_name, agent_class, *args, **kwargs):
         kwargs["structure"] = self
+        kwargs["resource_name"] = resource_name
         resource = getattr(self, resource_name, None)
         if not resource:
             resource = agent_class(self.model, *args, **kwargs)
             self.model.add_agent(resource)
-            self._attr(resource_name, resource, is_client_attr=True, is_persisted_attr=True)
         return resource
 
     def get_stored_food(self):

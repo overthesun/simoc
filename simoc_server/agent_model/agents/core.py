@@ -4,7 +4,7 @@ from uuid import uuid4
 import inspect
 
 from simoc_server import db
-from simoc_server.util import load_db_attributes_into_dict, extend_dict
+from simoc_server.util import load_db_attributes_into_dict, extend_dict, NotLoaded
 from simoc_server.database.db_model import AgentType, AgentState, AgentStateAttribute
 from simoc_server.agent_model.sprite_mappers import DefaultSpriteMapper
 from simoc_server.agent_model.attribute_meta import AttributeHolder
@@ -73,7 +73,11 @@ class BaseAgent(Agent, AttributeHolder):
                     attributes.update(base.agent_type_attributes)
 
             # finally, extend existing attributes with this classes attributes
-            load_db_attributes_into_dict(agent_type.agent_type_attributes, attributes)
+            try:
+                load_db_attributes_into_dict(agent_type.agent_type_attributes, attributes)
+            except ValueError as e:
+                raise ValueError("Error loading agent type attributes for class '{}'.".format(cls.__name__)) from e
+
             cls.agent_type_attributes = attributes
             cls._last_loaded_type_attr_class = cls
 
@@ -119,12 +123,16 @@ class BaseAgent(Agent, AttributeHolder):
 
         self.requires_post_load = {}
 
-        load_db_attributes_into_dict(agent_state.agent_state_attributes, self.__dict__)
+        try:
+            load_db_attributes_into_dict(agent_state.agent_state_attributes, self.__dict__, load_later=[BaseAgent])
+        except ValueError as e:
+            raise ValueError("Error loading agent state attributes for class '{}'".format(self.__class__.__name__)) from e
 
     def post_db_load(self):
         for name, attribute_descriptor in self.attribute_descriptors.items():
-            if(issubclass(attribute_descriptor._type, BaseAgent)):
-                id_value = self.__dict__[name]
+            current_value = getattr(self, name)
+            if issubclass(attribute_descriptor._type, BaseAgent) and isinstance(current_value, NotLoaded):
+                id_value = current_value._db_raw_value
                 # TODO remove check for str value 'None' and move it elsewhere, make better
                 if id_value is not None:
                     if id_value == "None":
@@ -139,20 +147,23 @@ class BaseAgent(Agent, AttributeHolder):
                  model_time_created=self.model_time_created, pos_x=pos[0], pos_y=pos[1])
 
         for attribute_name, attribute_descriptor in self.attribute_descriptors.items():
-            value = self.__dict__[attribute_name]
-            value_type = attribute_descriptor._type
-            if issubclass(value_type, BaseAgent):
-                value_type_str = "str"
-                if value is not None:
-                    value = value.unique_id
-            else:
-                value_type_str =  value_type.__name__
-            value_str = str(value)
-            if value_type_str not in PERSISTABLE_ATTRIBUTE_TYPES:
-                raise Exception("Attribute set to non-persistable type.")
+            if attribute_descriptor.is_persisted_attr:
+                value = self.__dict__[attribute_name]
+                value_type = attribute_descriptor._type
+                is_agent_reference = False
+                if issubclass(value_type, BaseAgent):
+                    value_type_str = value_type.__module__ + "." + value_type.__name__
+                    if value is not None:
+                        value = value.unique_id
+                    is_agent_reference = True
+                else:
+                    value_type_str =  value_type.__name__
+                value_str = str(value)
+                if value_type_str not in PERSISTABLE_ATTRIBUTE_TYPES and not is_agent_reference:
+                    raise Exception("Attribute set to non-persistable type.")
 
-            agent_state.agent_state_attributes.append(AgentStateAttribute(name=attribute_name, 
-                value=value_str, value_type=value_type_str))
+                agent_state.agent_state_attributes.append(AgentStateAttribute(name=attribute_name, 
+                    value=value_str, value_type=value_type_str))
         db.session.add(agent_state)
         if commit:
             db.session.commit()

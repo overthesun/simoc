@@ -18,11 +18,12 @@ class AgentDTO(BaseDTO):
 
         attributes = {}
         for attribute_name, attribute_descriptor in self.agent.attribute_descriptors.items():
-            attribute_value = self.agent.__dict__[attribute_name]
-            if(issubclass(attribute_descriptor._type, BaseAgent) and attribute_value is not None):
-                attributes[attribute_name] = attribute_value.unique_id
-            else:    
-                attributes[attribute_name] = attribute_value
+            if attribute_descriptor.is_client_attr:
+                attribute_value = self.agent.__dict__[attribute_name]
+                if(issubclass(attribute_descriptor._type, BaseAgent) and attribute_value is not None):
+                    attributes[attribute_name] = attribute_value.unique_id
+                else:    
+                    attributes[attribute_name] = attribute_value
         state["attributes"] = attributes
         return state
 
