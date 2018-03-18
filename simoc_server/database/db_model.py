@@ -1,5 +1,7 @@
 import datetime
 import re
+
+from sqlalchemy.orm import validates
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.ext.declarative import declared_attr
@@ -26,21 +28,37 @@ class User(BaseEntity, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), unique=True, nullable=False)
     email = db.Column(db.String(50), unique=True, nullable=False)
-    
+
+    email_regex = re.compile('^\s*[\w\-\+_]+(\.[\w\-\+_]+)*\@[\w\-\+_]+\.[\w\-\+_]+(\.[\w\-\+_]+)*\s*$')
+    username_regex = re.compile('^[a-z0-9_-]{6,25}$')
+    password_regex = re.compile('^.{6,512}$')
+
     def set_password(self, password):
+        self.password_isvalid = self.password_regex.match(password)
         self.password_hash = generate_password_hash(password)
-    def validate_password(self, password):
+
+    def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-    def set_email(self,email):
-        self.email=email
-    def get_email(self):
-        return str(self.email)
-    def validate_email(self,email):
-        reg=re.compile('^\s*[\w\-\+_]+(\.[\w\-\+_]+)*\@[\w\-\+_]+\.[\w\-\+_]+(\.[\w\-\+_]+)*\s*$')
-        return reg.match(email)
-    def validate_login(self,value):
-        reg=re.compile('^[a-z0-9_-]{6,25}$')
-        return reg.match(value)
+
+    @validates('email')
+    def validate_email(self, key, email):
+        if not self.email_regex.match(email):
+            raise ValueError("Invalid email.")
+        return email
+
+    @validates('username')
+    def validate_username(self, key, username):
+        if not self.username_regex.match(username):
+            raise ValueError("Invalid Username")
+        return username
+
+    @validates('password_hash')
+    def validate_password(self, key, password_hash):
+        # need to validate against original password value
+        if not self.password_isvalid:
+            raise ValueError("Invalid password.")
+        return password_hash
+
     def get_id(self):
         return str(self.id)
 
