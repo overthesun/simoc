@@ -2,12 +2,20 @@
 
 @font-face {
   font-family: 'Nasalization';
+<<<<<<< HEAD
   src: URL('/static/assets/nasalization-rg.ttf') format('truetype');
+=======
+  src: URL('nasalization-rg.ttf') format('truetype');
+>>>>>>> Login_Layout_Update
 }
 
 
 body{
+<<<<<<< HEAD
   background-image: url("/static/assets/simoc-background.png");
+=======
+  background-image: url("simoc-background.png");
+>>>>>>> Login_Layout_Update
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -24,26 +32,26 @@ body{
 }
 
 .main.title{
-  font-size:48px;
+  font-size:64px;
   margin-bottom:0px;
 }
 
 .main.subtitle{
   font-size:18px;
-  margin-top: -20px;
+  margin-top: -6px;
   margin-bottom: 32px;
 }
 
 .tab.title{
   font-size:30px;
   height: 60px;
-  background-image: url("/static/assets/blue-transparent.png")
+  background-image: url("blue-transparent.png")
 }
 
 .dashboard.title{
   font-size:20px;
   height: 30px;
-  background-image: url("/static/assets/blue-transparent.png");
+  background-image: url("blue-transparent.png");
   text-align:center;
 }
 
@@ -127,7 +135,7 @@ body{
 }
 .base-container{
   margin: auto 0;
-  margin-top:10%;
+  /*margin-top:10%;*/
 }
 
 .wizard{

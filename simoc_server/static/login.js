@@ -1,27 +1,7 @@
-﻿{% extends "base_home.html" %}
+    $('#registerbtn').click(function () {
+        gotourl('/registerpanel');
+    });
 
-{% block panel %}
-<div class="menuframe-header configuration-title common-text">
-Login Menu
-</div>
-<div class="menu-buttons-container" style="width:160px" >
-    
-    
-            
-            <div style="margin-top:5px;">
-                <p><input type="text" name="username" class="form-control " style="width:100%" id="username" placeholder="Enter username" /></p>
-            
-                <p><input type="password" name="password" class="form-control" style="width:100%"  id="password" placeholder="Password" />  </p>          
-            </div>
-			<div id="logformAlert" style="width:250px;margin:0;padding:1px;height:45px" class="alert"></div>
-			<div style="width:100%">
-				<span style="width:79px;float:left"> <button type="button" id="submitbtn" class="buttons">Login</button> </span>
-				<span style="width:79px;float:left;margin-left:2px"><button type="button" id="menuoptionbackbtn" class="buttons">Back</button> </span>
-			</div>
-			<div style="float:clear"></div>
-</div>
-
-<script type="text/javascript">
     $(function () {
         $('#menuoptionbackbtn').click(function () {
             gotourl('/');
@@ -30,28 +10,28 @@ Login Menu
             return (!str || 0 === str.length);
         }
         $('#submitbtn').click(function () {
-
-           var alertForm = function(message, alertClass){
+            console.log("TEST");
+           /*var alertForm = function(message, alertClass){
                 $("#logformAlert").html("<strong>" + message + "</strong>")
                 $("#logformAlert").css({
                         "visibility":"visible",
                     })
                 $("#logformAlert").attr("class", "alert " + alertClass)
-            }
-
+            }*/
            // alert($('form').());
             var user = $('#username').val();
             var pass = $('#password').val();
             var obj = { "username": user, "password": pass };
             if (isEmpty(user) || isEmpty(pass)) {
-                alertForm('Enter username or password!',"alert-danger");
+                //alertForm('Enter username or password!',"alert-danger");
             }
 			else{
             //alert(JSON.stringify(obj));
             postFormatted('/login', obj, function (data,status) {
                 //alert(JSON.stringify(data+'status:'+status));
                 if (status == 'success') {
-                    alertForm("Login Success!", "alert-success")
+                    console.log("We're in captain!")
+                    //alertForm("Login Success!", "alert-success")
                     gotourl('/gameinit');
                 }
                 //$("#result").text(data.result);
@@ -59,18 +39,14 @@ Login Menu
                     var responseJSON = jqXHR.responseJSON;
                     if(jqXHR.responseJSON){
                         var message = responseJSON.message;
-                        alertForm("Login failed. " + responseJSON.message, "alert-danger");
+                        //alertForm("Login failed. " + responseJSON.message, "alert-danger");
                     }
                     else{
                         console.log("ERROR: " + errorThrown + " " + textStatus);
-                        alertForm("Login failed. Contact System Admin.", "alert-json");
+                        //alertForm("Login failed. Contact System Admin.", "alert-json");
                     }
             });
 			}
             return false;
         });
         });
-
-
-</script>
-{% endblock %}
