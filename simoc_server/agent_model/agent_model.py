@@ -5,6 +5,7 @@ import datetime
 import numpy as np
 import functools
 import operator
+
 from collections import OrderedDict
 from abc import ABCMeta, abstractmethod
 from uuid import uuid4
@@ -19,7 +20,8 @@ from simoc_server.database.db_model import AgentModelState, AgentState, \
 
 from simoc_server import db, app
 from simoc_server.agent_model import agents
-from simoc_server.util import sum_attributes, avg_attributes, timedelta_to_days
+from simoc_server.util import (sum_attributes, avg_attributes, timedelta_to_days,
+    timedelta_to_hours)
 
 class AgentModel(Model):
 
@@ -138,6 +140,14 @@ class AgentModel(Model):
     @property
     def total_power_production(self):
         return sum_attributes(self.power_grid,"power_produced_per_day")
+
+    @property
+    def total_humans(self):
+        return len(self.get_agents(agents.HumanAgent))
+
+    @property
+    def hours_per_step(self):
+        return timedelta_to_hours(self.timedelta_per_step())
 
     @property
     def step_num(self):

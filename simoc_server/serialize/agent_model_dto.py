@@ -15,7 +15,9 @@ class AgentModelDTO(BaseDTO):
         "total_solid_waste",
         "total_food_energy",
         "total_food_mass",
-        "total_power_charge"
+        "total_power_charge",
+        "total_humans",
+        "hours_per_step"
     ]
 
     def __init__(self, agent_model):

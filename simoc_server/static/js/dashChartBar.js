@@ -42,6 +42,7 @@ var baseBarChartOptions = {
       }],
       yAxes: [{
         stacked: true,
+        beginAtZero:true,
         ticks: {
           callback:function(value){
             return truncateToLength(value, MAX_BAR_TICK_LENGTH);
@@ -83,6 +84,7 @@ var baseLineChartOptions = {
       yAxes: [{
         ticks: {
           autoSkip:true,
+          //beginAtZero:true,
           callback:function(value){
             return truncateToLength(value, MAX_LINE_YTICK_LENGTH);
           }
@@ -116,12 +118,12 @@ var createSingleLine = function(id, label, datasetLabel){
   return new Chart(document.getElementById(id), createSingleLineOptions(label, datasetLabel));
 }
 
-var foodBar = createSingleBar("food-bar-chart", "FOOD", "Food (kJ)");
-var oxygenBar = createSingleBar("oxygen-bar-chart", "OXYGEN", "Oxygen (kPa")
-var carbonDioxideBar = createSingleBar("cotwo-bar-chart", "CO2", "CO2 (kPa")
-var waterBar = createSingleBar("water-bar-chart", "WATER", "Water (kg)")
-var chargeBar = createSingleBar("kwh-bar-chart", "CHARGE", "Charge (kWh)")
-
+var foodBar = createSingleBar("food-bar-chart", "Food (kJ)", "Food");
+var oxygenBar = createSingleBar("oxygen-bar-chart", "Oxygen (kPa)", "Oxygen")
+var carbonDioxideBar = createSingleBar("cotwo-bar-chart", "CO2 (kPa)", "CO2")
+var waterBar = createSingleBar("water-bar-chart", "Water (kg)", "Water")
+var chargeBar = createSingleBar("kwh-bar-chart", "Charge (kWh)", "Charge")
+var humanBar = createSingleBar("humans-bar-chart", "Humans", "Humans")
 
 var oxygenLine = createSingleLine("oxygen-line-chart", "Oxygen Pressure (kPa)", "Oxygen Pressure (kPa)");
 var waterLine = createSingleLine("water-line-chart", "Total Water (kg)", "Total Water (kg)");
@@ -142,6 +144,7 @@ function updateAllBarCharts(avgOxygen, avgCarbonDioxide, totalWater,
   updateBarChart(carbonDioxideBar, avgCarbonDioxide);
   updateBarChart(foodBar, totalFoodEnergy);
   updateBarChart(chargeBar, totalCharge);
+  updateBarChart(humanBar, totalHumans);
 }
 
 function updateLineChart(chart, stepNum, value){
@@ -149,10 +152,8 @@ function updateLineChart(chart, stepNum, value){
   chart.data.datasets[0].data.push(value);
   chart.data.labels.push(stepNum);
   if(chart.data.datasets[0].data.length > MAX_CHART_POINTS){
-    for(var i = 0; i < MAX_CHART_POINTS/3; i++){
-      chart.data.datasets[0].data.shift();
-      chart.data.labels.shift();
-    }
+    chart.data.datasets[0].data.shift();
+    chart.data.labels.shift();
   }
   chart.update();
 }
