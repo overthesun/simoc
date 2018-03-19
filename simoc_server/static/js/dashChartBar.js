@@ -31,6 +31,9 @@ var baseBarChartOptions = {
     title: {
       display: true,
     },
+    tooltips: {
+      enabled:false
+    },
     scales: {
       xAxes: [{
         barPercentage: 1.0,
@@ -67,8 +70,9 @@ var baseLineChartOptions = {
   },
   options: {
     legend: { display: false },
-    responsive:true,
-    maintainAspectRatio:false,
+    tooltips: {
+      enabled:false
+    },
     title: {
       display: true,
     },
