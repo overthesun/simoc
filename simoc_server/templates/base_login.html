@@ -64,7 +64,7 @@
       </div>
     </div>
   <div class="col-4" style="border-left: 2px solid #3b7493"></div>
-  <div class="col-4 common-text" style="width:50%; margin: 0 auto;">
+  <div class="col-4 common-text" style="width:50%; margin: auto;" align="center";>
       <br>
       <button type="button" class="next-step btn raised" id="submitbtn">Login</button>
   </div>
@@ -76,6 +76,20 @@
   </div> <!-- Row Tag -->
   </div> <!-- Container Tag -->
   </div><!--Container Tag -->
+
+  <div class="modal fade" id="failureLoginModal" role="dialog">
+    <div class="modal-dialog" style="background-color: #F08080">
+      <div class="modal-content">
+        <div class="modal-body" id="failuremessage-id" style="text-align: center; color: black;background-color: #F08080">
+        </div>
+        <div class="modal-footer common-text" style="margin: 0 auto; padding: 8px;">
+          <button type="button" class="next-step btn raised" id="failureloginmodalbtn">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <script src="/static/js/login.js"></script>
 
 </body>

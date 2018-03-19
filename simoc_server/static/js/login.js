@@ -2,6 +2,16 @@
         gotourl('/registerpanel');
     });
 
+    $("#failureloginmodalbtn").click(function(){
+        $("#failureLoginModal").modal('hide');
+    });
+
+    function onFailure(message){
+        document.getElementById("failuremessage-id").innerHTML = '<i class="fas fa-exclamation-triangle" data-fa-transform="grow-3"></i>'+ " " + message + " " + '<i class="fas fa-exclamation-triangle" data-fa-transform="grow-3"></i>';
+        $('#failureLoginModal').modal('show');
+        console.log("FAILED");
+    }
+
     $(function () {
         $('#menuoptionbackbtn').click(function () {
             gotourl('/');
@@ -22,6 +32,7 @@
             var pass = $('#password').val();
             var obj = { "username": user, "password": pass };
             if (isEmpty(user) || isEmpty(pass)) {
+                onFailure("Please Enter Username Or Password!")
                 //alertForm('Enter username or password!',"alert-danger");
             }
 			else{
@@ -29,13 +40,18 @@
             postFormatted('/login', obj, function (data,status) {
                 //alert(JSON.stringify(data+'status:'+status));
                 if (status == 'success') {
+
                     //alertForm("Login Success!", "alert-success")
                     gotourl('/gameinit');
                 }
                 //$("#result").text(data.result);
             }).fail(function(jqXHR, textStatus, errorThrown){
                     var responseJSON = jqXHR.responseJSON;
+                     onFailure("Login Failed!");
+                     console.log("TESTING");
                     if(jqXHR.responseJSON){
+                        $('#failureLoginModal').modal('show');
+                        console.log("TESTING")
                         var message = responseJSON.message;
                         //alertForm("Login failed. " + responseJSON.message, "alert-danger");
                     }
