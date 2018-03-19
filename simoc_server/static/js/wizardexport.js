@@ -1,7 +1,9 @@
 function exportConfiguration() {
 
+  var date = new Date().toLocaleString();
+
   console.log(formDict());
-  var filename ="test.txt";
+  var filename ="simoc_params" + date + ".txt";
   var input = JSON.stringify(formDict()); 
 
   var element = document.createElement('a');
