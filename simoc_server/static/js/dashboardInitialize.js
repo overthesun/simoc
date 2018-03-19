@@ -23,7 +23,7 @@ $(document).ready(function () {
             else if(key == "launchwindow-id")
                 document.getElementById(key.toString()).innerHTML += '<br>' + dict[key].toString();
             else
-            document.getElementById(key.toString()).innerHTML += dict[key].toString();
+                document.getElementById(key.toString()).innerHTML += dict[key].toString();
             index++;
         });
     }
