@@ -2,20 +2,14 @@
 
 @font-face {
   font-family: 'Nasalization';
-<<<<<<< HEAD
   src: URL('/static/assets/nasalization-rg.ttf') format('truetype');
-=======
-  src: URL('nasalization-rg.ttf') format('truetype');
->>>>>>> Login_Layout_Update
+
 }
 
 
 body{
-<<<<<<< HEAD
   background-image: url("/static/assets/simoc-background.png");
-=======
-  background-image: url("simoc-background.png");
->>>>>>> Login_Layout_Update
+
   background-size: cover;
   background-repeat: no-repeat;
 }

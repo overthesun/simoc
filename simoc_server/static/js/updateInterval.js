@@ -35,15 +35,18 @@ $(document).ready(function(){
                     totalFoodEnergy, totalPowerCharge);
                 updateAllLineCharts(avgOxygen, avgCarbonDioxide, totalWater,
                     totalFoodEnergy, currentStep);
-                //updateSolarDay(data.step.num)
             }
         });
-     
+
     }
 
     $('#dashboard-pause').click(function(){
 
     })
+
+    function updateSolarDay(date){
+        document.getElementById('currentDate-id').innerHTML = "Mars: Sol " + Math.floor(1+(date / 24.65));
+    }
 
 
 });
