@@ -1,7 +1,7 @@
 const MAX_BAR_TICK_LENGTH = 4;
 const MAX_LINE_XTICK_LENGTH = 6;
 const MAX_LINE_YTICK_LENGTH = 6;
-const MAX_CHART_POINTS = 12;
+const MAX_CHART_POINTS = 20;
 
 var truncateToLength = function(value, maxLength){
   if(value === undefined)
