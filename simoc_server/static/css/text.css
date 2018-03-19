@@ -226,3 +226,8 @@ a.disabled > .inner-icon{
 .regolith{
   height:192px;
 }
+
+/*Prevent button from highlighting text*/
+.button {
+  user-select: none;
+}
