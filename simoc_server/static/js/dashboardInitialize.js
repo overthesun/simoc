@@ -20,6 +20,8 @@ $(document).ready(function () {
 
             if(key == "durationofstay-id")
                 document.getElementById(key.toString()).innerHTML += dict[key].toString() + " Months";
+            else if(key == "launchwindow-id")
+                document.getElementById(key.toString()).innerHTML += '<br>' + dict[key].toString();
             else
             document.getElementById(key.toString()).innerHTML += dict[key].toString();
             index++;

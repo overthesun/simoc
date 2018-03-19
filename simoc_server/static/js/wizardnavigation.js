@@ -12,6 +12,11 @@ $(document).ready(function () {
     });
 
 
+    $(".cancel-step").click(function(e){
+        e.preventDefault();
+        $('ul li a:first').tab('show');
+    });
+
 
     $(".finalize-step").click(function (e){
 
