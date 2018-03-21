@@ -42,6 +42,7 @@
         User Registration
       </div>
 
+      <form id="registrationForm">
       <div class="col-12 tabs common-text">
         <div class="input-group" style="margin-top: 16px">
           <div class="input-group-prepend">
@@ -54,25 +55,25 @@
           <div class="input-group-prepend">
             <span class="input-group-text" id="email-addon"><i class="fas fa-envelope inner-icon"></i></span>
           </div>
-          <input type="text" class="form-control" id="emailaddress" placeholder="Email Address">
+          <input type="email" class="form-control" id="emailaddress" placeholder="Email Address">
         </div>
         <div class="input-group" style="margin-top: 48px">
           <div class="input-group-prepend">
             <span class="input-group-text" id="username-addon"><i class="fas fa-id-card inner-icon"></i></span>
           </div>
-          <input type="text" class="form-control" id="username" placeholder="Username">
+          <input type="text" class="form-control" id="username" placeholder="Username" pattern="[a-zA-Z][a-zA-Z0-9-_.]{6,20}">
         </div>
         <div class="input-group" style="margin-top: 24px">
           <div class="input-group-prepend">
             <span class="input-group-text" id="password-addon"><i class="fas fa-lock"></i></span>
           </div>
-          <input type="password" class="form-control" id="password" placeholder="Password">
+          <input type="password" class="form-control" id="password" placeholder="Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}">
         </div>
         <div class="input-group" style="margin-top: 8px">
           <div class="input-group-prepend">
             <span class="input-group-text" id="password-addon"><i class="fas fa-lock"></i></span>
           </div>
-          <input type="password" class="form-control" id="validatepassword" placeholder="Confirmation">
+          <input type="password" class="form-control" id="validatepassword" placeholder="Confirmation" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}">
         </div>
         <div class="input-group" style="margin-top: 24px">
            <div class="form-check mb-2 mr-sm-2 mb-sm-0">
@@ -82,12 +83,14 @@
           </div>
         </div>
       </div>
+    </form>
+
       <div class="col-3" style="border-left: 2px solid #3b7493"></div>
       <div class="col-3 common-text" style="width:50%; margin: 0 auto; padding: 8px">
       <button type="button" class="next-step btn raised" id="menuoptionbackbtn">Cancel</button>
       </div>
       <div class="col-3 common-text" style="padding: 8px">
-        <button type="button" class="next-step btn raised" id="registerbtn">Register</button>
+        <button type="submit" class="next-step btn raised" id="registerbtn" form="registrationForm">Register</button>
       </div>
       <div class="col-3" style="border-right: 2px solid #3b7493"></div>
       <div class="col-12" style="border-right: 2px solid #3b7493;border-left: 2px solid #3b7493; border-bottom: 2px solid #3b7493; text-align: center; padding-bottom:16px">
