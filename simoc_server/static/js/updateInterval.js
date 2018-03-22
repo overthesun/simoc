@@ -71,6 +71,14 @@ $(document).ready(function(){
         updateInterval = Math.max(300, updateInterval - 100);
     })
 
+    $("#pause-button").click(function(){
+    updateRunning = !updateRunning;
+
+        if(updateRunning){
+            setUpdateTimeout();
+        }
+    })
+
 });
 
 
