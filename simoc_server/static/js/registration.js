@@ -13,7 +13,7 @@
             gotourl('/');
         });
 
-        /*$("#failuremodalbtn").click(function(){
+        $("#failuremodalbtn").click(function(){
             $("#failureModal").modal('hide');
         });
 
@@ -32,8 +32,8 @@
             console.log("FAILED");
         }
 
-        /*$('#registerbtn').click(function () {
-            /*var alertForm = function(message, alertClass){
+        $('#registerbtn').click(function () {
+            var alertForm = function(message, alertClass){
                 $("#logformAlert").html("<strong>" + message + "</strong>")
                 $("#logformAlert").css({
                         "visibility":"visible",
@@ -82,5 +82,5 @@
                 });
                 return false;
             }
-        });*/
+        });
     });
