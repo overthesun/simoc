@@ -68,13 +68,13 @@ $(document).ready(function(){
     $("#slowdown-button").click(function(){
         updateInterval = Math.min(5000, updateInterval + 100);
         stepSpeed = Math.min(5000, stepSpeed + 100);
-        document.getElementById('currentSpeed-id').innerHTML = stepSpeed/1000.0 + "s Per " + hoursPerStep + " Hour";
+        document.getElementById('currentSpeed-id').innerHTML =  hoursPerStep + " Hour per " + stepSpeed/1000.0 + "s";
     })
 
     $("#speedup-button").click(function(){
         updateInterval = Math.max(300, updateInterval - 100);
         stepSpeed = Math.max(300, stepSpeed - 100);
-        document.getElementById('currentSpeed-id').innerHTML = stepSpeed/1000.0 + "s Per " + hoursPerStep + " Hour";
+        document.getElementById('currentSpeed-id').innerHTML = hoursPerStep + " Hour per " + stepSpeed/1000.0 + "s";
     })
 
     $("#pause-button").click(function(){
