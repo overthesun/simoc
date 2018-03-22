@@ -3,6 +3,8 @@ $(document).ready(function(){
 
     var step_num = 0;
 
+    var stepSpeed = 1000;
+
 
     var updateInterval = 1000; // In Milleseconds
     var stepSize = 1;
@@ -65,10 +67,14 @@ $(document).ready(function(){
 
     $("#slowdown-button").click(function(){
         updateInterval = Math.min(5000, updateInterval + 100);
+        stepSpeed = Math.min(5000, stepSpeed + 100);
+        document.getElementById('currentSpeed-id').innerHTML = stepSpeed/1000.0 + "s Per " + hoursPerStep + " Hour";
     })
 
     $("#speedup-button").click(function(){
         updateInterval = Math.max(300, updateInterval - 100);
+        stepSpeed = Math.max(300, stepSpeed - 100);
+        document.getElementById('currentSpeed-id').innerHTML = stepSpeed/1000.0 + "s Per " + hoursPerStep + " Hour";
     })
 
     $("#pause-button").click(function(){
