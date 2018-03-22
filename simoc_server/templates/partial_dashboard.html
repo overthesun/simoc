@@ -1,5 +1,4 @@
 <div class="row dashboard common-text">
-
   <div class="container col-3 left-panel">
     <div class="inner">
 
@@ -51,7 +50,7 @@
       <div class="container reset-btn" >
         <div class="row">
           <div class="col-1 offset-2 reset buttons">
-            <button type="button" class="reconfigure-btn btn raised">Reconfigure</button>
+            <button type="button" class="reconfigure-btn btn raised" data-toggle="modal" data-target="#reconfigureModal" >Reconfigure</button>
           </div>
         </div>
       </div>
@@ -122,7 +121,7 @@
             </div>
 
             <div class="col-2 pause button">
-              <a class="fa-3x fa-layers fa-fw" id="dashboard-pause">
+              <a class="fa-3x fa-layers fa-fw" id="pause-button">
                 <i class="far fa-circle selector-icon" data-fa-transform="grow-3"></i>
                 <i class="fas fa-circle outer-icon" data-fa-transform="grow-1"></i>
                 <i class="fas fa-pause inner-icon" data-fa-transform="shrink-7"></i>
@@ -174,3 +173,5 @@
     </div>
   </div>
 </div>
+
+{%include 'modal_reconfigure.html'%}

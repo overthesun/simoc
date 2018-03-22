@@ -2,7 +2,7 @@
   <div class="row">
     
     <div class="col-12 tab title">
-      Step 2: Configuration
+      Step 2: Model
     </div>
 
     <div class="col-6 selection">
@@ -10,14 +10,26 @@
       <input type="hidden" value="configuration-id" form="{{content.formid}}">
       
       <div class="option-block">
-        Please Select A Configuration:          
+        Select A Model:          
       </div>
 
+      <div class="form-check option-block">
+        <input class="form-check-input" type="radio" name="configuration" id="preset-configuration" value="preset-configuration" disabled>
+        <label class="form-check-label" for="preset-configuration">
+          Preset Models
+        </label>
+
+        <select class="custom-select option-block" form="{{content.formid}}" disabled>
+          <option selected>SIMOC Baseline</option>
+          <option>NASA 'Astronaut In A Can'</option>
+          <option>Mars One</option>
+        </select>
+      </div>
 
       <div class="form-check option-block">
         <input class="form-check-input" type="radio" name="configuration" id="custom-configuration" vaue="custom-configuration" checked>
         <label class="form-check-label" for="custom-configuration">
-          Custom Configuration
+          Custom Model
         </label>
 
         <select class="custom-select option-block" form="{{content.formid}}">
@@ -30,23 +42,12 @@
 
       
 
-      <div class="form-check option-block">
-        <input class="form-check-input" type="radio" name="configuration" id="preset-configuration" value="preset-configuration" disabled>
-        <label class="form-check-label" for="preset-configuration">
-          Preset Configurations
-        </label>
 
-        <select class="custom-select option-block" form="{{content.formid}}" disabled>
-          <option selected>SIMOC Baseline</option>
-          <option>NASA 'Astronaut In A Can'</option>
-          <option>Mars One</option>
-        </select>
-      </div>
 
       <div class="form-check option-block">
         <input class="form-check-input" type="radio" name="configuration" id="custom-import" value="custom-import" disabled>
         <label class="form-check-label" for="custom-import">
-          Import Configuration
+          Import Model
         </label>
       
         <div class="custom-file option-block">
