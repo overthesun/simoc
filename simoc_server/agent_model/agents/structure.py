@@ -431,8 +431,7 @@ class Harvester(EnclosedAgent):
         plants_ready = []
         if self.structure.powered:
             for x in self.structure.plants:
-                #if x.is_grown():
-                if x.growth > .04:
+                if x.is_grown():
                     plants_ready.append(x)
             self.harvest(plants_ready)
         else:
