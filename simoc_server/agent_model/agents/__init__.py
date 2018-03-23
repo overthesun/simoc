@@ -10,6 +10,8 @@ from simoc_server.agent_model.agents.structure import (PowerModule, PlumbingSyst
     Airlock, CrewQuarters, Greenhouse, Kitchen, PowerStation, RocketPad, RoverDock, StorageFacility, Planter, Harvester,
     StoredMass, StoredFood)
 
+from simoc_server.agent_model.agents.eclss import CarbonScrubber
+
 # Until a better solution can be found, agents must be imported here and added to the below list
 
 # core agents + human
@@ -24,6 +26,9 @@ _agent_classes += [ PowerModule, PlumbingSystem, Atmosphere, Structure, Airlock,
 _agent_classes += [ PlantAgent, CabbageAgent, CarrotAgent, ChardAgent, 
     DryBeanAgent, LettuceAgent, PeaAgent, PeanutAgent, PepperAgent, RedBeetAgent, RiceAgent, SnapBeanAgent, 
     SoybeanAgent, SpinachAgent, StrawberryAgent, SweetPotatoAgent, TomatoAgent, WheatAgent, WhitePotatoAgent ]
+
+# eclss agents
+_agent_classes += [CarbonScrubber]
 
 # equipment agents
 #_agent_classes +=[Equipment, PowerModule]

@@ -9,7 +9,8 @@ from simoc_server.database.db_model import AgentType, AgentState, AgentStateAttr
 from simoc_server.agent_model.sprite_mappers import DefaultSpriteMapper
 from simoc_server.agent_model.attribute_meta import AttributeHolder
 
-PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__, type(None).__name__]
+PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__, type(None).__name__, 
+    bool.__name__]
 
 class BaseAgent(Agent, AttributeHolder):
     __metaclass__ = ABCMeta

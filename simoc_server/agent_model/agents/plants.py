@@ -44,8 +44,6 @@ class PlantAgent(EnclosedAgent):
             self.kill("Insufficient carbon dioxide: {} kpa".format(atmosphere.carbon_dioxide))
         elif water_uptake > plumbing_system.water:
             self.kill("Dehydration (Ran out of water): Water Levels: {} kg.".format(plumbing_system.water))
-        elif self.structure.powered == 0:
-            self.model.logger.info("Greenhouse has no power to grow plant")
         else:
             if not self.is_grown():
                 age = self.age

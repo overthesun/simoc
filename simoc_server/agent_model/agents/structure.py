@@ -39,9 +39,9 @@ class PowerModule(BaseAgent):
                 if (usage_per_step + consumption_per_step) <= self.output_capacity and (power_use + self.power_usage_per_day) <= self.power_produced_per_day:
                     self.power_usage_per_day += power_use
                     usage_per_step = self.power_usage_per_day * step_increment
-                    agent.powered = 1
+                    agent.powered = True
                 else:
-                    agent.powered = 0
+                    agent.powered = False
                     self.model.logger.info("Unable to supply power to agent '{}' of type '{}'"
                         .format(agent.unique_id, agent.__class__.__name__))
         if usage_per_step < produced_per_step and (self.charge + (produced_per_step - usage_per_step)) <= self.storage_capacity:
@@ -333,7 +333,7 @@ class Structure(BaseAgent):
             is_persisted_attr=True)
         self._attr("power_consumption", self.get_agent_type_attribute("power_consumption"), is_client_attr=True,
             is_persisted_attr=True)
-        self._attr("powered", 1, is_client_attr=True, is_persisted_attr=True)
+        self._attr("powered", True, is_client_attr=True, is_persisted_attr=True)
 
         #self._attr("power_grid", self.get_agent_type_attribute("power_grid"), is_client_attr=True,
         #           is_persisted_attr=True)
@@ -429,15 +429,17 @@ class Harvester(EnclosedAgent):
 
     def step(self):
         plants_ready = []
-        if self.structure.powered == 1:
+        if self.structure.powered:
             for x in self.structure.plants:
-                if(x.is_grown()):
+                #if x.is_grown():
+                if x.growth > .04:
                     plants_ready.append(x)
             self.harvest(plants_ready)
         else:
             self.model.logger.info("Harvester has no power")
 
     def harvest(self, plants):
+        self.model.logger.info("Harvesting {} plants".format(len(plants)))
         for x in plants:
             plant_age = timedelta_to_days(x.age)
             mature_age = timedelta_to_days(x.growth_period)
@@ -481,9 +483,8 @@ class Planter(EnclosedAgent):
 
     def step(self):
 
-        if self.structure.powered == 1:
+        if self.structure.powered:
             self.plant()
-
         else:
             self.model.logger.info("Planter has no power")
 

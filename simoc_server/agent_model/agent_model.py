@@ -461,10 +461,13 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
                 " and {} kJ out of {} kJ".format(actual_mass_total, self.INITIAL_FOOD_MASS,
                     actual_energy_stored, self.INITIAL_FOOD_ENERGY))
 
+        carbon_scrubber = agents.CarbonScrubber(model, structure=crew_quarters)
+
         model.add_agent(agents.Planter(model, structure=greenhouse))
         model.add_agent(agents.Harvester(model, structure=greenhouse))
         model.add_agent(greenhouse_storage)
         model.add_agent(crew_quarters_storage)
         model.add_agent(agents.Kitchen(model, structure=crew_quarters))
+        model.add_agent(carbon_scrubber)
 
         return model

@@ -10,11 +10,13 @@ def seed():
     plant_data = gen_plants()
     structure_data = gen_structures()
     equipment_data = gen_equipment()
+    eclss_data = gen_eclss()
     misc = gen_misc()
 
     util.add_all(human_data)
     util.add_all(plant_data)
     util.add_all(structure_data)
+    util.add_all(eclss_data)
     #util.add_all(equipment_data)
     util.add_all(misc)
 
@@ -246,7 +248,21 @@ def gen_structures():
 
     return data
 
+def gen_eclss():
+    data = OrderedDict()
 
+    data["carbon_scrubber_agent_type"] = AgentType(name="carbon_scrubber")
+    data["carbon_scrubber_co2_pressure_trigger"] = create_agent_type_attr(data["carbon_scrubber_agent_type"],
+        "max_carbon_pressure_trigger", 0.100, units="kPa",
+        description="Max carbon needed to trigger carbon dioxide.")
+    data["carbon_scrubber_co2_pressure_trigger"] = create_agent_type_attr(data["carbon_scrubber_agent_type"],
+        "carbon_per_hour", 5.0, units="kg/d",
+        description="Carbon per day that can be scrubbed.")
+    data["carbon_scrubber_power_consumption"] = create_agent_type_attr(data["carbon_scrubber_agent_type"],
+        "power_consumption", 2.0, units="kW",
+        description="The power consumed by this agent in kilowatts.")
+
+    return data
 
 def add_structure(data, name, length, width, height, mass, efficiency, 
         build_time, power_consumed):
