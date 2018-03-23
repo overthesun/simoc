@@ -58,7 +58,8 @@ class HumanAgent(EnclosedAgent):
             kitchens = self.model.get_agents(agents.Kitchen)
             consumed_energy = 0
             for kitchen in kitchens:
-                consumed_energy = kitchen.cook_meal(self.get_agent_type_attribute("required_food_energy"))
+                required_food_energy = self.get_agent_type_attribute("required_food_energy") * days_per_step
+                consumed_energy = kitchen.cook_meal(required_food_energy)
                 if consumed_energy >= self.get_agent_type_attribute("required_food_energy"):
                     break
 
@@ -166,8 +167,10 @@ class HumanAgent(EnclosedAgent):
         mass_factor = self.get_agent_type_attribute("metabolism_mass_factor")
         height_factor = self.get_agent_type_attribute("metabolism_height_factor")
 
-        self.energy -= ((A - (age_factor * self.age) + B * ((mass_factor * self.mass) + 
-            (height_factor * self.height)))/(C)) * (work_factor * days_per_step)
+        used_energy = ((A - (age_factor * self.age) + B * ((mass_factor * self.mass) + 
+            (height_factor * self.height)))/(C)) * (work_factor * days_per_step) * 1000.0
+        self.model.logger.info("Energy usage {}".format(used_energy))
+        self.energy -= used_energy
 
     def _total_water_usage_per_day(self):
         """Calculates the total water usage per day
