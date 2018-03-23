@@ -258,6 +258,9 @@ def gen_eclss():
     data["carbon_scrubber_co2_pressure_trigger"] = create_agent_type_attr(data["carbon_scrubber_agent_type"],
         "carbon_per_hour", 5.0, units="kg/d",
         description="Carbon per day that can be scrubbed.")
+    data["carbon_scrubber_power_consumption"] = create_agent_type_attr(data["carbon_scrubber_agent_type"],
+        "power_consumption", 2.0, units="kW",
+        description="The power consumed by this agent in kilowatts.")
 
     return data
 
