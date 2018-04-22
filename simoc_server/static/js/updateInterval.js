@@ -45,10 +45,15 @@ $(document).ready(function(){
                 totalHumans = data.total_humans;
                 hoursPerStep = data.hours_per_step;
                 currentStep = data.step_num;
-                updateAllBarCharts(avgOxygen,avgCarbonDioxide,totalWater,
-                    totalFoodEnergy, totalPowerCharge);
-                updateAllLineCharts(avgOxygen, avgCarbonDioxide, totalWater,
-                    totalFoodEnergy, currentStep);
+                oxygenG.refresh(avgOxygen);
+                carbdonDioxideG.refresh(avgCarbonDioxide);
+
+                document.getElementById("biomassTotal").innerHTML = totalFoodEnergy.toFixed(2);
+
+                //updateAllBarCharts(avgOxygen,avgCarbonDioxide,totalWater,
+                  //  totalFoodEnergy, totalPowerCharge);
+                //updateAllLineCharts(avgOxygen, avgCarbonDioxide, totalWater,
+                //    totalFoodEnergy, currentStep);
                 updateSolarDay(currentStep, hoursPerStep);
 				updateAlerts(data.alerts);
             }
