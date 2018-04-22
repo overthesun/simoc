@@ -95,13 +95,24 @@ body{
 
 .alert-message{
   position:absolute;
+  display: inline-block;
   border-radius: 5px;
-  top: 0;
+  float: none;
   left: 20%;
   right: 20%;
-  height: 20%;
-  background-color: red;
-  opacity: 0.3;
+  /*background-color: red;*/
+  opacity: 0.8;
+}
+
+.alert-message-indv{
+	display:none;
+	font-size: 12px;
+	text-align: center;
+}
+
+.alert-text{
+	color: #ff0000;
+	font-size: 16px;
 }
 
 .main-dash.bars{
