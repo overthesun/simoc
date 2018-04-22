@@ -7,7 +7,6 @@
 
     <title>SIMOC</title>
 
-    <script src="./static/js/Chart.bundle.min.js"></script>
     <script src="./static/js/utils.js"></script>
     <script src="./static/js/jquery/jquery.min.js"></script>
     <script src="./static/js/bootstrap/bootstrap.min.js"></script>
@@ -16,6 +15,9 @@
     <script src="./static/js/custom/custom_util.js"></script>
 
     <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
+
+
     <link rel="stylesheet" type="text/css" href="/static/css/text.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css">
 
@@ -156,6 +158,19 @@
     <script src="/static/js/formFormatter.js"></script>
     <script src="/static/js/wizardnavigation.js"></script>
     <script src="/static/js/wizardexport.js"></script>
+
+    <script src="/static/js/raphael.2.1.4.min.js"></script>
+    <script src="/static/js/justgage.js"></script>
+
+    <script>
+  var g = new JustGage({
+    id: "gauge",
+    value: 67,
+    min: 0,
+    max: 100,
+    title: "Visitors"
+  });
+</script>
 
 </body>
 </html>    	
