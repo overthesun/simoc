@@ -33,6 +33,7 @@ class AgentModelDTO(BaseDTO):
         for agent in self.agent_model.scheduler.agents:
             agents.append(AgentDTO(agent).get_state())
         state["agents"] = agents
+        state["alerts"] = self.agent_model.active_alerts
 
         return state
 
