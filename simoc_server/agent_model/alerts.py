@@ -23,7 +23,6 @@ class AlertsWatcher(object):
     def get_alerts(self):
         alerts = []
         for handler in self.alert_handlers:
-            print("checking", handler)
             alerts += handler.get_alerts()
         return alerts
 
