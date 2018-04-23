@@ -143,3 +143,13 @@ class SavedGame(BaseEntity):
 
 class GlobalModelConstant(DescriptiveAttribute):
     id = db.Column(db.Integer, primary_key=True)
+
+class Alert(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False, unique=True)
+
+class AlertAttribute(DescriptiveAttribute):
+    id = db.Column(db.Integer, primary_key=True)
+    alert_id = db.Column(db.Integer, db.ForeignKey("alert.id"))
+    alert = db.relationship("Alert", backref=db.backref("alert_attributes",
+        lazy=False, cascade="all, delete-orphan"))
