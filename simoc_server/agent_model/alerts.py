@@ -83,13 +83,19 @@ class BaseAlertHandler(object, metaclass=ABCMeta):
         """
         return self.__class__.alert_attributes[name]
 
-    def new_alert(self, description):
+    def new_alert(self, description, alert_id=None):
         """Create a new alert
         
         Parameters
         ----------
         description : str
             A description of the alert
+        alert_id : str, optional
+            An id to distinguish one alert from another,
+            this will be used to identify when one alert
+            is the "same" as a previous alert, note that
+            same does not necessarily mean that the description
+            is the same.  If none, it is set to the name
         
         Returns
         -------
@@ -97,9 +103,12 @@ class BaseAlertHandler(object, metaclass=ABCMeta):
             Dictionary containing the "name" and
             "description" of the alert
         """
+        if alert_id is None:
+            alert_id = self._alert_name
         return {
             "name":self._alert_name,
-            "description":description
+            "description":description,
+            "alert_id":alert_id
         }
 
 class LowO2Alert(BaseAlertHandler):

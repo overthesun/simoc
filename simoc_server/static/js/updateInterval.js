@@ -72,7 +72,7 @@ $(document).ready(function(){
 	function updateAlerts(alerts){	
         for(var i = 0; i < alerts.length; i++){
             var alert = alerts[i];
-            createAlert(alert.name, alert.description);
+            createAlert(alert.alert_id, alert.description);
         }
 	}
 	
@@ -81,23 +81,24 @@ $(document).ready(function(){
         var $alert = $('#' + alertId);
         if ($alert.length) {
             clearTimeout($alert.data('fadeTimer'));
+            $alert.empty();
         } else {
             $alert = $("<div>", {
                 id:alertId,
                 class:"alert-message-indv",
             });
-            var $warning = $("<span>", {
-                class:"alert-text"
-            });
-            $warning.append("Warning: ");
-            $alert.append($warning);
-            $alert.append(text);
-            $alert.data('fadeTimer', setTimeout(function() {
-                clearAlert(alertId);
-            }, 15000));
             alertContainer.append($alert[0]);
-            $alert.fadeIn();
         }
+        var $warning = $("<span>", {
+            class:"alert-text"
+        });
+        $warning.append("Warning: ");
+        $alert.append($warning);
+        $alert.append(text);
+        $alert.data('fadeTimer', setTimeout(function() {
+            clearAlert(alertId);
+        }, 15000));
+        $alert.fadeIn();
         return alert;
     }
 
