@@ -34,7 +34,7 @@ def gen_high_co2_alert():
 
     data["high_co2_alert"] = alert = Alert(name="high_co2_alert")
     data["high_co2_thresh"] = create_alert_attr(alert, "high_co2_thresh", 
-        .10, "kPa", description="Upper bound for CO2 levels to trigger"
+        .40, "kPa", description="Upper bound for CO2 levels to trigger"
         " high co2 alert.")
 
     return data
