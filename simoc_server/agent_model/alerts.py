@@ -1,9 +1,29 @@
 from abc import ABCMeta
+import hashlib
+from collections import defaultdict
 
 from simoc_server import db
 from simoc_server.util import load_db_attributes_into_dict
 from simoc_server.database.db_model import AlertAttribute, Alert
 from simoc_server.agent_model import agents
+
+
+def _hash_agents(*agents):
+    """Hash the id's of agents using md5, useful for generating
+    alert id's that are based around the agents which were 
+    involved in or participated in a particular alert.
+    
+    Parameters
+    ----------
+    *agents
+        The agent to add to the hash
+    
+    Returns
+    -------
+    str
+        A string representing the hexadecimal hash value
+    """
+    return hashlib.md5("".join([a.unique_id for a in agents]).encode("utf-8")).hexdigest()
 
 class AlertsWatcher(object):
 
@@ -172,16 +192,21 @@ class HumanDeathAlert(BaseAlertHandler):
             any humans die, will indicate the amount.
         """
         current_humans = self.get_humans()
-
         diff = self.previous_humans - current_humans
-        lost_humans = len(diff)
         alerts = []
-        if lost_humans > 0:
-            _s = "'s" if lost_humans > 1 else ""
-            alert = self.new_alert("{} human{} lost.".
-                format(lost_humans, _s))
+        death_log = defaultdict(list)
+        for human in diff:
+            # add human to list of humans who died this
+            # way
+            death_log[human.cause_of_death].append(human)
+        for cause_of_death, humans in death_log.items():
+            n_humans = len(humans)
+            _s = "'s" if n_humans > 1 else ""
+            alert = self.new_alert("{} human{} lost. Cause: {}".
+                format(n_humans, _s, cause_of_death),
+                alert_id="{}_{}".format(self._alert_name, _hash_agents(*diff)))
             alerts.append(alert)
-        previous_humans = current_humans
+        self.previous_humans = current_humans
         return alerts
 
 

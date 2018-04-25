@@ -6,6 +6,14 @@ from simoc_server.agent_model.agents.core import EnclosedAgent
 from simoc_server.util import timedelta_to_days, timedelta_hour_of_day
 from simoc_server.exceptions import AgentModelError
 
+HUMAN_DEATH_REASONS = {
+    "no_atmosphere": "No Atmosphere",
+    "low_o2":"Insufficient oxygen.",
+    "high_co2":"Excess CO2",
+    "dehydrated":"Dehydration",
+    "starved":"Starvation"
+}
+
 class HumanAgent(EnclosedAgent):
 
     _agent_type_name = "human"
@@ -44,15 +52,15 @@ class HumanAgent(EnclosedAgent):
         plumbing_system = self.structure.plumbing_system
 
         if atmosphere is None:
-            self.kill("No atmosphere.")
+            self.kill(HUMAN_DEATH_REASONS["no_atmosphere"])
         elif atmosphere.oxygen < self.get_agent_type_attribute("fatal_o2_lower"):
-            self.kill("Insufficient oxygen.")
+            self.kill(HUMAN_DEATH_REASONS["low_o2"])
         elif atmosphere.carbon_dioxide > self.get_agent_type_attribute("fatal_co2_upper"):
-            self.kill("Excess carbon dioxide.")
+            self.kill(HUMAN_DEATH_REASONS["high_co2"])
         elif self.days_without_water > self.get_agent_type_attribute("max_dehydration_days"):
-            self.kill("Dehydration.")
+            self.kill(HUMAN_DEATH_REASONS["dehydrated"])
         elif self.energy <= 0:
-            self.kill("Starvation")
+            self.kill(HUMAN_DEATH_REASONS["starved"])
         else:
             # TODO decide what kitches are available to human if seperated colonys exist
             kitchens = self.model.get_agents(agents.Kitchen)
@@ -119,6 +127,10 @@ class HumanAgent(EnclosedAgent):
                 self.get_agent_type_attribute("fatal_o2_lower"))
 
 
+            if actual_oxygen_in < oxygen_input:
+                # Intermediate check to see if we ran out
+                # of oxygen
+                self.kill(HUMAN_DEATH_REASONS["low_o2"])
 
             # multiply both values by 2 since there are 2 oxygen molecules
             moles_oxygen_input += agent_model_util.mass_o2_to_moles(actual_oxygen_in) * 2
@@ -148,6 +160,7 @@ class HumanAgent(EnclosedAgent):
 
     def kill(self, reason):
         self.model.logger.info("Human Died! Reason: {}".format(reason))
+        self.cause_of_death = reason
         self.destroy()
 
     def _metabolize(self, is_working, days_per_step):
