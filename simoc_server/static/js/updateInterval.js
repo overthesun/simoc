@@ -103,6 +103,7 @@ $(document).ready(function(){
     }
 
 	function clearAlert(alertId){
+        console.log("removing");
 		$("#"+alertId).fadeOut().remove();
 	}
 
