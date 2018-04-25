@@ -119,12 +119,12 @@ $(document).ready(function(){
         document.getElementById('currentSpeed-id').innerHTML = hoursPerStep + " Hour per " + stepSpeed/1000.0 + "s";
     })
 
-    $("#pause-button").click(function(){
-    updateRunning = !updateRunning;
-
-        if(updateRunning){
-            setUpdateTimeout();
-        }
-    })
+    $("#pause-button").click(function(event){
+        updateRunning = !updateRunning;
+            if(updateRunning){
+                setUpdateTimeout();
+            }
+            $(this).find(".inner-icon").toggleClass('fa-play fa-pause');
+    });
 
 });
