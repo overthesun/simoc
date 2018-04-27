@@ -241,3 +241,7 @@ a.disabled > .inner-icon{
 .button {
   user-select: none;
 }
+
+.gauge {
+  margin-top: -20px;
+}
