@@ -38,6 +38,7 @@ class PowerModule(BaseAgent):
         agents = [a for a in self.model.get_agents() if hasattr(a, "power_consumption")]
 
         self.power_draw = 0
+        self.energy_usage = 0
 
         for agent in agents:
             pow_consumption = agent.power_consumption
