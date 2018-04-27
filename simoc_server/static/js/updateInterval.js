@@ -50,13 +50,15 @@ $(document).ready(function(){
                 currentStep = data.step_num;
                 waterGray = data.total_grey_water;
                 waterGraySolids = data.total_grey_water_solids;
+                energyProduced = data.total_electric_energy_charge
+                energyConsumed = data.total_electric_energy_usage
 
                 oxygenG.refresh(avgOxygen);
                 carbdonDioxideG.refresh(avgCarbonDioxide);
                 waterG.refresh(totalWater);
                 biomassG.refresh(totalBiomass);
-                //eProducedG.refresh();
-                //eConsumedG.refresh();
+                eProducedG.refresh(energyProduced);
+                eConsumedG.refresh(energyConsumed);
 
                 document.getElementById("biomassTotal").innerHTML = totalBiomass.toFixed(2);
                 document.getElementById("biomassEdible").innerHTML = totalFoodMass.toFixed(2);
