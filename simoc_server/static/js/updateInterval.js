@@ -38,15 +38,26 @@ $(document).ready(function(){
                 avgCarbonDioxide = data.avg_carbon_dioxide_pressure;
                 totalWater= data.total_water;
                 totalFoodEnergy = data.total_food_energy;
+                totalFoodMass = data.total_food_mass;
                 totalPowerCharge = data.total_power_charge;
                 totalHumans = data.total_humans;
                 hoursPerStep = data.hours_per_step;
                 currentStep = data.step_num;
+                waterGray = data.total_grey_water;
+                waterGraySolids = data.total_grey_water_solids;
+
                 oxygenG.refresh(avgOxygen);
                 carbdonDioxideG.refresh(avgCarbonDioxide);
 
                 document.getElementById("biomassTotal").innerHTML = totalFoodEnergy.toFixed(2);
+                document.getElementById("biomassEdible").innerHTML = totalFoodEnergy.toFixed(2);
+                
+                document.getElementById("foodEnergy").innerHTML = totalFoodEnergy.toFixed(2);
+                document.getElementById("foodMass").innerHTML = totalFoodMass.toFixed(2);
 
+                document.getElementById("waterPotable").innerHTML = totalWater.toFixed(2);
+                document.getElementById("waterGray").innerHTML = waterGray.toFixed(2);
+                document.getElementById("waterGraySolid").innerHTML = waterGraySolids.toFixed(2);
                 //updateAllBarCharts(avgOxygen,avgCarbonDioxide,totalWater,
                   //  totalFoodEnergy, totalPowerCharge);
                 //updateAllLineCharts(avgOxygen, avgCarbonDioxide, totalWater,
