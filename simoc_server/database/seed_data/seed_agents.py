@@ -131,7 +131,7 @@ def gen_human():
         description="Fatal lower limit of O2")
     data["human_fatal_co2"] = create_agent_type_attr(
         _type, "fatal_co2_upper", 0.53, units=gas_units,
-        description="Fatal upper limit of O2")
+        description="Fatal upper limit of CO2")
 
     data["human_work_day_hours"] = create_agent_type_attr(
         _type, "work_day_hours", 10, units="hours",
