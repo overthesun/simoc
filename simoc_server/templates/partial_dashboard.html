@@ -282,7 +282,7 @@
         title: "Carbon Dioxide",
         valueFontColor: "white",
         labelFontColor: "white",
-        titleFontColor: "white"
+        titleFontColor: "white",
       });
 
       var waterG = new JustGage({
@@ -337,7 +337,7 @@
         id: 'eProducedGauge',
         value: 0,
         min: 0,
-        max: 100,
+        max: 10000,
         symbol: 'kwh',
         pointer: true,
         pointerOptions: {
@@ -361,8 +361,8 @@
         id: 'eConsumedGauge',
         value: 0,
         min: 0,
-        max: 100,
-        symbol: 'kw',
+        max: 10000,
+        symbol: 'kwh',
         pointer: true,
         pointerOptions: {
           toplength: -7.5,
@@ -375,7 +375,7 @@
         },
         gaugeWidthScale: 0.6,
         counter: true,
-        title: "Energy Consumed (kWh)",
+        title: "Energy Consumed",
         valueFontColor: "white",
         labelFontColor: "white",
         titleFontColor: "white"
