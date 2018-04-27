@@ -42,6 +42,8 @@ $(document).ready(function(){
                 totalWater= data.total_water;
                 totalFoodEnergy = data.total_food_energy;
                 totalFoodMass = data.total_food_mass;
+                totalBiomass = data.total_biomass
+                totalInedibleBiomass = data.total_inedible_biomass
                 totalPowerCharge = data.total_power_charge;
                 totalHumans = data.total_humans;
                 hoursPerStep = data.hours_per_step;
@@ -51,9 +53,13 @@ $(document).ready(function(){
 
                 oxygenG.refresh(avgOxygen);
                 carbdonDioxideG.refresh(avgCarbonDioxide);
+                waterG.refresh(totalWater);
+                biomassG.refresh(totalBiomass);
+                //eProducedG.refresh();
+                //eConsumedG.refresh();
 
-                document.getElementById("biomassTotal").innerHTML = totalFoodEnergy.toFixed(2);
-                document.getElementById("biomassEdible").innerHTML = totalFoodEnergy.toFixed(2);
+                document.getElementById("biomassTotal").innerHTML = totalBiomass.toFixed(2);
+                document.getElementById("biomassEdible").innerHTML = totalFoodMass.toFixed(2);
                 
                 document.getElementById("foodEnergy").innerHTML = totalFoodEnergy.toFixed(2);
                 document.getElementById("foodMass").innerHTML = totalFoodMass.toFixed(2);

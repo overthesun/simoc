@@ -189,7 +189,7 @@
 
         <div class="col-6" style="font-size:9px">
           <!--<div>FOOD GENERATED (j):</div>-->
-          <div>FOOD ENERGY (j):</div>
+          <div>FOOD ENERGY (kJ):</div>
           <div>FOOD MASS (kg):</div>
           <!--<div>FOOD CONSUMPATION (j):</div>-->
         </div>
@@ -233,7 +233,7 @@
   </div>
 </div>
 
-  <script src='./static/js//raphael-2.1.4.min.js'></script>
+  <script src='./static/js/raphael-2.1.4.min.js'></script>
   <script src='./static/js/justgage.js'></script>
 
     <script>
@@ -242,7 +242,7 @@
         value: 0,
         min: 0,
         max: 100,
-        symbol: '%',
+        symbol: 'kPa',
         pointer: true,
         pointerOptions: {
           toplength: -7.5,
@@ -266,7 +266,7 @@
         value: 0,
         min: 0,
         max: .2,
-        symbol: '%',
+        symbol: 'kPa',
         pointer: true,
         pointerOptions: {
           toplength: -7.5,
@@ -275,8 +275,9 @@
           color: '#8e8e93',
           stroke: '#ffffff',
           stroke_width: 3,
-          stroke_linecap: 'round'
+          stroke_linecap: 'round',
         },
+        decimals: 2,
         gaugeWidthScale: 0.6,
         counter: true,
         title: "Carbon Dioxide",
@@ -289,8 +290,8 @@
         id: 'waterGauge',
         value: 45,
         min: 0,
-        max: 100,
-        symbol: '%',
+        max: 10000,
+        symbol: 'kg',
         pointer: true,
         pointerOptions: {
           toplength: -7.5,
@@ -311,10 +312,10 @@
 
       var biomassG = new JustGage({
         id: 'bioMassGauge',
-        value: 45,
+        value: 0,
         min: 0,
-        max: 100,
-        symbol: '%',
+        max: 10000,
+        symbol: 'kg',
         pointer: true,
         pointerOptions: {
           toplength: -7.5,
@@ -335,10 +336,10 @@
 
       var eProducedG = new JustGage({
         id: 'eProducedGauge',
-        value: 45,
+        value: 0,
         min: 0,
         max: 100,
-        symbol: '%',
+        symbol: 'kwh',
         pointer: true,
         pointerOptions: {
           toplength: -7.5,
@@ -351,7 +352,7 @@
         },
         gaugeWidthScale: 0.6,
         counter: true,
-        title: "Energy Produced (kWh)",
+        title: "Energy Produced",
         valueFontColor: "white",
         labelFontColor: "white",
         titleFontColor: "white"
@@ -359,10 +360,10 @@
 
       var eConsumedG = new JustGage({
         id: 'eConsumedGauge',
-        value: 45,
+        value: 0,
         min: 0,
         max: 100,
-        symbol: '%',
+        symbol: 'kw',
         pointer: true,
         pointerOptions: {
           toplength: -7.5,
