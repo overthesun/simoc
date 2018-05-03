@@ -5,6 +5,13 @@ from simoc_server.util import timedelta_to_days
 from simoc_server.agent_model.sprite_mappers import PlantSpriteMapper
 from simoc_server.agent_model.agents.core import EnclosedAgent
 
+PLANT_DEATH_REASONS = {
+    "no_atmosphere": "No Atmosphere.",
+    "no_plumbing": "No Plumbing System.",
+    "low_co2":"Insufficient CO2.",
+    "dehydrated":"Dehydration",
+}
+
 class PlantAgent(EnclosedAgent):
     # Each plant agent is 1 meter squared worth of that plant
     # TODO possibly parameterize this
@@ -37,13 +44,13 @@ class PlantAgent(EnclosedAgent):
         plumbing_system = self.structure.plumbing_system
 
         if atmosphere is None:
-            self.kill("No atmosphere.")
+            self.kill(PLANT_DEATH_REASONS["no_atmosphere"])
         elif plumbing_system is None:
-            self.kill("Dehydration (No plumbing system).")
+            self.kill(PLANT_DEATH_REASONS["no_plumbing"])
         elif atmosphere.carbon_dioxide < self.get_agent_type_attribute("fatal_co2_lower"):
-            self.kill("Insufficient carbon dioxide: {} kpa".format(atmosphere.carbon_dioxide))
+            self.kill(PLANT_DEATH_REASONS["low_co2"])
         elif water_uptake > plumbing_system.water:
-            self.kill("Dehydration (Ran out of water): Water Levels: {} kg.".format(plumbing_system.water))
+            self.kill(PLANT_DEATH_REASONS["dehydrated"])
         else:
             if not self.is_grown():
                 age = self.age
@@ -66,12 +73,15 @@ class PlantAgent(EnclosedAgent):
             actual_carbon_in, actual_oxygen_out = atmosphere.convert_co2_to_o2(carbon_input, oxygen_output, 
                             self.get_agent_type_attribute("fatal_co2_lower"))
 
+            if actual_carbon_in < carbon_input:
+                self.kill(PLANT_DEATH_REASONS["low_co2"])
 
     def is_grown(self):
         return self.status == "grown"
 
     def kill(self, reason):
         self.model.logger.info("Plant Died! Reason: {}".format(reason))
+        self.cause_of_death = reason
         self.destroy()
 
 class CabbageAgent(PlantAgent):

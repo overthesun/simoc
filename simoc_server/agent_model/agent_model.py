@@ -19,7 +19,7 @@ from simoc_server.database.db_model import AgentModelState, AgentState, \
     AgentType, AgentModelSnapshot, SnapshotBranch, AgentModelParam
 
 from simoc_server import db, app
-from simoc_server.agent_model import agents
+from simoc_server.agent_model import agents, alerts
 from simoc_server.util import (sum_attributes, avg_attributes, timedelta_to_days,
     timedelta_to_hours)
 
@@ -34,19 +34,12 @@ class AgentModel(Model):
         self.seed = init_params.seed
         self.random_state = init_params.random_state
 
+        self.active_alerts = []
         self.atmospheres = []
         self.plumbing_systems = []
         #hold single power module // needs to hold multiple
         self.power_grid = []
 
-        # Power Grid - Holds Total Values for Power
-        """
-        self.power_storage_capacity = 0
-        self.power_output_capacity = 0
-        self.power_charge = 0
-        self.power_usage = 0
-        self.power_production = 0
-        """
 
         # plants_available is an ordered dict to ensure consistent
         # execution of agent steps when using the same random seed
@@ -122,24 +115,39 @@ class AgentModel(Model):
     def total_food_mass(self):
         return sum_attributes(self.get_agents(agents.StoredFood), "mass")
 
-    def total_power_capacity(self):
+    @property
+    def total_inedible_biomass(self):
+        stored_mass = self.get_agents(agents.StoredMass)
+        inedible = [m for m in stored_mass if m.resource_name == "inedible_mass"]
+        return sum_attributes(inedible, "mass")
+
+    @property
+    def total_biomass(self):
+        return self.total_food_mass + self.total_inedible_biomass
+
+    @property
+    def total_electric_energy_capacity(self):
         return sum_attributes(self.power_grid,"storage_capacity")
 
     @property
-    def total_power_usage(self):
-        return sum_attributes(self.power_grid,"power_usage_per_day")
+    def total_electric_energy_usage(self):
+        return sum_attributes(self.power_grid,"energy_usage")
 
     @property
-    def total_power_output(self):
+    def max_electric_output_capacity(self):
         return sum_attributes(self.power_grid,"output_capacity")
 
     @property
-    def total_power_charge(self):
+    def total_electric_energy_charge(self):
         return sum_attributes(self.power_grid,"charge")
 
     @property
     def total_power_production(self):
-        return sum_attributes(self.power_grid,"power_produced_per_day")
+        return sum_attributes(self.power_grid,"power_produced")
+
+    @property
+    def total_power_draw(self):
+        return sum_attributes(self.power_grid, "power_draw")
 
     @property
     def total_humans(self):
@@ -194,13 +202,20 @@ class AgentModel(Model):
 
         for agent in model.get_agents():
             agent.post_db_load()
+
+        cls.create_alerts_watcher(model)
         return model
 
     @classmethod
     def create_new(cls, model_init_params, agent_init_recipe):
         model = AgentModel(model_init_params)
         agent_init_recipe.init_agents(model)
+        cls.create_alerts_watcher(model)
         return model
+
+    @classmethod
+    def create_alerts_watcher(cls, model):
+        model.alert_watcher = alerts.AlertsWatcher(model)
 
     @classmethod
     def create_atmosphere(cls, model, structures):
@@ -306,10 +321,16 @@ class AgentModel(Model):
 
         status_string = " ".join(["{}: {:.5g}".format(name, getattr(self, name)) for name in to_print])
 
-        app.logger.info("Power: Total Capacity kwh: {}, Total Usage kw: {}, Total Charge kwh: {}, Max Output kw: {}, Total Production kw {}".format(
-            self.total_power_capacity, self.total_power_usage,self.total_power_charge, self.total_power_output, self.total_power_production
-        ))
+
+        app.logger.info("Energy usage: {} kwh, Energy Storage Capacity: {} kwh,"
+            " Output Capacity: {} kw, Power Draw: {} kw, Energy Charge: {} kwh,"
+            " Power Produced: {} kw".format(self.total_electric_energy_usage,
+                self.total_electric_energy_capacity, self.max_electric_output_capacity,
+                self.total_power_draw, self.total_electric_energy_charge, 
+                self.total_power_production))
+
         app.logger.info(status_string)
+        self.active_alerts = self.alert_watcher.get_alerts()
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)

@@ -15,9 +15,17 @@ class AgentModelDTO(BaseDTO):
         "total_solid_waste",
         "total_food_energy",
         "total_food_mass",
-        "total_power_charge",
         "total_humans",
-        "hours_per_step"
+        "hours_per_step",
+        "total_biomass",
+        "total_inedible_biomass",
+        "total_electric_energy_capacity",
+        "total_electric_energy_capacity",
+        "total_electric_energy_usage",
+        "max_electric_output_capacity",
+        "total_electric_energy_charge",
+        "total_power_production",
+        "total_power_draw",
     ]
 
     def __init__(self, agent_model):
@@ -33,6 +41,7 @@ class AgentModelDTO(BaseDTO):
         for agent in self.agent_model.scheduler.agents:
             agents.append(AgentDTO(agent).get_state())
         state["agents"] = agents
+        state["alerts"] = self.agent_model.active_alerts
 
         return state
 

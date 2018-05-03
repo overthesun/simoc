@@ -9,7 +9,7 @@ from simoc_server.agent_model.agents.plants import PlantAgent
 from simoc_server.agent_model.agents.core import EnclosedAgent
 from simoc_server.agent_model import agents
 from simoc_server.exceptions import AgentModelError
-from simoc_server.util import timedelta_to_days
+from simoc_server.util import timedelta_to_days, timedelta_to_hours
 
 class PowerModule(BaseAgent):
     _agent_type_name = "power_module"
@@ -17,35 +17,50 @@ class PowerModule(BaseAgent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        #In kW-hour
-
-        self._attr("power_usage_per_day", 0.0, is_client_attr=True, is_persisted_attr=True)
-        #About 2 weeks of power
+        # kWh
+        self._attr("energy_usage", 0.0, is_client_attr=True, is_persisted_attr=True)
+        #About 2 weeks of power 
+        # kWh
         self._attr("storage_capacity", 8400.0, is_client_attr=True, is_persisted_attr=True)
+        # kW
         self._attr("output_capacity", 70.0, is_client_attr=True, is_persisted_attr=True)
+        # kW
+        self._attr("power_draw", 0.0, is_client_attr=True, is_persisted_attr=True)
+        # kWh
         self._attr("charge", 0.0, is_client_attr=True, is_persisted_attr=True)
-        self._attr("power_produced_per_day", 100.0, is_client_attr=True, is_persisted_attr=True)
+        # kW
+        self._attr("power_produced", 100, is_client_attr=True, is_persisted_attr=True)
 
     def step(self):
-        self.power_usage_per_day = 0
-        usage_per_step = 0
-        step_increment = self.model.timedelta_per_step()/timedelta(days=1)
-        produced_per_step = self.power_produced_per_day * step_increment
-        agents = self.model.get_agents()
+        time_per_step = self.model.timedelta_per_step()
+        hours_per_step = timedelta_to_hours(time_per_step)
+
+        agents = [a for a in self.model.get_agents() if hasattr(a, "power_consumption")]
+
+        self.power_draw = 0
+        self.energy_usage = 0
+
         for agent in agents:
-            if hasattr(agent, "power_consumption"):
-                power_use = getattr(agent, "power_consumption")
-                consumption_per_step = power_use * step_increment
-                if (usage_per_step + consumption_per_step) <= self.output_capacity and (power_use + self.power_usage_per_day) <= self.power_produced_per_day:
-                    self.power_usage_per_day += power_use
-                    usage_per_step = self.power_usage_per_day * step_increment
-                    agent.powered = True
-                else:
-                    agent.powered = False
-                    self.model.logger.info("Unable to supply power to agent '{}' of type '{}'"
-                        .format(agent.unique_id, agent.__class__.__name__))
-        if usage_per_step < produced_per_step and (self.charge + (produced_per_step - usage_per_step)) <= self.storage_capacity:
-            self.charge += (produced_per_step - usage_per_step)
+            pow_consumption = agent.power_consumption
+            energy_consumption = hours_per_step * pow_consumption
+            
+            if self.power_draw + pow_consumption > self.output_capacity:
+                agent.powered = False
+                self.model.logger.info("Unable to supply power to agent '{}' of type '{}'."
+                    " Exceeded output capacity.".format(agent.unique_id, agent.__class__.__name__))
+            elif energy_consumption > self.charge:
+                agent.powered = False
+                self.model.logger.info("Unable to supply power to agent '{}' of type '{}'."
+                    " Not enough power.".format(agent.unique_id, agent.__class__.__name__))
+            else:
+                self.energy_usage += energy_consumption
+                self.power_draw += pow_consumption
+                self.charge -= energy_consumption
+                agent.powered = True
+
+        self.charge += self.power_produced * hours_per_step
+        self.charge = min(self.storage_capacity, self.charge)
+
 
 class PlumbingSystem(BaseAgent):
     _agent_type_name = "plumbing_system"
