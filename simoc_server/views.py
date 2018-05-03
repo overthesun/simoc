@@ -50,6 +50,11 @@ def testroute():
 
     return render_template('partial_dashboard.html',static_url_path='/static')
 
+@app.route("/test_route2", methods=["GET","POST"])
+def testroute2():
+    return render_template('base_dashboard.html')
+
+
 @app.route("/")
 def home():
     return render_template('base_login.html')

@@ -30,12 +30,13 @@ $(document).ready(function () {
             if (status == 'success') {
                 var obj = {};                
                 //history.pushState(obj, "SIMOC Dashboard","/dashboard");
-                $('#base-container').load("/test_route",function(){
+                /*$('#base-container').load("/test_route",function(){
                     $.getScript('/static/js/dashboardInitialize.js');
                     $.getScript('/static/js/dashChartBar.js');
                     $.getScript('/static/js/updateInterval.js');
                     //$.getScript('/static/css/text.css');
-                });
+                });*/
+                gotourl("/test_route2");
             }
         });
         
