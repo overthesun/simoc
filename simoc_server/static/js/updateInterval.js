@@ -15,6 +15,8 @@ $(document).ready(function(){
 	var alertInterval = null;
 	var starting_humans;
 
+    document.getElementById('currentSpeed-id').innerHTML =  "1" + " Hour per " + stepSpeed/1000.0 + "s";
+
     function setUpdateTimeout(){
         updateIntevalID = setTimeout(function() {
             if(updateRunning){
@@ -37,6 +39,7 @@ $(document).ready(function(){
             if (status == 'success'){ 
                 console.log("Step Updated");
                 console.log(data);
+                console.log(data);
                 avgOxygen = data.avg_oxygen_pressure;
                 avgCarbonDioxide = data.avg_carbon_dioxide_pressure;
                 totalWater= data.total_water;
@@ -52,9 +55,11 @@ $(document).ready(function(){
                 waterGraySolids = data.total_grey_water_solids;
                 energyProduced = data.total_electric_energy_charge
                 energyConsumed = data.total_electric_energy_usage
+                population = data.total_humans;
+
 
                 oxygenG.refresh(avgOxygen);
-                carbdonDioxideG.refresh(avgCarbonDioxide);
+                carbonDioxideG.refresh(avgCarbonDioxide);
                 waterG.refresh(totalWater);
                 biomassG.refresh(totalBiomass);
                 eProducedG.refresh(energyProduced);
@@ -69,12 +74,15 @@ $(document).ready(function(){
                 document.getElementById("waterPotable").innerHTML = totalWater.toFixed(2);
                 document.getElementById("waterGray").innerHTML = waterGray.toFixed(2);
                 document.getElementById("waterGraySolid").innerHTML = waterGraySolids.toFixed(2);
+
+
+                document.getElementById('humanPopulation').innerHTML = population + " Humans";
+
                 //updateAllBarCharts(avgOxygen,avgCarbonDioxide,totalWater,
                   //  totalFoodEnergy, totalPowerCharge);
-                //updateAllLineCharts(avgOxygen, avgCarbonDioxide, totalWater,
-                //    totalFoodEnergy, currentStep);
+                updateAllLineCharts(avgOxygen,currentStep);
                 updateSolarDay(currentStep, hoursPerStep);
-				updateAlerts(data.alerts);
+				//updateAlerts(data.alerts);
             }
         }).done(function(){
             setUpdateTimeout();
@@ -131,24 +139,26 @@ $(document).ready(function(){
 		$("#"+alertId).fadeOut().remove();
 	}
 
-    $("#slowdown-button").click(function(){
+    $("#slowButton").click(function(){
         updateInterval = Math.min(5000, updateInterval + 100);
         stepSpeed = Math.min(5000, stepSpeed + 100);
-        document.getElementById('currentSpeed-id').innerHTML =  hoursPerStep + " Hour per " + stepSpeed/1000.0 + "s";
+       document.getElementById('currentSpeed-id').innerHTML =  hoursPerStep + " Hour per " + stepSpeed/1000.0 + "s";
     })
 
-    $("#speedup-button").click(function(){
+    $("#fastButton").click(function(){
         updateInterval = Math.max(300, updateInterval - 100);
         stepSpeed = Math.max(300, stepSpeed - 100);
         document.getElementById('currentSpeed-id').innerHTML = hoursPerStep + " Hour per " + stepSpeed/1000.0 + "s";
     })
 
-    $("#pause-button").click(function(event){
+    $("#pauseButton").click(function(event){
         updateRunning = !updateRunning;
             if(updateRunning){
                 setUpdateTimeout();
             }
-            $(this).find(".inner-icon").toggleClass('fa-play fa-pause');
+
+            $(this).find("#pauseGlyphicon").toggleClass('fa-play-circle fa-pause-circle');
+            document.getElementById('currentSpeed-id').innerHTML = "Paused";
     });
 
 });

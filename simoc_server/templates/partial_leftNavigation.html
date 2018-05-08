@@ -1,0 +1,87 @@
+<ul class="nav" id="tabs">
+  <li class="nav-item">
+    <a class="nav-link active" id="payload-tab" data-toggle="tab" href="#payload"></a>
+    <a class="nav-link" id="payloadConfig-tab" data-toggle="tab" href="#payloadConfig"></a>
+  </li>
+</ul>
+
+<div class="row">
+  <div class="col-12">A</div>
+  <div class="col-12">B</div>
+  <div class="col-12">C</div>
+</div>
+
+
+<!--<a class="fa-3x fa-layers fa-fw" id="tab1" href="#">
+  <i class="fas fa-square selector-icon" data-fa-transform="shrink-6"></i>
+</a>
+
+<a class="fa-3x fa-layers fa-fw" id="tab2" href="#">
+  <i class="fas fa-square selector-icon" data-fa-transform="shrink-6"></i>
+</a>-->
+
+<script>
+  $("#tab1").click(function(){
+    $('#payload-tab').click();
+    console.log("TEST 1");
+  });
+
+$("#tab2").click(function(){
+    $('#payloadConfig-tab').click();
+    console.log("TEST 2");
+  });
+
+</script>
+
+  <!--<ul class="nav" role="tablist">
+    <li class="nav-item p-1" style="width:16.6%"> <!-- Current Settings 
+      <a class="nav-link active fa-3x fa-layers fa-fw" data-toggle="tab" href="#payload">
+        <i class="far fa-circle selector-icon" data-fa-transform="shrink-5"></i>
+        <i class="fas fa-circle outer-icon" data-fa-transform="shrink-4" style="color:  #ADD8E6"></i>
+        <i class="fas fa-chevron-left" data-fa-transform="shrink-10" style="color:blue;"></i>
+      </a>
+    </li>
+    
+    <li class="nav-item p-1" style="width:16.6%"> <!-- Incoming Payload 
+      <a class="nav-link fa-3x fa-layers fa-fw" data-toggle="tab" href="#payloadConfig">
+        <i class="far fa-circle selector-icon" data-fa-transform="shrink-5"></i>
+        <i class="fas fa-circle outer-icon" data-fa-transform="shrink-4" style="color:  #ADD8E6"></i>
+        <i class="fas fa-boxes" data-fa-transform="shrink-10" style="color:blue;"></i>
+      </a>
+    </li>
+
+    <li class="nav-item p-1" style="width:16.6%"> <!-- Config Payload 
+      <a class="nav-link fa-3x fa-layers fa-fw disabled" href="#payloadRocket">
+        <i class="far fa-circle selector-icon" data-fa-transform="shrink-5"></i>
+        <i class="fas fa-circle outer-icon" data-fa-transform="shrink-4" style="color:  #ADD8E6"></i>
+        <i class="fas fa-rocket inner-icon" data-fa-transform="shrink-10" style="color:blue;"></i>
+      </a>
+    </li>
+
+    <li class="nav-item p-1" style="width:16.6%"> <!-- Greenhouse Configuration? 
+      <a class="nav-link fa-3x fa-layers fa-fw disabled" href="#payloadRocket">
+        <i class="far fa-circle selector-icon" data-fa-transform="shrink-5"></i>
+        <i class="fas fa-circle outer-icon" data-fa-transform="shrink-4" style="color:  #ADD8E6"></i>
+        <i class="fas fa-cogs inner-icon" data-fa-transform="shrink-10" style="color:blue;"></i>
+      </a>
+    </li>
+    <li class="nav-item p-1" style="width:16.6%"> <!-- Greenhouse Configuration? 
+      <a class="nav-link fa-3x fa-layers fa-fw disabled" href="#payloadRocket">
+        <i class="far fa-circle selector-icon" data-fa-transform="shrink-5"></i>
+        <i class="fas fa-circle outer-icon" data-fa-transform="shrink-4" style="color:  #ADD8E6"></i>
+        <i class="fas fa-leaf inner-icon" data-fa-transform="shrink-10" style="color:blue;"></i>
+      </a>
+    </li>
+
+    <li class="nav-item p-1" style="width:16.6%"> <!-- Greenhouse Configuration? 
+      <a class="nav-link fa-3x fa-layers fa-fw disabled" href="#payloadRocket">
+        <i class="far fa-circle selector-icon" data-fa-transform="shrink-5"></i>
+        <i class="fas fa-circle outer-icon" data-fa-transform="shrink-4" style="color:  #ADD8E6"></i>
+        <i class="fas fa-chevron-right" data-fa-transform="shrink-10" style="color:blue;"></i>
+      </a>
+    </li>
+
+
+
+  </ul>
+</div>-->

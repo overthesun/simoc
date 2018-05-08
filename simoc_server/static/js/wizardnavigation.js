@@ -30,20 +30,19 @@ $(document).ready(function () {
             if (status == 'success') {
                 var obj = {};                
                 //history.pushState(obj, "SIMOC Dashboard","/dashboard");
-                $('#base-container').load("/test_route",function(){
+                /*$('#base-container').load("/test_route",function(){
                     $.getScript('/static/js/dashboardInitialize.js');
+                    $.getScript('/static/js/dashChartBar.js');
                     $.getScript('/static/js/updateInterval.js');
                     //$.getScript('/static/css/text.css');
-                    $.getScript('/static/js//raphael-2.1.4.min.js');
-                    $.getScript('/static/js/justgage.js');
-                });
+                });*/
+                gotourl("/test_route2");
             }
         });
         
     });
 
 });
-
 
 function nextTab(elem) {
     $(elem).next().find('a[data-toggle="tab"]').click();
