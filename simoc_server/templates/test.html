@@ -445,7 +445,12 @@ a:hover{
         valueFontColor: "white",
         labelFontColor: "white",
         titleFontColor: "white",
-        responsiveGaugeSize: true
+        responsiveGaugeSize: true,
+        customSectors:
+          [{"color":"#32CD32", "lo":5000, "hi":10000},
+          {"color": "#FFFF00","lo":3000,"hi":4999,},
+          {"color": "#FF0000","lo": 0,"hi":2999,}],
+        levelColorsGradient: false
       });
       var biomassG = new JustGage({
         id: 'g4',
