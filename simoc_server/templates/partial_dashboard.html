@@ -87,22 +87,7 @@
             Mars: Sol 1          
           </div>
           <div class="col-2 container config-block-main bars" style="height: 110px; max-height:110px">
-              <canvas id="humans-bar-chart" style="width:100%; height: 100%"></canvas>
-          </div>
-          <div class="col-2 container config-block-main bars" style="height: 110px; max-height:110px">
-              <canvas id="food-bar-chart" style="width:100%; height: 100%"></canvas>
-          </div>
-          <div class="col-2 container config-block-main bars" style="height: 110px; max-height:110px">
-              <canvas id="oxygen-bar-chart" style="width:100%; height: 100%"></canvas>
-          </div>
-          <div class="col-2 container config-block-main bars" style="height: 110px; max-height:110px">
-              <canvas id="cotwo-bar-chart" style="width:100%; height: 100%"></canvas>
-          </div>
-          <div class="col-2 container config-block-main bars" style="height: 110px; max-height:110px">
-              <canvas id="water-bar-chart" style="width:100%; height: 100%"></canvas>
-          </div>
-          <div class="col-2 container config-block-main bars" style="height: 110px; max-height:110px">
-              <canvas id="kwh-bar-chart" style="width:100%; height: 100%"></canvas>
+
           </div>
         </div>
       </div>
@@ -162,22 +147,243 @@
       <div class="row">
         <div class="col-12 dashboard title">
           Ecosystem
-        </div >
-        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px; margin-bottom: 16px">
-          <canvas id="oxygen-line-chart" style="width:100%; height: 100%"></canvas>
         </div>
-        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px;margin-bottom: 16px">
-          <canvas id="co2-line-chart" style="width:100%; height: 100%"></canvas>
+
+        <div class="col-6">
+
+        <div id="oxygenGauge" class="gauge" style="width:100%; height:20%px;"></div>
         </div>
-        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px;margin-bottom: 16px">
-          <canvas id="water-line-chart" style="width:100%; height: 100%"></canvas>
+
+        <div class="col-6">
+            <div id="carbdondioxideGauge" class="gauge" style="width:100%; height:20%px;"></div>
         </div>
-        <div class="col-12 container config-block-main bars" style="height: 110px; max-height:110px;margin-bottom: 16px">
-          <canvas id="food-line-chart" style="width:100%; height: 100%"></canvas>
+
+        <div class="col-6">
+
+        <div id="waterGauge" class="gauge" style="width:100%; height:20%px;"></div>
         </div>
+
+        <div class="col-6">
+            <div id="bioMassGauge" class="gauge" style="width:100%; height:20%px;"></div>
+        </div>
+
+        <div class="col-6">
+          <div id="eProducedGauge" class="gauge" style="width:100%; height:20%px;"></div>
+        </div>
+
+        <div class="col-6">
+            <div id="eConsumedGauge" class="gauge" style="width:100%; height:20%px;"></div>
+        </div>
+
+        <div class="col-6" style="font-size:9px">
+          <div>BIOMASS TOTAL (kg):</div>
+          <div>BIOMASS Edible (kg):</div>
+        </div>
+
+        <div class="col-6" style="font-size:9px">
+          <div id="biomassTotal"></div>
+          <div id="biomassEdible"></div>
+        </div>
+
+        <div class="col-12"><div style="border-bottom:1px solid white; margin:4px"></div></div>
+
+        <div class="col-6" style="font-size:9px">
+          <!--<div>FOOD GENERATED (j):</div>-->
+          <div>FOOD ENERGY (kJ):</div>
+          <div>FOOD MASS (kg):</div>
+          <!--<div>FOOD CONSUMPATION (j):</div>-->
+        </div>
+
+        <div class="col-6" style="font-size:9px">
+          <!--<div id="foodGenerated"></div>-->
+          <div id="foodEnergy"></div>
+          <div id="foodMass"></div>
+          <!--<div id="foodConsumpation"></div>-->
+        </div>
+
+        <div class="col-12"><div style="border-bottom:1px solid white; margin:4px"></div></div>
+
+        <div class="col-6" style="font-size:9px">
+          <div>H20 POTABLE (kg):</div>
+          <div>H20 GRAY (kg):</div>
+          <div>H20 GRAY SOLID (kg):</div>
+        </div>
+
+        <div class="col-6" style="font-size:9px">
+          <div id="waterPotable"></div>
+          <div id="waterGray"></div>
+          <div id="waterGraySolid"></div>
+        </div>
+
+        <!--<div class="col-12"><div style="border-bottom:1px solid white; margin:4px"></div></div>
+
+        <div class="col-6" style="font-size:9px">
+          <div>WASTE SOLID (kg)</div>
+          <div>WASTE WATER (kg):</div>
+        </div>
+
+        <div class="col-6" style="font-size:9px">
+          <div id="wasteSolid"></div>
+          <div id="wasteWater"></div>
+        </div>-->
+
+
       </div>
     </div>
   </div>
 </div>
+
+  <script src='./static/js/raphael-2.1.4.min.js'></script>
+  <script src='./static/js/justgage.js'></script>
+
+    <script>
+      var oxygenG = new JustGage({
+        id: 'oxygenGauge',
+        value: 0,
+        min: 0,
+        max: 100,
+        symbol: 'kPa',
+        pointer: true,
+        pointerOptions: {
+          toplength: -7.5,
+          bottomlength: 5,
+          bottomwidth: 6,
+          color: '#8e8e93',
+          stroke: '#ffffff',
+          stroke_width: 3,
+          stroke_linecap: 'round'
+        },
+        gaugeWidthScale: 0.6,
+        counter: true,
+        title: "Oxygen",
+        valueFontColor: "white",
+        labelFontColor: "white",
+        titleFontColor: "white"
+      });
+
+      var carbdonDioxideG = new JustGage({
+        id: 'carbdondioxideGauge',
+        value: 0,
+        min: 0,
+        max: .2,
+        symbol: 'kPa',
+        pointer: true,
+        pointerOptions: {
+          toplength: -7.5,
+          bottomlength: 5,
+          bottomwidth: 6,
+          color: '#8e8e93',
+          stroke: '#ffffff',
+          stroke_width: 3,
+          stroke_linecap: 'round',
+        },
+        decimals: 2,
+        gaugeWidthScale: 0.6,
+        counter: true,
+        title: "Carbon Dioxide",
+        valueFontColor: "white",
+        labelFontColor: "white",
+        titleFontColor: "white",
+      });
+
+      var waterG = new JustGage({
+        id: 'waterGauge',
+        value: 45,
+        min: 0,
+        max: 10000,
+        symbol: 'kg',
+        pointer: true,
+        pointerOptions: {
+          toplength: -7.5,
+          bottomlength: 5,
+          bottomwidth: 6,
+          color: '#8e8e93',
+          stroke: '#ffffff',
+          stroke_width: 3,
+          stroke_linecap: 'round'
+        },
+        gaugeWidthScale: 0.6,
+        counter: true,
+        title: "Water",
+        valueFontColor: "white",
+        labelFontColor: "white",
+        titleFontColor: "white"
+      });
+
+      var biomassG = new JustGage({
+        id: 'bioMassGauge',
+        value: 0,
+        min: 0,
+        max: 10000,
+        symbol: 'kg',
+        pointer: true,
+        pointerOptions: {
+          toplength: -7.5,
+          bottomlength: 5,
+          bottomwidth: 6,
+          color: '#8e8e93',
+          stroke: '#ffffff',
+          stroke_width: 3,
+          stroke_linecap: 'round'
+        },
+        gaugeWidthScale: 0.6,
+        counter: true,
+        title: "Biomass (Edible)",
+        valueFontColor: "white",
+        labelFontColor: "white",
+        titleFontColor: "white"
+      });
+
+      var eProducedG = new JustGage({
+        id: 'eProducedGauge',
+        value: 0,
+        min: 0,
+        max: 10000,
+        symbol: 'kwh',
+        pointer: true,
+        pointerOptions: {
+          toplength: -7.5,
+          bottomlength: 5,
+          bottomwidth: 6,
+          color: '#8e8e93',
+          stroke: '#ffffff',
+          stroke_width: 3,
+          stroke_linecap: 'round'
+        },
+        gaugeWidthScale: 0.6,
+        counter: true,
+        title: "Energy Produced",
+        valueFontColor: "white",
+        labelFontColor: "white",
+        titleFontColor: "white"
+      });
+
+      var eConsumedG = new JustGage({
+        id: 'eConsumedGauge',
+        value: 0,
+        min: 0,
+        max: 10000,
+        symbol: 'kwh',
+        pointer: true,
+        pointerOptions: {
+          toplength: -7.5,
+          bottomlength: 5,
+          bottomwidth: 6,
+          color: '#8e8e93',
+          stroke: '#ffffff',
+          stroke_width: 3,
+          stroke_linecap: 'round'
+        },
+        gaugeWidthScale: 0.6,
+        counter: true,
+        title: "Energy Consumed",
+        valueFontColor: "white",
+        labelFontColor: "white",
+        titleFontColor: "white"
+      });
+
+
+
+</script>
 
 {%include 'modal_reconfigure.html'%}
