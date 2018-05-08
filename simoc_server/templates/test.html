@@ -88,6 +88,13 @@
         background-repeat: no-repeat;
         background-color: black;
       }
+
+      .map{
+          background-image: url("/static/assets/mars_map.png");
+          background-size: cover;
+          background-repeat: no-repeat;
+          background-color: black;
+      }
     }
 
 a:hover{
@@ -122,7 +129,7 @@ a:hover{
             <div class="col-6" style="text-align:right;">MODEL:</div>
             <div class="col-6" style="text-align: left">Baseline</div>
             <div class="col-6" style="text-align:right;">POPULATION: </div>
-            <div class="col-6" style="text-align:left">4 Humans</div>
+            <div class="col-6" style="text-align:left" id="humanPopulation">4 Humans</div>
             <div class="col-6" style="text-align:right;">MISSION REMAINING:</div>
             <div class="col-6" style="text-align:left;">Permanent</div>
             <div class="col-6" style="text-align:right;">NEXT LAUNCH:</div>
@@ -197,9 +204,19 @@ a:hover{
 
           <div style="height:5vh; min-height:36px; box-sizing: border-box; border: 2px solid #3b7493;margin-bottom: .5vh;" class="title"><div class="customHeader">SIMOC</div></div>
 
-          <div style="height:52vh; box-sizing: border-box; border: 2px solid #3b7493; margin-bottom:1.5vh;"></div>
+          <div class="map" style="height:52vh; box-sizing: border-box; border: 2px solid #3b7493; margin-bottom:1.5vh;">
+            
+          </div>
 
-          <div style="height:5vh; min-height:36px; box-sizing: border-box; border: 2px solid #3b7493;margin-bottom: .5vh;" class="title"><div class="customHeader">GRAPH</div>
+          <div style="height:5vh; min-height:36px; box-sizing: border-box; border: 2px solid #3b7493;margin-bottom: .5vh;" class="title"><div class="customHeader">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-4" id="currentSpeed-id"></div>
+                    <div class="col-4">Oxygen</div>
+                    <div class="col-4" id="currentDate-id">Mars: Sol 1</div>
+                </div>
+            </div>
+          </div>
 
 
           </div>
@@ -241,21 +258,56 @@ a:hover{
         <!-- RIGHT PANEL -->
         <div class="col-3" style="margin-top:1vh;">
           <div style="height:5vh; min-height:36px; box-sizing: border-box; border: 2px solid #3b7493;margin-bottom: .5vh;" class="title"><div class="customHeader">ECOSYSTEM</div></div>
-          <div style="height: 40.5vh; min-height:331.2px; box-sizing: border-box; border:2px solid #3b7493; margin-bottom: .5vh;">
-            <div class="container">
+          <div class="container" style="height:40.5vh; min-height:331.2px; box-sizing: border-box; border:2px solid #3b7493; margin-bottom: .5vh;">
               <div class="row justify-content-center" style="height:40.5vh;">
                 <div class="col-5 gauge" id="g1" style="height:12vh; margin-top:1.125;margin-bottom:1.125vh"></div>
                 <div class="col-5 gauge" id="g2" style="height:12vh; margin-top:1.125;margin-bottom:1.125vh"></div>
                 <div class="col-5 gauge" id="g3" style="height:12vh; margin-bottom:1.125vh"></div>
                 <div class="col-5 gauge" id="g4" style="height:12vh; margin-bottom:1.125vh"></div>
                 <div class="col-5 gauge" id="g5" style="height:12vh; "></div>
-                <div class="col-5 gauge" id="g6" style="height:12vh; "></div>
-                
+                <div class="col-5 gauge" id="g6" style="height:12vh; "></div>                
               </div>
-            </div>
-            
           </div>
-          <div style="height: 33vh; min-height:237.6px; box-sizing: border-box; border:2px solid #3b7493; margin-bottom: 1.5vh"></div>
+
+          <div class="container" style="height: 33vh; min-height:237.6px; box-sizing: border-box; border:2px solid #3b7493; margin-bottom: 1.5vh; padding-top: 2.5vh;">
+              <div class="row">
+                <div class="col-6" style="text-align: right;">
+                  <div>BIOMASS TOTAL (kg):</div>
+                  <div>BIOMASS Edible (kg):</div>
+               </div>
+
+                <div class="col-6" style="text-align:left">
+                  <div id="biomassTotal"></div>
+                  <div id="biomassEdible"></div>
+               </div>  
+                <div class="col-12" style="text-align:center; margin-top:1vh; margin-bottom: 1vh;"><div style="border-top:2px solid #3b7493; width: 95%; margin: 0 auto;"></div></div>
+
+                <div class="col-6" style="text-align: right;">
+                    <div>FOOD ENERGY (kj):</div>
+                    <div>FOOD MASS (kg):</div>
+                </div>
+                <div class="col-6" style="text-align:left">
+                  <div id="foodEnergy"></div>
+                  <div id="foodMass"></div>
+                </div>
+                <div class="col-12" style="text-align:center; margin-top:1vh; margin-bottom: 1vh;"><div style="border-top:2px solid #3b7493; width: 95%; margin: 0 auto;"></div></div>
+                <div class="col-6" style="text-align: right;">
+                  <div>H20 POTABLE (kg):</div>
+                  <div>H20 GRAY (kg):</div>
+                  <div>H20 GRAY SOLID (kg):</div>
+                </div>
+
+                <div class="col-6" style="text-align:left">
+                  <div id="waterPotable"></div>
+                  <div id="waterGray"></div>
+                  <div id="waterGraySolid"></div>
+                </div>
+                <div class="col-12" style="text-align:center; margin-top:1vh; margin-bottom: 1vh;"><div style="border-top:2px solid #3b7493; width: 95%; margin: 0 auto;"></div></div>
+            </div>
+
+
+          </div>
+
           <div style="height: 17vh; min-height:120px; box-sizing: border-box;">
             <div class="container" style="margin-top:2vh; margin-bottom:5vh;">
               <div class="row justify-content-center" style="height:10vh;">
@@ -291,7 +343,9 @@ a:hover{
     <script src="./static/js/msgpack/msgpack.min.js"></script>
     <script src="./static/js/custom/connectionhandler.js"></script>
     <script src="./static/js/custom/custom_util.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <script src="./static/js/dashChartBar.js"></script>
 
     <script>
       $("#payloadIcon").click(function(){
@@ -473,7 +527,7 @@ a:hover{
 </script>
 
 <script>
-var dData = function() {
+/*var dData = function() {
   return Math.round(Math.random() * 90) + 10
 };
 
@@ -497,7 +551,7 @@ setInterval(function() {
   barChartDemo.removeData();
   barChartDemo.addData([dData()], "dD " + index);
   index++;
-}, 3000);
+}, 3000);*/
 </script>
 
 <div style="display:none">
