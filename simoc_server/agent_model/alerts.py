@@ -236,6 +236,6 @@ class BatteryChargeAlert(BaseAlertHandler):
     _alert_name = "battery_charge_alert"
 
     def get_alerts(self):
-        if self.model.total_power_charge == 0:
-            return [self.new_alert("There is no power.")]
+        #if self.model.total_power_charge == 0:
+         #   return [self.new_alert("There is no power.")]
         return []
