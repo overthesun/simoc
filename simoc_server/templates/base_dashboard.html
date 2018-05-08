@@ -42,6 +42,11 @@
       .textPanel{
         background-image: url("/static/assets/black-transparent.png");
       }
+
+      .title{
+        background-image: url("/static/assets/blue-transparent.png");
+      }
+
     </style>
 
 </head>
@@ -52,7 +57,7 @@
     <div class="row" style="height: 100%">
       <div class='col-3 container'">
         <div style="box-sizing: border-box; height: 12%; border: 2px solid #3b7493;">
-          <div style="box-sizing: border-box; height: calc(12px + 3vh); border-bottom: 2px solid #3b7493; font-size:calc(12px + 1.5vh); text-align: center; line-height: calc(12px + 2vh)">
+          <div class="title" style="box-sizing: border-box; height: calc(12px + 3vh); border-bottom: 2px solid #3b7493; font-size:calc(12px + 1.5vh); text-align: center; line-height: calc(12px + 2vh)">
             Mission Crictical
           </div>
           <div style="box-sizing: border-box; min-height: calc(100% - 12px - 3vh); font-size:calc(10px + .35vh); text-align: left; line-height: calc(10px + .35vh); padding: 8px">
@@ -60,10 +65,10 @@
             <div>Stay Remaining: Permanent</div>
           </div>
         </div>
-        <div style="box-sizing: border-box; height: 74%; margin-top:1vh; margin-bottom:1vh;">
+        <div style="box-sizing: border-box; height: 74%; margin-top:1vh; margin-bottom:2vh;">
           {%include '/leftPanel_payload.html'%}
         </div>
-        <div style="box-sizing: border-box; height: 12%; border:2px solid #3b7493; padding: .75%;" class="container">
+        <div style="box-sizing: border-box; height: 11%;   padding: .75%;" class="container">
           <div class="row" style="margin-bottom:.5%; color:#2c5e79">
             <div class="col-3" style="color: #e9f0f4; font-size:calc(8px + 1.1vh); margin-right:calc(16px + 1.5vh)">Habitat</div>
             <div class="col-1"> <i class="fas fa-square selector-icon" style='margin-right:calc(16px + 1.5vh); font-size: calc(16px + 1.1vh)'></i> </div>
@@ -88,12 +93,12 @@
       </div>
       <div class='col-6 container'>
         <div style="box-sizing: border-box; height:67%; border: 2px solid #3b7493;">
-          <div style="box-sizing: border-box; height: calc(12px + 3vh); border-bottom: 2px solid #3b7493; font-size:calc(12px + 1.5vh); text-align: center; line-height: calc(12px + 2vh)">
+          <div class="title" style="box-sizing: border-box; height: calc(12px + 3vh); border-bottom: 2px solid #3b7493; font-size:calc(12px + 1.5vh); text-align: center; line-height: calc(12px + 2vh)">
             SIMOC
           </div>
         </div>
         <div style="box-sizing:border-box; height: 19%; border: 2px solid #3b7493; margin-top:1vh; margin-bottom:1vh">
-          <div style="box-sizing: border-box; height: calc(12px + 3vh); border-bottom: 2px solid #3b7493; font-size:calc(12px + 1.5vh); text-align: center; line-height: calc(12px + 2vh); width: 100%" class="container">
+          <div class="title" style="box-sizing: border-box; height: calc(12px + 3vh); border-bottom: 2px solid #3b7493; font-size:calc(12px + 1.5vh); text-align: center; line-height: calc(12px + 2vh); width: 100%" class="container">
             <div class="row">
               <div class="col">Habitat Monitor</div>
               <div class="col">1s Per Hour</div>
@@ -102,23 +107,25 @@
           </div>
         </div>
 
-        <div style="box-sizing: border-box; height:12%; border: 2px solid #3b7493; padding: 0px">
+        <div style="box-sizing: border-box; height:12%; padding: 0px">
 
         </div>
 
       </div>
       <div class='col-3 container'>
         <div style="box-sizing: border-box; height:87%; border:2px solid #3b7493; margin-bottom:1vh">
-          <div style="box-sizing: border-box; height: calc(12px + 3vh); border-bottom: 2px solid #3b7493; font-size:calc(12px + 1.5vh); text-align: center; line-height: calc(12px + 2vh)">
+          <div class="title" style="box-sizing: border-box; height: calc(12px + 3vh); border-bottom: 2px solid #3b7493; font-size:calc(12px + 1.5vh); text-align: center; line-height: calc(12px + 2vh)">
             ECOSYSTEM
           </div>
         </div>
-        <div style="box-sizing: border-box; height:12%; border: 2px solid #3b7493; ">
+        <div style="box-sizing: border-box; height:12%; ">
         </div>
       </div>
     </div>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-</body>
+
+  
+  </body>
 </html>    	

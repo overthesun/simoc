@@ -52,7 +52,7 @@ def testroute():
 
 @app.route("/test_route2", methods=["GET","POST"])
 def testroute2():
-    return render_template('base_dashboard.html')
+    return render_template('test.html')
 
 
 @app.route("/")
