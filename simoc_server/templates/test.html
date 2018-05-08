@@ -212,7 +212,7 @@ a:hover{
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-4" id="currentSpeed-id"></div>
-                    <div class="col-4">Oxygen</div>
+                    <div class="col-4">Carbon Dioxide</div>
                     <div class="col-4" id="currentDate-id">Mars: Sol 1</div>
                 </div>
             </div>
@@ -445,7 +445,12 @@ a:hover{
         valueFontColor: "white",
         labelFontColor: "white",
         titleFontColor: "white",
-        responsiveGaugeSize: true
+        responsiveGaugeSize: true,
+        customSectors:
+          [{"color":"#32CD32", "lo":5000, "hi":10000},
+          {"color": "#FFFF00","lo":3000,"hi":4999,},
+          {"color": "#FF0000","lo": 0,"hi":2999,}],
+        levelColorsGradient: false
       });
       var biomassG = new JustGage({
         id: 'g4',

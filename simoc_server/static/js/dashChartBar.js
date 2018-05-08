@@ -18,18 +18,22 @@ var truncateToLength = function(value, maxLength){
 }
 
 var baseLineChartOptions = {
-  type: 'line',
+  type: 'bar',
   data: {
     labels: [],
     datasets: [
       {
-        borderColor: ["#e9f0f4"],
+        backgroundColor: "#e9f0f4",
+        borderColor: "#e9f0f4",
         data: [],
-        fill: false
+        fillColor: "rgba(0,60,100,1)",
+        strokeColor: "white",
       }
     ]
   },
   options: {
+    responsive: true,
+  barValueSpacing: 2,
     legend: { display: false },
     maintainAspectRatio: false,
     tooltips: {
@@ -40,8 +44,9 @@ var baseLineChartOptions = {
     },
       scales: {
       xAxes: [{
+        barPercentage: 1.0,
         ticks:{
-          autoSkip: true,
+          autoSkip: false,
           callback: function(value){
             return truncateToLength(value, MAX_LINE_XTICK_LENGTH);
           }
@@ -49,7 +54,7 @@ var baseLineChartOptions = {
       }],
       yAxes: [{
         ticks: {
-          autoSkip:true,
+          autoSkip:false,
           //beginAtZero:true,
           callback:function(value){
             return truncateToLength(value, MAX_LINE_YTICK_LENGTH);
@@ -85,9 +90,9 @@ var createSingleLine = function(id, label, datasetLabel){
 //var chargeBar = createSingleBar("kwh-bar-chart", "Charge (kWh)", "Charge")
 //var humanBar = createSingleBar("humans-bar-chart", "Humans", "Humans")
 
-var oxygenLine = createSingleLine("canvas", "Oxygen Pressure (kPa)", "Oxygen Pressure (kPa)");
+//var oxygenLine = createSingleLine("canvas", "Oxygen Pressure (kPa)", "Oxygen Pressure (kPa)");
 //var waterLine = createSingleLine("water-line-chart", "Total Water (kg)", "Total Water (kg)");
-//var carbonDioxideLine = createSingleLine("co2-line-chart", "Carbon Dioxide Pressure (kPa)", "Carbon Dioxide Pressure (kPa)");
+var carbonDioxideLine = createSingleLine("canvas", "Carbon Dioxide Pressure (kPa)", "Carbon Dioxide Pressure (kPa)");
 //var foodLine = createSingleLine("food-line-chart", "Total Food Energy (kJ)", "Total Food Energy (kJ)");
 
 
@@ -103,10 +108,10 @@ function updateLineChart(chart, stepNum, value){
   chart.update();
 }
 
-var updateAllLineCharts = function(avgOxygen,stepNum){//, avgCarbonDioxide, 
+var updateAllLineCharts = function(avgCarbonDioxide,stepNum){//, avgCarbonDioxide, 
   //totalWater, totalFoodEnergy, stepNum){
-  updateLineChart(oxygenLine, stepNum, avgOxygen);
-  //updateLineChart(carbonDioxideLine, stepNum, avgCarbonDioxide);
+//  updateLineChart(oxygenLine, stepNum, avgOxygen);
+  updateLineChart(carbonDioxideLine, stepNum, avgCarbonDioxide);
   //updateLineChart(waterLine, stepNum, totalWater);
   //updateLineChart(foodLine, stepNum, totalFoodEnergy);
 }

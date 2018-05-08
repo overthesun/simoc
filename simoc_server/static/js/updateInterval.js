@@ -80,7 +80,7 @@ $(document).ready(function(){
 
                 //updateAllBarCharts(avgOxygen,avgCarbonDioxide,totalWater,
                   //  totalFoodEnergy, totalPowerCharge);
-                updateAllLineCharts(avgOxygen,currentStep);
+                updateAllLineCharts(avgCarbonDioxide,currentStep);
                 updateSolarDay(currentStep, hoursPerStep);
 				//updateAlerts(data.alerts);
             }
