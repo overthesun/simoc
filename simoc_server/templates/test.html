@@ -13,7 +13,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.12/css/all.css" integrity="sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9" crossorigin="anonymous">
     
-    
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 
     <style>
 
@@ -30,7 +31,7 @@
 
 
       .customParagraph{
-        font-size: calc(12px + (16-12)*(13.5vh - 207.6) / (259.317 - 207.6));
+        font-size: calc(12px + (16-12)*(33% - 207.6) / (259.317 - 207.6));
       }
 
       .missionCritical{
@@ -90,10 +91,7 @@
       }
 
       .map{
-          background-image: url("/static/assets/mars_map.png");
-          background-size: cover;
-          background-repeat: no-repeat;
-          background-color: black;
+
       }
     }
 
@@ -204,8 +202,10 @@ a:hover{
 
           <div style="height:5vh; min-height:36px; box-sizing: border-box; border: 2px solid #3b7493;margin-bottom: .5vh;" class="title"><div class="customHeader">SIMOC</div></div>
 
-          <div class="map" style="height:52vh; box-sizing: border-box; border: 2px solid #3b7493; margin-bottom:1.5vh;">
-            
+          <div class="" style="height:52vh; box-sizing: border-box; border: 2px solid #3b7493; margin-bottom:1.5vh;">
+            <div style="height:100%; width: 100%;">
+              <canvas id="map" style="width: 100%; height: 100%;"></canvas>
+            </div>
           </div>
 
           <div style="height:5vh; min-height:36px; box-sizing: border-box; border: 2px solid #3b7493;margin-bottom: .5vh;" class="title"><div class="customHeader">
@@ -259,13 +259,27 @@ a:hover{
         <div class="col-3" style="margin-top:1vh;">
           <div style="height:5vh; min-height:36px; box-sizing: border-box; border: 2px solid #3b7493;margin-bottom: .5vh;" class="title"><div class="customHeader">ECOSYSTEM</div></div>
           <div class="container" style="height:40.5vh; min-height:331.2px; box-sizing: border-box; border:2px solid #3b7493; margin-bottom: .5vh;">
-              <div class="row justify-content-center" style="height:40.5vh;">
-                <div class="col-5 gauge" id="g1" style="height:12vh; margin-top:1.125;margin-bottom:1.125vh"></div>
-                <div class="col-5 gauge" id="g2" style="height:12vh; margin-top:1.125;margin-bottom:1.125vh"></div>
-                <div class="col-5 gauge" id="g3" style="height:12vh; margin-bottom:1.125vh"></div>
-                <div class="col-5 gauge" id="g4" style="height:12vh; margin-bottom:1.125vh"></div>
-                <div class="col-5 gauge" id="g5" style="height:12vh; "></div>
-                <div class="col-5 gauge" id="g6" style="height:12vh; "></div>                
+              <div class="row justify-content-center" style="height:40.5vh; padding-bottom:1vh;">
+                <div class="col-6" style="margin: 0 auto; height: 13.5vh;"><div class="gauge" id="g1" style="height:100%"></div></div>
+                <div class="col-6" style="margin: 0 auto; height: 13.5vh; "><div class="gauge" id="g2" style="height:100%"></div></div>
+                <div class="col-6" style="margin: 0 auto; height: 13.5vh; "><div class="gauge" id="g3" style="height:100%"></div></div>
+                <div class="col-6" style="margin: 0 auto; height: 13.5vh; "><div class="gauge" id="g4" style="height:100%"></div></div>
+                <div class="col-6" style="margin: 0 auto; height: 13.5vh;"><div class="gauge" id="g5" style="height:100%"></div></div>
+                <div class="col-6" style="margin: 0 auto; height: 13.5vh; "><div class="gauge" id="g6" style="height:100%"></div></div>
+
+
+                <!--<div class="col-md-1 col-lg-1 col-xl-1" style="height: 12vh;"></div>
+                <div class="col-md-5 col-lg-5 col-xl-5 gauge" style="height:12vh; align-content: center;"><div id="g1" style="height: 90%; width: 90%; margin: 0 auto;"></div></div>
+                <div class="col-md-1"></div>
+                <div class="col-md-5 col-lg-5 col-xl-5 gauge" style="height:12vh;  align-content: center;"><div id="g2" style="height: 100%; width: 100%;margin: 0 auto;"></div></div>
+                <div class="col-1"></div>
+                <div class="col-md-5 col-lg-5 col-xl-5 gauge" style="height:12vh; align-content: center;"><div id="g3" style="height: 100%; width: 100%;margin: 0 auto;"></div></div>
+                <div class="col-1"></div>
+                <div class="col-md-5 col-lg-5 col-xl-5 gauge" style="height:12vh;  align-content: center;"><div id="g4" style="height: 100%; width: 100%;margin: 0 auto;"></div></div>
+                <div class="col-1"></div>
+                <div class="col-md-5 col-lg-5 col-xl-5 gauge" style="height:12vh;  align-content: center;"><div id="g5" style="height: 100%; width: 100%;margin: 0 auto;"></div></div>
+                <div class="col-1"></div> 
+                <div class="col-md-5 col-lg-5 col-xl-5 gauge" style="height:12vh;  align-content: center;"><div id="g6" style="height: 100%; width: 100%;margin: 0 auto;"></div></div>-->               
               </div>
           </div>
 
@@ -330,7 +344,20 @@ a:hover{
       </div>
     </div>
 
+    <div style="display:none">
+      <ul class="nav" id="tabs">
+        <li class="nav-item">
+          <a class="nav-link" id="payloadLink" data-toggle="tab" href="#payloadPanel"></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="payloadConfiguration" data-toggle="tab" href="#payloadConfigPanel"></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" id="configuration" data-toggle="tab" href="#configurationPanel"></a>
+        </li>
+      </ul>
     </div>
+
     <script defer src="https://use.fontawesome.com/releases/v5.0.12/js/all.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
@@ -396,7 +423,13 @@ a:hover{
         valueFontColor: "white",
         labelFontColor: "white",
         titleFontColor: "white",
-        responsiveGaugeSize: true
+        responsiveGaugeSize: true,
+        relativeGaugeSize: true,
+        valueMinFontSize: 1,
+        labelMinFontSize: 30,
+        titleFontSize: 30
+
+
       });
       var carbonDioxideG = new JustGage({
         id: 'g2',
@@ -421,6 +454,7 @@ a:hover{
         valueFontColor: "white",
         labelFontColor: "white",
         titleFontColor: "white",
+                relativeGaugeSize: true,
         responsiveGaugeSize: true
       });
       var waterG = new JustGage({
@@ -446,6 +480,7 @@ a:hover{
         labelFontColor: "white",
         titleFontColor: "white",
         responsiveGaugeSize: true,
+                relativeGaugeSize: true,
         customSectors:
           [{"color":"#32CD32", "lo":5000, "hi":10000},
           {"color": "#FFFF00","lo":3000,"hi":4999,},
@@ -474,6 +509,7 @@ a:hover{
         valueFontColor: "white",
         labelFontColor: "white",
         titleFontColor: "white",
+                relativeGaugeSize: true,
         responsiveGaugeSize: true
       });
       var eProducedG = new JustGage({
@@ -498,6 +534,7 @@ a:hover{
         valueFontColor: "white",
         labelFontColor: "white",
         titleFontColor: "white",
+                relativeGaugeSize: true,
         responsiveGaugeSize: true
       });
       var eConsumedG = new JustGage({
@@ -522,6 +559,7 @@ a:hover{
         valueFontColor: "white",
         labelFontColor: "white",
         titleFontColor: "white",
+                relativeGaugeSize: true,
         responsiveGaugeSize: true
       });
 
@@ -530,6 +568,48 @@ a:hover{
 
 
 </script>
+
+    <script>
+
+            var canvas = document.getElementById("map"); // Get the canvas element 
+
+            var engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
+
+
+            /******* Add the create scene function ******/
+            var createScene = function () {
+
+                        // Create the scene space
+                        var scene = new BABYLON.Scene(engine);
+
+                        // Add a camera to the scene and attach it to the canvas
+                        var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, BABYLON.Vector3.Zero(), scene);
+                        camera.attachControl(canvas, true);
+
+                        // Add lights to the scene
+                        var light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), scene);
+                        var light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 1, -1), scene);
+
+
+                        // Add and manipulate meshes in the scene
+                        var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter:2}, scene);
+
+                        return scene;
+                };
+
+                /******* End of the create scene function ******/    
+
+                var scene = createScene(); //Call the createScene function
+
+            engine.runRenderLoop(function () { // Register a render loop to repeatedly render the scene
+                    scene.render();
+            });
+
+
+            window.addEventListener("resize", function () { // Watch for browser/canvas resize events
+                    engine.resize();
+            });
+    </script>
 
 <script>
 /*var dData = function() {
@@ -559,19 +639,7 @@ setInterval(function() {
 }, 3000);*/
 </script>
 
-<div style="display:none">
-  <ul class="nav" id="tabs">
-    <li class="nav-item">
-      <a class="nav-link" id="payloadLink" data-toggle="tab" href="#payloadPanel"></a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" id="payloadConfiguration" data-toggle="tab" href="#payloadConfigPanel"></a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link active" id="configuration" data-toggle="tab" href="#configurationPanel"></a>
-    </li>
-  </ul>
-</div>
+
 
   </body>
 </html>
