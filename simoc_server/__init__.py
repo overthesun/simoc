@@ -14,6 +14,7 @@ else:
 app = Flask(__name__)
 
 app.config.from_object(config_obj)
+
 db = SQLAlchemy(app, session_options={
     "expire_on_commit": False
     })
