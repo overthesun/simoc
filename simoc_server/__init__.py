@@ -11,9 +11,14 @@ if os.path.isfile("settings.py"):
 else:
     config_obj = os.environ.get("DIAG_CONFIG_MODULE", "simoc_server.default_settings")
 
+print(__name__)
 app = Flask(__name__)
 
 app.config.from_object(config_obj)
+
+db_user = os.environ.get("DB_USER")
+db_password = os.environ.get("DB_PASSWORD")
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{}:{}@172.17.0.2/simoc'.format(db_user, db_password)
 
 db = SQLAlchemy(app, session_options={
     "expire_on_commit": False
