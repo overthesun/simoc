@@ -21,7 +21,7 @@ db_password = os.environ.get("DB_PASSWORD")
 db_name = 'simoc'
 
 SQLALCHEMY_DATABASE_URI = (
-    'mysql+mysqldb://{user}:{password}@localhost/{database}').format(
+    'mysql+mysqldb://{user}:{password}@127.0.0.1:3306/{database}').format(
         user=db_user, password=db_password,
         database=db_name)
 print(SQLALCHEMY_DATABASE_URI)
