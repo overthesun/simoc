@@ -26,7 +26,6 @@ SQLALCHEMY_DATABASE_URI = (
         database=db_name)
 print(SQLALCHEMY_DATABASE_URI)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{}:{}@127.0.0.1/proxyuser'.format(db_user, db_password)
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 
 db = SQLAlchemy(app, session_options={
