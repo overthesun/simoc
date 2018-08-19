@@ -18,7 +18,7 @@ app.config.from_object(config_obj)
 
 db_user = os.environ.get("DB_USER")
 db_password = os.environ.get("DB_PASSWORD")
-db_name = 'simoc'
+db_name = db_user
 
 SQLALCHEMY_DATABASE_URI = (
     'mysql+mysqldb://{user}:{password}@127.0.0.1:3306/{database}').format(
