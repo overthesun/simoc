@@ -18,7 +18,20 @@ app.config.from_object(config_obj)
 
 db_user = os.environ.get("DB_USER")
 db_password = os.environ.get("DB_PASSWORD")
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{}:{}@127.0.0.1/proxyuser'.format(db_user, db_password)
+
+CLOUDSQL_DB_NAME = 'simoc'
+GAE_PROJECT_ID = 'simoc-213717'
+CLOUDSQL_CONNECTION_NAME = 'simoc-213717:us-central1:simoce'
+
+SQLALCHEMY_DATABASE_URI = (
+    'mysql+mysqldb://{user}:{password}@localhost/{database}'
+    '?unix_socket=/cloudsql/{connection_name}').format(
+        user=db_user, password=db_password,
+        database=CLOUDSQL_DB_NAME, connection_name=CLOUDSQL_CONNECTION_NAME)
+print(SQLALCHEMY_DATABASE_URI)
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{}:{}@127.0.0.1/proxyuser'.format(db_user, db_password)
+app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 
 db = SQLAlchemy(app, session_options={
     "expire_on_commit": False
