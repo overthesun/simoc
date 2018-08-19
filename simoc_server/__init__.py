@@ -18,7 +18,7 @@ app.config.from_object(config_obj)
 
 db_user = os.environ.get("DB_USER")
 db_password = os.environ.get("DB_PASSWORD")
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{}:{}@127.0.0.1/simoc'.format(db_user, db_password)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{}:{}@127.0.0.1/proxyuser'.format(db_user, db_password)
 
 db = SQLAlchemy(app, session_options={
     "expire_on_commit": False
