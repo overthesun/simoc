@@ -11,7 +11,6 @@ if os.path.isfile("settings.py"):
 else:
     config_obj = os.environ.get("DIAG_CONFIG_MODULE", "simoc_server.default_settings")
 
-print(__name__)
 app = Flask(__name__)
 
 app.config.from_object(config_obj)
@@ -21,7 +20,8 @@ db_password = os.environ.get("DB_PASSWORD")
 db_name = db_user
 
 SQLALCHEMY_DATABASE_URI = (
-    'mysql+mysqldb://{user}:{password}@127.0.0.1:3306/{database}').format(
+    # 'mysql+mysqldb://{user}:{password}@127.0.0.1:3306/{database}').format(
+    'mysql+mysqldb://{user}:{password}@mysqldb.default.svc.cluster.local:3306/{database}').format(
         user=db_user, password=db_password,
         database=db_name)
 print(SQLALCHEMY_DATABASE_URI)
