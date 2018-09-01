@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: simoc
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: simoc
+        track: stable
+    spec:
+      containers:
+        - name: simoc
+          image: gcr.io/<PROJECT_ID>/simoc:latest
+          env:
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-credentials
+                key: username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-credentials
+                key: password
+          ports:
+            - name: http
+              containerPort: 8000
+          resources:
+            requests:
+              memory: "500M"
+              cpu: 1.0
+            limits:
+              memory: "1G"
+              cpu: 2.0

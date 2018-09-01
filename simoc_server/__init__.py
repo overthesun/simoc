@@ -23,7 +23,6 @@ SQLALCHEMY_DATABASE_URI = (
     'mysql+mysqldb://{user}:{password}@mysqldb.default.svc.cluster.local:3306/{database}').format(
         user=db_user, password=db_password,
         database=db_name)
-print(SQLALCHEMY_DATABASE_URI)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 
