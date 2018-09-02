@@ -12,7 +12,7 @@ The guide covers two basic deployment scenarios:
 * [Using Google Cloud Shell (Ubuntu environment)](#deploy-simoc-using-google-cloud-shell)
 * [Deployment from local Linux/macOS](#deploy-simoc-from-local-linuxmacos)
 
-## Configure a GCP project
+# Configure a GCP project
 
 ### 1. Login to the GCP Console
 * https://cloud.google.com/
@@ -34,6 +34,8 @@ The guide covers two basic deployment scenarios:
 * Google Container Registry API
 * Cloud Build API
 * Cloud Key Management Service API
+
+# Scenario 1
 
 ## Deploy SIMOC (`using Google Cloud Shell`)
 
@@ -167,6 +169,8 @@ sh cluster_create.sh
 Navigate to the Cloud Kubernetes Services; Once the cluster is up and running (you may need to click a Refresh button a couple of times), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app
 * https://console.cloud.google.com/kubernetes/discovery
 
+# Scenario 2
+
 ## Deploy SIMOC (`from local Linux/macOS`)
 
 ### 1. Install and initialize Cloud SDK
@@ -202,9 +206,9 @@ Cloud Build uses personal SSH key to pull the code out of private Github reposit
 
 ### 6. Follow the Cloud Shell instructions starting from the [Clone the SIMOC codebase](#clone-the-simoc-codebase)
 
-## Rollout Updates
+# Rollout Updates
 
-### 1. Build new SIMOC image from GitHub
+### 1. Build a new SIMOC image from GitHub
 ```bash
 cd ~/simoc/deployment_templates/cloudbuild
 gcloud builds submit --config=build_simoc_image_from_github.yaml
