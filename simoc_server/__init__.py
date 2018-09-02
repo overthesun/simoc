@@ -17,11 +17,14 @@ app.config.from_object(config_obj)
 
 db_user = os.environ.get("DB_USER")
 db_password = os.environ.get("DB_PASSWORD")
-db_name = db_user
+db_dns = os.environ.get("DB_DNS_NAME")
+db_port = os.environ.get("DB_PORT")
+db_name = os.environ.get("DB_NAME")
 
 SQLALCHEMY_DATABASE_URI = (
-    'mysql+mysqldb://{user}:{password}@mysqldb.default.svc.cluster.local:3306/{database}').format(
+    'mysql+mysqldb://{user}:{password}@{dns}:{port}/{database}').format(
         user=db_user, password=db_password,
+        dns = db_dns, port=db_port,
         database=db_name)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
