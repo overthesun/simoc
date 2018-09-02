@@ -47,7 +47,6 @@ if __name__ == "__main__":
     #         # db.engine.dispose()
     #         db.drop_all()
 
-    db.sessionmaker.close_all()
     create(seed_data=(not args.no_seed))
 
     # temporary fix for poorly handled threading
