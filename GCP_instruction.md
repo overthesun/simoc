@@ -1,16 +1,32 @@
-## Login to the GCP Console
+# Introduction
+This guide describes the process of deploying SIMOC app to the Google Cloud Platform (GCP) through the following set of steps:
+1. Creating a new GCP project
+2. Setting up the environment
+3. Connecting to the SIMOC GitHub repository
+4. Building a SIMOC docker image
+5. Spinning up a Kubernetes cluster
+6. Deploying SIMOC image to the cluster
+7. Accessing the SIMOC app
+
+The guide covers two basic deployment scenarios:
+* [Using Google Cloud Shell (Ubuntu environment)](#deploy-simoc-using-google-cloud-shell)
+* [Deployment from local Linux/macOS](#deploy-simoc-from-local-linuxmacos)
+
+## Configure a GCP project
+
+### 1. Login to the GCP Console
 * https://cloud.google.com/
 
-## Make yourself familiar with the GCP Console
+### 2. Make yourself familiar with the GCP Console
 * https://console.cloud.google.com/getting-started
 
-## Create a GCP project
+### 3. Create a GCP project
 * https://cloud.google.com/resource-manager/docs/creating-managing-projects
 
-## Navigate to the API Library
+### 4. Navigate to the API Library
 * https://console.cloud.google.com/apis/library
 
-## Activate the following APIs
+### 5. Activate the following APIs
 * Compute Engine API
 * Kubernetes Engine API
 * Google Cloud Storage
