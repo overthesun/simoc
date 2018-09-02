@@ -89,6 +89,7 @@ chmod 777 id_rsa
 gcloud kms encrypt --plaintext-file=id_rsa \
 --ciphertext-file=id_rsa.enc \
 --location=global --keyring=simoc-keyring --key=simoc-github-key
+rm id_rsa
 ```
 
 #### 4. Copy Cloud Build service account name
@@ -96,7 +97,7 @@ Visit the GCP Console IAM menu and copy the Cloud Build service account email ad
 * https://console.cloud.google.com/iam-admin/iam
 
 #### 5. Add Cloud Build `dcrypter` rights
-Substitute `<SERVICE_ACCOUNT_NAME>` with the account name from the previous step
+Substitute `<SERVICE_ACCOUNT_NAME>` with the account name you copied at the previous step
 ```bash
 gcloud kms keys add-iam-policy-binding \
     simoc-github-key --location=global --keyring=simoc-keyring \
@@ -146,7 +147,7 @@ sh cluster_create.sh
 ```
 
 ### Access the SIMOC App
-Navigate to the Cloud Kubernetes Services. Once the cluster is up and running (you may need to click a Refresh button a couple of times), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app.
+Navigate to the Cloud Kubernetes Services; Once the cluster is up and running (you may need to click a Refresh button a couple of times), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app
 * https://console.cloud.google.com/kubernetes/discovery
 
 ## Deploy SIMOC (`from local Linux/macOS`)
@@ -177,7 +178,7 @@ Please note your selection as you will need those values later on in this guide.
 * https://docs.helm.sh/using_helm/#installing-the-helm-client
 
 ### 5. Configure GitHub SSH access
-Cloud Build uses personal SSH key to pull the code out of private Github repositories. Your Github account should have access to the private SIMOC repository and your SSH key should be added to your Github account. Use the following guide to make sure you have everything configured:
+Cloud Build uses personal SSH key to pull the code out of private Github repositories. Your Github account should have access to the private SIMOC repository and your SSH key should be added to your Github account. Use the following guides to make sure you have everything configured:
 * https://help.github.com/articles/checking-for-existing-ssh-keys/
 * https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
 * https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
