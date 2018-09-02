@@ -39,8 +39,8 @@ if __name__ == "__main__":
                     os.remove(db_path)
         else:
             if not confirm("Continuing will delete old database"):
-                    print("Exiting without creating database")
-                    exit()
+                print("Exiting without creating database")
+                exit()
             else:
                 db.sessionmaker.close_all()
                 # db.engine.dispose()
