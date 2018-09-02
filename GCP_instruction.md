@@ -19,13 +19,26 @@
 * Cloud Build API
 * Cloud Key Management Service API
 
-## Deploy SIMOC (using Google Cloud Shell)
+## Deploy SIMOC (`using Google Cloud Shell`)
 
 ### Initialize a new Cloud Shell session
 * https://cloud.google.com/shell/docs/quickstart
 * https://console.cloud.google.com/cloudshell
 
-### Install Helm client tool (package manager for k8s)
+### Select the GCP Project and Zone
+Check the current configuration:
+```bash
+gcloud config list
+```
+Connect to the Project:
+```bash
+gcloud projects list
+gcloud compute zones list
+gcloud config set project <PROJECT_ID>
+gcloud config set compute/zone <GCP_ZONE>
+```
+
+### Install Helm client tool (`package manager for k8s`)
 ```bash
 curl -o get_helm.sh https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get
 chmod +x get_helm.sh
@@ -35,7 +48,7 @@ chmod +x get_helm.sh
 ### Configure GitHub SSH access
 Cloud Build uses personal ssh key to pull the code out of private Github repositories. Your Github account should have access to the private SIMOC repository and your Cloud Shell ssh key should be added to your Github account.
 
-#### 1. Generate a new SSH key (use empty passphrase)
+#### 1. Generate a new SSH key (`use empty passphrase`)
 ```bash
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 ```
@@ -45,7 +58,7 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 cat ~/.ssh/id_rsa.pub
 ```
 
-#### 3. Use the following guide starting from the `Step 2` to add the key to your GitHub account
+#### 3. Use the following guide starting from the `Step 2` to add the SSH key to your GitHub account
 * https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
 ### Clone the SIMOC codebase
@@ -112,8 +125,7 @@ gsutil iam ch allUsers:objectViewer gs://artifacts.<PROJECT_ID>.appspot.com
 * https://console.cloud.google.com/cloudshell/editor
 
 #### 2. Open the `~/simoc/cluster_create.sh` file
-Fill in the values for the empty variables and save the file
-Check `gcloud config list` for the details; use secure MySQL password
+Fill in the values for the empty variables and save the file (use secure MySQL password)
 ```bash
 gcp_project_id="<gcp_project_id>"
 gcp_zone="<gcp_zone>"
@@ -136,18 +148,18 @@ sh cluster_create.sh
 Navigate to the Cloud Kubernetes Services. Once the cluster is up and running (may need to click Refresh button a couple of times), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app.
 * https://console.cloud.google.com/kubernetes/discovery
 
-## Deploy SIMOC (from local Linux/macOS)
+## Deploy SIMOC (`from local Linux/macOS`)
 
 ### 1. Install and initialize Cloud SDK
 * https://cloud.google.com/sdk/
 * https://cloud.google.com/sdk/docs/quickstarts
 
-### 2. Install additional SDK components (k8s client)
+### 2. Install additional SDK components (`k8s client`)
 ```bash
 gcloud components install kubectl
 ```
 
-### 3. Install Helm client (package manager for k8s)
+### 3. Install Helm client (`package manager for k8s`)
 * https://docs.helm.sh/using_helm/#installing-the-helm-client
 
 ### 4. Configure GitHub SSH access
