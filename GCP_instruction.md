@@ -96,7 +96,7 @@ Visit the GCP Console IAM menu and copy the Cloud Build service account email ad
 * https://console.cloud.google.com/iam-admin/iam
 
 #### 5. Add Cloud Build `dcrypter` rights
-Substitute `<SERVICE_ACCOUNT_NAME>` with the account name from the previous step)
+Substitute `<SERVICE_ACCOUNT_NAME>` with the account name from the previous step
 ```bash
 gcloud kms keys add-iam-policy-binding \
     simoc-github-key --location=global --keyring=simoc-keyring \
@@ -159,14 +159,27 @@ Navigate to the Cloud Kubernetes Services. Once the cluster is up and running (y
 ```bash
 gcloud components install kubectl
 ```
+### 3. Select GCP Project and Zone
+Check the current configuration:
+```bash
+gcloud config list
+```
+Connect to the Project/Zone (if needed):
+```bash
+gcloud projects list
+gcloud compute zones list
+gcloud config set project <PROJECT_ID>
+gcloud config set compute/zone <GCP_ZONE>
+```
+Please note your selection as you will need those values later on in this guide.
 
-### 3. Install Helm client (`package manager for k8s`)
+### 4. Install Helm client (`package manager for k8s`)
 * https://docs.helm.sh/using_helm/#installing-the-helm-client
 
-### 4. Configure GitHub SSH access
+### 5. Configure GitHub SSH access
 Cloud Build uses personal SSH key to pull the code out of private Github repositories. Your Github account should have access to the private SIMOC repository and your SSH key should be added to your Github account. Use the following guide to make sure you have everything configured:
 * https://help.github.com/articles/checking-for-existing-ssh-keys/
 * https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
 * https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
-### 5. Follow the Cloud Shell instructions starting from the [Clone the SIMOC codebase](#clone-the-simoc-codebase)
+### 6. Follow the Cloud Shell instructions starting from the [Clone the SIMOC codebase](#clone-the-simoc-codebase)
