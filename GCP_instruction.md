@@ -35,17 +35,17 @@ chmod +x get_helm.sh
 ### Configure GitHub SSH access
 Cloud Build uses personal ssh key to pull the code out of private Github repositories. Your Github account should have access to the private SIMOC repository and your Cloud Shell ssh key should be added to your Github account.
 
-#### Generate a new SSH key (use empty passphrase)
+#### 1. Generate a new SSH key (use empty passphrase)
 ```bash
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 ```
 
-#### Copy the content of the `id_rsa.pub` file to your clipboard
+#### 2. Copy the content of the `id_rsa.pub` file to your clipboard
 ```bash
 cat ~/.ssh/id_rsa.pub
 ```
 
-#### Use the following guide starting from the `Step 2` to add the key to your GitHub account
+#### 3. Use the following guide starting from the `Step 2` to add the key to your GitHub account
 * https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
 ### Clone the SIMOC codebase
@@ -55,12 +55,12 @@ git clone -b gcp-deployment git@github.com:kstaats/simoc.git && cd simoc
 
 ### Build SIMOC Image
 
-#### Navigate to the Cloud Build templates folder
+#### 1. Navigate to the Cloud Build templates folder
 ```bash
 cd cloudbuild
 ```
 
-#### Initialize the Key Management Service:
+#### 2. Initialize the Key Management Service:
 ```bash
 gcloud kms keyrings create simoc-keyring --location=global
 gcloud kms keys create simoc-github-key \
@@ -68,7 +68,7 @@ gcloud kms keys create simoc-github-key \
 --purpose=encryption
 ```
 
-#### Encrypt your ssh key using KMS
+#### 3. Encrypt your ssh key using KMS
 ```bash
 cp ~/.ssh/id_rsa ./
 chmod 777 id_rsa
@@ -77,11 +77,11 @@ gcloud kms encrypt --plaintext-file=id_rsa \
 --location=global --keyring=simoc-keyring --key=simoc-github-key
 ```
 
-#### Copy Cloud Build service account name
+#### 4. Copy Cloud Build service account name
 Visit the GCP Console IAM menu and copy the Cloud Build service account email address, which contains `cloudbuild.gserviceaccount.com`:
 * https://console.cloud.google.com/iam-admin/iam
 
-#### Add Cloud Build `dcrypter` rights
+#### 5. Add Cloud Build `dcrypter` rights
 Substitute `<SERVICE_ACCOUNT_NAME>` with the account name from the previous step):
 ```bash
 gcloud kms keys add-iam-policy-binding \
@@ -90,30 +90,30 @@ gcloud kms keys add-iam-policy-binding \
     --role=roles/cloudkms.cryptoKeyEncrypterDecrypter
 ```
 
-#### Create `known_hosts` file
+#### 6. Create `known_hosts` file
 ```bash
 ssh-keyscan -t rsa github.com > known_hosts
 ```
 
-#### Submit Cloud Build job (builds SIMOC image)
+#### 7. Submit Cloud Build job (builds SIMOC image)
 ```bash
 gcloud builds submit --config=build_simoc_image_from_github.yaml
 cd ../
 ```
 
-#### Grand all project users access to the Container Registry
+#### 8. Grand all project users access to the Container Registry
 ```bash
 gsutil iam ch allUsers:objectViewer gs://artifacts.<PROJECT_ID>.appspot.com
 ```
 
 ### Deploy Kubernetes Cluster
 
-#### Open Cloud Shell Code Editor
+#### 1. Open Cloud Shell Code Editor
 * https://console.cloud.google.com/cloudshell/editor
 
-#### Open the `~/simoc/cluster_create.sh` file
+#### 2. Open the `~/simoc/cluster_create.sh` file
 
-#### Fill in the values for the empty variables and save the file
+#### 3. Fill in the values for the empty variables and save the file
 Check `gcloud config list` for the details; use secure MySQL password
 ```bash
 gcp_project_id="<gcp_project_id>"
@@ -121,41 +121,41 @@ gcp_zone="<gcp_zone>"
 mysql_password="<mysql_password>"
 ```
 
-#### Open the `~/simoc/deployments/simoc_server.yaml` file
+#### 4. Open the `~/simoc/deployments/simoc_server.yaml` file
 
 #### Fill in the `<PROJECT_ID>` value in the `spec/template/spec/containers/image` section
 ```bash
 image: gcr.io/<PROJECT_ID>/simoc:latest
 ```
 
-#### Switch back to the Cloud Shell
+#### 5. Switch back to the Cloud Shell
 Run the script to spin up the cluster with the SIMOC image deployed (may take about 5-10 mins to finish):
 ```bash
 sh cluster_create.sh
 ```
 
 ### Access the SIMOC App
-Navigate to the Kubernetes Services. Once the cluster is up and running (may need to click Refresh button a couple times), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app:
+Navigate to the Cloud Kubernetes Services. Once the cluster is up and running (may need to click Refresh button a couple of times), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app:
 * https://console.cloud.google.com/kubernetes/discovery
 
 ## Deploy SIMOC (from local Linux/macOS)
 
-### Install and initialize Cloud SDK
+### 1. Install and initialize Cloud SDK
 * https://cloud.google.com/sdk/
 * https://cloud.google.com/sdk/docs/quickstarts
 
-### Install additional SDK components (k8s client)
+### 2. Install additional SDK components (k8s client)
 ```bash
 gcloud components install kubectl
 ```
 
-### Install Helm client (package manager for k8s)
+### 3. Install Helm client (package manager for k8s)
 * https://docs.helm.sh/using_helm/#installing-the-helm-client
 
-### Configure GitHub SSH access
+### 4. Configure GitHub SSH access
 Cloud Build uses personal ssh key to pull the code out of private Github repositories. Your Github account should have access to the private SIMOC repository and your ssh key should be added to your Github account. Use the following guide to make sure you have everything configured:
 * https://help.github.com/articles/checking-for-existing-ssh-keys/
 * https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
 * https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
-### Follow the Cloud Shell instructions starting from the [Clone the SIMOC codebase](#clone-the-simoc-codebase) section
+### 5. Follow the Cloud Shell instructions starting from the [Clone the SIMOC codebase](#clone-the-simoc-codebase)
