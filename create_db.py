@@ -46,11 +46,6 @@ if __name__ == "__main__":
     #         db.sessionmaker.close_all()
     #         # db.engine.dispose()
     #         db.drop_all()
-    #     db.sessionmaker.close_all()
-    #     # db.engine.dispose()
-    #     db.drop_all()
-
-    # create(seed_data=(not args.no_seed))
 
     db.sessionmaker.close_all()
     create(seed_data=(not args.no_seed))
