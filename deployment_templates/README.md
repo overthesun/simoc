@@ -15,7 +15,7 @@ The guide covers two basic deployment scenarios:
 # GCP Architecture Diagram
 ![Architecture Diagram](images/GCP_architecture_diagram.png)
 
-# Configure a GCP project
+# Configure a GCP Project
 
 ### 1. Login to the Cloud Console
 * https://cloud.google.com/
