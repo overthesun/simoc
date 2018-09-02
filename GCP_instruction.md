@@ -113,7 +113,8 @@ gsutil iam ch allUsers:objectViewer gs://artifacts.<PROJECT_ID>.appspot.com
 
 ##### Open the `~/simoc/cluster_create.sh` file
 
-##### Fill in the values for the following variables and save the file (use secure MySQL password)
+##### Fill in the values for the empty variables and save the file
+Check `gcloud config list` for the details; use secure MySQL password
 ```bash
 gcp_project_id="<gcp_project_id>"
 gcp_zone="<gcp_zone>"
@@ -157,4 +158,4 @@ Cloud Build uses personal ssh key to pull the code out of private Github reposit
 * https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
 * https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
-#### Follow the Cloud Shell instructions starting from the ["Clone the SIMOC codebase"](#Clone-the-SIMOC-codebase) section
+#### Follow the Cloud Shell instructions starting from the [Clone the SIMOC codebase](#Clone-the-SIMOC-codebase) section
