@@ -112,8 +112,7 @@ gsutil iam ch allUsers:objectViewer gs://artifacts.<PROJECT_ID>.appspot.com
 * https://console.cloud.google.com/cloudshell/editor
 
 #### 2. Open the `~/simoc/cluster_create.sh` file
-
-#### 3. Fill in the values for the empty variables and save the file
+Fill in the values for the empty variables and save the file
 Check `gcloud config list` for the details; use secure MySQL password
 ```bash
 gcp_project_id="<gcp_project_id>"
@@ -121,21 +120,20 @@ gcp_zone="<gcp_zone>"
 mysql_password="<mysql_password>"
 ```
 
-#### 4. Open the `~/simoc/deployments/simoc_server.yaml` file
-
-#### Fill in the `<PROJECT_ID>` value in the `spec/template/spec/containers/image` section
+#### 3. Open the `~/simoc/deployments/simoc_server.yaml` file
+Fill in the `<PROJECT_ID>` value in the `spec/template/spec/containers/image` section
 ```bash
 image: gcr.io/<PROJECT_ID>/simoc:latest
 ```
 
-#### 5. Switch back to the Cloud Shell
-Run the script to spin up the cluster with the SIMOC image deployed (may take about 5-10 mins to finish):
+#### 4. Switch back to the Cloud Shell
+Run the script to spin up the cluster with the SIMOC image deployed (may take about 5-10 mins to finish)
 ```bash
 sh cluster_create.sh
 ```
 
 ### Access the SIMOC App
-Navigate to the Cloud Kubernetes Services. Once the cluster is up and running (may need to click Refresh button a couple of times), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app:
+Navigate to the Cloud Kubernetes Services. Once the cluster is up and running (may need to click Refresh button a couple of times), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app.
 * https://console.cloud.google.com/kubernetes/discovery
 
 ## Deploy SIMOC (from local Linux/macOS)
