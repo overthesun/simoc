@@ -9,8 +9,8 @@ This guide describes the process of deploying SIMOC app to the Google Cloud Plat
 7. Accessing the SIMOC app
 
 The guide covers two basic deployment scenarios:
-* [Using Google Cloud Shell (Ubuntu environment)](#deploy-simoc-using-google-cloud-shell)
-* [Deployment from local Linux/macOS](#deploy-simoc-from-local-linuxmacos)
+* [Using Google Cloud Shell (Ubuntu environment)](#scenario-1)
+* [Deployment from local Linux/macOS](#scenario-2)
 
 # Configure a GCP project
 
