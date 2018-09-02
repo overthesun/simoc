@@ -136,6 +136,7 @@ ssh-keyscan -t rsa github.com > known_hosts
 ```bash
 gcloud builds submit --config=build_simoc_image_from_github.yaml
 ```
+Make sure you store your `known_hosts` and `id_rsa.enc` files in some persistent storage (i.e. Cloud Shell `$HOME`  [directory](https://cloud.google.com/shell/docs/features#persistent_disk_storage))
 
 #### 8. Grand all project users access to the Container Registry
 ```bash
@@ -221,6 +222,8 @@ Cloud Build uses personal SSH key to pull the code out of private Github reposit
 cd ~/simoc/deployment_templates/cloudbuild
 gcloud builds submit --config=build_simoc_image_from_github.yaml
 ```
+Make sure you both `known_hosts` and `id_rsa.enc` files are available in your `~/simoc/deployment_templates/cloudbuild` folder
+(see [Build Simoc Image](#build-simoc-image))
 
 ### 2. Open the `~/simoc/deployment_templates/cloudbuild/deploy_simoc_image.yaml` file
 Fill in the `<GCP_ZONE>` value in the `steps/env` section
