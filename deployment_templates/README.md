@@ -150,9 +150,14 @@ gsutil iam ch allUsers:objectViewer gs://artifacts.<PROJECT_ID>.appspot.com
 #### 2. Open the `~/simoc/deployment_templates/cluster_create.sh` file
 Fill in the values for the empty variables and save the file (use secure MySQL password)
 ```bash
-gcp_project_id="<gcp_project_id>"
-gcp_zone="<gcp_zone>"
-mysql_password="<mysql_password>"
+# Fill in the GCP project details (project, zone)
+GCP_PROJECT_ID="<GCP_PROJECT_ID>"
+GCP_ZONE="<GCP_ZONE>"
+
+# Define the MySQL user password (it will be propagated to the SIMOC server through ENV variables)
+MYSQL_USER="proxyuser"
+MYSQL_PASSWORD="<MYSQL_PASSWORD>"
+MYSQL_DB="proxyuser"
 ```
 
 #### 3. Open the `~/simoc/deployment_templates/deployments/simoc_server.yaml` file

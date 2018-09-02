@@ -13,6 +13,7 @@ spec:
       containers:
         - name: simoc
           image: gcr.io/<PROJECT_ID>/simoc:latest
+          imagePullPolicy: Always
           env:
           - name: DB_USER
             valueFrom:
