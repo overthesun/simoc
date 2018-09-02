@@ -28,9 +28,15 @@ if db_type == 'mysql':
             user=db_user, password=db_password,
             dns = db_dns, port=db_port,
             database=db_name)
-else:
+elif db_type == 'sqlite':
     SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite'
+else:
+    print('Unknown DB_TYPE variable: "{}"'.format(db_type))
+    print('Using SQLite by default')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite'
+    db_type='sqlite'
 
+app.config['DB_TYPE'] = db_type
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 
 db = SQLAlchemy(app, session_options={

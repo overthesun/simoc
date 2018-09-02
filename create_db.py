@@ -21,29 +21,30 @@ if __name__ == "__main__":
     parser.add_argument("--no_seed", action="store_true", help="Do not add seed data.")
     args = parser.parse_args()
 
-    db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
-    sqlite_uri_start = "sqlite:///"
-    if db_uri.startswith(sqlite_uri_start):
-        if db_uri.startswith(sqlite_uri_start + "/"):
-            db_path = db_uri[len(sqlite_uri_start):]
-        else:
-            db_rel_path = db_uri[len(sqlite_uri_start):]
-            package_path = os.path.dirname(simoc_server.__file__)
-            db_path = os.path.join(package_path, db_rel_path)
-        if os.path.isfile(db_path):
-            if not confirm("Database already exists, continuing will delete old database"):
-                print("Exiting without creating database")
-                exit()
+    if app.config['DB_TYPE'] == 'sqlite':
+        db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
+        sqlite_uri_start = "sqlite:///"
+        if db_uri.startswith(sqlite_uri_start):
+            if db_uri.startswith(sqlite_uri_start + "/"):
+                db_path = db_uri[len(sqlite_uri_start):]
             else:
-                os.remove(db_path)
-    else:
-        if not confirm("Continuing will delete old database"):
-                print("Exiting without creating database")
-                exit()
+                db_rel_path = db_uri[len(sqlite_uri_start):]
+                package_path = os.path.dirname(simoc_server.__file__)
+                db_path = os.path.join(package_path, db_rel_path)
+            if os.path.isfile(db_path):
+                if not confirm("Database already exists, continuing will delete old database"):
+                    print("Exiting without creating database")
+                    exit()
+                else:
+                    os.remove(db_path)
         else:
-            db.sessionmaker.close_all()
-            # db.engine.dispose()
-            db.drop_all()
+            if not confirm("Continuing will delete old database"):
+                    print("Exiting without creating database")
+                    exit()
+            else:
+                db.sessionmaker.close_all()
+                # db.engine.dispose()
+                db.drop_all()
 
     create(seed_data=(not args.no_seed))
 
