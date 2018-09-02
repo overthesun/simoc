@@ -113,6 +113,7 @@ gcloud kms encrypt --plaintext-file=id_rsa \
 --location=global --keyring=simoc-keyring --key=simoc-github-key
 rm id_rsa
 ```
+`id_rsa.enc` file will be created in the `~/simoc/deployment_templates/cloudbuild` directory
 
 #### 4. Copy Cloud Build service account name
 Visit the GCP Console IAM menu and copy the Cloud Build service account email address, which contains `cloudbuild.gserviceaccount.com`
@@ -131,12 +132,13 @@ gcloud kms keys add-iam-policy-binding \
 ```bash
 ssh-keyscan -t rsa github.com > known_hosts
 ```
+`known_hosts` file will be created in the `~/simoc/deployment_templates/cloudbuild` directory.
 
 #### 7. Submit Cloud Build job (builds SIMOC image)
 ```bash
 gcloud builds submit --config=build_simoc_image_from_github.yaml
 ```
-Make sure you store your `known_hosts` and `id_rsa.enc` files in some persistent storage (i.e. Cloud Shell `$HOME`  [directory](https://cloud.google.com/shell/docs/features#persistent_disk_storage))
+Make sure you store your `known_hosts` and `id_rsa.enc` files in some persistent storage (i.e. Cloud Shell `$HOME`  [directory](https://cloud.google.com/shell/docs/features#persistent_disk_storage)). You will need them to rollout the updates from GitHub.
 
 #### 8. Grand all project users access to the Container Registry
 ```bash
