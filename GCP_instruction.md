@@ -64,14 +64,15 @@ cat ~/.ssh/id_rsa.pub
 
 ### Clone the SIMOC codebase
 ```bash
-git clone -b gcp-deployment git@github.com:kstaats/simoc.git && cd simoc
+cd ~/
+git clone -b gcp-deployment git@github.com:kstaats/simoc.git
 ```
 
 ### Build SIMOC Image
 
 #### 1. Navigate to the Cloud Build templates folder
 ```bash
-cd cloudbuild
+cd ~/simoc/deployment_templates/cloudbuild
 ```
 
 #### 2. Initialize the Key Management Service:
@@ -113,7 +114,6 @@ ssh-keyscan -t rsa github.com > known_hosts
 #### 7. Submit Cloud Build job (builds SIMOC image)
 ```bash
 gcloud builds submit --config=build_simoc_image_from_github.yaml
-cd ../
 ```
 
 #### 8. Grand all project users access to the Container Registry
@@ -126,7 +126,7 @@ gsutil iam ch allUsers:objectViewer gs://artifacts.<PROJECT_ID>.appspot.com
 #### 1. Open Cloud Shell Code Editor
 * https://console.cloud.google.com/cloudshell/editor
 
-#### 2. Open the `~/simoc/cluster_create.sh` file
+#### 2. Open the `~/simoc/deployment_templates/cluster_create.sh` file
 Fill in the values for the empty variables and save the file (use secure MySQL password)
 ```bash
 gcp_project_id="<gcp_project_id>"
@@ -134,7 +134,7 @@ gcp_zone="<gcp_zone>"
 mysql_password="<mysql_password>"
 ```
 
-#### 3. Open the `~/simoc/deployments/simoc_server.yaml` file
+#### 3. Open the `~/simoc/deployment_templates/deployments/simoc_server.yaml` file
 Fill in the `<PROJECT_ID>` value in the `spec/template/spec/containers/image` section
 ```bash
 image: gcr.io/<PROJECT_ID>/simoc:latest
@@ -143,6 +143,7 @@ image: gcr.io/<PROJECT_ID>/simoc:latest
 #### 4. Switch back to the Cloud Shell
 Run the script to spin up the cluster with the SIMOC image deployed (may take about 5-10 mins to finish)
 ```bash
+cd ~/simoc/deployment_templates
 sh cluster_create.sh
 ```
 
