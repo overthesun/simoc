@@ -5,7 +5,6 @@ from simoc_server import db, app
 from simoc_server.database import *
 from simoc_server.database.seed_data import seed
 
-import sqlalchemy as sa
 
 def confirm(message):
     choice = input(message + "[y/N]")
