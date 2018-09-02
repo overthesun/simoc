@@ -17,19 +17,22 @@ The guide covers two basic deployment scenarios:
 
 # Configure a GCP project
 
-### 1. Login to the GCP Console
+### 1. Login to the Cloud Console
 * https://cloud.google.com/
 
-### 2. Make yourself familiar with the GCP Console
+### 2. Make yourself familiar with the Cloud Console
 * https://console.cloud.google.com/getting-started
 
-### 3. Create a GCP project
+### 3. Create or select a GCP project
 * https://cloud.google.com/resource-manager/docs/creating-managing-projects
 
-### 4. Navigate to the API Library
+### 4. Make sure that billing is enabled for your project
+* https://cloud.google.com/billing/docs/how-to/modify-project
+
+### 5. Navigate to the API Library
 * https://console.cloud.google.com/apis/library
 
-### 5. Activate the following APIs
+### 6. Activate the following APIs
 * Compute Engine API
 * Kubernetes Engine API
 * Google Cloud Storage
