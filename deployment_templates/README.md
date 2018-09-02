@@ -222,7 +222,7 @@ Cloud Build uses personal SSH key to pull the code out of private Github reposit
 cd ~/simoc/deployment_templates/cloudbuild
 gcloud builds submit --config=build_simoc_image_from_github.yaml
 ```
-Make sure you both `known_hosts` and `id_rsa.enc` files are available in your `~/simoc/deployment_templates/cloudbuild` folder
+Make sure both `known_hosts` and `id_rsa.enc` files are available in your `~/simoc/deployment_templates/cloudbuild` folder
 (see [Build Simoc Image](#build-simoc-image))
 
 ### 2. Open the `~/simoc/deployment_templates/cloudbuild/deploy_simoc_image.yaml` file
