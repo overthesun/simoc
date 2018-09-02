@@ -185,3 +185,16 @@ Cloud Build uses personal SSH key to pull the code out of private Github reposit
 * https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
 ### 6. Follow the Cloud Shell instructions starting from the [Clone the SIMOC codebase](#clone-the-simoc-codebase)
+
+## Rollout Updates
+
+### 1. Build new SIMOC image from GitHub
+```bash
+cd ~/simoc/deployment_templates/cloudbuild
+gcloud builds submit --config=build_simoc_image_from_github.yaml
+```
+
+### 2. Deploy the new image to the cluster
+```bash
+gcloud builds submit --config=deploy_simoc_image.yaml
+```
