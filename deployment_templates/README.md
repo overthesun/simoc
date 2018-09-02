@@ -216,6 +216,8 @@ Cloud Build uses personal SSH key to pull the code out of private Github reposit
 * https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
 ### 6. Follow the Cloud Shell instructions starting from the [Clone the SIMOC codebase](#clone-the-simoc-codebase)
+* Use your favorite text editor and command line terminal to accomplish the steps (instead of Google Cloud Shell and Code Editor)
+* Make sure you specify the right path to the SIMOC source folder (default is `$HOME` folder)
 
 # Rollout Updates
 
