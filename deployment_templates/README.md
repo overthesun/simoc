@@ -222,7 +222,13 @@ cd ~/simoc/deployment_templates/cloudbuild
 gcloud builds submit --config=build_simoc_image_from_github.yaml
 ```
 
-### 2. Deploy the new image to the cluster
+### 2. Open the `~/simoc/deployment_templates/cloudbuild/deploy_simoc_image.yaml` file
+Fill in the `<GCP_ZONE>` value in the `steps/env` section
+```bash
+'CLOUDSDK_COMPUTE_ZONE=<GCP_ZONE>'
+```
+
+### 3. Deploy the new image to the cluster
 ```bash
 gcloud builds submit --config=deploy_simoc_image.yaml
 ```
