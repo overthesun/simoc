@@ -15,6 +15,8 @@ spec:
           image: gcr.io/<PROJECT_ID>/simoc:latest
           imagePullPolicy: Always
           env:
+          - name: DB_TYPE
+            value: "mysql"
           - name: DB_USER
             valueFrom:
               secretKeyRef:
