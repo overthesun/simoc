@@ -9,7 +9,6 @@ from flask import request, session, send_from_directory, safe_join, render_templ
 from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request, data_format_name
 from simoc_server.database.db_model import User, SavedGame
-from simoc_server.agent_model.agents import agent_name_mapping
 from simoc_server.game_runner import (GameRunner, GameRunnerManager,
         GameRunnerInitializationParams)
 
@@ -161,8 +160,24 @@ def new_game():
     region        = try_get_param("region")
     regolith      = try_get_param("regolith")
 
-    game_runner_init_params = GameRunnerInitializationParams(mode, launch_date,
-        duration_days, payload, location, region, regolith)
+    AGENTS = {
+        "greenhouse_medium": 1,
+        "human_agent": 1,
+        "cabbage": 10,
+        'lettuce': 10,
+        'solar_pv_array': 10,
+        'multifiltration_purifier_post_treament': 10
+    }
+
+    STORAGES = {
+        "air_storage": 2,
+        "water_storage": 1,
+        "nutrient_storage": 1,
+        "power_storage": 1,
+        "food_storage": 1
+    }
+
+    game_runner_init_params = GameRunnerInitializationParams(AGENTS, STORAGES)
     game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
     return success("New Game Starts")
 
@@ -328,11 +343,12 @@ def sprite_mappings():
             ...
         }
     '''
-    response = {}
-    for key, val in agent_name_mapping.items():
+    # response = {}
+    # for key, val in agent_name_mapping.items():
         # initialize the sprite mapper class and serialize it
-        response[key] = val._sprite_mapper().to_serializable()
-    return serialize_response(response)
+        # response[key] = val._sprite_mapper().to_serializable()
+    # return serialize_response(response)
+    return None
 
 @app.route("/sprite/<path:sprite_path>", methods=["GET"])
 def get_sprite(sprite_path):

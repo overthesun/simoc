@@ -33,12 +33,12 @@ class AlertsWatcher(object):
 
     def add_alerts(self):
         self.alert_handlers = []
-        self.alert_handlers.append(LowO2Alert(self.model))
-        self.alert_handlers.append(HighCo2Alert(self.model))
-        self.alert_handlers.append(HumanDeathAlert(self.model))
-        self.alert_handlers.append(NoWaterAlert(self.model))
-        self.alert_handlers.append(NoFoodAlert(self.model))
-        self.alert_handlers.append(BatteryChargeAlert(self.model))
+        # self.alert_handlers.append(LowO2Alert(self.model))
+        # self.alert_handlers.append(HighCo2Alert(self.model))
+        # self.alert_handlers.append(HumanDeathAlert(self.model))
+        # self.alert_handlers.append(NoWaterAlert(self.model))
+        # self.alert_handlers.append(NoFoodAlert(self.model))
+        # self.alert_handlers.append(BatteryChargeAlert(self.model))
 
     def get_alerts(self):
         alerts = []

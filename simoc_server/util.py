@@ -17,14 +17,15 @@ class NotLoaded(object):
     def __set__(self):
         raise ValueError("Object is not yet loaded from database.")
 
-def load_db_attributes_into_dict(attributes, target=None, 
+def load_db_attributes_into_dict(attributes, target_values=None, target_descriptions=None,
         load_later=[]):
-    if target is None:
+    if target_values is None:
         target = {}
 
     for attribute in attributes:
         # get type of attribute
         attribute_name = attribute.name
+        units = attribute.units
         if attribute.value_type == type(None).__name__:
             value = None
         else:
@@ -44,9 +45,10 @@ def load_db_attributes_into_dict(attributes, target=None,
             else:
                 value = NotLoaded(value_str)
 
-        target[attribute_name] = value
+        target_values[attribute_name] = value
+        target_descriptions[attribute_name] = units
 
-    return target
+    return target_values, target_descriptions
 
 
 def extend_dict(dict_a, dict_b, in_place=False):

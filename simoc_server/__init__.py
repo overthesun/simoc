@@ -15,17 +15,31 @@ app = Flask(__name__)
 
 app.config.from_object(config_obj)
 
+agent_config = os.environ.get("AGENT_CONFIG", 'agent_desc.json')
+app.config['AGENT_CONFIG'] = agent_config
+
+db_name = os.environ.get("DB_NAME")
+db_type = os.environ.get("DB_TYPE")
 db_user = os.environ.get("DB_USER")
 db_password = os.environ.get("DB_PASSWORD")
-db_name = db_user
+db_dns = os.environ.get("DB_DNS_NAME")
+db_port = os.environ.get("DB_PORT")
 
-SQLALCHEMY_DATABASE_URI = (
-    # 'mysql+mysqldb://{user}:{password}@127.0.0.1:3306/{database}').format(
-    'mysql+mysqldb://{user}:{password}@mysqldb.default.svc.cluster.local:3306/{database}').format(
-        user=db_user, password=db_password,
-        database=db_name)
-print(SQLALCHEMY_DATABASE_URI)
+if db_type == 'mysql':
+    SQLALCHEMY_DATABASE_URI = (
+        'mysql+mysqldb://{user}:{password}@{dns}:{port}/{database}').format(
+            user=db_user, password=db_password,
+            dns = db_dns, port=db_port,
+            database=db_name)
+elif db_type == 'sqlite':
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite'
+else:
+    print('Unknown DB_TYPE variable: "{}"'.format(db_type))
+    print('Using SQLite by default')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite'
+    db_type='sqlite'
 
+app.config['DB_TYPE'] = db_type
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 
 db = SQLAlchemy(app, session_options={

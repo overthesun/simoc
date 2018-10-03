@@ -272,16 +272,12 @@ class GameRunner(object):
 
 class GameRunnerInitializationParams(object):
 
-    def __init__(self, mode, launch_date, duration_days, location,
-            payload, region=None, regolith=None):
-        # placeholder
-        # TODO create agent model intialization parameters
-        # from higher level game runner initialization parameters
+    def __init__(self, AGENTS, STORAGES):
         self.model_init_params = AgentModelInitializationParams()
         (self.model_init_params.set_grid_width(100)
                     .set_grid_height(100)
                     .set_starting_model_time(datetime.timedelta()))
-        self.agent_init_recipe = BaseLineAgentInitializerRecipe()
+        self.agent_init_recipe = BaseLineAgentInitializerRecipe(AGENTS, STORAGES)
 
 
 class GameRunnerManager(object):

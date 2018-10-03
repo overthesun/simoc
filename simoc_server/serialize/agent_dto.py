@@ -9,7 +9,7 @@ class AgentDTO(BaseDTO):
     def get_state(self):
         state = {
             "id":self.agent.unique_id,
-            "agent_type":self.agent.__class__._agent_type_name,
+            "agent_type":self.agent.agent_type,
         }
 
         if hasattr(self.agent, "pos"):
