@@ -1,67 +1,58 @@
 from . import util
-from collections import OrderedDict
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 import json
+
+
+def import_agents(agents, agent_class):
+    agent_data = {}
+    for name in agents:
+        # print(name)
+        if not agents[name].get('data', None):
+            continue
+        agent_type = AgentType(name=name)
+        agent_data["{}_{}_agent_type".format(name, agent_class)] = agent_type
+        create_agent_type_attr(agent_type, 'char_class', agent_class)
+        for attr in agents[name]['data']['characteristics']:
+            attr_name = 'char_{}'.format(attr['type'])
+            attr_value = attr.get("value", '')
+            attr_units = attr.get("unit", '')
+            create_agent_type_attr(agent_type, attr_name, attr_value, attr_units)
+        for section in ['input', 'output']:
+            for attr in agents[name]['data'][section]:
+                prefix = 'in' if section == 'input' else 'out'
+                attr_name = '{}_{}'.format(prefix, attr['type'])
+                attr_value = attr.get("value", '')
+                attr_active_period = attr.get("active_period", '')
+                deprive = attr.get("deprive", None)
+                flow_rate = attr.get("flow_rate", None)
+                criteria = attr.get("criteria", None)
+                deprive_unit, deprive_value = '', ''
+                flow_unit, flow_time = '', ''
+                cr_name, cr_limit, cr_value, cr_reset = '', '', '', ''
+                if deprive:
+                    deprive_unit = deprive.get('unit', '')
+                    deprive_value = deprive.get('value', '')
+                if flow_rate:
+                    flow_unit = flow_rate.get('unit', '')
+                    flow_time = flow_rate.get('time', '')
+                if criteria:
+                    cr_name = criteria.get('name', '')
+                    cr_limit = criteria.get('limit', '')
+                    cr_value = criteria.get('value', '')
+                    cr_reset = criteria.get('reset', '')
+                attr_descriptions = '{}/{}/{}/{}/{}/{}/{}/{}/{}'.format(flow_unit, flow_time, attr_active_period, cr_name, cr_limit, cr_value, cr_reset, deprive_unit, deprive_value)
+                create_agent_type_attr(agent_type, attr_name, attr_value, attr_descriptions)
+    # print(agent_data)
+    util.add_all(agent_data)
+
 
 
 def seed(config_file):
     with open(config_file, 'r') as f:
         abm_config = json.load(f)
-    plants = abm_config['agriculture']['plants']
-
-    plant_data = {}
-    for plant in plants:
-        name = list(plant.keys())[0]
-        agent_type = AgentType(name=name)
-        plant_data["{0}_plant_agent_type".format(name)] = agent_type
-        create_agent_type_attr(agent_type, 'char_class', 'plants')
-        for attr in plant[name]['data']['characteristics']:
-            attr_name = 'char_{}'.format(attr['type'])
-            attr_value = attr['value'] if 'value' in attr else ''
-            attr_units = attr['unit'] if 'unit' in attr else ''
-            create_agent_type_attr(agent_type, attr_name, attr_value, attr_units)
-        for attr in plant[name]['data']['input']:
-            attr_name = 'in_{}'.format(attr['type'])
-            attr_value = attr['value'] if 'value' in attr else ''
-            attr_daytime_period = attr['daytime_period'] if 'daytime_period' in attr else ''
-            attr_units = '{}/{}/{}'.format(attr['flow_rate']['unit'], attr['flow_rate']['time'], attr_daytime_period)
-            create_agent_type_attr(agent_type, attr_name, attr_value, attr_units)
-        for attr in plant[name]['data']['output']:
-            attr_type = attr['type'] if 'type' in attr else ''
-            attr_name = 'out_{}'.format(attr['type'])
-            attr_value = attr['value'] if 'value' in attr else ''
-            attr_daytime_period = attr['daytime_period'] if 'daytime_period' in attr else ''
-            attr_units = '{}/{}/{}'.format(attr['flow_rate']['unit'], attr['flow_rate']['time'], attr_daytime_period)
-            create_agent_type_attr(agent_type, attr_name, attr_value, attr_units)
-    util.add_all(plant_data)
-
-    for agent_class in ['inhabitants', 'storage', 'eclss', 'structures', 'power_generation']:
-        agents = abm_config[agent_class]
-        agent_data = {}
-        for name in agents:
-            agent_type = AgentType(name=name)
-            agent_data["{}_{}_agent_type".format(name, agent_class)] = agent_type
-            create_agent_type_attr(agent_type, 'char_class', agent_class)
-            for attr in agents[name]['data']['characteristics']:
-                attr_name = 'char_{}'.format(attr['type'])
-                attr_value = attr['value'] if 'value' in attr else ''
-                attr_units = attr['unit'] if 'unit' in attr else ''
-                create_agent_type_attr(agent_type, attr_name, attr_value, attr_units)
-            for attr in agents[name]['data']['input']:
-                attr_name = 'in_{}'.format(attr['type'])
-                attr_value = attr['value'] if 'value' in attr else ''
-                attr_daytime_period = attr['daytime_period'] if 'daytime_period' in attr else ''
-                attr_units = '{}/{}/{}'.format(attr['flow_rate']['unit'], attr['flow_rate']['time'],
-                                               attr_daytime_period)
-                create_agent_type_attr(agent_type, attr_name, attr_value, attr_units)
-            for attr in agents[name]['data']['output']:
-                attr_name = 'out_{}'.format(attr['type'])
-                attr_value = attr['value'] if 'value' in attr else ''
-                attr_daytime_period = attr['daytime_period'] if 'daytime_period' in attr else ''
-                attr_units = '{}/{}/{}'.format(attr['flow_rate']['unit'], attr['flow_rate']['time'],
-                                               attr_daytime_period)
-                create_agent_type_attr(agent_type, attr_name, attr_value, attr_units)
-        util.add_all(agent_data)
+    for agent_class in abm_config:
+        # print(agent_class)
+        import_agents(abm_config[agent_class], agent_class)
 
 
 def create_agent_type_attr(agent_type, name, value, units=None, description=None):

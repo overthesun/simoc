@@ -161,20 +161,25 @@ def new_game():
     regolith      = try_get_param("regolith")
 
     AGENTS = {
-        "greenhouse_medium": 1,
-        "human_agent": 1,
-        "cabbage": 10,
-        'lettuce': 10,
-        'solar_pv_array': 10,
-        'multifiltration_purifier_post_treament': 10
+        "human_agent": [{"connections": {"air_storage": [1], 'water_storage': [1, 2], "nutrient_storage": [1],
+                                         "power_storage": [1], "food_storage": [1]}, "amount": 2}],
+        "cabbage": [{"connections": {"air_storage": [1], 'water_storage': [1, 2], "nutrient_storage": [1],
+                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+        "lettuce": [{"connections": {"air_storage": [1], 'water_storage': [1, 2], "nutrient_storage": [1],
+                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+        "greenhouse_medium": [{"connections": {"power_storage": [1]}, "amount": 1}],
+        "solar_pv_array": [{"connections": {"power_storage": [1]}, "amount": 100}],
+        "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
+        "urine_recycling_processor_VCD": [
+            {"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
     }
 
     STORAGES = {
-        "air_storage": 2,
-        "water_storage": 1,
-        "nutrient_storage": 1,
-        "power_storage": 1,
-        "food_storage": 1
+        "air_storage": [{"id": 1, "atmo_h2o": 100, "atmo_o2": 100, "atmo_co2": 100, "atmo_h2o": 100}],
+        "water_storage": [{"id": 1, "h2o_potb": 100, "h2o_tret": 100}, {"id": 2, "h2o_wste": 100, "h2o_urin": 100}],
+        "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100, "sold_wast": 0}],
+        "power_storage": [{"id": 1, "enrg_kwh": 1000, "heat_cal": 1000}],
+        "food_storage": [{"id": 1, "food_edbl": 200}]
     }
 
     game_runner_init_params = GameRunnerInitializationParams(AGENTS, STORAGES)

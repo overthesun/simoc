@@ -1,3250 +1,3294 @@
 {
-	"simulation_variables": {
-		"currencies_of_exchange":{
+  "simulation_variables": {
+    "currencies_of_exchange": {
 
-			"atmo_o2": 0,
-			"atmo_co2": 0,
-			"atmo_h2": 0,
-			"atmo_n2": 0,
-			"atmo_h2o": 0,
-			"atmo_ch4": 0,
-			"atmo_cont": 0,
+      "atmo_o2": 0,
+      "atmo_co2": 0,
+      "atmo_h2": 0,
+      "atmo_n2": 0,
+      "atmo_h2o": 0,
+      "atmo_ch4": 0,
+      "atmo_cont": 0,
 
-			"sold_n": 0,
-			"sold_p": 0,
-			"sold_k": 0,
-			"sold_wast": 0,
+      "sold_n": 0,
+      "sold_p": 0,
+      "sold_k": 0,
+      "sold_wast": 0,
 
-			"food_totl": 0,
-			"food_stor": 0,
-			"food_edbl": 0,
-			"food_ined": 0,
-			"food_legu": 0,
-			"food_leaf": 0,
-			"food_vegi": 0, 
-			"food_frut": 0, 
-			"food_cers": 0, 
-			"food_root": 0, 
-			"food_othr": 0, 
-			
-			"h2o_totl": 0, 
-			"h2o_tret": 0,
-			"h2o_potb": 0, 
-			"h2o_urin": 0, 
-			"h2o_wste": 0, 
+      "food_totl": 0,
+      "food_stor": 0,
+      "food_edbl": 0,
+      "food_ined": 0,
+      "food_legu": 0,
+      "food_leaf": 0,
+      "food_vegi": 0,
+      "food_frut": 0,
+      "food_cers": 0,
+      "food_root": 0,
+      "food_othr": 0,
 
-			"enrg_kw": 0,
-			"enrg_kwh": 0,
-			"heat_kj": 0
+      "h2o_totl": 0,
+      "h2o_tret": 0,
+      "h2o_potb": 0,
+      "h2o_urin": 0,
+      "h2o_wste": 0,
 
-		},
+      "enrg_kw": 0,
+      "enrg_kwh": 0,
+      "heat_cal": 0
 
-		"global_variables": {
-			"temp_int": 0,
-			"temp_ext": 0,
+    },
 
-			"day_hrs": 0,
+    "global_variables": {
+      "temp_int": 0,
+      "temp_ext": 0,
 
-			"solr_gain": 0,
+      "day_hrs": 0,
 
-			"pres_hab": 0,
-			"pres_gh": 0,
-			"pres_ext": 0,
+      "solr_gain": 0,
 
-			"grav_fld": 0
-		}
-	},
-	"inhabitants": {
-		"human_agent":{
-			"data": {
-				"input": [
-					{
-						"type": "atmo_o2",
-						"value": 0.0492,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "h2o_potb",
-						"value": 10.18,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "day"
-						}
-					},
-					{
-						"type": "food_edbl",
-						"value": 2.394,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "day"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "day"
-						}
-					}
-				],
-				"output": [
-					{
-						"type": "atmo_co2",
-						"value": 0.064,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_h2o",
-						"value": 0.111,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "h2o_wste",
-						"value": 1.503,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "day"
-						}
-					},
-					{
-						"type": "sold_wast",
-						"value": 0.81,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "day"
-						}
-					},
-					{
-						"type": "h2o_urin",
-						"value": 1.5,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "day"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 8.4,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "day"
-						}
-					}
-				],
-				"characteristics": [
-					{"type": "lifetime","value": 21900.0,"unit": "days"},
-					{"type": "mass","value": 60.0,"unit": "kg"},
-					{"type": "volume","value": 0.0,"unit": "m^3"}
-				],
-				"thresholds": [
-					{"type": "starvation", "value": 21.0, "unit": "days"},
-					{"type": "dehydration", "value": 3.0, "unit": "days"}
-				]
-			}
-		}
-	},
-	"eclss": {
-		"solid_waste_aerobic_bioreactor": {
-			"data": {
-				"input": [
-					{
-						"type": "h2o_wste",
-						"value": 5.0,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_o2",
-						"value": 0.0015,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "enrg_kwh",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					}
-				],
-				"output": [
-					{
-						"type": "sold_n",
-						"value": 0.00725,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "sold_p",
-						"value": 0.00087,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "sold_k",
-						"value": 0.00205,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "h2o_urin",
-						"value": 4.989,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_co2",
-						"value": 0.005,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_ch4",
-						"value": 0.0025,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"characteristics": [
-					{"type": "mass", "value": 0, "unit": "kg"},
-					{"type": "volume", "value": 0, "unit": "m^3"}
-				],
-				"thresholds": []
-			},
-			"description": "Cleans wastewater using microbial degradation, provides nutrients for plants."
-		},
-		"multifiltration_purifier_post_treament":{
-			"data":{
-				"input":[
-					{
-						"type": "h2o_tret",
-						"value": 4.75,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[
-					{
-						"type": "h2o_potb",
-						"value": 4.75,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					}
-				], 
-				"characteristics": [
-					{"type": "mass", "value": 0, "unit": "kg"},
-					{"type": "volume", "value": 0, "unit": "m^3"}
-				],
-				"thresholds": []
-			},
-			"description": "Purifies relatively clean water"
-		},
-		"urine_recycling_processor_VCD":{
-			"data":{
-				"input":[
-					{
-						"type": "h2o_urin",
-						"value": 1.36,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour" 
-						}
-					},
-					{
-						"type": "enrg_kwh",
-						"value": 1.501,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[
-					{
-						"type": "h2o_tret",
-						"value": 1.36,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"characteristics": [
-					{"type": "mass", "value": 193.3, "unit": "kg"},
-					{"type": "volume", "value": 0.39, "unit": "m^3"}
-				],
-				"thresholds": []
-			},
-			"description": "Purifies relatively clean water"	
-		},
-		"oxygen_generation__SFWE":{
-			"data":{
-				"input":[
-					{
-						"type": "h2o_potb",
-						"value": 0.413,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "enrg_kwh",
-						"value": 0.959,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					}
+      "pres_hab": 0,
+      "pres_gh": 0,
+      "pres_ext": 0,
 
-				],
-				"output":[
-					{
-						"type": "atmo_h2",
-						"value": 0.0454,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_o2",
-						"value": 0.367,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					}
-				], 
-				"characteristics": [
-					{
-						"type": "mass",
-						"value": 83.43,
-						"unit": "kg"
-					},
-					{
-						"type": "volume",
-						"value": "0.05",
-						"unit": "m^3"
-					}
-				]
-			}
-		},
-		"co2_removal_SAWD":{
-			"data":{
-				"input":[
-					{
-						"type": "atmo_o2",
-						"value": 6.6,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_n2",
-						"value": 23.15,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_co2",
-						"value": 0.211,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_h2o",
-						"value": 0.25,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "enrg_kwh",
-						"value": 1.120,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[
-					{
-						"type": "atmo_o2",
-						"value": 6.6,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_n2",
-						"value": 23.15,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_h2o",
-						"value": 0.25,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_co2",
-						"value": 0.211,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						} 
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"characteristics": [
-					{
-						"type": "volume",
-						"value": 0.31,
-						"unit": "m^3"
-					},
-					{
-						"type":"mass", 
-						"value": 137.35,
-						"unit": "kg"
-					}
-				],
-				"thresholds": []
-			},
-			"description": "Removes CO2 from air"
-		},
-		"co2_reduction_sabatier":{
-			"data":{
-				"input":[
-					{
-						"type": "atmo_co2",
-						"value": 0.006534,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_h2",
-						"value": 0.00163,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "enrg_kwh",
-						"value": 0.291,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[
-					{
-						"type": "atmo_ch4",
-						"value": 0.0025,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "h2o_wste",
-						"value": 0.00567,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"characteristics": [
-					{
-						"type": "volume",
-						"value": 0.06,
-						"unit": "m^3"
-					},
-					{
-						"type":"mass", 
-						"value": 47.9,
-						"unit": "kg"
-					}
-				],
-				"thresholds": []
-			},
-			"description": "Reduces co2 in air, without requiring venting"
-		},
-		"particulate_removal_TCCS": {
-			"data":{
-				"input":[
-					{
-						"type": "atmo_cont",
-						"value": 0.12533,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "enrg_kwh",
-						"value": 1.120,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				], 
-				"characteristics": [
-					{"type": "mass", "value": 137.35, "unit": "kg"},
-					{"type": "volume", "value": 0.31, "unit": "m^3"}
-				],
-				"thresholds": []
-			},
-			"description": "Removes potentially hazardous trace contaminants"
-		},
-		"gas_control": {
-			"data":{
-				"input":[
-					{
-						"type": "atmo_o2",
-						"value": 0.5,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_co2",
-						"value": 0.5,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_n2",
-						"value": 0.5,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "enrg_kwh",
-						"value": 0.514,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[
-					{
-						"type": "atmo_o2",
-						"value": 0.5,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_co2",
-						"value": 0.5,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "atmo_n2",
-						"value": 0.5,
-						"flow_rate": {
-							"unit": "kg",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				], 
-				"characteristics": [
-					{"type": "mass", "value": 0, "unit": "kg"},
-					{"type": "volume", "value": 0, "unit": "m^3"}
-				],
-				"thresholds": []
-			},
-			"description": "Adds N2 and O2 to system"
-		}
-	},
-	"agriculture": {
-		"plants":[
-			{
-				"rice": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 1.5399905754,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 7.9341666667,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0206755062,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0003270886,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.002466768,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.2300870147,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 1.1201294643,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_cers"
-							},
-							{
-								"type": "growth_period",
-								"value": 85,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 12,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 2569.55,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 770.95,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 1.2595833333,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"wheat": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 2.547123016,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 11.25,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.034197,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.000541,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.00408,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.8018183846,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 1.8526785714,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_cers"
-							},
-							{
-								"type": "growth_period",
-								"value": 79,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 22,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 3950,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 1580,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 2.0833333333,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"cabbage": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 0.3777302131,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 0.25529166667,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0098276438,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0003632356,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0027380959,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1952253458,
-                                "daytime_period": 12,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.2752949011,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_leaf"
-							},
-							{
-								"type": "growth_period",
-								"value": 85,
-								"unit": "day"
-							},
-							{
-								"type": "mass_total",
-								"value": 572.05,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 515.1,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.2804166667,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"chard": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 0.6044805936,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 1.4133333333,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0157271507,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0002493329,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.001878111,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1185296743,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.440553653,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_leaf"
-							},
-							{
-								"type": "growth_period",
-								"value": 45,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 16,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 484.65,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 315,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.44875,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"celery": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 0.6443302892,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 0.43,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0167639452,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0002657699,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0020019233,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1185296743,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.4695966514,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_leaf"
-							},
-							{
-								"type": "growth_period",
-								"value": 75,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": null,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 861,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 774.75,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.4783333333,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"lettuce": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 0.4097222222,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 0.27375,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.01066,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.000169,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.001273,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1185296743,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.2986111111,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_leaf"
-							},
-							{
-								"type": "growth_period",
-								"value": 28,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 16,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 204.4,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 183.96,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.3041666667,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"spinach": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 0.4097222222,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 0.27375,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.01066,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.000169,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.001273,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1185296743,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.2986111111,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_leaf"
-							},
-							{
-								"type": "growth_period",
-								"value": 30,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 16,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 219,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 197.1,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.3041666667,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"dry_bean": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 2.0616319444,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 5.625,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0300195313,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0005058594,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0038085938,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1673360107,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 1.5010127315,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_legu"
-							},
-							{
-								"type": "growth_period",
-								"value": 85,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 18,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 2125,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 850,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 1.0416666667,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"peanut": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 1.8562934028,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 6.3258333333,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0270295859,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0004554758,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0034292578,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.188253012,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 1.3515118634,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_legu"
-							},
-							{
-								"type": "growth_period",
-								"value": 104,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 12,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 2341.04,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 585.52,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.9379166667,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"soybean": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 1.0555555556,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 2.5516666667,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.01537,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.000259,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.00195,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1952253458,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.7685185185,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_legu"
-							},
-							{
-								"type": "growth_period",
-								"value": 97,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 12,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 1241.6,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 582,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.5333333333,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"strawberry": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 0.7907178481,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 5.4183333333,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0184122632,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0002913426,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0021961615,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1533913432,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.5763666242,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_frut"
-							},
-							{
-								"type": "growth_period",
-								"value": 85,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 12,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 1891.25,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 662.15,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.9270833333,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"tomato": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 0.823412698,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 4.77875,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.019173579,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.000303389,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.002286969,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.188253012,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.6001984127,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_frut"
-							},
-							{
-								"type": "growth_period",
-								"value": 85,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 12,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 1969.45,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 886.55,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.9654166667,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"green_onion": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 0.5612633181,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 0.375,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0146027397,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0002315068,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0017438356,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1812806783,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.4090563166,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_vegi"
-							},
-							{
-								"type": "growth_period",
-								"value": 50,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": null,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 500,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 450,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.4166666667,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"onion": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 0.6314212329,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 0.84375,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0164280822,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0002604452,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0019618151,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1185296743,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.4601883562,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_vegi"
-							},
-							{
-								"type": "growth_period",
-								"value": 50,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": null,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 562.5,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 450,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.46875,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"pea": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 1.5058694825,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 6.0375,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0391791507,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0006211329,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.004678711,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1673360107,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 1.0974980974,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_vegi"
-							},
-							{
-								"type": "growth_period",
-								"value": 75,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": null,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 2012.25,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 804.75,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 1.1179166667,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"pepper": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 1.3004471081,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 4.7775,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0338345479,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0005364014,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0040404671,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.188253012,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.9477834855,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_vegi"
-							},
-							{
-								"type": "growth_period",
-								"value": 85,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": null,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 1969.45,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 886.55,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.9654166667,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"snap_bean": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 1.6669520548,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 6.6825,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.043370137,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0006875753,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0051791918,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1673360107,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 1.2148972603,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_vegi"
-							},
-							{
-								"type": "growth_period",
-								"value": 85,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 18,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 2524.5,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 1009.8,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 1.2375,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"radish": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 0.5393177194,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 2.0625,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0091026919,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0001440346,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0010857428,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1812806783,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.5393177194,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_root"
-							},
-							{
-								"type": "growth_period",
-								"value": 25,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 16,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 275,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 137.5,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.4583333333,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"red_beet": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 0.6774599116,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 1.3125,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0082751745,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0009870389,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0009870389,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1185296743,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 0.4902888358,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_root"
-							},
-							{
-								"type": "growth_period",
-								"value": 38,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 16,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 380,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 247,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.4166666667,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"carrot": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 1.0141574877,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 2.245,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0123879362,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.0001960179,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.0014775972,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1952253458,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 1.0141574877,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_root"
-							},
-							{
-								"type": "growth_period",
-								"value": 75,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": null,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 1122.75,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 673.5,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 0.62375,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"sweet_potato": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 2.540474668,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 8.4375,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.031031904,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.000491027,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.003701396,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1952253458,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 1.8385831342,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_vegi"
-							},
-							{
-								"type": "growth_period",
-								"value": 85,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 12,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 3187.5,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 1275,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 1.5625,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			},
-			{
-				"white_potato": {
-					"data": {
-						"input": [
-							{
-								"type": "atmo_co2",
-								"value": 2.038476874,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "h2o_potb",
-								"value": 3.3841666667,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_n",
-								"value": 0.0249,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_p",
-								"value": 0.000394,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "sold_k",
-								"value": 0.00297,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							},
-							{
-								"type": "enrg_kwh",
-								"value": 0.1952253458,
-								"flow_rate": {
-									"unit": "kWh",
-									"time": "hour"
-								}
-							}
-						],
-						"output": [
-							{
-								"type": "atmo_o2",
-								"value": 1.4752791069,
-								"flow_rate": {
-									"unit": "g",
-									"time": "hour"
-								}
-							}
-						],
-						"characteristics": [
-							{
-								"type": "category",
-								"value": "food_root"
-							},
-							{
-								"type": "growth_period",
-								"value": 132,
-								"unit": "day"
-							},
-							{
-								"type": "daytime_period",
-								"value": 12,
-								"unit": "hour"
-							},
-							{
-								"type": "mass_total",
-								"value": 3971.88,
-								"unit": "g"
-							},
-							{
-								"type": "mass_edible",
-								"value": 2779.9,
-								"unit": "g"
-							},
-							{
-								"type": "mass_per_hour",
-								"value": 1.25375,
-								"unit": "g"
-							}
-						]
-					}
-				}
-			}
-		]
-	},
-	"isru": {},
-	"structures": {
-		"crew_habitat_small":{
-			"data":{
-				"input":[
-					{
-						"type": "enrg_kwh",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[], 
-				"characteristics": [
-					{
-						"type": "volume",
-						"value": 0,
-						"unit": "m^3"
-					},
-					{
-						"type": "mass",
-						"value": 0,
-						"unit": "kg"
-					}
-				]
-			}
-		},
-		"crew_habitat_medium":{
-			"data":{
-				"input":[
-					{
-						"type": "enrg_kwh",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[], 
-				"characteristics": [
-					{
-						"type": "volume",
-						"value": 0,
-						"unit": "m^3"
-					},
-					{
-						"type": "mass",
-						"value": 0,
-						"unit": "kg"
-					}
-				]
-			}
-		},
-		"crew_habitat_large":{
-			"data":{
-				"input":[
-					{
-						"type": "enrg_kwh",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[], 
-				"characteristics": [
-					{
-						"type": "volume",
-						"value": 0,
-						"unit": "m^3"
-					},
-					{
-						"type": "mass",
-						"value": 0,
-						"unit": "kg"
-					}
-				]
-			}
-		},
-		"greenhouse_small":{
-			"data":{
-				"input":[
-					{
-						"type": "enrg_kwh",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[], 
-				"characteristics": [
-					{
-						"type": "volume",
-						"value": 0,
-						"unit": "m^3"
-					},
-					{
-						"type": "mass",
-						"value": 0,
-						"unit": "kg"
-					}
-				]
-			}
-		},
-		"greenhouse_medium":{
-			"data":{
-				"input":[
-					{
-						"type": "enrg_kwh",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[], 
-				"characteristics": [
-					{
-						"type": "volume",
-						"value": 0,
-						"unit": "m^3"
-					},
-					{
-						"type": "mass",
-						"value": 0,
-						"unit": "kg"
-					}
-				]
-			}
-		},
-		"greenhouse_large":{
-			"data":{
-				"input":[
-					{
-						"type": "enrg_kwh",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[], 
-				"characteristics": [
-					{
-						"type": "volume",
-						"value": 0,
-						"unit": "m^3"
-					},
-					{
-						"type": "mass",
-						"value": 0,
-						"unit": "kg"
-					}
-				]
-			}
-		},
-		"airlock":{
-			"data":{
-				"input":[
-					{
-						"type": "enrg_kwh",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[], 
-				"characteristics": [
-					{
-						"type": "volume",
-						"value": 0,
-						"unit": "m^3"
-					},
-					{
-						"type": "mass",
-						"value": 0,
-						"unit": "kg"
-					}
-				]
-			}
-		}
-	},
-	"fabrication": {},
-	"power_generation": {
-		"solar_pv_array":{
-			"data":{
-				"input":[],
-				"output":[
-					{
-						"type": "enrg_kwh",
-						"value": 0.3,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					}
-				], 
-				"characteristics": [
-					{"type": "mass", "value": 0, "unit": "kg"},
-					{"type": "volume", "value": 0, "unit": "m^3"}
-				]
-			}
-		},
-		"wind_turbine":{
-			"data":{
-				"input":[],
-				"output":[
-					{
-						"type": "enrg_kwh",
-						"value": 0.0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					}
-				], 
-				"characteristics": [
-					{"type": "mass", "value": 0, "unit": "kg"},
-					{"type": "volume", "value": 0, "unit": "m^3"}
-				]
-			}
-		},
-		"radioisotope_generator":{
-			"data":{
-				"input":[],
-				"output":[
-					{
-						"type": "enrg_kwh",
-						"value": 0.0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					}
-				], 
-				"characteristics": [
-					{"type": "mass", "value": 0, "unit": "kg"},
-					{"type": "volume", "value": 0, "unit": "m^3"}
-				]
-			}
-		}
-	},
-	"mobility": {},
-	"communication": {
-		"radio":{
-			"data":{
-				"input":[
-					{
-						"type": "enrg_kwh",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[], 
-				"characteristics": [
-					{
-						"type": "volume",
-						"value": 0,
-						"unit": "m^3"
-					},
-					{
-						"type": "mass",
-						"value": 0,
-						"unit": "kg"
-					}
-				]
-			}
-		},
-		"lab_equipment":{
-			"data":{
-				"input":[
-					{
-						"type": "enrg_kwh",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kWh",
-							"time": "hour"
-						}
-					},
-					{
-						"type": "heat_kj",
-						"value": 0,
-						"flow_rate": {
-							"unit": "kj",
-							"time": "hour"
-						}
-					}
-				],
-				"output":[], 
-				"characteristics": [
-					{
-						"type": "volume",
-						"value": 0,
-						"unit": "m^3"
-					},
-					{
-						"type": "mass",
-						"value": 0,
-						"unit": "kg"
-					}
-				]
-			}
-		}
-	},
-	"storage": {
-		"air_storage":{
-			"data":{
-				"input":[],
-				"output":[], 
-				"characteristics": [
-					{"type": "capacity_atmo_o2", "value": 400, "unit": "kg"},
-					{"type": "capacity_atmo_co2", "value": 200, "unit": "kg"},
-					{"type": "capacity_atmo_n2", "value": 400, "unit": "kg"},
-					{"type": "capacity_atmo_ch4", "value": 200, "unit": "kg"},
-					{"type": "capacity_atmo_h2", "value": 100, "unit": "kg"},
-					{"type": "mass", "value": 0, "unit": "kg"},
-					{"type": "volume", "value": 0, "unit": "m^3"}
-				]
-			}
-		},
-		"water_storage":{
-			"data":{
-				"input":[],
-				"output":[], 
-				"characteristics": [
-					{"type": "capacity_h2o_treated", "value": 100, "unit": "kg"},
-					{"type": "capacity_h2o_potb", "value": 400, "unit": "kg"},
-					{"type": "capacity_h2o_urin", "value": 200, "unit": "kg"},
-					{"type": "capacity_h2o_wste", "value": 250, "unit": "kg"},
-					{"type": "mass", "value": 0, "unit": "kg"},
-					{"type": "volume", "value": 0, "unit": "m^3"}
-				]
-			}
-		},
-		"nutrient_storage":{
-			"data":{
-				"input":[],
-				"output":[], 
-				"characteristics": [
-					{"type": "capacity_sold_n", "value": 100, "unit": "kg"},
-					{"type": "capacity_sold_p", "value": 100, "unit": "kg"},
-					{"type": "capacity_sold_k", "value": 100, "unit": "kg"},
-					{"type": "mass", "value": 0, "unit": "kg"},
-					{"type": "volume", "value": 0, "unit": "m^3"}
-				]
-			}
-		},
-        "power_storage":{
-			"data":{
-				"input":[],
-				"output":[], 
-				"characteristics": [
-					{"type": "capacity_enrg_kwh", "value": 100, "unit": "kWh"},
-					{"type": "mass", "value": 100, "unit": "kg"},
-					{"type": "volume", "value": 100, "unit": "m^3"}
-				]
-			}
-        },
-        "food_storage":{
-                    "data":{
-                        "input":[],
-                        "output":[], 
-                        "characteristics": [
-                            {"type": "capacity_food_edbl", "value": 100, "unit": "kg"},
-                            {"type": "mass", "value": 100, "unit": "kg"},
-                            {"type": "volume", "value": 100, "unit": "m^3"}
-                        ]
-                    }
-        }
-	}
+      "grav_fld": 0
+    }
+  },
+  "inhabitants": {
+    "human_agent": {
+      "data": {
+        "input": [{
+            "type": "atmo_o2",
+            "value": 0.0492,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 0,
+              "unit": "day"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 10.18,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "day"
+            },
+            "deprive": {
+              "value": 3,
+              "unit": "day"
+            }
+          },
+          {
+            "type": "food_edbl",
+            "value": 2.394,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "day"
+            },
+            "deprive": {
+              "value": 21,
+              "unit": "day"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "day"
+            }
+          }
+        ],
+        "output": [{
+            "type": "atmo_co2",
+            "value": 0.064,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.111,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_wste",
+            "value": 1.503,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "day"
+            }
+          },
+          {
+            "type": "sold_wast",
+            "value": 0.81,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "day"
+            }
+          },
+          {
+            "type": "h2o_urin",
+            "value": 1.5,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "day"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 8.4,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "day"
+            }
+          }
+        ],
+        "characteristics": [{
+            "type": "lifetime",
+            "value": 21900.0,
+            "unit": "days"
+          },
+          {
+            "type": "mass",
+            "value": 60.0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0.0,
+            "unit": "m^3"
+          }
+        ],
+        "thresholds": [{
+            "type": "starvation",
+            "value": 21.0,
+            "unit": "days"
+          },
+          {
+            "type": "dehydration",
+            "value": 3.0,
+            "unit": "days"
+          }
+        ]
+      }
+    }
+  },
+  "eclss": {
+    "solid_waste_aerobic_bioreactor": {
+      "data": {
+        "input": [{
+            "type": "h2o_wste",
+            "value": 5.0,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_o2",
+            "value": 0.0015,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+            "type": "sold_n",
+            "value": 0.00725,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.00087,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.00205,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_urin",
+            "value": 4.989,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_co2",
+            "value": 0.005,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_ch4",
+            "value": 0.0025,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [{
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          }
+        ],
+        "thresholds": []
+      },
+      "description": "Cleans wastewater using microbial degradation, provides nutrients for plants."
+    },
+    "multifiltration_purifier_post_treament": {
+      "data": {
+        "input": [{
+          "type": "h2o_tret",
+          "value": 4.75,
+          "flow_rate": {
+            "unit": "kg",
+            "time": "hour"
+          }
+        }],
+        "output": [{
+          "type": "h2o_potb",
+          "value": 4.75,
+          "flow_rate": {
+            "unit": "kg",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          }
+        ],
+        "thresholds": []
+      },
+      "description": "Purifies relatively clean water"
+    },
+    "urine_recycling_processor_VCD": {
+      "data": {
+        "input": [{
+            "type": "h2o_urin",
+            "value": 1.36,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 1.501,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+            "type": "h2o_tret",
+            "value": 1.36,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [{
+            "type": "mass",
+            "value": 193.3,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0.39,
+            "unit": "m^3"
+          }
+        ],
+        "thresholds": []
+      },
+      "description": "Purifies relatively clean water"
+    },
+    "oxygen_generation__SFWE": {
+      "data": {
+        "input": [{
+            "type": "h2o_potb",
+            "value": 0.413,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.959,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+
+        ],
+        "output": [{
+            "type": "atmo_h2",
+            "value": 0.0454,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_o2",
+            "value": 0.367,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [{
+            "type": "mass",
+            "value": 83.43,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": "0.05",
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "co2_removal_SAWD": {
+      "data": {
+        "input": [{
+            "type": "atmo_o2",
+            "value": 6.6,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_n2",
+            "value": 23.15,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_co2",
+            "value": 0.211,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.25,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 1.120,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+            "type": "atmo_o2",
+            "value": 6.6,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_n2",
+            "value": 23.15,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.25,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_co2",
+            "value": 0.211,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0.31,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 137.35,
+            "unit": "kg"
+          }
+        ],
+        "thresholds": []
+      },
+      "description": "Removes CO2 from air"
+    },
+    "co2_reduction_sabatier": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.006534,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_h2",
+            "value": 0.00163,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.291,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+            "type": "atmo_ch4",
+            "value": 0.0025,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_wste",
+            "value": 0.00567,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0.06,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 47.9,
+            "unit": "kg"
+          }
+        ],
+        "thresholds": []
+      },
+      "description": "Reduces co2 in air, without requiring venting"
+    },
+    "particulate_removal_TCCS": {
+      "data": {
+        "input": [{
+            "type": "atmo_cont",
+            "value": 0.12533,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 1.120,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "heat_cal",
+          "value": 0,
+          "flow_rate": {
+            "unit": "cal",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "mass",
+            "value": 137.35,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0.31,
+            "unit": "m^3"
+          }
+        ],
+        "thresholds": []
+      },
+      "description": "Removes potentially hazardous trace contaminants"
+    },
+    "gas_control": {
+      "data": {
+        "input": [{
+            "type": "atmo_o2",
+            "value": 0.5,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_co2",
+            "value": 0.5,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_n2",
+            "value": 0.5,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.514,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+            "type": "atmo_o2",
+            "value": 0.5,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_co2",
+            "value": 0.5,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "atmo_n2",
+            "value": 0.5,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [{
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          }
+        ],
+        "thresholds": []
+      },
+      "description": "Adds N2 and O2 to system"
+    }
+  },
+  "plants": {
+    "rice": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 1.5399905754,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 7.9341666667,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0206755062,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0003270886,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.002466768,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.2300870147,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 1.1201294643,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_cers"
+          },
+          {
+            "type": "growth_period",
+            "value": 85,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 12,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 2569.55,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 770.95,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 1.2595833333,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "wheat": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 2.547123016,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 11.25,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.034197,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.000541,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.00408,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.8018183846,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 1.8526785714,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_cers"
+          },
+          {
+            "type": "growth_period",
+            "value": 79,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 22,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 3950,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 1580,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 2.0833333333,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "cabbage": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.3777302131,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 0.25529166667,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0098276438,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0003632356,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0027380959,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1952253458,
+            "active_period": 12,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+            "type": "atmo_o2",
+            "value": 0.2752949011,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "food_edbl",
+            "value": 515.1,
+            "flow_rate": {
+              "unit": "g"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 85,
+              "reset": true
+            }
+          }
+        ],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_leaf"
+          },
+          {
+            "type": "growth_period",
+            "value": 85,
+            "unit": "day"
+          },
+          {
+            "type": "mass_total",
+            "value": 572.05,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 515.1,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.2804166667,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "chard": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.6044805936,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 1.4133333333,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0157271507,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0002493329,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.001878111,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1185296743,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 0.440553653,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_leaf"
+          },
+          {
+            "type": "growth_period",
+            "value": 45,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 16,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 484.65,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 315,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.44875,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "celery": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.6443302892,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 0.43,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0167639452,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0002657699,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0020019233,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1185296743,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 0.4695966514,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_leaf"
+          },
+          {
+            "type": "growth_period",
+            "value": 75,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": null,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 861,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 774.75,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.4783333333,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "lettuce": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.4097222222,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 0.27375,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.01066,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.000169,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.001273,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1185296743,
+            "active_period": 16,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+            "type": "atmo_o2",
+            "value": 0.2986111111,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "food_edbl",
+            "value": 183.96,
+            "flow_rate": {
+              "unit": "g"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 28,
+              "reset": true
+            }
+          }
+        ],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_leaf"
+          },
+          {
+            "type": "growth_period",
+            "value": 28,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 16,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 204.4,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 183.96,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.3041666667,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "spinach": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.4097222222,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 0.27375,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.01066,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.000169,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.001273,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1185296743,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 0.2986111111,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_leaf"
+          },
+          {
+            "type": "growth_period",
+            "value": 30,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 16,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 219,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 197.1,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.3041666667,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "dry_bean": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 2.0616319444,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 5.625,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0300195313,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0005058594,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0038085938,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1673360107,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 1.5010127315,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_legu"
+          },
+          {
+            "type": "growth_period",
+            "value": 85,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 18,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 2125,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 850,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 1.0416666667,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "peanut": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 1.8562934028,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 6.3258333333,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0270295859,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0004554758,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0034292578,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.188253012,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 1.3515118634,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_legu"
+          },
+          {
+            "type": "growth_period",
+            "value": 104,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 12,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 2341.04,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 585.52,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.9379166667,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "soybean": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 1.0555555556,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 2.5516666667,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.01537,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.000259,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.00195,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1952253458,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 0.7685185185,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_legu"
+          },
+          {
+            "type": "growth_period",
+            "value": 97,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 12,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 1241.6,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 582,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.5333333333,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "strawberry": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.7907178481,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 5.4183333333,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0184122632,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0002913426,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0021961615,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1533913432,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 0.5763666242,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_frut"
+          },
+          {
+            "type": "growth_period",
+            "value": 85,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 12,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 1891.25,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 662.15,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.9270833333,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "tomato": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.823412698,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 4.77875,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.019173579,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.000303389,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.002286969,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.188253012,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 0.6001984127,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_frut"
+          },
+          {
+            "type": "growth_period",
+            "value": 85,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 12,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 1969.45,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 886.55,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.9654166667,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "green_onion": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.5612633181,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 0.375,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0146027397,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0002315068,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0017438356,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1812806783,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 0.4090563166,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_vegi"
+          },
+          {
+            "type": "growth_period",
+            "value": 50,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": null,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 500,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 450,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.4166666667,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "onion": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.6314212329,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 0.84375,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0164280822,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0002604452,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0019618151,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1185296743,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 0.4601883562,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_vegi"
+          },
+          {
+            "type": "growth_period",
+            "value": 50,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": null,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 562.5,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 450,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.46875,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "pea": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 1.5058694825,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 6.0375,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0391791507,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0006211329,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.004678711,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1673360107,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 1.0974980974,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_vegi"
+          },
+          {
+            "type": "growth_period",
+            "value": 75,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": null,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 2012.25,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 804.75,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 1.1179166667,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "pepper": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 1.3004471081,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 4.7775,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0338345479,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0005364014,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0040404671,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.188253012,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 0.9477834855,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_vegi"
+          },
+          {
+            "type": "growth_period",
+            "value": 85,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": null,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 1969.45,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 886.55,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.9654166667,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "snap_bean": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 1.6669520548,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 6.6825,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.043370137,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0006875753,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0051791918,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1673360107,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 1.2148972603,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_vegi"
+          },
+          {
+            "type": "growth_period",
+            "value": 85,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 18,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 2524.5,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 1009.8,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 1.2375,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "radish": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.5393177194,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 2.0625,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0091026919,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0001440346,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0010857428,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1812806783,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 0.5393177194,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_root"
+          },
+          {
+            "type": "growth_period",
+            "value": 25,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 16,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 275,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 137.5,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.4583333333,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "red_beet": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 0.6774599116,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 1.3125,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0082751745,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0009870389,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0009870389,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1185296743,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 0.4902888358,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_root"
+          },
+          {
+            "type": "growth_period",
+            "value": 38,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 16,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 380,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 247,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.4166666667,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "carrot": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 1.0141574877,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 2.245,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0123879362,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.0001960179,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.0014775972,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1952253458,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 1.0141574877,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_root"
+          },
+          {
+            "type": "growth_period",
+            "value": 75,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": null,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 1122.75,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 673.5,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 0.62375,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "sweet_potato": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 2.540474668,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 8.4375,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.031031904,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.000491027,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.003701396,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1952253458,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 1.8385831342,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_vegi"
+          },
+          {
+            "type": "growth_period",
+            "value": 85,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 12,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 3187.5,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 1275,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 1.5625,
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "white_potato": {
+      "data": {
+        "input": [{
+            "type": "atmo_co2",
+            "value": 2.038476874,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_potb",
+            "value": 3.3841666667,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_n",
+            "value": 0.0249,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_p",
+            "value": 0.000394,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "sold_k",
+            "value": 0.00297,
+            "flow_rate": {
+              "unit": "g",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.1952253458,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [{
+          "type": "atmo_o2",
+          "value": 1.4752791069,
+          "flow_rate": {
+            "unit": "g",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "category",
+            "value": "food_root"
+          },
+          {
+            "type": "growth_period",
+            "value": 132,
+            "unit": "day"
+          },
+          {
+            "type": "daytime_period",
+            "value": 12,
+            "unit": "hour"
+          },
+          {
+            "type": "mass_total",
+            "value": 3971.88,
+            "unit": "g"
+          },
+          {
+            "type": "mass_edible",
+            "value": 2779.9,
+            "unit": "g"
+          },
+          {
+            "type": "mass_per_hour",
+            "value": 1.25375,
+            "unit": "g"
+          }
+        ]
+      }
+    }
+  },
+  "isru": {},
+  "structures": {
+    "crew_habitat_small": {
+      "data": {
+        "input": [{
+            "type": "enrg_kwh",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "crew_habitat_medium": {
+      "data": {
+        "input": [{
+            "type": "enrg_kwh",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "crew_habitat_large": {
+      "data": {
+        "input": [{
+            "type": "enrg_kwh",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "greenhouse_small": {
+      "data": {
+        "input": [{
+            "type": "enrg_kwh",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "greenhouse_medium": {
+      "data": {
+        "input": [{
+            "type": "enrg_kwh",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "greenhouse_large": {
+      "data": {
+        "input": [{
+            "type": "enrg_kwh",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "airlock": {
+      "data": {
+        "input": [{
+            "type": "enrg_kwh",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          }
+        ]
+      }
+    }
+  },
+  "fabrication": {},
+  "power_generation": {
+    "solar_pv_array": {
+      "data": {
+        "input": [],
+        "output": [{
+          "type": "enrg_kwh",
+          "value": 0.3,
+          "flow_rate": {
+            "unit": "kWh",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "wind_turbine": {
+      "data": {
+        "input": [],
+        "output": [{
+          "type": "enrg_kwh",
+          "value": 0.0,
+          "flow_rate": {
+            "unit": "kWh",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "radioisotope_generator": {
+      "data": {
+        "input": [],
+        "output": [{
+          "type": "enrg_kwh",
+          "value": 0.0,
+          "flow_rate": {
+            "unit": "kWh",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          }
+        ]
+      }
+    }
+  },
+  "mobility": {},
+  "communication": {
+    "radio": {
+      "data": {
+        "input": [{
+            "type": "enrg_kwh",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "lab_equipment": {
+      "data": {
+        "input": [{
+            "type": "enrg_kwh",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          }
+        ]
+      }
+    }
+  },
+  "storage": {
+    "air_storage": {
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [{
+            "type": "capacity_atmo_o2",
+            "value": 400,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 200,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 400,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 200,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 200,
+            "unit": "kg"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "water_storage": {
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [{
+            "type": "capacity_h2o_treated",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o_potb",
+            "value": 400,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o_urin",
+            "value": 200,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o_wste",
+            "value": 250,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o_tret",
+            "value": 250,
+            "unit": "kg"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "nutrient_storage": {
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [{
+            "type": "capacity_sold_n",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_sold_p",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_sold_k",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_sold_wast",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "power_storage": {
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [{
+            "type": "capacity_enrg_kwh",
+            "value": 1000,
+            "unit": "kWh"
+          },
+          {
+            "type": "capacity_heat_cal",
+            "value": 1000,
+            "unit": "cal"
+          },
+          {
+            "type": "mass",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 100,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "food_storage": {
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [{
+            "type": "capacity_food_edbl",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "mass",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 100,
+            "unit": "m^3"
+          }
+        ]
+      }
+    }
+  }
 }

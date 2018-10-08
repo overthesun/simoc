@@ -22,8 +22,11 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
     _last_loaded_type_attr_class = False
 
 
-    def __init__(self, model, agent_type=None, agent_state=None):
-        self.agent_type = agent_type
+    # def __init__(self, model, agent_type=None, agent_state=None):
+    def __init__(self, *args, **kwargs):
+        self.agent_type = kwargs.get("agent_type", None)
+        agent_state = kwargs.get("agent_state", None)
+        model = kwargs.get("model", None)
         # print('BaseAgent.init.agent_type: {}'.format(self.agent_type))
         self._load_agent_type_attributes()
         AttributeHolder.__init__(self)
@@ -83,7 +86,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         AgentType
             Returns the AgentType related to the instance Agent
         """
-        return AgentType.query.get(self.__class._agent_type_id)
+        return AgentType.query.get(self._agent_type_id)
 
     def get_agent_type_attribute(self, name):
         """ Get agent type attribute by name as it was defined in database
@@ -134,7 +137,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
 
     def snapshot(self, agent_model_state, commit=True):
         pos = self.pos if hasattr(self, "pos") else (None, None)
-        agent_state = AgentState(agent_type_id=self.__class__._agent_type_id,
+        agent_state = AgentState(agent_type_id=self._agent_type_id,
                  agent_model_state=agent_model_state, agent_unique_id=self.unique_id,
                  model_time_created=self.model_time_created, pos_x=pos[0], pos_y=pos[1])
 
@@ -214,8 +217,30 @@ class GeneralAgent(EnclosedAgent):
 
     def __init__(self, *args, **kwargs):
         self.agent_type = kwargs.get("agent_type", None)
-        # print('GeneralAgent.init.agent_type: {}'.format(self.agent_type))
+        connections = kwargs.pop("connections", None)
+
         super(GeneralAgent, self).__init__(*args, **kwargs)
+
+        storages = self.model.get_agents(agent_type=StorageAgent)
+        self.selected_storages = {}
+        self.deprive = {}
+        for attr in self.agent_type_attributes:
+            prefix, currency = attr.split('_', 1)
+            if prefix not in ['in', 'out']:
+                continue
+
+            descriptions = self.agent_type_descriptions[attr].split('/')
+            deprive_value = descriptions[8]
+            self.deprive[currency] = int(deprive_value) if deprive_value != '' else 0
+
+            self.selected_storages[currency] = []
+            for storage in storages:
+                if storage.agent_type not in connections:
+                    continue
+                if storage.id not in connections[storage.agent_type]:
+                    continue
+                if currency in storage:
+                    self.selected_storages[currency].append(storage)
 
     def age(self):
         return self.model.model_time - self.model_time_created
@@ -223,37 +248,9 @@ class GeneralAgent(EnclosedAgent):
     def step(self):
         super().step()
 
-        # print('AGENT: {}'.format(self.agent_type))
-        agent_class = self.agent_type_attributes['char_class']
-        # print('agent_class: {}'.format(agent_class))
-        # print()
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
 
-        if agent_class == 'plants':
-            growth_period = self.agent_type_attributes['char_growth_period']
-            if self['age'] >= growth_period:
-                storages = self.model.get_agents(agent_type=StorageAgent)
-                selected_storages = []
-                currency = 'food_edbl'
-                source_value = 'char_mass_edible'
-                for storage in storages:
-                    if currency in storage:
-                        selected_storages.append(storage)
-                num_of_storages = len(selected_storages)
-                for storage in selected_storages:
-                    storage_value = storage[currency]
-                    storage_unit = storage.agent_type_descriptions['char_capacity_' + currency]
-                    agent_unit = self.agent_type_descriptions[source_value]
-                    agent_value = self.agent_type_attributes[source_value]
-                    step_value = pq.Quantity(agent_value, agent_unit) / num_of_storages
-                    step_value.units = storage_unit
-                    new_storage_value = pq.Quantity(storage_value, storage_unit) + step_value
-                    storage[currency] = new_storage_value.magnitude.tolist()
-                    # print('Produced {} {} of food'.format(step_value.magnitude.tolist(), storage_unit))
-                self['age'] = 0
-
-        storages = self.model.get_agents(agent_type=StorageAgent)
         for attr in self.agent_type_attributes:
             multiplier = 1
             prefix, currency = attr.split('_', 1)
@@ -261,39 +258,47 @@ class GeneralAgent(EnclosedAgent):
             if prefix not in ['in', 'out']:
                 continue
 
-            # print('currency: {}'.format(currency))
-            # print('prefix: {}'.format(prefix))
-
-            selected_storages = []
-            for storage in storages:
-                if currency in storage:
-                    selected_storages.append(storage)
-            num_of_storages = len(selected_storages)
+            num_of_storages = len(self.selected_storages[currency])
 
             if num_of_storages == 0:
-                # print('Fail to find any storage for a currency: {}'.format(currency))
-                # print()
-                continue
+                print('\tNo storage of {} found for {}. Killing the agent'.format(currency, self.agent_type))
+                self.kill('No storage of {}'.format(currency))
+                break
 
-            # print('num_of_storages: {}'.format(num_of_storages))
+            agent_value = self.agent_type_attributes[attr]
+            descriptions = self.agent_type_descriptions[attr].split('/')
+            agent_unit, agent_flow_time, attr_active_period = descriptions[:3]
 
-            for storage in selected_storages:
-                # print('STORAGE: {}'.format(storage.agent_type))
+            if attr_active_period != '':
+                multiplier *= int(attr_active_period) / 24
+
+            cr_name, cr_limit, cr_value, cr_reset = descriptions[3:7]
+            cr_value = int(cr_value) if cr_value != '' else 0
+            if len(cr_name) > 0:
+                if cr_limit == '>':
+                    if self[cr_name] <= cr_value:
+                        break
+                elif cr_limit == '<':
+                    if self[cr_name] >= cr_value:
+                        break
+                elif cr_limit == '=':
+                    if self[cr_name] != cr_value:
+                        break
+                if cr_reset == 'True':
+                    self[cr_name] = 0
+                print('Criteria for {} has been met'.format(currency))
+
+            deprive_unit, deprive_value = descriptions[7:9]
+            deprive_value = int(deprive_value) if deprive_value != '' else 0
+
+            for storage in self.selected_storages[currency]:
                 storage_cap = storage['char_capacity_' + currency]
                 storage_unit = storage.agent_type_descriptions['char_capacity_' + currency]
-                # print('\tstorage_unit: {}'.format(storage_unit))
                 storage_value = pq.Quantity(storage[currency], storage_unit)
-                agent_unit, agent_flow_time, attr_daytime_period = self.agent_type_descriptions[attr].split('/')
-                attr_value = self.agent_type_attributes[attr]
-                # print('\tattr_value: {:.4f}'.format(attr_value))
-                if attr_daytime_period != '':
-                    attr_daytime_period = 24 if attr_daytime_period is None else attr_daytime_period
-                    # print('\tattr_daytime_period: {}'.format(attr_daytime_period))
-                    multiplier *= int(attr_daytime_period) / 24
-                    # print('\tmultiplier: {:.4f}'.format(multiplier))
-                # print('\thours_per_step: {}'.format(hours_per_step))
-                # print('\tagent_flow_rate: {} per {}'.format(agent_unit, agent_flow_time))
-                if agent_flow_time == 'min':
+
+                if len(cr_name) > 0:
+                    multiplier = 1
+                elif agent_flow_time == 'min':
                     multiplier *= (hours_per_step * 60)
                 elif agent_flow_time == 'hour':
                     multiplier *= hours_per_step
@@ -301,11 +306,10 @@ class GeneralAgent(EnclosedAgent):
                     multiplier *= hours_per_step / 24
                 else:
                     raise Exception('Unknown agent flow_rate.time value.')
-                # print('\tmultiplier: {:.4f}'.format(multiplier))
-                # print('\tnum_of_storages: {}'.format(num_of_storages))
-                step_value = (pq.Quantity(attr_value, agent_unit) * multiplier) / num_of_storages
+
+                step_value = (pq.Quantity(agent_value, agent_unit) * multiplier) / num_of_storages
                 step_value.units = storage_unit
-                # print('\tstep_value: {:.8f}'.format(step_value))
+
                 if prefix == 'out':
                     new_storage_value = storage_value + step_value
                 elif prefix == 'in':
@@ -313,18 +317,28 @@ class GeneralAgent(EnclosedAgent):
                 else:
                     raise Exception('Unknown flow type. Neither Input nor Output.')
                 new_storage_value = new_storage_value.magnitude.tolist()
+
                 if new_storage_value < 0:
-                    print('\tThere is no enough {} for {}. Killing the agent'.format(currency, self.agent_type))
-                    self.kill('No enough {}'.format(currency))
+                    if deprive_value > 0:
+                        if deprive_unit == 'min':
+                            delta_per_step = hours_per_step * 60
+                        elif deprive_unit == 'hour':
+                            delta_per_step = hours_per_step
+                        elif deprive_unit == 'day':
+                            delta_per_step = hours_per_step / 24
+                        else:
+                            raise Exception('Unknown agent deprive_unit value.')
+                        self.deprive[currency] -= delta_per_step
+                        if self.deprive[currency] < 0:
+                            print('There is no enough {} for {}. Killing the agent'.format(currency, self.agent_type))
+                            self.kill('No enough {}'.format(currency))
+                        print('self.deprive[{}]: {}'.format(currency, self.deprive[currency]))
                 elif new_storage_value > storage_cap:
                     storage[currency] = storage_cap
-                    # print('\tThere is no capacity for {} in {}.'.format(currency, storage.agent_type))
                 else:
-                    # print('\told_storage_value: {:.8f}'.format(storage[currency]))
                     storage[currency] = new_storage_value
-                    # print('\tnew_storage_value: {:.8f}'.format(storage[currency]))
-                # print()
-        # print()
+                    if deprive_value > 0:
+                        self.deprive[currency] = deprive_value
 
     def kill(self, reason):
         self.destroy(reason)
@@ -334,15 +348,17 @@ class StorageAgent(EnclosedAgent):
 
     def __init__(self, *args, **kwargs):
         self.agent_type = kwargs.get("agent_type", None)
-        # print('StorageAgent.init.agent_type: {}'.format(self.agent_type))
+        self.id = kwargs.get("id", None)
         super(StorageAgent, self).__init__(*args, **kwargs)
 
         for attr in self.agent_type_attributes:
             if attr.startswith('char_capacity'):
-                attr_value = self.agent_type_attributes[attr]
-                self._attr(attr, attr_value, is_client_attr=True, is_persisted_attr=True)
                 currency = attr.split('_', 2)[2]
-                self._attr(currency, attr_value / 2, is_client_attr=True, is_persisted_attr=True)
+                initial_value = kwargs.get(currency, None)
+                initial_value = initial_value if initial_value is not None else 0
+                self._attr(currency, initial_value, is_client_attr=True, is_persisted_attr=True)
+                capacity = self.agent_type_attributes[attr]
+                self._attr(attr, capacity, is_client_attr=True, is_persisted_attr=True)
 
     def age(self):
         return self.model.model_time - self.model_time_created

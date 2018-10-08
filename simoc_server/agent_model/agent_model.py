@@ -360,13 +360,14 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         self.STORAGES = STORAGES
 
     def init_agents(self, model):
+        for type_name, instances in self.STORAGES.items():
+            for instance in instances:
+                model.add_agent(StorageAgent(model=model, agent_type=type_name, **instance))
 
-        for type_name, num in self.AGENTS.items():
-            for i in range(num):
-                model.add_agent(GeneralAgent(model=model, agent_type=type_name))
-
-        for type_name, num in self.STORAGES.items():
-            for i in range(num):
-                model.add_agent(StorageAgent(model=model, agent_type=type_name))
+        for type_name, instances in self.AGENTS.items():
+            for instance in instances:
+                connections, amount = instance["connections"], instance['amount']
+                for i in range(amount):
+                    model.add_agent(GeneralAgent(model=model, agent_type=type_name, connections=connections))
 
         return model
