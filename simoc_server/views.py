@@ -151,38 +151,36 @@ def new_game():
     -------
     str: A success message.
     '''
-    # TODO add real configuration parameters
-    mode          = try_get_param("mode")
-    launch_date   = try_get_param("launch_date")
-    duration_days = try_get_param("duration_days")
-    payload       = try_get_param("payload")
-    location      = try_get_param("location")
-    region        = try_get_param("region")
-    regolith      = try_get_param("regolith")
 
-    AGENTS = {
-        "human_agent": [{"connections": {"air_storage": [1], 'water_storage': [1, 2], "nutrient_storage": [1],
-                                         "power_storage": [1], "food_storage": [1]}, "amount": 2}],
-        "cabbage": [{"connections": {"air_storage": [1], 'water_storage': [1, 2], "nutrient_storage": [1],
-                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-        "lettuce": [{"connections": {"air_storage": [1], 'water_storage': [1, 2], "nutrient_storage": [1],
-                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-        "greenhouse_medium": [{"connections": {"power_storage": [1]}, "amount": 1}],
-        "solar_pv_array": [{"connections": {"power_storage": [1]}, "amount": 100}],
-        "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
-        "urine_recycling_processor_VCD": [
-            {"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
-    }
+    try:
+        game_config = try_get_param("game_config")
+    except BadRequest as e:
+        game_config = {"agents": {
+            "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                             "power_storage": [1], "food_storage": [1]}, "amount": 2}],
+            "cabbage": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                         "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+            "lettuce": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                         "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+            "greenhouse_medium": [{"connections": {"power_storage": [1]}, "amount": 1}],
+            "solar_pv_array": [{"connections": {"power_storage": [1]}, "amount": 100}],
+            "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
+            "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}]},
+        "storages": {
+            "air_storage": [{"id": 1, "atmo_h2o": 100, "atmo_o2": 100, "atmo_co2": 100}],
+            "water_storage": [{"id": 1, "h2o_potb": 100, "h2o_tret": 100}, {"id": 2, "h2o_wste": 100, "h2o_urin": 100}],
+            "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100, "sold_wast": 0}],
+            "power_storage": [{"id": 1, "enrg_kwh": 1000, "heat_cal": 1000}],
+            "food_storage": [{"id": 1, "food_edbl": 200}]},
+        "termination": [
+            {"condition": "time", "value": 2, "unit": "year"},
+            {"condition": "food_leaf", "value": 10000, "unit": "kg"},
+            {"condition": "evacuation"}]
+        }
+        print("Cannot retrieve game config. Reason: {}".format(e))
+        print("Using default config: {}".format(game_config))
 
-    STORAGES = {
-        "air_storage": [{"id": 1, "atmo_h2o": 100, "atmo_o2": 100, "atmo_co2": 100, "atmo_h2o": 100}],
-        "water_storage": [{"id": 1, "h2o_potb": 100, "h2o_tret": 100}, {"id": 2, "h2o_wste": 100, "h2o_urin": 100}],
-        "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100, "sold_wast": 0}],
-        "power_storage": [{"id": 1, "enrg_kwh": 1000, "heat_cal": 1000}],
-        "food_storage": [{"id": 1, "food_edbl": 200}]
-    }
-
-    game_runner_init_params = GameRunnerInitializationParams(AGENTS, STORAGES)
+    game_runner_init_params = GameRunnerInitializationParams(game_config)
     game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
     return success("New Game Starts")
 
@@ -319,62 +317,6 @@ def get_saved_games():
             })
     return serialize_response(response)
 
-@app.route("/sprite_mappings", methods=["GET"])
-def sprite_mappings():
-    '''
-    Get sprite mapping rules for all agents.
-    Returns
-    -------
-    str:
-        json format -
-        {
-            <agent_type_name> : {
-                "default_sprite": <path_to_default_sprite:str>
-                "rules": [
-                    {
-                        "comparator":{
-                            "attr_name":<agent_attribute_name:str>,
-                            "op":<comparison_operator:str>,
-                            "value":<comparison_value>
-                        },
-                        "offset_x":<offset_x_value_for_placing_sprite:str>,
-                        "offset_y":<offset_y_value_for_placing_sprite:str>,
-                        "precedence": <precedence_for_rule:int>,
-                        "sprite_path":<path_to_sprite:str>
-                    },
-                    ...
-                ]
-            },
-            ...
-        }
-    '''
-    # response = {}
-    # for key, val in agent_name_mapping.items():
-        # initialize the sprite mapper class and serialize it
-        # response[key] = val._sprite_mapper().to_serializable()
-    # return serialize_response(response)
-    return None
-
-@app.route("/sprite/<path:sprite_path>", methods=["GET"])
-def get_sprite(sprite_path):
-    '''
-    Returns a sprite at the requested path.  Paths are provided
-    by rules given in '/sprite_mappings' route
-
-    Returns
-    -------
-        response : Contains requested image.
-
-    Parameters
-    ----------
-    sprite_path : str
-        The path to the sprite
-    '''
-    root_path = "res/sprites"
-    full_path = safe_join(app.root_path, root_path, sprite_path)
-    if not os.path.isfile(full_path):
-        raise NotFound("Requested sprite not found: {0}".format(sprite_path))
-    return send_from_directory(root_path, sprite_path)
 
 @app.route("/ping", methods=["GET", "POST"])
 def ping():

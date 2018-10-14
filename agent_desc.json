@@ -954,13 +954,13 @@
             "type": "food_edbl",
             "value": 515.1,
             "flow_rate": {
-              "unit": "g"
+              "unit": "g",
+              "time": "day"
             },
             "criteria": {
               "name": "age",
               "limit": ">",
-              "value": 85,
-              "reset": true
+              "value": 85
             }
           }
         ],
@@ -972,6 +972,15 @@
             "type": "growth_period",
             "value": 85,
             "unit": "day"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -1237,13 +1246,13 @@
             "type": "food_edbl",
             "value": 183.96,
             "flow_rate": {
-              "unit": "g"
+              "unit": "g",
+              "time": "day"
             },
             "criteria": {
               "name": "age",
               "limit": ">",
-              "value": 28,
-              "reset": true
+              "value": 28
             }
           }
         ],
@@ -1257,9 +1266,13 @@
             "unit": "day"
           },
           {
-            "type": "daytime_period",
-            "value": 16,
-            "unit": "hour"
+            "type": "lifetime",
+            "value": 35.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",

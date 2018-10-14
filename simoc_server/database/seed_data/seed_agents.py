@@ -6,7 +6,6 @@ import json
 def import_agents(agents, agent_class):
     agent_data = {}
     for name in agents:
-        # print(name)
         if not agents[name].get('data', None):
             continue
         agent_type = AgentType(name=name)
@@ -42,7 +41,6 @@ def import_agents(agents, agent_class):
                     cr_reset = criteria.get('reset', '')
                 attr_descriptions = '{}/{}/{}/{}/{}/{}/{}/{}/{}'.format(flow_unit, flow_time, attr_active_period, cr_name, cr_limit, cr_value, cr_reset, deprive_unit, deprive_value)
                 create_agent_type_attr(agent_type, attr_name, attr_value, attr_descriptions)
-    # print(agent_data)
     util.add_all(agent_data)
 
 
@@ -51,7 +49,6 @@ def seed(config_file):
     with open(config_file, 'r') as f:
         abm_config = json.load(f)
     for agent_class in abm_config:
-        # print(agent_class)
         import_agents(abm_config[agent_class], agent_class)
 
 
