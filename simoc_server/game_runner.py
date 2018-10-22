@@ -73,58 +73,58 @@ class GameRunner(object):
         """
         return self.last_saved_step == self.agent_model.step_num
 
-    @classmethod
-    def load_from_state(cls, user, agent_model_state, step_buffer_size=10):
-        """Loads a game runner for AgentModelState.
+    # @classmethod
+    # def load_from_state(cls, user, agent_model_state, step_buffer_size=10):
+    #     """Loads a game runner for AgentModelState.
+    #
+    #     Parameters
+    #     ----------
+    #     user : simoc_server.database.db_model.User
+    #         User to associate the GameRunner with.
+    #     agent_model_state : simoc_server.database.db_model.AgentModelState
+    #         Agent model state to load the game runner from.
+    #     step_buffer_size : int, optional
+    #         Maximum number of steps to precalculate after each request.
+    #
+    #     Returns
+    #     -------
+    #     GameRunner
+    #         loaded GameRunner instance
+    #     """
+    #     agent_model = AgentModel.load_from_db(agent_model_state)
+    #     return GameRunner(agent_model, user, agent_model.step_num,
+    #         step_buffer_size=step_buffer_size)
 
-        Parameters
-        ----------
-        user : simoc_server.database.db_model.User
-            User to associate the GameRunner with.
-        agent_model_state : simoc_server.database.db_model.AgentModelState
-            Agent model state to load the game runner from.
-        step_buffer_size : int, optional
-            Maximum number of steps to precalculate after each request.
-
-        Returns
-        -------
-        GameRunner
-            loaded GameRunner instance
-        """
-        agent_model = AgentModel.load_from_db(agent_model_state)
-        return GameRunner(agent_model, user, agent_model.step_num,
-            step_buffer_size=step_buffer_size)
-
-    @classmethod
-    def load_from_saved_game(cls, user, saved_game, step_buffer_size=10):
-        """Loads a game runner from a SavedGame
-
-        Parameters
-        ----------
-        user : simoc_server.database.db_model.User
-            User to associate the GameRunner with.
-        saved_game : simoc_server.database.db_model.SavedGame
-            Saved game to load the game runner from.
-        step_buffer_size : int, optional
-            Maximum number of steps to precalculate after each request.
-
-        Returns
-        -------
-        GameRunner
-            loaded GameRunner instance
-
-        Raises
-        ------
-        Unauthorized
-            If the user provided does not match the user the game was saved
-            for.
-        """
-        agent_model_state = saved_game.agent_model_snapshot.agent_model_state
-        saved_game_user = saved_game.user
-        if saved_game_user != user:
-            raise Unauthorized("Attempted to load game belonging to another"
-                "user.")
-        return GameRunner.load_from_state(user, agent_model_state, step_buffer_size)
+    # @classmethod
+    # def load_from_saved_game(cls, user, saved_game, step_buffer_size=10):
+    #     """Loads a game runner from a SavedGame
+    #
+    #     Parameters
+    #     ----------
+    #     user : simoc_server.database.db_model.User
+    #         User to associate the GameRunner with.
+    #     saved_game : simoc_server.database.db_model.SavedGame
+    #         Saved game to load the game runner from.
+    #     step_buffer_size : int, optional
+    #         Maximum number of steps to precalculate after each request.
+    #
+    #     Returns
+    #     -------
+    #     GameRunner
+    #         loaded GameRunner instance
+    #
+    #     Raises
+    #     ------
+    #     Unauthorized
+    #         If the user provided does not match the user the game was saved
+    #         for.
+    #     """
+    #     agent_model_state = saved_game.agent_model_snapshot.agent_model_state
+    #     saved_game_user = saved_game.user
+    #     if saved_game_user != user:
+    #         raise Unauthorized("Attempted to load game belonging to another"
+    #             "user.")
+    #     return GameRunner.load_from_state(user, agent_model_state, step_buffer_size)
 
     @classmethod
     def from_new_game(cls, user, game_runner_init_params, step_buffer_size=10):
@@ -224,6 +224,8 @@ class GameRunner(object):
         Exception
             If the requested step is not found in the step buffer.
         """
+        step_num = min(step_num, max(self.step_buffer.keys()))
+
         pruned_buffer = {}
         for n, step in self.step_buffer.items():
             if step_num <= n:
@@ -259,29 +261,26 @@ class GameRunner(object):
         # more than 1 thread attempting to calculate steps
         if self.step_thread is not None and self.step_thread.isAlive():
             self.step_thread.join()
-        def step_loop(agent_model,step_num, step_buffer):
-            while self.agent_model.step_num < step_num:
+        def step_loop(agent_model, step_num, step_buffer):
+            while self.agent_model.step_num < step_num and not self.agent_model['is_terminated']:
                 agent_model.step()
-                step_buffer[self.agent_model.step_num] = AgentModelDTO(self.agent_model).get_state()
+                step_buffer[self.agent_model.step_num] = self.agent_model.get_model_stats()
         if threaded:
             self.step_thread = threading.Thread(target=step_loop, \
-                args=(self.agent_model,step_num, self.step_buffer))
+                args=(self.agent_model, step_num, self.step_buffer))
             self.step_thread.run()
         else:
             step_loop(self.agent_model, step_num, self.step_buffer)
 
 class GameRunnerInitializationParams(object):
 
-    def __init__(self, mode, launch_date, duration_days, location,
-            payload, region=None, regolith=None):
-        # placeholder
-        # TODO create agent model intialization parameters
-        # from higher level game runner initialization parameters
+    def __init__(self, config):
         self.model_init_params = AgentModelInitializationParams()
-        (self.model_init_params.set_grid_width(100)
-                    .set_grid_height(100)
-                    .set_starting_model_time(datetime.timedelta()))
-        self.agent_init_recipe = BaseLineAgentInitializerRecipe()
+        self.model_init_params.set_grid_width(100) \
+                    .set_grid_height(100) \
+                    .set_starting_model_time(datetime.timedelta()) \
+                    .set_termination(config['termination'])
+        self.agent_init_recipe = BaseLineAgentInitializerRecipe(config)
 
 
 class GameRunnerManager(object):
@@ -375,20 +374,20 @@ class GameRunnerManager(object):
         game_runner = GameRunner.from_new_game(user, game_runner_init_params)
         self._add_game_runner(user, game_runner)
 
-    def load_game(self, user, saved_game):
-        """Load a game and add it to the internal game_runners dict.
-        If the user already holds a game instance, it is saved, if needed and removed.
-
-        Parameters
-        ----------
-        user : simoc_server.database.db_model.User
-            The user requesting to game, to be validated as the owner of the save by
-            the GameRunner on initialization.
-        saved_game : simoc_server.database.db_model.SavedGame
-            The saved game to load.
-        """
-        game_runner = GameRunner.load_from_saved_game(user, saved_game)
-        self._add_game_runner(saved_game.user, game_runner)
+    # def load_game(self, user, saved_game):
+    #     """Load a game and add it to the internal game_runners dict.
+    #     If the user already holds a game instance, it is saved, if needed and removed.
+    #
+    #     Parameters
+    #     ----------
+    #     user : simoc_server.database.db_model.User
+    #         The user requesting to game, to be validated as the owner of the save by
+    #         the GameRunner on initialization.
+    #     saved_game : simoc_server.database.db_model.SavedGame
+    #         The saved game to load.
+    #     """
+    #     game_runner = GameRunner.load_from_saved_game(user, saved_game)
+    #     self._add_game_runner(saved_game.user, game_runner)
 
     def save_all(self, allow_repeat_save=True):
         """Save all currently active game_runners.

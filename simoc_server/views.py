@@ -1,5 +1,10 @@
 import datetime
 import os
+
+import json
+
+from flask_cors import CORS
+
 from collections import OrderedDict
 from uuid import uuid4
 
@@ -9,7 +14,6 @@ from flask import request, session, send_from_directory, safe_join, render_templ
 from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request, data_format_name
 from simoc_server.database.db_model import User, SavedGame
-from simoc_server.agent_model.agents import agent_name_mapping
 from simoc_server.game_runner import (GameRunner, GameRunnerManager,
         GameRunnerInitializationParams)
 
@@ -19,6 +23,8 @@ from simoc_server.exceptions import InvalidLogin, BadRequest, \
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+cors = CORS(app, resources={r"/*":{"origins": "*"}},supports_credentials="true")
+
 game_runner_manager = None
 
 @app.before_first_request
@@ -26,24 +32,15 @@ def create_game_runner_manager():
     global game_runner_manager
     game_runner_manager = GameRunnerManager()
 
+#@app.before_first_request
+
+def create_game_runner_manager():
+    global game_runner_manager
+    game_runner_manager = GameRunnerManager()
+
 @app.before_request
 def deserialize_before_request():
     deserialize_request(request)
-
-content={'formid':'wizardform',
-'wizard':{
-'startInformation':'Welcome to SIMOC, a scalable model of an isolated, off-world community. Here you will enjoy the challenges and rewards of growing your habitat to a thriving city, or exploring the surrounding terrain with a limited crew. Whatever your mode of operation, be warned that closed ecosystems are a delicate thing, easy to unbalance and difficult to recover.',
-'startInformationp2':'Select from Play Mode or Science Run. In Play Mode you will interact regularly, making decisions that alter the course of the growth of your community. In a Science Run you will configure the model up-front and let it run its full course without interaction, then collect the data when done.',
-'configurationInformation':'Select from Preset models or Configure your own SIMOC community. The Preset models are each based upon a real-world experiment or base-line configuration. They require very little input and as such, the outcome is anticipated within a certain margin of error. These are used primarily for Science Runs. If you select to Configure your own model, you will be taken step-by-step through the panels in this Configuration Wizard.',
-'locationInformation':'Where you place your initial habitat and build your community is perhaps the single most important decision made. In Earth orbit you are just hours away from a launch pad and supplies and realtime communications. On the Moon things become more challenging, yet you remain relatively close to home where an evacuation puts you safely on terra firma within a matter of days. But on Mars, in the asteroid belt, or on the distant moons of Jupiter or Saturn you are months from home even with the fastest rocket available. Truly isolated, successful in situ resource utilization may be the difference between success and failure.',
-'regionInformation':'Within the Location you must choose where on the celestial body you desire to place your foundational habitat. You may take into consideration the overall mission objective: to grow a massive, thriving city, to conduct geologic exploration, or to search for life.',
-'terrainInformation':'Your mission may be to explore a unique geological area, but that same area is devoid of water in relatively dry soil, forcing you to import water or extract it from a distant region at the cost of fuel for transport. With regolith rich in minerals you can more rapidly build new structures. With longer days you gain more energy by means of solar panels.',
-'launchInformation':'Select the date of launch and how long your crew remains at the habitat dictates whether you are to rely solely upon imported goods and supplies, or those enabled through in situ resource utilization.',
-'transportationInformation':'Select the type of rocket, resulting in how long it takes to arrive to the destination. A shorter flight consumes more fuel and thereby forces a smaller payload. A longer flight enables more humans and/or supplies, but requires more time to arrive.',
-'payloadInformation':'Select a balance between cargo (goods, machinery, habitat modules, food and water stores) and humans. This is governed by the total kilograms (Kg) of carrying capacity for the given rocket. The user must select the number of humans taken along for the ride, which invokes a certain mass of water, food, and breathable atmosphere. What remains is for cargo.',
-'modelInformation':'The Model defines the basic mode of operation, and the underlying algorithm that will govern the growth policy of the community. Based upon the prior screen (PAYLOAD), the system will auto-select provisions, rovers, structures, manufacturing equipment. These are listed as preloaded configurations. In a later version, the player can manually select the specific payload.'
-}}
-
 
 @app.route("/test_route", methods=["GET","POST"])
 def testroute():
@@ -57,7 +54,7 @@ def testroute2():
 
 @app.route("/")
 def home():
-    return render_template('base_login.html')
+    return render_template('index.html')
 
 #@app.route("/loginpanel", methods=["GET"])
 #def loginpanel():
@@ -74,6 +71,32 @@ def gameinit():
 @app.route("/data_format", methods=["GET"])
 def data_format():
     return data_format_name()
+
+@app.route("/loginvue", methods=["POST"])
+def loginvue():
+    '''
+    Logs the user in with the provided user name and password.
+    'username' and 'password' should be provided on the request
+    json data.
+
+    Returns
+    -------
+    str: A success message.
+
+    Raises
+    ------
+    simoc_server.exceptions.InvalidLogin
+        If the user with the given username or password cannot
+        be found.
+    '''
+
+    user_info = json.loads(request.data)
+
+    user = User.query.filter_by(username=user_info['username']).first()
+    if user and user.validate_password(user_info['password']):
+        login_user(user)
+        return success("Logged In.")
+    raise InvalidLogin("Bad username or password")
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -161,8 +184,67 @@ def new_game():
     region        = try_get_param("region")
     regolith      = try_get_param("regolith")
 
-    game_runner_init_params = GameRunnerInitializationParams(mode, launch_date,
-        duration_days, payload, location, region, regolith)
+    AGENTS = {
+        "greenhouse_medium": 1,
+        "human_agent": 1,
+        "cabbage": 10,
+        'lettuce': 10,
+        'solar_pv_array': 10,
+        'multifiltration_purifier_post_treament': 10
+    }
+
+    STORAGES = {
+        "air_storage": 2,
+        "water_storage": 1,
+        "nutrient_storage": 1,
+        "power_storage": 1,
+        "food_storage": 1
+    }
+
+    game_runner_init_params = GameRunnerInitializationParams(AGENTS, STORAGES)
+    game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
+    return success("New Game Starts")
+
+@app.route("/new_game_vue", methods=["POST"])
+#@login_required
+def new_game_vue():
+    '''
+    Creates a new game on the current session and adds
+    a game runner to the game_runner_manager
+    Returns
+    -------
+    str: A success message.
+    '''
+
+    try:
+        game_config = try_get_param("game_config")
+    except BadRequest as e:
+        game_config = {"agents": {
+            "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                            "power_storage": [1], "food_storage": [1]}, "amount": 2}],
+            "cabbage": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                        "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+            "lettuce": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                        "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+            "greenhouse_medium": [{"connections": {"power_storage": [1]}, "amount": 1}],
+            "solar_pv_array": [{"connections": {"power_storage": [1]}, "amount": 100}],
+            "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
+            "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}]},
+        "storages": {
+            "air_storage": [{"id": 1, "atmo_h2o": 100, "atmo_o2": 100, "atmo_co2": 100}],
+            "water_storage": [{"id": 1, "h2o_potb": 100, "h2o_tret": 100}, {"id": 2, "h2o_wste": 100, "h2o_urin": 100}],
+            "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100, "sold_wast": 0}],
+            "power_storage": [{"id": 1, "enrg_kwh": 1000, "heat_cal": 1000}],
+            "food_storage": [{"id": 1, "food_edbl": 200}]},
+        "termination": {
+            "time": {"value":168 , "unit": "hour"}},
+            "food_leaf": {"value": 10000, "unit": "kg"},
+            "evacuation": {}
+        }
+        print("Cannot retrieve game config. Reason: {}".format(e))
+        print("Using default config: {}".format(game_config))
+
+    game_runner_init_params = GameRunnerInitializationParams(game_config)
     game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
     return success("New Game Starts")
 
@@ -198,8 +280,10 @@ def get_step():
     '''
     step_num = request.args.get("step_num", type=int)
     agent_model_state = game_runner_manager.get_step(get_standard_user_obj(), step_num)
-    return serialize_response(agent_model_state)
+    print(json.dumps(agent_model_state))
 
+    #return serialize_response(agent_model_state)
+    return(json.dumps(agent_model_state))
 @app.route("/save_game", methods=["POST"])
 @login_required
 def save_game():
@@ -298,62 +382,6 @@ def get_saved_games():
                 "date_created":saved_game.date_created
             })
     return serialize_response(response)
-
-@app.route("/sprite_mappings", methods=["GET"])
-def sprite_mappings():
-    '''
-    Get sprite mapping rules for all agents.
-    Returns
-    -------
-    str:
-        json format -
-        {
-            <agent_type_name> : {
-                "default_sprite": <path_to_default_sprite:str>
-                "rules": [
-                    {
-                        "comparator":{
-                            "attr_name":<agent_attribute_name:str>,
-                            "op":<comparison_operator:str>,
-                            "value":<comparison_value>
-                        },
-                        "offset_x":<offset_x_value_for_placing_sprite:str>,
-                        "offset_y":<offset_y_value_for_placing_sprite:str>,
-                        "precedence": <precedence_for_rule:int>,
-                        "sprite_path":<path_to_sprite:str>
-                    },
-                    ...
-                ]
-            },
-            ...
-        }
-    '''
-    response = {}
-    for key, val in agent_name_mapping.items():
-        # initialize the sprite mapper class and serialize it
-        response[key] = val._sprite_mapper().to_serializable()
-    return serialize_response(response)
-
-@app.route("/sprite/<path:sprite_path>", methods=["GET"])
-def get_sprite(sprite_path):
-    '''
-    Returns a sprite at the requested path.  Paths are provided
-    by rules given in '/sprite_mappings' route
-
-    Returns
-    -------
-        response : Contains requested image.
-
-    Parameters
-    ----------
-    sprite_path : str
-        The path to the sprite
-    '''
-    root_path = "res/sprites"
-    full_path = safe_join(app.root_path, root_path, sprite_path)
-    if not os.path.isfile(full_path):
-        raise NotFound("Requested sprite not found: {0}".format(sprite_path))
-    return send_from_directory(root_path, sprite_path)
 
 @app.route("/ping", methods=["GET", "POST"])
 def ping():

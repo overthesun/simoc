@@ -1,49 +1,37 @@
-import time
 import numbers
-import threading
 import datetime
 import numpy as np
-import functools
-import operator
 
-from collections import OrderedDict
 from abc import ABCMeta, abstractmethod
-from uuid import uuid4
 
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
+
 from sqlalchemy.orm.exc import StaleDataError
 
-from simoc_server.database.db_model import AgentModelState, AgentState, \
-    AgentType, AgentModelSnapshot, SnapshotBranch, AgentModelParam
+from simoc_server.database.db_model import AgentModelState, AgentModelSnapshot, SnapshotBranch, AgentModelParam
+
+from simoc_server.agent_model.agents.core import GeneralAgent, StorageAgent
+
+from simoc_server.agent_model.attribute_meta import AttributeHolder
 
 from simoc_server import db, app
-from simoc_server.agent_model import agents, alerts
-from simoc_server.util import (sum_attributes, avg_attributes, timedelta_to_days,
-    timedelta_to_hours)
 
-class AgentModel(Model):
+from simoc_server.util import timedelta_to_hours
+
+class AgentModel(Model, AttributeHolder):
 
     def __init__(self, init_params):
         self.load_params()
         self.grid_width = init_params.grid_width
         self.grid_height = init_params.grid_height
-        self.model_time = init_params.starting_model_time
         self.snapshot_branch = init_params.snapshot_branch
         self.seed = init_params.seed
         self.random_state = init_params.random_state
-
-        self.active_alerts = []
-        self.atmospheres = []
-        self.plumbing_systems = []
-        #hold single power module // needs to hold multiple
-        self.power_grid = []
-
-
-        # plants_available is an ordered dict to ensure consistent
-        # execution of agent steps when using the same random seed
-        self.plants_available = OrderedDict()
+        self.termination = init_params.termination
+        self['time'] = init_params.starting_model_time
+        self['is_terminated'] = False
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -57,105 +45,73 @@ class AgentModel(Model):
 
         self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state)
         self.scheduler = RandomActivation(self, random_state=self.random_state)
-        self.scheduler.steps = getattr(init_params,"starting_step_num", 0) #init_params.starting_step_num
+        self.scheduler.steps = getattr(init_params, "starting_step_num", 0)
 
     @property
     def logger(self):
         return app.logger
 
-    @property
-    def total_moles_atmosphere(self):
-        return sum_attributes(self.atmospheres, "total_moles")
+    def get_model_stats(self):
+        response = {"step": self.step_num,
+                    "is_terminated": self['is_terminated'],
+                    "time": self["time"].total_seconds(),
+                    "agents": self.get_total_agents(),
+                    "storages": self.get_total_storages()}
+        if self['is_terminated']:
+            response['termination_reason'] = self['termination_reason']
+        return response
 
-    @property
-    def total_water(self):
-        return sum_attributes(self.plumbing_systems, "water")
+    def get_total_agents(self):
+        timedelta_per_step = self.timedelta_per_step()
+        hours_per_step = timedelta_to_hours(timedelta_per_step)
+        total_production, total_consumption, total_agent_types = {}, {}, {}
+        for agent in self.get_agents_by_class(agent_class=GeneralAgent):
+            agent_type = agent.agent_type
+            if agent_type not in total_agent_types:
+                total_agent_types[agent_type] = 0
+            total_agent_types[agent_type] += 1
+            for attr in agent.agent_type_attributes:
+                prefix, currency = attr.split('_', 1)
+                if prefix not in ['in', 'out']:
+                    continue
+                step_value = agent.get_step_value(attr, hours_per_step)
+                if prefix == 'out':
+                    if currency not in total_production:
+                        total_production[currency] = step_value
+                    else:
+                        total_production[currency] += step_value
+                elif prefix == 'in':
+                    if currency not in total_consumption:
+                        total_consumption[currency] = step_value
+                    else:
+                        total_consumption[currency] += step_value
+                else:
+                    raise Exception('Unknown flow type. Neither Input nor Output.')
+        for k in total_consumption:
+            if k in total_production:
+                total_consumption[k].units = total_production[k].units
+        return {"total_production": {k: {"value": v.magnitude.tolist(), "units": v.units.dimensionality.string} for k, v in total_production.items()},
+                "total_consumption": {k: {"value": v.magnitude.tolist(), "units": v.units.dimensionality.string} for k, v in total_consumption.items()},
+                "total_agent_types": total_agent_types}
 
-    @property
-    def total_waste_water(self):
-        return sum_attributes(self.plumbing_systems, "waste_water")
 
-    @property
-    def total_grey_water(self):
-        return sum_attributes(self.plumbing_systems, "grey_water")
-
-    @property
-    def total_solid_waste(self):
-        return sum_attributes(self.plumbing_systems, "solid_waste")
-
-    @property
-    def total_grey_water_solids(self):
-        return sum_attributes(self.plumbing_systems, "grey_water_solids")
-
-    @property
-    def avg_oxygen_pressure(self):
-        return avg_attributes(self.atmospheres, "oxygen")
-
-    @property
-    def avg_carbon_dioxide_pressure(self):
-        return avg_attributes(self.atmospheres, "carbon_dioxide")
-
-    @property
-    def avg_nitrogen_pressure(self):
-        return avg_attributes(self.atmospheres, "nitrogen")
-
-    @property
-    def avg_argon_pressure(self):
-        return avg_attributes(self.atmospheres, "argon")
-
-    @property
-    def avg_temp(self):
-        return avg_attributes(self.atmospheres, "temp")
-
-    @property
-    def total_food_energy(self):
-        return sum_attributes(self.get_agents(agents.StoredFood), "food_energy")
-
-    @property
-    def total_food_mass(self):
-        return sum_attributes(self.get_agents(agents.StoredFood), "mass")
-
-    @property
-    def total_inedible_biomass(self):
-        stored_mass = self.get_agents(agents.StoredMass)
-        inedible = [m for m in stored_mass if m.resource_name == "inedible_mass"]
-        return sum_attributes(inedible, "mass")
-
-    @property
-    def total_biomass(self):
-        return self.total_food_mass + self.total_inedible_biomass
-
-    @property
-    def total_electric_energy_capacity(self):
-        return sum_attributes(self.power_grid,"storage_capacity")
-
-    @property
-    def total_electric_energy_usage(self):
-        return sum_attributes(self.power_grid,"energy_usage")
-
-    @property
-    def max_electric_output_capacity(self):
-        return sum_attributes(self.power_grid,"output_capacity")
-
-    @property
-    def total_electric_energy_charge(self):
-        return sum_attributes(self.power_grid,"charge")
-
-    @property
-    def total_power_production(self):
-        return sum_attributes(self.power_grid,"power_produced")
-
-    @property
-    def total_power_draw(self):
-        return sum_attributes(self.power_grid, "power_draw")
-
-    @property
-    def total_humans(self):
-        return len(self.get_agents(agents.HumanAgent))
-
-    @property
-    def hours_per_step(self):
-        return timedelta_to_hours(self.timedelta_per_step())
+    def get_total_storages(self):
+        total_currencies, total_storage_types = {}, {}
+        for storage in self.get_agents_by_class(agent_class=StorageAgent):
+            agent_type = storage.agent_type
+            if agent_type not in total_storage_types:
+                total_storage_types[agent_type] = 0
+            total_storage_types[agent_type] += 1
+            for attr in storage.agent_type_attributes:
+                if attr.startswith('char_capacity'):
+                    currency = attr.split('_', 2)[2]
+                    storage_unit = storage.agent_type_descriptions[attr]
+                    capacity = storage.agent_type_attributes[attr]
+                    if currency not in total_currencies:
+                        total_currencies[currency] = {"value": 0, "capacity": 0, "units": storage_unit}
+                    total_currencies[currency]["value"] += storage[currency]
+                    total_currencies[currency]["capacity"] += capacity
+        return {"total_currencies": total_currencies, "total_storages": total_storage_types}
 
     @property
     def step_num(self):
@@ -171,86 +127,45 @@ class AgentModel(Model):
             else:
                 self.__dict__[param.name] = None
 
-    @classmethod
-    def load_from_db(self, agent_model_state):
-        snapshot_branch = agent_model_state.agent_model_snapshot.snapshot_branch
-        grid_width = agent_model_state.grid_width
-        grid_height = agent_model_state.grid_height
-        step_num = agent_model_state.step_num
-        model_time = agent_model_state.model_time
-        seed = agent_model_state.seed
-        random_state = agent_model_state.random_state
-
-        init_params = AgentModelInitializationParams()
-
-        (init_params.set_grid_width(grid_width)
-                    .set_grid_height(grid_height)
-                    .set_starting_step_num(step_num)
-                    .set_starting_model_time(model_time)
-                    .set_snapshot_branch(snapshot_branch)
-                    .set_seed(seed)
-                    .set_random_state(random_state))
-
-        model = AgentModel(init_params)
-
-        for agent_state in agent_model_state.agent_states:
-            agent_type_name = agent_state.agent_type.name
-            agent_class = agents.get_agent_by_type_name(agent_type_name)
-            agent = agent_class(model, agent_state=agent_state)
-            model.add_agent(agent)
-            app.logger.info("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
-
-        for agent in model.get_agents():
-            agent.post_db_load()
-
-        cls.create_alerts_watcher(model)
-        return model
+    # def load_from_db(self, agent_model_state):
+    #     snapshot_branch = agent_model_state.agent_model_snapshot.snapshot_branch
+    #     grid_width = agent_model_state.grid_width
+    #     grid_height = agent_model_state.grid_height
+    #     step_num = agent_model_state.step_num
+    #     model_time = agent_model_state.model_time
+    #     seed = agent_model_state.seed
+    #     random_state = agent_model_state.random_state
+    #
+    #     init_params = AgentModelInitializationParams()
+    #
+    #     (init_params.set_grid_width(grid_width)
+    #                 .set_grid_height(grid_height)
+    #                 .set_starting_step_num(step_num)
+    #                 .set_starting_model_time(model_time)
+    #                 .set_snapshot_branch(snapshot_branch)
+    #                 .set_seed(seed)
+    #                 .set_random_state(random_state))
+    #
+    #     model = AgentModel(init_params)
+    #
+    #     for agent_state in agent_model_state.agent_states:
+    #         agent_type_name = agent_state.agent_type.name
+    #         agent_class = agents.get_agent_by_type_name(agent_type_name)
+    #         agent = agent_class(model, agent_state=agent_state)
+    #         model.add_agent(agent)
+    #         app.logger.info("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
+    #
+    #     for agent in model.get_agents_by_type():
+    #         agent.post_db_load()
+    #
+    #     self.create_alerts_watcher(model)
+    #     return model
 
     @classmethod
     def create_new(cls, model_init_params, agent_init_recipe):
         model = AgentModel(model_init_params)
         agent_init_recipe.init_agents(model)
-        cls.create_alerts_watcher(model)
         return model
-
-    @classmethod
-    def create_alerts_watcher(cls, model):
-        model.alert_watcher = alerts.AlertsWatcher(model)
-
-    @classmethod
-    def create_atmosphere(cls, model, structures):
-        atmosphere = agents.Atmosphere(model)
-
-        atmosphere.temp = model.initial_temp
-        atmosphere.oxygen = model.initial_oxygen
-        atmosphere.carbon_dioxide = model.initial_carbon_dioxide
-        atmosphere.nitrogen = model.initial_nitrogen
-        atmosphere.argon = model.initial_argon
-
-        for structure in structures:
-            structure.set_atmosphere(atmosphere, maintain_pressure=True)
-
-        return atmosphere
-
-    @classmethod
-    def create_plumbing_system(cls, model, structures):
-        plumbing_system = agents.PlumbingSystem(model)
-        plumbing_system.water = model.initial_water
-        plumbing_system.waste_water = model.initial_waste_water
-
-        for structure in structures:
-            structure.set_plumbing_system(plumbing_system)
-
-        return plumbing_system
-
-    @classmethod
-    def create_power_module(cls, model, structures):
-
-        power_module = agents.PowerModule(model)
-
-        for structure in structures:
-            structure.set_power_module(power_module)
-        return power_module
 
     def add_agent(self, agent, pos=None):
         if pos is None and hasattr(agent, "pos"):
@@ -259,16 +174,8 @@ class AgentModel(Model):
         if pos is not None:
             self.grid.place_agent(agent, pos)
 
-        if isinstance(agent, agents.Atmosphere):
-            self.atmospheres.append(agent)
-        elif isinstance(agent, agents.PlumbingSystem):
-            self.plumbing_systems.append(agent)
-        elif isinstance(agent, agents.PowerModule):
-            self.power_grid.append(agent)
-
     def num_agents(self):
         return len(self.schedule.agents)
-
 
     def _branch(self):
         self.snapshot_branch = SnapshotBranch(parent_branch_id=self.snapshot_branch.id)
@@ -290,7 +197,7 @@ class AgentModel(Model):
                last_saved_branch_state.step_num >= self.step_num):
                 self._branch()
             agent_model_state = AgentModelState(step_num=self.step_num, grid_width=self.grid.width,
-                    grid_height=self.grid.height, model_time=self.model_time, seed=self.seed,
+                    grid_height=self.grid.height, model_time=self['time'], seed=self.seed,
                     random_state=self.random_state)
             snapshot = AgentModelSnapshot(agent_model_state=agent_model_state, snapshot_branch=self.snapshot_branch)
             db.session.add(agent_model_state)
@@ -309,28 +216,27 @@ class AgentModel(Model):
             return self.snapshot()
 
     def step(self):
-        self.model_time += self.timedelta_per_step()
+        self['time'] += self.timedelta_per_step()
+        if "time" in self.termination:
+            value = self.termination['time']['value']
+            unit = self.termination['time']['unit']
+            model_time = self['time'].total_seconds()
+            if unit == 'min':
+                model_time /= 60
+            elif unit == 'hour':
+                model_time /= 3600
+            elif unit == 'day':
+                model_time /= 86400
+            elif unit == 'year':
+                model_time /= 31536000
+            else:
+                raise Exception('Unknown termination time value.')
+            if model_time > value:
+                self['is_terminated'] = True
+                self['termination_reason'] = 'time'
+                return
         self.scheduler.step()
         app.logger.info("{0} step_num {1}".format(self, self.step_num))
-
-        # TODO remove this when it is no longer needed
-        to_print = ["avg_oxygen_pressure", "avg_carbon_dioxide_pressure", "avg_nitrogen_pressure",
-                    "avg_argon_pressure", "total_water", "total_waste_water",
-                    "total_grey_water", "total_grey_water_solids", "total_solid_waste",
-                    "avg_temp", "total_moles_atmosphere"]
-
-        status_string = " ".join(["{}: {:.5g}".format(name, getattr(self, name)) for name in to_print])
-
-
-        app.logger.info("Energy usage: {} kwh, Energy Storage Capacity: {} kwh,"
-            " Output Capacity: {} kw, Power Draw: {} kw, Energy Charge: {} kwh,"
-            " Power Produced: {} kw".format(self.total_electric_energy_usage,
-                self.total_electric_energy_capacity, self.max_electric_output_capacity,
-                self.total_power_draw, self.total_electric_energy_charge, 
-                self.total_power_production))
-
-        app.logger.info(status_string)
-        self.active_alerts = self.alert_watcher.get_alerts()
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)
@@ -351,20 +257,21 @@ class AgentModel(Model):
         if hasattr(agent, "pos"):
             self.grid.remove_agent(agent)
 
-        if isinstance(agent, agents.Atmosphere):
-            self.atmospheres.remove(agent)
-        elif isinstance(agent, agents.PlumbingSystem):
-            self.plumbing_systems.remove(agent)
-
-    def get_agents(self, agent_type=None):
+    def get_agents_by_type(self, agent_type=None):
         if agent_type is None:
             return self.scheduler.agents
         else:
-            return [agent for agent in self.scheduler.agents if isinstance(agent, agent_type)]
+            return [agent for agent in self.scheduler.agents if agent.agent_type == agent_type]
 
-    def agent_by_id(self, unique_id):
-        for agent in self.get_agents():
-            if(agent.unique_id == unique_id):
+    def get_agents_by_class(self, agent_class=None):
+        if agent_class is None:
+            return self.scheduler.agents
+        else:
+            return [agent for agent in self.scheduler.agents if isinstance(agent, agent_class)]
+
+    def agent_by_id(self, id):
+        for agent in self.get_agents_by_type():
+            if(agent.id == id):
                 return agent
         return None
 
@@ -403,6 +310,10 @@ class AgentModelInitializationParams(object):
         self.random_state = random_state
         return self
 
+    def set_termination(self, termination):
+        self.termination = termination
+        return self
+
 class AgentInitializerRecipe(metaclass=ABCMeta):
 
     @abstractmethod
@@ -411,84 +322,19 @@ class AgentInitializerRecipe(metaclass=ABCMeta):
 
 class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
-    NUM_HUMANS = 4
-
-    # plants
-    PLANTS = {
-        "peanut":15,
-        "soybean":15,
-        "rice":15,
-        "white_potato":15,
-        "wheat":15,
-        "tomato":15
-    }
-
-    # TODO sort out way to pull this info from agent definitions
-    # while respecting inheritance
-    INITIAL_FOOD_DURATION = datetime.timedelta(days=6*30)
-    INITIAL_FOOD_ENERGY = 13000.0 * NUM_HUMANS * timedelta_to_days(INITIAL_FOOD_DURATION)
-    INITIAL_FOOD_ENERGY_DENSITY = 4444.0 # kJ / kg
-    INITIAL_FOOD_DENSITY = 450.0
-    INITIAL_FOOD_MASS = INITIAL_FOOD_ENERGY/INITIAL_FOOD_ENERGY_DENSITY
+    def __init__(self, config):
+        self.AGENTS = config['agents']
+        self.STORAGES = config['storages']
 
     def init_agents(self, model):
-        crew_quarters = agents.CrewQuarters(model)
-        greenhouse = agents.Greenhouse(model)
+        for type_name, instances in self.STORAGES.items():
+            for instance in instances:
+                model.add_agent(StorageAgent(model=model, agent_type=type_name, **instance))
 
-        model.add_agent(crew_quarters, (0,0))
-
-        # place green house next to crew quarters
-        greenhouse_x = crew_quarters.width
-        model.add_agent(greenhouse, (greenhouse_x, 0))
-
-        structures = [crew_quarters, greenhouse]
-
-        atmosphere = AgentModel.create_atmosphere(model, structures)
-        plumbing_system = AgentModel.create_plumbing_system(model, structures)
-        power_module = AgentModel.create_power_module(model, structures)
-
-        model.add_agent(atmosphere)
-        model.add_agent(plumbing_system)
-        model.add_agent(power_module)
-
-        for i in range(self.NUM_HUMANS):
-            model.add_agent(agents.HumanAgent(model, structure=crew_quarters))
-
-        # TODO determine number of plants for base line model
-        for plant_type_name, num_to_plant in self.PLANTS.items():
-            model.plants_available[plant_type_name] = num_to_plant
-
-        crew_quarters_storage = agents.StorageFacility(model, structure=crew_quarters)
-        greenhouse_storage = agents.StorageFacility(model, structure=greenhouse)
-
-        cq_stored_food = crew_quarters_storage.get_stored_food()
-        gh_stored_food = greenhouse_storage.get_stored_food()
-
-        to_store = self.INITIAL_FOOD_MASS
-        energy_to_store = self.INITIAL_FOOD_ENERGY_DENSITY
-
-        for stored_food in [cq_stored_food, gh_stored_food]:
-            actual_mass, actual_energy = stored_food.accumulate(to_store,
-                self.INITIAL_FOOD_DENSITY, self.INITIAL_FOOD_ENERGY_DENSITY)
-
-            to_store -= actual_mass
-            energy_to_store -= actual_energy
-
-        if(to_store > 0):
-            actual_mass_total = self.INITIAL_FOOD_MASS - to_store
-            actual_energy_stored = self.INITIAL_FOOD_ENERGY - energy_to_store
-
-            logger.info("Unable to store all of initial food. Stored {} kg out of {} kg"
-                " and {} kJ out of {} kJ".format(actual_mass_total, self.INITIAL_FOOD_MASS,
-                    actual_energy_stored, self.INITIAL_FOOD_ENERGY))
-
-        carbon_scrubber = agents.CarbonScrubber(model, structure=crew_quarters)
-
-        model.add_agent(agents.Planter(model, structure=greenhouse))
-        model.add_agent(agents.Harvester(model, structure=greenhouse))
-        model.add_agent(greenhouse_storage)
-        model.add_agent(crew_quarters_storage)
-        model.add_agent(agents.Kitchen(model, structure=crew_quarters))
-        model.add_agent(carbon_scrubber)
+        for type_name, instances in self.AGENTS.items():
+            for instance in instances:
+                connections, amount = instance["connections"], instance['amount']
+                for i in range(amount):
+                    model.add_agent(GeneralAgent(model=model, agent_type=type_name, connections=connections))
 
         return model

@@ -1,0 +1,48 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: simoc
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: simoc
+        track: stable
+    spec:
+      containers:
+        - name: simoc
+          image: gcr.io/<PROJECT_ID>/simoc:latest
+          imagePullPolicy: Always
+          env:
+          - name: DB_TYPE
+            value: "mysql"
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-credentials
+                key: username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-credentials
+                key: password
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-credentials
+                key: username
+          - name: DB_DNS_NAME
+            value: "mysqldb.default.svc.cluster.local"
+          - name: DB_PORT
+            value: "3306"
+          ports:
+            - name: http
+              containerPort: 8000
+          resources:
+            requests:
+              memory: "500M"
+              cpu: 1.0
+            limits:
+              memory: "1G"
+              cpu: 2.0
