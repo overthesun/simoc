@@ -91,8 +91,8 @@ class AgentModel(Model, AttributeHolder):
         for k in total_consumption:
             if k in total_production:
                 total_consumption[k].units = total_production[k].units
-        return {"total_production": {k: {"value": v.magnitude.tolist(), "units": v.units.dimensionality.string} for k, v in total_production.items()},
-                "total_consumption": {k: {"value": v.magnitude.tolist(), "units": v.units.dimensionality.string} for k, v in total_consumption.items()},
+        return {"total_production": {k: {"value": "{:.4f}".format(v.magnitude.tolist()), "units": v.units.dimensionality.string} for k, v in total_production.items()},
+                "total_consumption": {k: {"value": "{:.4f}".format(v.magnitude.tolist()), "units": v.units.dimensionality.string} for k, v in total_consumption.items()},
                 "total_agent_types": total_agent_types}
 
 
@@ -112,6 +112,9 @@ class AgentModel(Model, AttributeHolder):
                         total_currencies[currency] = {"value": 0, "capacity": 0, "units": storage_unit}
                     total_currencies[currency]["value"] += storage[currency]
                     total_currencies[currency]["capacity"] += capacity
+        for currency in total_currencies:
+            total_currencies[currency]["value"] = "{:.4f}".format(total_currencies[currency]["value"])
+            total_currencies[currency]["capacity"] = "{:.4f}".format(total_currencies[currency]["capacity"])
         return {"total_currencies": total_currencies, "total_storages": total_storage_types}
 
     @property
