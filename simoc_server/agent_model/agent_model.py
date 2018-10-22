@@ -53,6 +53,7 @@ class AgentModel(Model, AttributeHolder):
 
     def get_model_stats(self):
         response = {"step": self.step_num,
+                    "hours_per_step": timedelta_to_hours(self.timedelta_per_step()),
                     "is_terminated": self['is_terminated'],
                     "time": self["time"].total_seconds(),
                     "agents": self.get_total_agents(),

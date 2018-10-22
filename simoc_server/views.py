@@ -6,6 +6,7 @@ from uuid import uuid4
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask import request, session, send_from_directory, safe_join, render_template
 
+from simoc_server.database.db_model import AgentType
 from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request, data_format_name
 from simoc_server.database.db_model import User, SavedGame
@@ -141,7 +142,7 @@ def logout():
 
 
 @app.route("/new_game", methods=["POST"])
-#@login_required
+@login_required
 def new_game():
     '''
     Creates a new game on the current session and adds
@@ -156,8 +157,7 @@ def new_game():
         game_config = try_get_param("game_config")
     except BadRequest as e:
         game_config = {"agents": {
-            "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
-                                             "power_storage": [1], "food_storage": [1]}, "amount": 2}],
+            "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}, "amount": 20}],
             "cabbage": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
                                          "power_storage": [1], "food_storage": [1]}, "amount": 10}],
             "lettuce": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
@@ -169,8 +169,8 @@ def new_game():
         "storages": {
             "air_storage": [{"id": 1, "atmo_h2o": 100, "atmo_o2": 100, "atmo_co2": 100}],
             "water_storage": [{"id": 1, "h2o_potb": 100, "h2o_tret": 100}, {"id": 2, "h2o_wste": 100, "h2o_urin": 100}],
-            "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100, "sold_wast": 0}],
-            "power_storage": [{"id": 1, "enrg_kwh": 1000, "heat_cal": 1000}],
+            "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
+            "power_storage": [{"id": 1, "enrg_kwh": 1000}],
             "food_storage": [{"id": 1, "food_edbl": 200}]},
         "termination": [
             {"condition": "time", "value": 2, "unit": "year"},
@@ -195,28 +195,32 @@ def get_step():
     -------
     str:
         json format -
-        {
-            "step_num":<agent_model_step_number>,
-            "agents": [
-                {
-                    "id":<agent_unique_id:str>,
-                    "agent_type":<agent_type_name:str>,
-                    "pos_x":<position_x_coordinate:int>,
-                    "pos_y":<position_y_coordinate:int>,
-                    "attributes": {
-                        <attribute_name:str>:<value>,
-                        ...
-                    }
-                },
-                ...
-            ]
-        }
-
-
     '''
     step_num = request.args.get("step_num", type=int)
     agent_model_state = game_runner_manager.get_step(get_standard_user_obj(), step_num)
     return serialize_response(agent_model_state)
+
+@app.route("/get_agent_types", methods=["GET"])
+def get_agent_types_by_class():
+    args, results = {}, []
+    agent_class = request.args.get("agent_class", type=str)
+    agent_name = request.args.get("agent_name", type=str)
+    if agent_class:
+        args["agent_class"] = agent_class
+    if agent_name:
+        args["name"] = agent_name
+    for agent in AgentType.query.filter_by(**args).all():
+        entry = {"agent_class": agent.agent_class, "name": agent.name}
+        for attr in agent.agent_type_attributes:
+            prefix, currency = attr.name.split('_', 1)
+            if prefix not in entry:
+                entry[prefix] = []
+            if prefix in ['in', 'out']:
+                entry[prefix].append(currency)
+            else:
+                entry[prefix].append({"name": currency, "value": attr.value, "units": attr.units})
+        results.append(entry)
+    return serialize_response(results)
 
 @app.route("/save_game", methods=["POST"])
 @login_required
