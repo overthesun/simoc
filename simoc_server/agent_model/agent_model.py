@@ -96,38 +96,38 @@ class AgentModel(Model, AttributeHolder):
                 "total_agent_types": total_agent_types}
 
 
-    # def get_total_storages(self):
-    #     total_currencies, total_storage_types = {}, {}
-    #     for storage in self.get_agents_by_class(agent_class=StorageAgent):
-    #         agent_type = storage.agent_type
-    #         if agent_type not in total_storage_types:
-    #             total_storage_types[agent_type] = 0
-    #         total_storage_types[agent_type] += 1
-    #         for attr in storage.agent_type_attributes:
-    #             if attr.startswith('char_capacity'):
-    #                 currency = attr.split('_', 2)[2]
-    #                 storage_unit = storage.agent_type_descriptions[attr]
-    #                 capacity = storage.agent_type_attributes[attr]
-    #                 if currency not in total_currencies:
-    #                     total_currencies[currency] = {"value": 0, "capacity": 0, "units": storage_unit}
-    #                 total_currencies[currency]["value"] += storage[currency]
-    #                 total_currencies[currency]["capacity"] += capacity
-    #     for currency in total_currencies:
-    #         total_currencies[currency]["value"] = "{:.4f}".format(total_currencies[currency]["value"])
-    #         total_currencies[currency]["capacity"] = "{:.4f}".format(total_currencies[currency]["capacity"])
-    #     return {"total_currencies": total_currencies, "total_storages": total_storage_types}
+    def get_total_storages_old(self):
+        total_currencies, total_storage_types = {}, {}
+        for storage in self.get_agents_by_class(agent_class=StorageAgent):
+            agent_type = storage.agent_type
+            if agent_type not in total_storage_types:
+                total_storage_types[agent_type] = 0
+            total_storage_types[agent_type] += 1
+            for attr in storage.agent_type_attributes:
+                if attr.startswith('char_capacity'):
+                    currency = attr.split('_', 2)[2]
+                    storage_unit = storage.agent_type_descriptions[attr]
+                    capacity = storage.agent_type_attributes[attr]
+                    if currency not in total_currencies:
+                        total_currencies[currency] = {"value": 0, "capacity": 0, "units": storage_unit}
+                    total_currencies[currency]["value"] += storage[currency]
+                    total_currencies[currency]["capacity"] += capacity
+        for currency in total_currencies:
+            total_currencies[currency]["value"] = "{:.4f}".format(total_currencies[currency]["value"])
+            total_currencies[currency]["capacity"] = "{:.4f}".format(total_currencies[currency]["capacity"])
+        return {"total_currencies": total_currencies, "total_storages": total_storage_types}
 
     def get_total_storages(self):
         storages = []
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
-            entity = {"agent_type": storage.agent_type, "agent_id": storage.id, "currencies": {}}
+            entity = {"agent_type": storage.agent_type, "agent_id": storage.id, "currencies": []}
             for attr in storage.agent_type_attributes:
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
                     value = "{:.4f}".format(storage[currency])
                     capacity = storage.agent_type_attributes[attr]
                     storage_unit = storage.agent_type_descriptions[attr]
-                    entity["currencies"] = {"value": value, "capacity": capacity, "units": storage_unit}
+                    entity["currencies"].append({"name": currency, "value": value, "capacity": capacity, "units": storage_unit})
             storages.append(entity)
         return storages
 
