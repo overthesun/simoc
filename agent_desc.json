@@ -92,6 +92,14 @@
               "value": 21,
               "unit": "day"
             }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "day"
+            }
           }
         ],
         "output": [{
@@ -119,10 +127,26 @@
             }
           },
           {
+            "type": "sold_wast",
+            "value": 0.81,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "day"
+            }
+          },
+          {
             "type": "h2o_urin",
             "value": 1.5,
             "flow_rate": {
               "unit": "kg",
+              "time": "day"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 8.4,
+            "flow_rate": {
+              "unit": "cal",
               "time": "day"
             }
           }
@@ -142,7 +166,18 @@
             "value": 0.0,
             "unit": "m^3"
           }
-        ] 
+        ],
+        "thresholds": [{
+            "type": "starvation",
+            "value": 21.0,
+            "unit": "days"
+          },
+          {
+            "type": "dehydration",
+            "value": 3.0,
+            "unit": "days"
+          }
+        ]
       }
     }
   },
@@ -303,6 +338,14 @@
             "value": 1.36,
             "flow_rate": {
               "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
               "time": "hour"
             }
           }
@@ -2849,6 +2892,14 @@
               "unit": "kWh",
               "time": "hour"
             }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
           }
         ],
         "output": [],
@@ -3128,7 +3179,11 @@
       "data": {
         "input": [],
         "output": [],
-        "characteristics": [
+        "characteristics": [{
+            "type": "capacity_h2o_treated",
+            "value": 100,
+            "unit": "kg"
+          },
           {
             "type": "capacity_h2o_potb",
             "value": 400,
@@ -3182,6 +3237,11 @@
             "unit": "kg"
           },
           {
+            "type": "capacity_sold_wast",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
             "type": "mass",
             "value": 0,
             "unit": "kg"
@@ -3202,6 +3262,11 @@
             "type": "capacity_enrg_kwh",
             "value": 1000,
             "unit": "kWh"
+          },
+          {
+            "type": "capacity_heat_cal",
+            "value": 1000,
+            "unit": "cal"
           },
           {
             "type": "mass",

@@ -4,7 +4,7 @@ from uuid import uuid4
 import inspect
 
 from simoc_server import db
-from simoc_server.util import load_db_attributes_into_dict, NotLoaded
+from simoc_server.util import load_db_attributes_into_dict, extend_dict, NotLoaded
 from simoc_server.database.db_model import AgentType, AgentState, AgentStateAttribute
 from simoc_server.agent_model.attribute_meta import AttributeHolder
 
@@ -310,7 +310,7 @@ class GeneralAgent(EnclosedAgent):
                     raise Exception('Unknown flow type. Neither Input nor Output.')
                 new_storage_value = new_storage_value.magnitude.tolist()
 
-                if new_storage_value < 0 and storage_value >= 0:
+                if new_storage_value < 0:
                     if deprive_value > 0:
                         if deprive_unit == 'min':
                             delta_per_step = hours_per_step * 60

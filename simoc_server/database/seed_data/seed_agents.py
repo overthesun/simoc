@@ -8,8 +8,9 @@ def import_agents(agents, agent_class):
     for name in agents:
         if not agents[name].get('data', None):
             continue
-        agent_type = AgentType(name=name, agent_class=agent_class)
+        agent_type = AgentType(name=name)
         agent_data["{}_{}_agent_type".format(name, agent_class)] = agent_type
+        create_agent_type_attr(agent_type, 'char_class', agent_class)
         for attr in agents[name]['data']['characteristics']:
             attr_name = 'char_{}'.format(attr['type'])
             attr_value = attr.get("value", '')

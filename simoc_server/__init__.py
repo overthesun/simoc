@@ -11,7 +11,7 @@ if os.path.isfile("settings.py"):
 else:
     config_obj = os.environ.get("DIAG_CONFIG_MODULE", "simoc_server.default_settings")
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder = "./dist/static",template_folder = "./dist")
 
 app.config.from_object(config_obj)
 
