@@ -139,8 +139,13 @@ def register():
     simoc_server.exceptions.BadRegistration
         If the user already exists.
     '''
-    username = try_get_param("username")
-    password = try_get_param("password")
+    #username = try_get_param("username")
+    #password = try_get_param("password")
+    user_info = json.loads(request.data)
+
+    username = user_info['username']
+    password = user_info['password']
+
     if(User.query.filter_by(username=username).first()):
         raise BadRegistration("User already exists")
     user = User(username=username)
