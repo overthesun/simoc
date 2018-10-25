@@ -53,6 +53,7 @@ class AgentModel(Model, AttributeHolder):
 
     def get_model_stats(self):
         response = {"step": self.step_num,
+                    "hours_per_step": timedelta_to_hours(self.timedelta_per_step()),
                     "is_terminated": self['is_terminated'],
                     "time": self["time"].total_seconds(),
                     "agents": self.get_total_agents(),
@@ -90,12 +91,12 @@ class AgentModel(Model, AttributeHolder):
         for k in total_consumption:
             if k in total_production:
                 total_consumption[k].units = total_production[k].units
-        return {"total_production": {k: {"value": v.magnitude.tolist(), "units": v.units.dimensionality.string} for k, v in total_production.items()},
-                "total_consumption": {k: {"value": v.magnitude.tolist(), "units": v.units.dimensionality.string} for k, v in total_consumption.items()},
+        return {"total_production": {k: {"value": "{:.4f}".format(v.magnitude.tolist()), "units": v.units.dimensionality.string} for k, v in total_production.items()},
+                "total_consumption": {k: {"value": "{:.4f}".format(v.magnitude.tolist()), "units": v.units.dimensionality.string} for k, v in total_consumption.items()},
                 "total_agent_types": total_agent_types}
 
 
-    def get_total_storages(self):
+    def get_total_storages_old(self):
         total_currencies, total_storage_types = {}, {}
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
             agent_type = storage.agent_type
@@ -111,7 +112,24 @@ class AgentModel(Model, AttributeHolder):
                         total_currencies[currency] = {"value": 0, "capacity": 0, "units": storage_unit}
                     total_currencies[currency]["value"] += storage[currency]
                     total_currencies[currency]["capacity"] += capacity
+        for currency in total_currencies:
+            total_currencies[currency]["value"] = "{:.4f}".format(total_currencies[currency]["value"])
+            total_currencies[currency]["capacity"] = "{:.4f}".format(total_currencies[currency]["capacity"])
         return {"total_currencies": total_currencies, "total_storages": total_storage_types}
+
+    def get_total_storages(self):
+        storages = []
+        for storage in self.get_agents_by_class(agent_class=StorageAgent):
+            entity = {"agent_type": storage.agent_type, "agent_id": storage.id, "currencies": []}
+            for attr in storage.agent_type_attributes:
+                if attr.startswith('char_capacity'):
+                    currency = attr.split('_', 2)[2]
+                    value = "{:.4f}".format(storage[currency])
+                    capacity = storage.agent_type_attributes[attr]
+                    storage_unit = storage.agent_type_descriptions[attr]
+                    entity["currencies"].append({"name": currency, "value": value, "capacity": capacity, "units": storage_unit})
+            storages.append(entity)
+        return storages
 
     @property
     def step_num(self):
