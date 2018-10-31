@@ -1,8 +1,12 @@
 import datetime
 import os
+import json
+
+
 from collections import OrderedDict
 from uuid import uuid4
 
+from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask import request, session, send_from_directory, safe_join, render_template
 
@@ -21,59 +25,24 @@ login_manager.init_app(app)
 
 game_runner_manager = None
 
+cors = CORS(app, resources={r"/*":{"origins": "*"}},supports_credentials="true")
+
 @app.before_first_request
 def create_game_runner_manager():
     global game_runner_manager
     game_runner_manager = GameRunnerManager()
 
-@app.before_request
-def deserialize_before_request():
-    deserialize_request(request)
-
-content={'formid':'wizardform',
-'wizard':{
-'startInformation':'Welcome to SIMOC, a scalable model of an isolated, off-world community. Here you will enjoy the challenges and rewards of growing your habitat to a thriving city, or exploring the surrounding terrain with a limited crew. Whatever your mode of operation, be warned that closed ecosystems are a delicate thing, easy to unbalance and difficult to recover.',
-'startInformationp2':'Select from Play Mode or Science Run. In Play Mode you will interact regularly, making decisions that alter the course of the growth of your community. In a Science Run you will configure the model up-front and let it run its full course without interaction, then collect the data when done.',
-'configurationInformation':'Select from Preset models or Configure your own SIMOC community. The Preset models are each based upon a real-world experiment or base-line configuration. They require very little input and as such, the outcome is anticipated within a certain margin of error. These are used primarily for Science Runs. If you select to Configure your own model, you will be taken step-by-step through the panels in this Configuration Wizard.',
-'locationInformation':'Where you place your initial habitat and build your community is perhaps the single most important decision made. In Earth orbit you are just hours away from a launch pad and supplies and realtime communications. On the Moon things become more challenging, yet you remain relatively close to home where an evacuation puts you safely on terra firma within a matter of days. But on Mars, in the asteroid belt, or on the distant moons of Jupiter or Saturn you are months from home even with the fastest rocket available. Truly isolated, successful in situ resource utilization may be the difference between success and failure.',
-'regionInformation':'Within the Location you must choose where on the celestial body you desire to place your foundational habitat. You may take into consideration the overall mission objective: to grow a massive, thriving city, to conduct geologic exploration, or to search for life.',
-'terrainInformation':'Your mission may be to explore a unique geological area, but that same area is devoid of water in relatively dry soil, forcing you to import water or extract it from a distant region at the cost of fuel for transport. With regolith rich in minerals you can more rapidly build new structures. With longer days you gain more energy by means of solar panels.',
-'launchInformation':'Select the date of launch and how long your crew remains at the habitat dictates whether you are to rely solely upon imported goods and supplies, or those enabled through in situ resource utilization.',
-'transportationInformation':'Select the type of rocket, resulting in how long it takes to arrive to the destination. A shorter flight consumes more fuel and thereby forces a smaller payload. A longer flight enables more humans and/or supplies, but requires more time to arrive.',
-'payloadInformation':'Select a balance between cargo (goods, machinery, habitat modules, food and water stores) and humans. This is governed by the total kilograms (Kg) of carrying capacity for the given rocket. The user must select the number of humans taken along for the ride, which invokes a certain mass of water, food, and breathable atmosphere. What remains is for cargo.',
-'modelInformation':'The Model defines the basic mode of operation, and the underlying algorithm that will govern the growth policy of the community. Based upon the prior screen (PAYLOAD), the system will auto-select provisions, rovers, structures, manufacturing equipment. These are listed as preloaded configurations. In a later version, the player can manually select the specific payload.'
-}}
-
-
-@app.route("/test_route", methods=["GET","POST"])
-def testroute():
-
-    return render_template('partial_dashboard.html',static_url_path='/static')
-
-@app.route("/test_route2", methods=["GET","POST"])
-def testroute2():
-    return render_template('test.html')
-
+#@app.before_request
+#def deserialize_before_request():
+#    deserialize_request(request)
 
 @app.route("/")
 def home():
-    return render_template('base_login.html')
-
-#@app.route("/loginpanel", methods=["GET"])
-#def loginpanel():
- #   return render_template("panel_login.html")
-
-@app.route("/registerpanel", methods=["GET"])
-def registerpanel():
-    return render_template("base_registration.html")
+    return render_template('index.html')
 
 @app.route("/gameinit", methods=["GET"])
 def gameinit():
     return render_template("base_template.html",content=content)
-
-@app.route("/data_format", methods=["GET"])
-def data_format():
-    return data_format_name()
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -92,8 +61,9 @@ def login():
         If the user with the given username or password cannot
         be found.
     '''
-    username = try_get_param("username")
-    password = try_get_param("password")
+    userinfo = json.loads(request.data)
+    username = userinfo["username"]
+    password = userinfo["password"]
     user = User.query.filter_by(username=username).first()
     if user and user.validate_password(password):
         login_user(user)
@@ -116,8 +86,9 @@ def register():
     simoc_server.exceptions.BadRegistration
         If the user already exists.
     '''
-    username = try_get_param("username")
-    password = try_get_param("password")
+    userinfo = json.loads(request.data)
+    username = userinfo["username"]
+    password = userinfo["password"]
     if(User.query.filter_by(username=username).first()):
         raise BadRegistration("User already exists")
     user = User(username=username)
@@ -152,9 +123,9 @@ def new_game():
     -------
     str: A success message.
     '''
-
+    user_config = json.loads(request.data)
     try:
-        game_config = try_get_param("game_config")
+        game_config = user_config['game_config']
     except BadRequest as e:
         game_config = {"agents": {
             "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}, "amount": 20}],
@@ -198,7 +169,7 @@ def get_step():
     '''
     step_num = request.args.get("step_num", type=int)
     agent_model_state = game_runner_manager.get_step(get_standard_user_obj(), step_num)
-    return serialize_response(agent_model_state)
+    return json.dumps(agent_model_state)
 
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
@@ -221,106 +192,6 @@ def get_agent_types_by_class():
                 entry[prefix].append({"name": currency, "value": attr.value, "units": attr.units})
         results.append(entry)
     return serialize_response(results)
-
-@app.route("/save_game", methods=["POST"])
-@login_required
-def save_game():
-    '''
-    Save the current game for the user.
-
-    Returns
-    -------
-    str :
-        A success message.
-    '''
-    if "save_name" in request.deserialized.keys():
-        save_name = request.deserialized["save_name"]
-    else:
-        save_name = None
-    game_runner_manager.save_game(get_standard_user_obj() ,save_name)
-    return success("Save successful.")
-
-@app.route("/load_game", methods=["POST"])
-@login_required
-def load_game():
-    '''
-    Load game with given 'saved_game_id' in session.  Adds
-    GameRunner to game_runner_manager.
-
-    Returns
-    -------
-    str:
-        A success message.
-
-    Raises
-    ------
-    simoc_server.exceptions.BadRequest
-        If 'saved_game_id' is not in the json data on the request.
-
-    simoc_server.exceptions.NotFound
-        If the SavedGame with the requested 'saved_game_id' does not
-        exist in the database
-
-    '''
-
-    saved_game_id = try_get_param("saved_game_id")
-    saved_game = SavedGame.query.get(saved_game_id)
-    if saved_game is None:
-        raise NotFound("Requested game not found in loaded games.")
-    game_runner_manager.load_game(get_standard_user_obj(), saved_game)
-    return success("Game loaded successfully.")
-
-@app.route("/get_saved_games", methods=["GET"])
-@login_required
-def get_saved_games():
-    '''
-    Get saved games for current user. All save games fall under the root
-    branch id that they are saved under.
-
-    Returns
-    -------
-    str:
-        json format -
-
-        {
-            <root_branch_id>: [
-                {
-                    "date_created":<date_created:str(db.DateTime)>
-                    "name": "<ave_name:str>,
-                    "save_game_id":<save_game_id:int>
-                },
-                ...
-            ],
-            ...
-        }
-
-
-    '''
-    saved_games = SavedGame.query.filter_by(user=get_standard_user_obj()).all()
-
-    sequences = {}
-    for saved_game in saved_games:
-        snapshot = saved_game.agent_model_snapshot
-        snapshot_branch = snapshot.snapshot_branch
-        root_branch = snapshot_branch.get_root_branch()
-        if root_branch in sequences.keys():
-            sequences[root_branch].append(saved_game)
-        else:
-            sequences[root_branch] = [saved_game]
-
-    sequences = OrderedDict(sorted(sequences.items(), key=lambda x: x[0].date_created))
-
-    response = {}
-    for root_branch, saved_games in sequences.items():
-        response[root_branch.id] = []
-        for saved_game in saved_games:
-            response[root_branch.id].append({
-                "saved_game_id":saved_game.id,
-                "name":saved_game.name,
-                "date_created":saved_game.date_created
-            })
-    return serialize_response(response)
-
 
 @app.route("/ping", methods=["GET", "POST"])
 def ping():
