@@ -141,6 +141,10 @@
             "type": "volume",
             "value": 0.0,
             "unit": "m^3"
+          },
+          {
+            "type": "threshold_atmo_o2",
+            "value": 0.08
           }
         ] 
       }
@@ -292,6 +296,7 @@
           {
             "type": "enrg_kwh",
             "value": 1.501,
+            "required": true,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -301,6 +306,7 @@
         "output": [{
             "type": "h2o_tret",
             "value": 1.36,
+            "requires": ["h2o_urin"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -374,88 +380,36 @@
     },
     "co2_removal_SAWD": {
       "data": {
-        "input": [{
-            "type": "atmo_o2",
-            "value": 6.6,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_n2",
-            "value": 23.15,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
+        "input": [
           {
             "type": "atmo_co2",
             "value": 0.211,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_h2o",
-            "value": 0.25,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_co2_ratio",
+              "limit": ">",
+              "value": 0.5
             }
           },
           {
             "type": "enrg_kwh",
             "value": 1.120,
+            "required": true,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_co2_ratio",
+              "limit": ">",
+              "value": 0.5
             }
           }
         ],
-        "output": [{
-            "type": "atmo_o2",
-            "value": 6.6,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_n2",
-            "value": 23.15,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_h2o",
-            "value": 0.25,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_co2",
-            "value": 0.211,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
-              "time": "hour"
-            }
-          }
-        ],
+        "output": [],
         "characteristics": [{
             "type": "volume",
             "value": 0.31,

@@ -20,6 +20,8 @@ from simoc_server import db, app
 
 from simoc_server.util import timedelta_to_hours
 
+import quantities as pq
+
 class AgentModel(Model, AttributeHolder):
 
     def __init__(self, init_params):
@@ -46,6 +48,7 @@ class AgentModel(Model, AttributeHolder):
         self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state)
         self.scheduler = RandomActivation(self, random_state=self.random_state)
         self.scheduler.steps = getattr(init_params, "starting_step_num", 0)
+        self.model_stats = {}
 
     @property
     def logger(self):
@@ -57,7 +60,8 @@ class AgentModel(Model, AttributeHolder):
                     "is_terminated": self['is_terminated'],
                     "time": self["time"].total_seconds(),
                     "agents": self.get_total_agents(),
-                    "storages": self.get_total_storages()}
+                    "storages": self.get_total_storages(),
+                    "model_stats": self.model_stats}
         if self['is_terminated']:
             response['termination_reason'] = self['termination_reason']
         return response
@@ -94,28 +98,6 @@ class AgentModel(Model, AttributeHolder):
         return {"total_production": {k: {"value": "{:.4f}".format(v.magnitude.tolist()), "units": v.units.dimensionality.string} for k, v in total_production.items()},
                 "total_consumption": {k: {"value": "{:.4f}".format(v.magnitude.tolist()), "units": v.units.dimensionality.string} for k, v in total_consumption.items()},
                 "total_agent_types": total_agent_types}
-
-
-    def get_total_storages_old(self):
-        total_currencies, total_storage_types = {}, {}
-        for storage in self.get_agents_by_class(agent_class=StorageAgent):
-            agent_type = storage.agent_type
-            if agent_type not in total_storage_types:
-                total_storage_types[agent_type] = 0
-            total_storage_types[agent_type] += 1
-            for attr in storage.agent_type_attributes:
-                if attr.startswith('char_capacity'):
-                    currency = attr.split('_', 2)[2]
-                    storage_unit = storage.agent_type_descriptions[attr]
-                    capacity = storage.agent_type_attributes[attr]
-                    if currency not in total_currencies:
-                        total_currencies[currency] = {"value": 0, "capacity": 0, "units": storage_unit}
-                    total_currencies[currency]["value"] += storage[currency]
-                    total_currencies[currency]["capacity"] += capacity
-        for currency in total_currencies:
-            total_currencies[currency]["value"] = "{:.4f}".format(total_currencies[currency]["value"])
-            total_currencies[currency]["capacity"] = "{:.4f}".format(total_currencies[currency]["capacity"])
-        return {"total_currencies": total_currencies, "total_storages": total_storage_types}
 
     def get_total_storages(self):
         storages = []
@@ -253,6 +235,27 @@ class AgentModel(Model, AttributeHolder):
                 self['is_terminated'] = True
                 self['termination_reason'] = 'time'
                 return
+        for storage in self.get_agents_by_class(agent_class=StorageAgent):
+            agent_id = '{}_{}'.format(storage.agent_type, storage.id)
+            if agent_id not in self.model_stats:
+                self.model_stats[agent_id] = {}
+            temp, total = {}, None
+            for attr in storage.agent_type_attributes:
+                if attr.startswith('char_capacity'):
+                    currency = attr.split('_', 2)[2]
+                    storage_unit = storage.agent_type_descriptions[attr]
+                    storage_value = pq.Quantity(float(storage[currency]), storage_unit)
+                    if not total:
+                        total = storage_value
+                    else:
+                        storage_value.units = total.units
+                        total += storage_value
+                    temp[currency] = storage_value.magnitude.tolist()
+            for currency in temp:
+                if temp[currency] > 0:
+                    self.model_stats[agent_id][currency + '_ratio'] = temp[currency] / total.magnitude.tolist()
+                else:
+                    self.model_stats[agent_id][currency + '_ratio'] = 0
         self.scheduler.step()
         app.logger.info("{0} step_num {1}".format(self, self.step_num))
 
