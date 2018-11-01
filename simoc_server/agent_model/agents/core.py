@@ -218,7 +218,7 @@ class GeneralAgent(EnclosedAgent):
         super(GeneralAgent, self).__init__(*args, **kwargs)
 
         storages = self.model.get_agents_by_class(agent_class=StorageAgent)
-        self.selected_storages = {}
+        self.selected_storages = {"in": {}, 'out': {}}
         self.deprive = {}
         for attr in self.agent_type_attributes:
             prefix, currency = attr.split('_', 1)
@@ -227,40 +227,53 @@ class GeneralAgent(EnclosedAgent):
 
             descriptions = self.agent_type_descriptions[attr].split('/')
             deprive_value = descriptions[8]
+            required = descriptions[9]
             self.deprive[currency] = int(deprive_value) if deprive_value != '' else 0
 
-            self.selected_storages[currency] = []
+            self.selected_storages[prefix][currency] = []
             for storage in storages:
-                if storage.agent_type not in connections:
-                    continue
-                if storage.id not in connections[storage.agent_type]:
-                    continue
+                if len(connections) > 0:
+                    if storage.agent_type not in connections:
+                        continue
+                    if storage.id not in connections[storage.agent_type]:
+                        continue
                 if currency in storage:
-                    self.selected_storages[currency].append(storage)
+                    if required == 'True':
+                        self.selected_storages[prefix][currency] = [storage] + self.selected_storages[prefix][currency]
+                    else:
+                        self.selected_storages[prefix][currency].append(storage)
 
     def age(self):
         return self.model['time'] - self.model_time_created
 
-    def get_step_value(self, attr, hours_per_step, target_unit=None):
+    def get_step_value(self, attr, hours_per_step):
+        prefix, currency = attr.split('_', 1)
         multiplier = 1
         descriptions = self.agent_type_descriptions[attr].split('/')
         agent_unit, agent_flow_time, attr_active_period = descriptions[:3]
         agent_value = pq.Quantity(self.agent_type_attributes[attr], agent_unit)
-        if target_unit is not None:
-            agent_value.units = target_unit
         if attr_active_period != '':
             multiplier *= int(attr_active_period) / 24
         cr_name, cr_limit, cr_value, cr_reset = descriptions[3:7]
-        cr_value = int(cr_value) if cr_value != '' else 0
+        cr_value = float(cr_value) if cr_value != '' else 0
         if len(cr_name) > 0:
+            if cr_name in self:
+                source = self[cr_name]
+            else:
+                source = 0
+                for currency in self.selected_storages[prefix]:
+                    for storage in self.selected_storages[prefix][currency]:
+                        agent_id = '{}_{}'.format(storage.agent_type, storage.id)
+                        if cr_name in self.model.model_stats[agent_id]:
+                            source += self.model.model_stats[agent_id][cr_name]
             if cr_limit == '>':
-                if self[cr_name] <= cr_value:
+                if source <= cr_value:
                     return agent_value * 0
             elif cr_limit == '<':
-                if self[cr_name] >= cr_value:
+                if source >= cr_value:
                     return agent_value * 0
             elif cr_limit == '=':
-                if self[cr_name] != cr_value:
+                if source != cr_value:
                     return agent_value * 0
         if agent_flow_time == 'min':
             multiplier *= (hours_per_step * 60)
@@ -280,54 +293,69 @@ class GeneralAgent(EnclosedAgent):
         hours_per_step = timedelta_to_hours(timedelta_per_step)
 
         for attr in self.agent_type_attributes:
-            prefix, currency = attr.split('_', 1)
+            if attr.startswith('char_threshold_'):
+                threshold_value = self.agent_type_attributes[attr]
+                currency = attr.split('_', 2)[2]
+                for prefix in ['in', 'out']:
+                    if currency in self.selected_storages[prefix]:
+                        for storage in self.selected_storages[prefix][currency]:
+                            agent_id = '{}_{}'.format(storage.agent_type, storage.id)
+                            if self.model.model_stats[agent_id][currency + '_ratio'] < threshold_value:
+                                self.kill('Threshold {} met for {}. Killing the agent'.format(currency, self.agent_type))
 
-            if prefix not in ['in', 'out']:
-                continue
-
-            num_of_storages = len(self.selected_storages[currency])
-
-            if num_of_storages == 0:
-                self.kill('No storage of {} found for {}. Killing the agent'.format(currency, self.agent_type))
-
-            descriptions = self.agent_type_descriptions[attr].split('/')
-
-            deprive_unit, deprive_value = descriptions[7:9]
-            deprive_value = int(deprive_value) if deprive_value != '' else 0
-
-            for storage in self.selected_storages[currency]:
-                storage_cap = storage['char_capacity_' + currency]
-                storage_unit = storage.agent_type_descriptions['char_capacity_' + currency]
-                storage_value = pq.Quantity(storage[currency], storage_unit)
-
-                step_value = self.get_step_value(attr, hours_per_step, storage_unit) / num_of_storages
-
-                if prefix == 'out':
-                    new_storage_value = storage_value + step_value
-                elif prefix == 'in':
-                    new_storage_value = storage_value - step_value
-                else:
-                    raise Exception('Unknown flow type. Neither Input nor Output.')
-                new_storage_value = new_storage_value.magnitude.tolist()
-
-                if new_storage_value < 0 and storage_value >= 0:
-                    if deprive_value > 0:
-                        if deprive_unit == 'min':
-                            delta_per_step = hours_per_step * 60
-                        elif deprive_unit == 'hour':
-                            delta_per_step = hours_per_step
-                        elif deprive_unit == 'day':
-                            delta_per_step = hours_per_step / 24
+        influx = []
+        for prefix in ['in', 'out']:
+            for currency in self.selected_storages[prefix]:
+                attr = '{}_{}'.format(prefix, currency)
+                num_of_storages = len(self.selected_storages[prefix][currency])
+                if num_of_storages == 0:
+                    self.kill('No storage of {} found for {}. Killing the agent'.format(currency, self.agent_type))
+                descriptions = self.agent_type_descriptions[attr].split('/')
+                deprive_unit, deprive_value = descriptions[7:9]
+                required, requires = descriptions[9:11]
+                if requires != 'None':
+                    requires = requires.split('#')
+                    for req_currency in requires:
+                        if req_currency not in influx:
+                            continue
+                deprive_value = int(deprive_value) if deprive_value != '' else 0
+                step_value = self.get_step_value(attr, hours_per_step) / num_of_storages
+                for storage in self.selected_storages[prefix][currency]:
+                    storage_cap = storage['char_capacity_' + currency]
+                    storage_unit = storage.agent_type_descriptions['char_capacity_' + currency]
+                    storage_value = pq.Quantity(storage[currency], storage_unit)
+                    step_value.units = storage_unit
+                    if prefix == 'out':
+                        new_storage_value = storage_value + step_value
+                    elif prefix == 'in':
+                        new_storage_value = storage_value - step_value
+                    else:
+                        raise Exception('Unknown flow type. Neither Input nor Output.')
+                    new_storage_value = new_storage_value.magnitude.tolist()
+                    if new_storage_value < 0 and storage_value >= 0:
+                        if deprive_value > 0:
+                            if deprive_unit == 'min':
+                                delta_per_step = hours_per_step * 60
+                            elif deprive_unit == 'hour':
+                                delta_per_step = hours_per_step
+                            elif deprive_unit == 'day':
+                                delta_per_step = hours_per_step / 24
+                            else:
+                                raise Exception('Unknown agent deprive_unit value.')
+                            self.deprive[currency] -= delta_per_step
+                            if self.deprive[currency] < 0:
+                                self.kill(
+                                    'There is no enough {} for {}. Killing the agent'.format(currency, self.agent_type))
+                        if required == 'True':
+                            return
                         else:
-                            raise Exception('Unknown agent deprive_unit value.')
-                        self.deprive[currency] -= delta_per_step
-                        if self.deprive[currency] < 0:
-                            self.kill('There is no enough {} for {}. Killing the agent'.format(currency, self.agent_type))
-                    storage[currency] = 0
-                else:
-                    storage[currency] = min(new_storage_value, storage_cap)
-                    if deprive_value > 0:
-                        self.deprive[currency] = deprive_value
+                            storage[currency] = 0
+                    else:
+                        storage[currency] = min(new_storage_value, storage_cap)
+                        if prefix == 'in':
+                            influx.append(currency)
+                        if deprive_value > 0:
+                            self.deprive[currency] = deprive_value
 
     def kill(self, reason):
         self.destroy(reason)
