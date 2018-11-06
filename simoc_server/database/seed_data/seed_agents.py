@@ -8,9 +8,8 @@ def import_agents(agents, agent_class):
     for name in agents:
         if not agents[name].get('data', None):
             continue
-        agent_type = AgentType(name=name)
+        agent_type = AgentType(name=name, agent_class=agent_class)
         agent_data["{}_{}_agent_type".format(name, agent_class)] = agent_type
-        create_agent_type_attr(agent_type, 'char_class', agent_class)
         for attr in agents[name]['data']['characteristics']:
             attr_name = 'char_{}'.format(attr['type'])
             attr_value = attr.get("value", '')
@@ -25,6 +24,10 @@ def import_agents(agents, agent_class):
                 deprive = attr.get("deprive", None)
                 flow_rate = attr.get("flow_rate", None)
                 criteria = attr.get("criteria", None)
+                required = attr.get("required", None)
+                requires = attr.get("requires", None)
+                if requires is not None:
+                    requires = "#".join(requires)
                 deprive_unit, deprive_value = '', ''
                 flow_unit, flow_time = '', ''
                 cr_name, cr_limit, cr_value, cr_reset = '', '', '', ''
@@ -39,7 +42,7 @@ def import_agents(agents, agent_class):
                     cr_limit = criteria.get('limit', '')
                     cr_value = criteria.get('value', '')
                     cr_reset = criteria.get('reset', '')
-                attr_descriptions = '{}/{}/{}/{}/{}/{}/{}/{}/{}'.format(flow_unit, flow_time, attr_active_period, cr_name, cr_limit, cr_value, cr_reset, deprive_unit, deprive_value)
+                attr_descriptions = '{}/{}/{}/{}/{}/{}/{}/{}/{}/{}/{}'.format(flow_unit, flow_time, attr_active_period, cr_name, cr_limit, cr_value, cr_reset, deprive_unit, deprive_value, required, requires)
                 create_agent_type_attr(agent_type, attr_name, attr_value, attr_descriptions)
     util.add_all(agent_data)
 

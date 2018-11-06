@@ -92,14 +92,6 @@
               "value": 21,
               "unit": "day"
             }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
-              "time": "day"
-            }
           }
         ],
         "output": [{
@@ -127,26 +119,10 @@
             }
           },
           {
-            "type": "sold_wast",
-            "value": 0.81,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "day"
-            }
-          },
-          {
             "type": "h2o_urin",
             "value": 1.5,
             "flow_rate": {
               "unit": "kg",
-              "time": "day"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 8.4,
-            "flow_rate": {
-              "unit": "cal",
               "time": "day"
             }
           }
@@ -165,17 +141,10 @@
             "type": "volume",
             "value": 0.0,
             "unit": "m^3"
-          }
-        ],
-        "thresholds": [{
-            "type": "starvation",
-            "value": 21.0,
-            "unit": "days"
           },
           {
-            "type": "dehydration",
-            "value": 3.0,
-            "unit": "days"
+            "type": "threshold_atmo_o2",
+            "value": 0.08
           }
         ]
       }
@@ -203,6 +172,7 @@
           {
             "type": "enrg_kwh",
             "value": 0,
+            "required" : true,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -212,6 +182,7 @@
         "output": [{
             "type": "sold_n",
             "value": 0.00725,
+            "requires": ["h2o_wste", "atmo_o2"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -220,6 +191,7 @@
           {
             "type": "sold_p",
             "value": 0.00087,
+            "requires": ["h2o_wste", "atmo_o2"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -228,6 +200,7 @@
           {
             "type": "sold_k",
             "value": 0.00205,
+            "requires": ["h2o_wste", "atmo_o2"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -235,6 +208,7 @@
           },
           {
             "type": "h2o_urin",
+            "requires": ["h2o_wste", "atmo_o2"],
             "value": 4.989,
             "flow_rate": {
               "unit": "kg",
@@ -244,6 +218,7 @@
           {
             "type": "atmo_co2",
             "value": 0.005,
+            "requires": ["h2o_wste", "atmo_o2"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -252,6 +227,7 @@
           {
             "type": "atmo_ch4",
             "value": 0.0025,
+            "requires": ["h2o_wste", "atmo_o2"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -268,16 +244,15 @@
         ],
         "characteristics": [{
             "type": "mass",
-            "value": 0,
+            "value": 150,
             "unit": "kg"
           },
           {
             "type": "volume",
-            "value": 0,
+            "value": 0.075,
             "unit": "m^3"
           }
-        ],
-        "thresholds": []
+        ]
       },
       "description": "Cleans wastewater using microbial degradation, provides nutrients for plants."
     },
@@ -294,6 +269,7 @@
         "output": [{
           "type": "h2o_potb",
           "value": 4.75,
+          "requires": ["h2o_tret"],
           "flow_rate": {
             "unit": "kg",
             "time": "hour"
@@ -309,8 +285,7 @@
             "value": 0,
             "unit": "m^3"
           }
-        ],
-        "thresholds": []
+        ]
       },
       "description": "Purifies relatively clean water"
     },
@@ -327,6 +302,7 @@
           {
             "type": "enrg_kwh",
             "value": 1.501,
+            "required" : true,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -336,6 +312,7 @@
         "output": [{
             "type": "h2o_tret",
             "value": 1.36,
+            "requires": ["h2o_urin"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -360,12 +337,11 @@
             "value": 0.39,
             "unit": "m^3"
           }
-        ],
-        "thresholds": []
+        ]
       },
       "description": "Purifies relatively clean water"
     },
-    "oxygen_generation__SFWE": {
+    "oxygen_generation_SFWE": {
       "data": {
         "input": [{
             "type": "h2o_potb",
@@ -378,6 +354,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.959,
+            "required" : true,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -388,17 +365,29 @@
         "output": [{
             "type": "atmo_h2",
             "value": 0.0454,
+            "requires": ["h2o_potb"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_o2_ratio",
+              "limit": ">",
+              "value": 0.195
             }
           },
           {
             "type": "atmo_o2",
             "value": 0.367,
+            "requires": ["h2o_potb"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_o2_ratio",
+              "limit": ">",
+              "value": 0.195
             }
           }
         ],
@@ -417,88 +406,36 @@
     },
     "co2_removal_SAWD": {
       "data": {
-        "input": [{
-            "type": "atmo_o2",
-            "value": 6.6,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_n2",
-            "value": 23.15,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
+        "input": [
           {
             "type": "atmo_co2",
             "value": 0.211,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_h2o",
-            "value": 0.25,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_co2_ratio",
+              "limit": ">",
+              "value": 0.001
             }
           },
           {
             "type": "enrg_kwh",
             "value": 1.120,
+            "required" : true,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_co2_ratio",
+              "limit": ">",
+              "value": 0.001
             }
           }
         ],
-        "output": [{
-            "type": "atmo_o2",
-            "value": 6.6,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_n2",
-            "value": 23.15,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_h2o",
-            "value": 0.25,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_co2",
-            "value": 0.211,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
-              "time": "hour"
-            }
-          }
-        ],
+        "output": [],
         "characteristics": [{
             "type": "volume",
             "value": 0.31,
@@ -509,8 +446,7 @@
             "value": 137.35,
             "unit": "kg"
           }
-        ],
-        "thresholds": []
+        ]
       },
       "description": "Removes CO2 from air"
     },
@@ -522,6 +458,11 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_co2_ratio",
+              "limit": ">",
+              "value": 0.001
             }
           },
           {
@@ -530,20 +471,32 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_co2_ratio",
+              "limit": ">",
+              "value": 0.001
             }
           },
           {
             "type": "enrg_kwh",
             "value": 0.291,
+            "required" : true,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_co2_ratio",
+              "limit": ">",
+              "value": 0.001
             }
           }
         ],
         "output": [{
             "type": "atmo_ch4",
             "value": 0.0025,
+            "requires": ["atmo_co2", "atmo_h2"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -552,16 +505,9 @@
           {
             "type": "h2o_wste",
             "value": 0.00567,
+            "requires": ["atmo_co2", "atmo_h2"],
             "flow_rate": {
               "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
               "time": "hour"
             }
           }
@@ -576,8 +522,7 @@
             "value": 47.9,
             "unit": "kg"
           }
-        ],
-        "thresholds": []
+        ]
       },
       "description": "Reduces co2 in air, without requiring venting"
     },
@@ -589,14 +534,25 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_cont_ratio",
+              "limit": ">",
+              "value": 0.001
             }
           },
           {
             "type": "enrg_kwh",
             "value": 1.120,
+            "required" : true,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_cont_ratio",
+              "limit": ">",
+              "value": 0.001
             }
           }
         ],
@@ -618,93 +574,9 @@
             "value": 0.31,
             "unit": "m^3"
           }
-        ],
-        "thresholds": []
+        ]
       },
       "description": "Removes potentially hazardous trace contaminants"
-    },
-    "gas_control": {
-      "data": {
-        "input": [{
-            "type": "atmo_o2",
-            "value": 0.5,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_co2",
-            "value": 0.5,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_n2",
-            "value": 0.5,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
-            "value": 0.514,
-            "flow_rate": {
-              "unit": "kWh",
-              "time": "hour"
-            }
-          }
-        ],
-        "output": [{
-            "type": "atmo_o2",
-            "value": 0.5,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_co2",
-            "value": 0.5,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "atmo_n2",
-            "value": 0.5,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
-              "time": "hour"
-            }
-          }
-        ],
-        "characteristics": [{
-            "type": "mass",
-            "value": 0,
-            "unit": "kg"
-          },
-          {
-            "type": "volume",
-            "value": 0,
-            "unit": "m^3"
-          }
-        ],
-        "thresholds": []
-      },
-      "description": "Adds N2 and O2 to system"
     }
   },
   "plants": {
@@ -753,20 +625,36 @@
           {
             "type": "enrg_kwh",
             "value": 0.2300870147,
+            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
             }
           }
         ],
-        "output": [{
-          "type": "atmo_o2",
-          "value": 1.1201294643,
-          "flow_rate": {
-            "unit": "g",
-            "time": "hour"
+        "output": [
+          {
+              "type": "atmo_o2",
+              "value": 1.1201294643,
+              "flow_rate": {
+                "unit": "g",
+                "time": "hour"
+              }
+          },
+          {
+              "type": "food_edbl",
+              "value": 770.95,
+              "flow_rate": {
+                "unit": "g",
+                "time": "day"
+            },
+            "criteria": {
+                "name": "age",
+                "limit": ">",
+                "value": 85
+              }
           }
-        }],
+      ],
         "characteristics": [{
             "type": "category",
             "value": "food_cers"
@@ -777,9 +665,13 @@
             "unit": "day"
           },
           {
-            "type": "daytime_period",
-            "value": 12,
-            "unit": "hour"
+            "type": "lifetime",
+            "value": 85.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -844,6 +736,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.8018183846,
+            "active_period" : 22,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -857,7 +750,20 @@
             "unit": "g",
             "time": "hour"
           }
-        }],
+        },
+          {
+            "type": "food_edbl",
+            "value": 1580,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 79
+            }
+          }],
         "characteristics": [{
             "type": "category",
             "value": "food_cers"
@@ -871,6 +777,15 @@
             "type": "daytime_period",
             "value": 22,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 79.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -1045,6 +960,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
+            "active_period" : 16,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1058,7 +974,20 @@
             "unit": "g",
             "time": "hour"
           }
-        }],
+        },
+          {
+            "type": "food_edbl",
+            "value": 315,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 45
+            }
+          }],
         "characteristics": [{
             "type": "category",
             "value": "food_leaf"
@@ -1072,6 +1001,15 @@
             "type": "daytime_period",
             "value": 16,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -1136,6 +1074,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
+            "active_period" : 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1149,7 +1088,20 @@
             "unit": "g",
             "time": "hour"
           }
-        }],
+        },
+          {
+            "type": "food_edbl",
+            "value": 774.75,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 75
+            }
+          }],
         "characteristics": [{
             "type": "category",
             "value": "food_leaf"
@@ -1161,8 +1113,17 @@
           },
           {
             "type": "daytime_period",
-            "value": null,
+            "value": 24,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -1337,6 +1298,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
+            "active_period" : 16,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1350,7 +1312,20 @@
             "unit": "g",
             "time": "hour"
           }
-        }],
+        },
+          {
+            "type": "food_edbl",
+            "value": 197.1,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 30
+            }
+          }],
         "characteristics": [{
             "type": "category",
             "value": "food_leaf"
@@ -1364,6 +1339,15 @@
             "type": "daytime_period",
             "value": 16,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -1428,6 +1412,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1673360107,
+            "active_period" : 18,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1441,7 +1426,20 @@
             "unit": "g",
             "time": "hour"
           }
-        }],
+        },
+          {
+            "type": "food_edbl",
+            "value": 850,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 85
+            }
+          }],
         "characteristics": [{
             "type": "category",
             "value": "food_legu"
@@ -1455,6 +1453,15 @@
             "type": "daytime_period",
             "value": 18,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -1519,6 +1526,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.188253012,
+            "active_period" : 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1532,7 +1540,20 @@
             "unit": "g",
             "time": "hour"
           }
-        }],
+        },
+          {
+            "type": "food_edbl",
+            "value": 585.52,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 104
+            }
+          }],
         "characteristics": [{
             "type": "category",
             "value": "food_legu"
@@ -1546,6 +1567,15 @@
             "type": "daytime_period",
             "value": 12,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 104.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -1610,6 +1640,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
+            "active_period" : 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1623,7 +1654,20 @@
             "unit": "g",
             "time": "hour"
           }
-        }],
+        },
+          {
+            "type": "food_edbl",
+            "value": 582,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 97
+            }
+          }],
         "characteristics": [{
             "type": "category",
             "value": "food_legu"
@@ -1637,6 +1681,15 @@
             "type": "daytime_period",
             "value": 12,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -1701,6 +1754,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1533913432,
+            "active_period" : 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1714,6 +1768,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+          "type": "food_edbl",
+            "value": 662.15,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 85
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -1728,6 +1795,15 @@
             "type": "daytime_period",
             "value": 12,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -1792,6 +1868,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.188253012,
+            "active_period" : 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1805,6 +1882,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+          "type": "food_edbl",
+            "value": 886.55,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 85
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -1819,6 +1909,15 @@
             "type": "daytime_period",
             "value": 12,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -1883,6 +1982,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1812806783,
+            "active_period" : 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1896,6 +1996,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+            "type": "food_edbl",
+            "value": 515.1,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 85
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -1908,8 +2021,17 @@
           },
           {
             "type": "daytime_period",
-            "value": null,
+            "value": 24,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -1974,6 +2096,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
+            "active_period" : 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1987,6 +2110,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+            "type": "food_edbl",
+            "value": 450,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 50
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -1999,8 +2135,17 @@
           },
           {
             "type": "daytime_period",
-            "value": null,
+            "value": 24,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 50.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -2065,6 +2210,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1673360107,
+            "active_period" : 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2078,6 +2224,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+            "type": "food_edbl",
+            "value": 804.75,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 75
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -2090,8 +2249,17 @@
           },
           {
             "type": "daytime_period",
-            "value": null,
+            "value": 24,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -2156,6 +2324,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.188253012,
+            "active_period" : 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2169,6 +2338,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+            "type": "food_edbl",
+            "value": 886.55,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 85
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -2181,8 +2363,17 @@
           },
           {
             "type": "daytime_period",
-            "value": null,
+            "value": 24,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -2247,6 +2438,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1673360107,
+            "active_period" : 18,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2260,6 +2452,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+            "type": "food_edbl",
+            "value": 1009.8,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 85
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -2274,6 +2479,15 @@
             "type": "daytime_period",
             "value": 18,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 100.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -2338,6 +2552,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1812806783,
+            "active_period" : 16,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2351,6 +2566,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+            "type": "food_edbl",
+            "value": 137.5,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 25
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -2365,6 +2593,15 @@
             "type": "daytime_period",
             "value": 16,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 25,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -2429,6 +2666,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
+            "active_period" : 16,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2442,6 +2680,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+            "type": "food_edbl",
+            "value": 247,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 38
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -2456,6 +2707,15 @@
             "type": "daytime_period",
             "value": 16,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 38.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -2520,6 +2780,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
+            "active_period" : 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2533,6 +2794,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+            "type": "food_edbl",
+            "value": 673.5,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 75
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -2545,8 +2819,17 @@
           },
           {
             "type": "daytime_period",
-            "value": null,
+            "value": 24,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 75.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -2611,6 +2894,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
+            "active_period" : 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2624,6 +2908,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+            "type": "food_edbl",
+            "value": 1275,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 85
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -2638,6 +2935,15 @@
             "type": "daytime_period",
             "value": 12,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 85,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -2702,6 +3008,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
+            "active_period" : 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2715,6 +3022,19 @@
             "unit": "g",
             "time": "hour"
           }
+        },
+        {
+            "type": "food_edbl",
+            "value": 2779.9,
+            "flow_rate": {
+              "unit": "g",
+              "time": "day"
+            },
+            "criteria": {
+              "name": "age",
+              "limit": ">",
+              "value": 132
+            }
         }],
         "characteristics": [{
             "type": "category",
@@ -2729,6 +3049,15 @@
             "type": "daytime_period",
             "value": 12,
             "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 132.0,
+            "unit": "days"
+          },
+          {
+            "type": "reproduce",
+            "value": true
           },
           {
             "type": "mass_total",
@@ -2755,30 +3084,21 @@
       "data": {
         "input": [{
             "type": "enrg_kwh",
-            "value": 0,
+            "value": 2.711,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
             }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
-              "time": "hour"
-            }
-          }
-        ],
+          }        ],
         "output": [],
         "characteristics": [{
             "type": "volume",
-            "value": 0,
+            "value": 1000,
             "unit": "m^3"
           },
           {
             "type": "mass",
-            "value": 0,
+            "value": 20000,
             "unit": "kg"
           }
         ]
@@ -2788,17 +3108,9 @@
       "data": {
         "input": [{
             "type": "enrg_kwh",
-            "value": 0,
+            "value": 6.113,
             "flow_rate": {
               "unit": "kWh",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
               "time": "hour"
             }
           }
@@ -2806,12 +3118,12 @@
         "output": [],
         "characteristics": [{
             "type": "volume",
-            "value": 0,
+            "value": 2260,
             "unit": "m^3"
           },
           {
             "type": "mass",
-            "value": 0,
+            "value": 45200,
             "unit": "kg"
           }
         ]
@@ -2821,17 +3133,9 @@
       "data": {
         "input": [{
             "type": "enrg_kwh",
-            "value": 0,
+            "value": 10.866,
             "flow_rate": {
               "unit": "kWh",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
               "time": "hour"
             }
           }
@@ -2839,12 +3143,12 @@
         "output": [],
         "characteristics": [{
             "type": "volume",
-            "value": 0,
+            "value": 4020,
             "unit": "m^3"
           },
           {
             "type": "mass",
-            "value": 0,
+            "value": 80400,
             "unit": "kg"
           }
         ]
@@ -2854,17 +3158,9 @@
       "data": {
         "input": [{
             "type": "enrg_kwh",
-            "value": 0,
+            "value": 2,
             "flow_rate": {
               "unit": "kWh",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
               "time": "hour"
             }
           }
@@ -2872,12 +3168,12 @@
         "output": [],
         "characteristics": [{
             "type": "volume",
-            "value": 0,
+            "value": 84,
             "unit": "m^3"
           },
           {
             "type": "mass",
-            "value": 0,
+            "value": 453.59,
             "unit": "kg"
           }
         ]
@@ -2887,17 +3183,9 @@
       "data": {
         "input": [{
             "type": "enrg_kwh",
-            "value": 0,
+            "value": 2,
             "flow_rate": {
               "unit": "kWh",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
               "time": "hour"
             }
           }
@@ -2905,12 +3193,12 @@
         "output": [],
         "characteristics": [{
             "type": "volume",
-            "value": 0,
+            "value": 320,
             "unit": "m^3"
           },
           {
             "type": "mass",
-            "value": 0,
+            "value": 1728,
             "unit": "kg"
           }
         ]
@@ -2920,17 +3208,9 @@
       "data": {
         "input": [{
             "type": "enrg_kwh",
-            "value": 0,
+            "value": 2,
             "flow_rate": {
               "unit": "kWh",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
               "time": "hour"
             }
           }
@@ -2938,12 +3218,12 @@
         "output": [],
         "characteristics": [{
             "type": "volume",
-            "value": 0,
+            "value": 840,
             "unit": "m^3"
           },
           {
             "type": "mass",
-            "value": 0,
+            "value": 4535.9,
             "unit": "kg"
           }
         ]
@@ -2956,14 +3236,6 @@
             "value": 0,
             "flow_rate": {
               "unit": "kWh",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
               "time": "hour"
             }
           }
@@ -2985,12 +3257,12 @@
   },
   "fabrication": {},
   "power_generation": {
-    "solar_pv_array": {
+    "solar_pv_array_mars": {
       "data": {
         "input": [],
         "output": [{
           "type": "enrg_kwh",
-          "value": 0.3,
+          "value": 0.06,
           "flow_rate": {
             "unit": "kWh",
             "time": "hour"
@@ -2998,12 +3270,36 @@
         }],
         "characteristics": [{
             "type": "mass",
-            "value": 0,
+            "value": 0.30,
             "unit": "kg"
           },
           {
             "type": "volume",
-            "value": 0,
+            "value": 0.00254,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "solar_pv_array_moon": {
+      "data": {
+        "input": [],
+        "output": [{
+          "type": "enrg_kwh",
+          "value": 0.18,
+          "flow_rate": {
+            "unit": "kWh",
+            "time": "hour"
+          }
+        }],
+        "characteristics": [{
+            "type": "mass",
+            "value": 0.30,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0.00254,
             "unit": "m^3"
           }
         ]
@@ -3069,14 +3365,6 @@
               "unit": "kWh",
               "time": "hour"
             }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
-              "time": "hour"
-            }
           }
         ],
         "output": [],
@@ -3102,16 +3390,7 @@
               "unit": "kWh",
               "time": "hour"
             }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
-              "time": "hour"
-            }
-          }
-        ],
+          }        ],
         "output": [],
         "characteristics": [{
             "type": "volume",

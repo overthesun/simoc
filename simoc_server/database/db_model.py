@@ -71,6 +71,7 @@ class AgentModelParam(DescriptiveAttribute):
 class AgentType(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False, unique=True)
+    agent_class = db.Column(db.String(80), nullable=False, unique=False)
 
 class AgentTypeAttribute(DescriptiveAttribute):
     id = db.Column(db.Integer, primary_key=True)
