@@ -97,6 +97,7 @@ def login():
     '''
     #info = request.data.decode('UTF-8')
     userinfo = json.loads(request.data.decode('UTF-8'))
+    print(userinfo)
     #print(info)
     #userinfo = json.loads(info['formatted']) 
     #userinfo = json.loads(request.data.decode('UTF-8'))
@@ -130,6 +131,7 @@ def register():
         If the user already exists.
     '''
     userinfo = json.loads(request.data.decode('UTF-8'))
+    print(userinfo)
     #userinfo = json.loads(info['formatted']) 
     #userinfo = json.loads(request.data)
     username = userinfo["username"]
