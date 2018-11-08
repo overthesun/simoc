@@ -1,11 +1,11 @@
 self.__precacheManifest = [
   {
-    "revision": "0a5d6162d371be8e1120",
-    "url": "/static/css/app.e3c01ba8.css"
+    "revision": "d72657eeda4b4ae91693",
+    "url": "/static/css/app.bc8f6f9e.css"
   },
   {
-    "revision": "0a5d6162d371be8e1120",
-    "url": "/static/js/app.48178ba2.js"
+    "revision": "d72657eeda4b4ae91693",
+    "url": "/static/js/app.b9b4cb72.js"
   },
   {
     "revision": "3e0e407e0189462ccba8",
@@ -32,15 +32,11 @@ self.__precacheManifest = [
     "url": "/static/img/background-mars.a69b812a.png"
   },
   {
-    "revision": "c91c202352ee346b8ae9e24d5d0c2075",
-    "url": "/static/img/base-view.c91c2023.jpg"
-  },
-  {
     "revision": "b6b49c74cf81c5564357285f53435f4c",
     "url": "/static/img/logo-horizontal.b6b49c74.png"
   },
   {
-    "revision": "6a4e960fc488d5c7dc46e4a39e17ae7e",
+    "revision": "19d5dbda00e003b40a7c896a1b9d7da3",
     "url": "/index.html"
   },
   {
