@@ -95,16 +95,8 @@ def login():
         If the user with the given username or password cannot
         be found.
     '''
-    #info = request.data.decode('UTF-8')
-    userinfo = json.loads(request.data.decode('UTF-8'))
-    #print(info)
-    #userinfo = json.loads(info['formatted']) 
-    #userinfo = json.loads(request.data.decode('UTF-8'))
-    #print(userinfo['formatted'])
-    #info = json.loads(userinfo['formatted'])
-    #print(info['username'])
-
-    #userinfo =userinfo['formatted']
+    userinfo = json.loads(request.data)
+    print(request.data)
     username = userinfo["username"]
     password = userinfo["password"]
     user = User.query.filter_by(username=username).first()
@@ -129,10 +121,7 @@ def register():
     simoc_server.exceptions.BadRegistration
         If the user already exists.
     '''
-    userinfo = json.loads(request.data.decode('UTF-8'))
-    print(userinfo)
-    #userinfo = json.loads(info['formatted']) 
-    #userinfo = json.loads(request.data)
+    userinfo = json.loads(request.data)
     username = userinfo["username"]
     password = userinfo["password"]
     if(User.query.filter_by(username=username).first()):
@@ -174,23 +163,30 @@ def new_game():
     #    game_config = try_get_param("game_config")
     #except BadRequest as e:
     game_config = {"agents": {
-        "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}, "amount": 20}],
+        "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}, "amount": 4}],
         "cabbage": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
                                      "power_storage": [1], "food_storage": [1]}, "amount": 10}],
         "lettuce": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
                                      "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+        "rice": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+        "celery": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
         "greenhouse_medium": [{"connections": {"power_storage": [1]}, "amount": 1}],
-        "solar_pv_array_mars": [{"connections": {"power_storage": [1]}, "amount": 100}],
+        "crew_habitat_small": [{"connections": {"power_storage": [1]}, "amount": 1}],
+        "solar_pv_array_mars": [{"connections": {"power_storage": [1]}, "amount": 20}],
         "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
-        "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}]},
+        "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
+        "co2_removal_SAWD":[{"connections":{},"amount":1}],
+        "co2_reduction_sabatier":[{"connections":{},"amount":1}]},
     "storages": {
-        "air_storage": [{"id": 1, "atmo_h2o": 0, "atmo_o2": 209, "atmo_co2": 11,"atmo_n2":780}],
+        "air_storage": [{"id": 1, "atmo_h2o": 0, "atmo_o2": 210, "atmo_co2": 10,"atmo_n2":780}],
         "water_storage": [{"id": 1, "h2o_potb": 100, "h2o_tret": 100}, {"id": 2, "h2o_wste": 100, "h2o_urin": 100}],
         "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
         "power_storage": [{"id": 1, "enrg_kwh": 1000}],
         "food_storage": [{"id": 1, "food_edbl": 200}]},
     "termination": [
-        {"condition": "time", "value": 2, "unit": "year"},
+        {"condition": "time", "value": 30, "unit": "days"},
         {"condition": "food_leaf", "value": 10000, "unit": "kg"},
         {"condition": "evacuation"}]
     }
