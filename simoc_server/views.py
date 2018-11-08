@@ -97,7 +97,6 @@ def login():
     '''
     #info = request.data.decode('UTF-8')
     userinfo = json.loads(request.data.decode('UTF-8'))
-    print(userinfo)
     #print(info)
     #userinfo = json.loads(info['formatted']) 
     #userinfo = json.loads(request.data.decode('UTF-8'))
