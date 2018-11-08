@@ -95,9 +95,17 @@ def login():
         If the user with the given username or password cannot
         be found.
     '''
+    info = request.data.decode('UTF-8')
+    info = json.loads(request.data.decode('UTF-8'))
+    userinfo = json.loads(info['formatted']) 
     
-    userinfo = json.loads(request.data.decode("utf-8"))
-    print(userinfo)
+    #userinfo = json.loads(request.data.decode('UTF-8'))
+    #print(userinfo['formatted'])
+    #info = json.loads(userinfo['formatted'])
+    #print(info['username'])
+
+    #userinfo =userinfo['formatted']
+    
     username = userinfo["username"]
     password = userinfo["password"]
     user = User.query.filter_by(username=username).first()
