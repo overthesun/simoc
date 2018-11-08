@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.2/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.deee9a86f19d9b29500b39c991b49973.js"
+  "/precache-manifest.659152256eaf4c7b02c1853c7e326ba0.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "simoc"});
