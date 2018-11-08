@@ -96,7 +96,8 @@ def login():
         be found.
     '''
     
-    userinfo = json.loads(request.data.decode("utf-8"))
+    userinfo = json.loads(request.data.decode("utf-16"))
+    print(userinfo)
     username = userinfo["username"]
     password = userinfo["password"]
     user = User.query.filter_by(username=username).first()
