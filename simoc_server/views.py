@@ -95,7 +95,8 @@ def login():
         If the user with the given username or password cannot
         be found.
     '''
-    userinfo = json.loads(request.data)
+    userinfo = json.loads(request.data.decode('utf-8'))
+    #userinfo = json.loads(request.data)
     print(request.data)
     username = userinfo["username"]
     password = userinfo["password"]
@@ -121,7 +122,8 @@ def register():
     simoc_server.exceptions.BadRegistration
         If the user already exists.
     '''
-    userinfo = json.loads(request.data)
+    userinfo = json.loads(request.data.decode('utf-8'))
+    #userinfo = json.loads(request.data)
     username = userinfo["username"]
     password = userinfo["password"]
     if(User.query.filter_by(username=username).first()):
