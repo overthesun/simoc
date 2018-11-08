@@ -96,7 +96,7 @@ def login():
         be found.
     '''
     
-    userinfo = json.loads(request.data.decode("utf-16"))
+    userinfo = json.loads(request.data.decode("utf-8"))
     print(userinfo)
     username = userinfo["username"]
     password = userinfo["password"]
