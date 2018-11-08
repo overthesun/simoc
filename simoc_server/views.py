@@ -99,14 +99,12 @@ def login():
     userinfo = json.loads(request.data.decode('UTF-8'))
     #print(info)
     #userinfo = json.loads(info['formatted']) 
-    print(userinfo)
     #userinfo = json.loads(request.data.decode('UTF-8'))
     #print(userinfo['formatted'])
     #info = json.loads(userinfo['formatted'])
     #print(info['username'])
 
     #userinfo =userinfo['formatted']
-    print(userinfo['username'])
     username = userinfo["username"]
     password = userinfo["password"]
     user = User.query.filter_by(username=username).first()
