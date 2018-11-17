@@ -12,7 +12,7 @@ SIMOC - A Scalable Model of an Isolated, Off-world Community
 ### Setup
 
 #### Clone Repository
-`git clone --recursive https://github.com/bdmccord/simoc.git`
+`git clone --recursive https://github.com/kstaats/simoc.git`
 
 #### Install dependencies:
 
