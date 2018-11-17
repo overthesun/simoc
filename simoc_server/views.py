@@ -7,7 +7,7 @@ from uuid import uuid4
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask import request, session, send_from_directory, safe_join, render_template
 from flask_cors import CORS
-from simoc_server.database.db_model import AgentType
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request, data_format_name
 from simoc_server.database.db_model import User, SavedGame
@@ -213,6 +213,7 @@ def get_step():
     '''
     step_num = request.args.get("step_num", type=int)
     agent_model_state = game_runner_manager.get_step(get_standard_user_obj(), step_num)
+    print("Step: " + str(agent_model_state["step"]) + " Terminated: " + str(agent_model_state["is_terminated"]) + "   " + str(agent_model_state["agents"]))
     return json.dumps(agent_model_state)
 
 @app.route("/get_agent_types", methods=["GET"])
@@ -236,6 +237,78 @@ def get_agent_types_by_class():
                 entry[prefix].append({"name": currency, "value": attr.value, "units": attr.units})
         results.append(entry)
     return serialize_response(results)
+
+@app.route("/get_agents_by_category", methods=["GET"])
+def get_agents_by_category():
+    '''
+    Gets the names of agents with the specified category characteristic.
+
+    Returns
+    -------
+    array of strings.
+    '''
+    results = []
+    agent_category = request.args.get("category", type=str)
+    for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentTypeAttribute.name == "char_category").filter(AgentTypeAttribute.value == agent_category).filter(AgentType.id == AgentTypeAttribute.agent_type_id).all():   
+        results.append(agent.AgentType.name)
+    return json.dumps(results)
+
+@app.route("/get_mass", methods=["GET"])
+def get_mass():
+    '''
+    Sends front end mass values for config wizard.
+    Takes in the request values "agent_name" and "quantity"
+
+    Returns
+    -------
+    json with total mass
+    '''
+    value = 0
+    agent_name = request.args.get("agent_name", type=str)
+    agent_quantity = request.args.get("quantity", type=int)
+    if not agent_quantity:
+        agent_quantity = 1
+    if agent_name == "eclss":
+        total = 0
+        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_mass").filter(AgentType.agent_class == "eclss").all():
+            total += float(agent.AgentTypeAttribute.value)
+        value = total 
+    else:
+        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_mass").all():
+            if agent.AgentType.name == agent_name:
+                value = float(agent.AgentTypeAttribute.value)
+    value = value * agent_quantity
+    total = { "mass" : value} 
+    return json.dumps(total)
+
+@app.route("/get_energy", methods=["GET"])
+def get_energy():
+    '''
+    Sends front end energy values for config wizard.
+    Takes in the request values "agent_name" and "quantity"
+
+    Returns
+    -------
+    json with energy value for agent
+    '''
+    agent_name= request.args.get("agent_name", type=str)
+    agent_quantity = request.args.get("quantity", type=int)
+    attribute_name = "in_enrg_kwh"
+    value_type = "energy input"
+    total = {}
+    if not agent_quantity:
+        agent_quantity = 1
+    if agent_name == "solar_pv_array_mars":
+        attribute_name = "out_enrg_kwh"
+        value_type = "energy output"
+    elif agent_name == "power_storage":
+        attribute_name = "char_capacity_enrg_kwh"
+        value_type = "energy capacity"
+    for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == attribute_name).all():
+        if agent.AgentType.name == agent_name:
+            value = float(agent.AgentTypeAttribute.value) * agent_quantity
+            total = { value_type : value}
+    return json.dumps(total)
 
 @app.route("/save_game", methods=["POST"])
 @login_required

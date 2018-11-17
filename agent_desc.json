@@ -232,14 +232,6 @@
               "unit": "kg",
               "time": "hour"
             }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
-              "time": "hour"
-            }
           }
         ],
         "characteristics": [{
@@ -315,14 +307,6 @@
             "requires": ["h2o_urin"],
             "flow_rate": {
               "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "heat_cal",
-            "value": 0,
-            "flow_rate": {
-              "unit": "cal",
               "time": "hour"
             }
           }
@@ -556,14 +540,7 @@
             }
           }
         ],
-        "output": [{
-          "type": "heat_cal",
-          "value": 0,
-          "flow_rate": {
-            "unit": "cal",
-            "time": "hour"
-          }
-        }],
+        "output": [],
         "characteristics": [{
             "type": "mass",
             "value": 137.35,
@@ -3091,7 +3068,12 @@
             }
           }        ],
         "output": [],
-        "characteristics": [{
+        "characteristics": [
+          {
+            "type" : "category",
+            "value" : "habitat"
+          },
+          {
             "type": "volume",
             "value": 1000,
             "unit": "m^3"
@@ -3116,7 +3098,12 @@
           }
         ],
         "output": [],
-        "characteristics": [{
+        "characteristics": [
+          {
+            "type" : "category",
+            "value" : "habitat"
+          },
+          {
             "type": "volume",
             "value": 2260,
             "unit": "m^3"
@@ -3141,7 +3128,12 @@
           }
         ],
         "output": [],
-        "characteristics": [{
+        "characteristics": [
+          {
+            "type" : "category",
+            "value" : "habitat"
+          },
+          {
             "type": "volume",
             "value": 4020,
             "unit": "m^3"
@@ -3166,7 +3158,11 @@
           }
         ],
         "output": [],
-        "characteristics": [{
+        "characteristics": [
+          {
+            "type" : "category",
+            "value" : "greenhouse"
+          },{
             "type": "volume",
             "value": 84,
             "unit": "m^3"
@@ -3191,7 +3187,12 @@
           }
         ],
         "output": [],
-        "characteristics": [{
+        "characteristics": [
+          {
+            "type" : "category",
+            "value" : "greenhouse"
+          },
+          {
             "type": "volume",
             "value": 320,
             "unit": "m^3"
@@ -3216,7 +3217,11 @@
           }
         ],
         "output": [],
-        "characteristics": [{
+        "characteristics": [
+          {
+            "type" : "category",
+            "value" : "greenhouse"
+          },{
             "type": "volume",
             "value": 840,
             "unit": "m^3"
