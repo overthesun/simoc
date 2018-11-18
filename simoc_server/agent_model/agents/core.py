@@ -275,6 +275,7 @@ class GeneralAgent(EnclosedAgent):
             elif cr_limit == '=':
                 if source != cr_value:
                     return agent_value * 0
+            print(self.agent_type + " turned on (in core.py get_step_value, turn off after testing)")
         if agent_flow_time == 'min':
             multiplier *= (hours_per_step * 60)
         elif agent_flow_time == 'hour':
