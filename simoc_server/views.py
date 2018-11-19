@@ -1,13 +1,14 @@
 import datetime
 import os
 import json
+import math
 from collections import OrderedDict
 from uuid import uuid4
 
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask import request, session, send_from_directory, safe_join, render_template
 from flask_cors import CORS
-from simoc_server.database.db_model import AgentType
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request, data_format_name
 from simoc_server.database.db_model import User, SavedGame
@@ -95,11 +96,10 @@ def login():
         If the user with the given username or password cannot
         be found.
     '''
-    #userinfo = json.loads(request.data)
-    userinfo = json.loads(request.data.decode('utf-8'))
-    print(userinfo)
-    username = userinfo["params"]["username"]
-    password = userinfo["params"]["password"]
+    userinfo = json.loads(request.data)
+    print(request.data)
+    username = userinfo["username"]
+    password = userinfo["password"]
     user = User.query.filter_by(username=username).first()
     if user and user.validate_password(password):
         login_user(user)
@@ -122,8 +122,7 @@ def register():
     simoc_server.exceptions.BadRegistration
         If the user already exists.
     '''
-    userinfo = json.loads(request.data.decode('utf-8'))
-    #userinfo = json.loads(request.data)
+    userinfo = json.loads(request.data)
     username = userinfo["username"]
     password = userinfo["password"]
     if(User.query.filter_by(username=username).first()):
@@ -161,39 +160,47 @@ def new_game():
     str: A success message.
     '''
 
-    #try:
-    #    game_config = try_get_param("game_config")
-    #except BadRequest as e:
-    game_config = {"agents": {
-        "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}, "amount": 4}],
-        "cabbage": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
-                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-        "lettuce": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
-                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-        "rice": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
-                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-        "celery": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
-                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-        "greenhouse_medium": [{"connections": {"power_storage": [1]}, "amount": 1}],
-        "crew_habitat_small": [{"connections": {"power_storage": [1]}, "amount": 1}],
-        "solar_pv_array_mars": [{"connections": {"power_storage": [1]}, "amount": 20}],
-        "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
-        "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
-        "co2_removal_SAWD":[{"connections":{},"amount":1}],
-        "co2_reduction_sabatier":[{"connections":{},"amount":1}]},
-    "storages": {
-        "air_storage": [{"id": 1, "atmo_h2o": 0, "atmo_o2": 210, "atmo_co2": 10,"atmo_n2":780}],
-        "water_storage": [{"id": 1, "h2o_potb": 100, "h2o_tret": 100}, {"id": 2, "h2o_wste": 100, "h2o_urin": 100}],
-        "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
-        "power_storage": [{"id": 1, "enrg_kwh": 1000}],
-        "food_storage": [{"id": 1, "food_edbl": 200}]},
-    "termination": [
-        {"condition": "time", "value": 30, "unit": "days"},
-        {"condition": "food_leaf", "value": 10000, "unit": "kg"},
-        {"condition": "evacuation"}]
-    }
+    try:
+        game_config = convert_configuration(json.loads(request.data)["game_config"])
+            
+    except BadRequest as e:
+        game_config = {"agents": {
+            "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}, "amount": 4}],
+            "cabbage": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                         "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+            "lettuce": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                         "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+            "rice": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                         "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+            "celery": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                         "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+            "greenhouse_medium": [{"connections": {"power_storage": [1]}, "amount": 1}],
+            "crew_habitat_small": [{"connections": {"power_storage": [1]}, "amount": 1}],
+            "solar_pv_array_mars": [{"connections": {"power_storage": [1]}, "amount": 20}],
+            "solid_waste_aerobic_bioreactor": [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1, 2],"nutrient_storage": [1]}, "amount": 1}],
+            "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
+            "oxygen_generation_SFWE" : [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
+            "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
+            "co2_removal_SAWD":[{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}],
+            "co2_reduction_sabatier":[{"connections":{"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]},"amount":1}],
+            "particulate_removal_TCCS" : [{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}]},
+        "storages": {
+            "air_storage": [{"id": 1, "atmo_h2o": 0, "atmo_o2": 210, "atmo_co2": 10,"atmo_n2":780}],
+            "water_storage": [{"id": 1, "h2o_potb": 400, "h2o_tret": 100}, {"id": 2, "h2o_potb": 400, "h2o_wste": 100, "h2o_urin": 100}],
+            "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
+            "power_storage": [{"id": 1, "enrg_kwh": 1000}],
+            "food_storage": [{"id": 1, "food_edbl": 200}]},
+        "termination": [
+            {"condition": "time", "value": 30, "unit": "days"},
+            {"condition": "food_leaf", "value": 10000, "unit": "kg"},
+            {"condition": "evacuation"}]
+        }
         #print("Cannot retrieve game config. Reason: {}".format(e))
-    print("Using default config: {}".format(game_config))
+        
+        
+    #Next 2 lines are for testing only
+    #start_data ={"game_config": {"duration" : {"value": 1, "type" : "years"},"human_agent": {"amount" : 1},"habitat" : "crew_habitat_small","greenhouse" : "greenhouse_large","food_storage":{"amount":1000}, "plants" : [{"species" : "spinach", "amount": 10}, {"species": "cabbage", "amount" : 10}], "solar_arrays" : {"amount":50}, "power_storage" : {"amount":160} }}
+    #game_config = convert_configuration(start_data["game_config"])
 
     game_runner_init_params = GameRunnerInitializationParams(game_config)
     game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
@@ -236,6 +243,85 @@ def get_agent_types_by_class():
                 entry[prefix].append({"name": currency, "value": attr.value, "units": attr.units})
         results.append(entry)
     return serialize_response(results)
+
+@app.route("/get_agents_by_category", methods=["GET"])
+def get_agents_by_category():
+    '''
+    Gets the names of agents with the specified category characteristic.
+
+    Returns
+    -------
+    array of strings.
+    '''
+    results = []
+    agent_category = request.args.get("category", type=str)
+    for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentTypeAttribute.name == "char_category").filter(AgentTypeAttribute.value == agent_category).filter(AgentType.id == AgentTypeAttribute.agent_type_id).all():   
+        results.append(agent.AgentType.name)
+    return json.dumps(results)
+
+@app.route("/get_mass", methods=["GET"])
+def get_mass():
+    '''
+    Sends front end mass values for config wizard.
+    Takes in the request values "agent_name" and "quantity"
+
+    Returns
+    -------
+    json with total mass
+    '''
+    value = 0
+    agent_name = request.args.get("agent_name", type=str)
+    agent_quantity = request.args.get("quantity", type=int)
+    if not agent_quantity:
+        agent_quantity = 1
+    if agent_name == "eclss":
+        total = 0
+        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_mass").filter(AgentType.agent_class == "eclss").all():
+            total += float(agent.AgentTypeAttribute.value)
+        value = total 
+    else:
+        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_mass").all():
+            if agent.AgentType.name == agent_name:
+                value = float(agent.AgentTypeAttribute.value)
+    value = value * agent_quantity
+    total = { "mass" : value} 
+    return json.dumps(total)
+
+@app.route("/get_energy", methods=["GET"])
+def get_energy():
+    '''
+    Sends front end energy values for config wizard.
+    Takes in the request values "agent_name" and "quantity"
+
+    Returns
+    -------
+    json with energy value for agent
+    '''
+    agent_name= request.args.get("agent_name", type=str)
+    agent_quantity = request.args.get("quantity", type=int)
+    attribute_name = "in_enrg_kwh"
+    value_type = "energy input"
+    total = {}
+    if not agent_quantity:
+        agent_quantity = 1
+    if agent_name == "eclss":
+        total_eclss = 0
+        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "in_enrg_kwh").filter(AgentType.agent_class == "eclss").all():
+            total_eclss += float(agent.AgentTypeAttribute.value)
+        value = total_eclss * agent_quantity
+        total = {value_type : value}
+    else:
+        if agent_name == "solar_pv_array_mars":
+            attribute_name = "out_enrg_kwh"
+            value_type = "energy output"
+        elif agent_name == "power_storage":
+            attribute_name = "char_capacity_enrg_kwh"
+            value_type = "energy capacity"
+        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == attribute_name).all():
+            if agent.AgentType.name == agent_name:
+                value = float(agent.AgentTypeAttribute.value) * agent_quantity
+                total = { value_type : value}
+    return json.dumps(total)
 
 @app.route("/save_game", methods=["POST"])
 @login_required
@@ -446,3 +532,73 @@ def get_standard_user_obj():
         The current user entity for the request.
     """
     return current_user._get_current_object()
+
+def convert_configuration(config_obj):
+    """This method converts the json configuration from a post into
+    a more complete configuration with connections"""
+
+    game_config = config_obj
+    full_game_config = {"agents": {
+        "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2]}}],
+        "solid_waste_aerobic_bioreactor": [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1, 2],"nutrient_storage": [1]}, "amount": 1}],
+        "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
+        "oxygen_generation_SFWE" : [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
+        "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
+        "co2_removal_SAWD":[{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}],
+        "co2_reduction_sabatier":[{"connections":{"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]},"amount":1}]
+        #"particulate_removal_TCCS" : [{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}]
+        },
+    "storages": {
+        "air_storage": [{"id": 1, "atmo_h2o": 10, "atmo_o2": 2100, "atmo_co2": 3.5,"atmo_n2":7886, "atmo_ch4" : 0.009531, "atmo_h2" : 0.005295}],
+        "water_storage": [{"id": 1, "h2o_potb": 5000, "h2o_tret": 1000}, {"id": 2, "h2o_potb": 4000, "h2o_wste": 100, "h2o_urin": 100}],
+        "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
+        "power_storage": [],
+        "food_storage": []},
+    "termination": [
+        {"condition": "evacuation"}]}
+    food_storage_capacity = int(db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_capacity_food_edbl").first().AgentTypeAttribute.value)
+    food_storage_amount = math.ceil((game_config["food_storage"]["amount"])/(int(food_storage_capacity)))
+    power_storage_capacity = int(db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_capacity_enrg_kwh").first().AgentTypeAttribute.value)
+    power_storage_amount = math.ceil((game_config["power_storage"]["amount"])/(int(power_storage_capacity)))
+    food_connections, power_connections = [], []
+    food_left, power_left = game_config["food_storage"]["amount"], game_config["power_storage"]["amount"]
+    for x in range(1, int(food_storage_amount)+1):
+        food_connections.append(x)
+        if(food_left > food_storage_capacity):
+            full_game_config["storages"]["food_storage"].append({"id" : x, "food_edbl" : food_storage_capacity})
+            food_left -= food_storage_capacity
+        else:
+            full_game_config["storages"]["food_storage"].append({"id" : x, "food_edbl" : food_left})
+    for y in range(1, int(power_storage_amount)+1):
+        power_connections.append(y)
+        if(power_left > power_storage_capacity):
+            full_game_config["storages"]["power_storage"].append({"id" : x, "enrg_kwh" : power_storage_capacity})
+            power_left -= power_storage_capacity
+        else:
+            full_game_config["storages"]["power_storage"].append({"id" : x, "enrg_kwh" : power_left})
+    for x,y in full_game_config["agents"].items():
+        if x == "human_agent":
+            continue
+        else:
+            y[0]["connections"]["power_storage"] = power_connections
+    if(game_config["human_agent"]):
+        full_game_config["agents"]["human_agent"][0]["amount"]=game_config["human_agent"]["amount"]
+        full_game_config["agents"]["human_agent"][0]["connections"]["food_storage"] = food_connections
+    if(game_config["duration"]):
+        duration = {"condition": "time", "value": game_config["duration"]["value"], "unit": game_config["duration"]["type"]}
+        full_game_config["termination"].append(duration)
+    if(game_config["plants"]):
+        for plant in game_config["plants"]:
+            full_game_config["agents"][plant["species"]] = [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],"power_storage": [], "food_storage": [1]}, "amount": plant["amount"]}]
+            full_game_config["agents"][plant["species"]][0]["connections"]["food_storage"] = food_connections
+            full_game_config["agents"][plant["species"]][0]["connections"]["power_storage"] = power_connections
+    if(game_config["habitat"]):
+        full_game_config["agents"][game_config["habitat"]] = [{"connections": {"power_storage": [1]}, "amount": 1}]
+        full_game_config["agents"][game_config["habitat"]][0]["connections"]["power_storage"] = power_connections
+    if(game_config["greenhouse"]):
+        full_game_config["agents"][game_config["greenhouse"]] = [{"connections": {"power_storage": [1]}, "amount": 1}]
+        full_game_config["agents"][game_config["greenhouse"]][0]["connections"]["power_storage"] = power_connections
+    if(game_config["solar_arrays"]):
+        full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {"power_storage": [1]}, "amount": game_config["solar_arrays"]["amount"]}]
+        full_game_config["agents"]["solar_pv_array_mars"][0]["connections"]["power_storage"] = power_connections
+    return(full_game_config)
