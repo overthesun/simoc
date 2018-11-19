@@ -1,12 +1,11 @@
 import datetime
 import os
-import json
 from collections import OrderedDict
 from uuid import uuid4
 
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask import request, session, send_from_directory, safe_join, render_template
-from flask_cors import CORS
+
 from simoc_server.database.db_model import AgentType
 from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request, data_format_name
@@ -20,8 +19,6 @@ from simoc_server.exceptions import InvalidLogin, BadRequest, \
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-cors = CORS(app, resources={r"/*":{"origins": "*"}},supports_credentials="true")
-
 game_runner_manager = None
 
 @app.before_first_request
@@ -29,9 +26,9 @@ def create_game_runner_manager():
     global game_runner_manager
     game_runner_manager = GameRunnerManager()
 
-#@app.before_request
-#def deserialize_before_request():
- #   deserialize_request(request)
+@app.before_request
+def deserialize_before_request():
+    deserialize_request(request)
 
 content={'formid':'wizardform',
 'wizard':{
@@ -60,7 +57,7 @@ def testroute2():
 
 @app.route("/")
 def home():
-    return render_template('index.html')
+    return render_template('base_login.html')
 
 #@app.route("/loginpanel", methods=["GET"])
 #def loginpanel():
@@ -95,10 +92,8 @@ def login():
         If the user with the given username or password cannot
         be found.
     '''
-    userinfo = json.loads(request.data)
-    print(request.data)
-    username = userinfo["username"]
-    password = userinfo["password"]
+    username = try_get_param("username")
+    password = try_get_param("password")
     user = User.query.filter_by(username=username).first()
     if user and user.validate_password(password):
         login_user(user)
@@ -121,9 +116,8 @@ def register():
     simoc_server.exceptions.BadRegistration
         If the user already exists.
     '''
-    userinfo = json.loads(request.data)
-    username = userinfo["username"]
-    password = userinfo["password"]
+    username = try_get_param("username")
+    password = try_get_param("password")
     if(User.query.filter_by(username=username).first()):
         raise BadRegistration("User already exists")
     user = User(username=username)
@@ -159,39 +153,32 @@ def new_game():
     str: A success message.
     '''
 
-    #try:
-    #    game_config = try_get_param("game_config")
-    #except BadRequest as e:
-    game_config = {"agents": {
-        "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}, "amount": 4}],
-        "cabbage": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
-                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-        "lettuce": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
-                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-        "rice": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
-                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-        "celery": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
-                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-        "greenhouse_medium": [{"connections": {"power_storage": [1]}, "amount": 1}],
-        "crew_habitat_small": [{"connections": {"power_storage": [1]}, "amount": 1}],
-        "solar_pv_array_mars": [{"connections": {"power_storage": [1]}, "amount": 20}],
-        "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
-        "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
-        "co2_removal_SAWD":[{"connections":{},"amount":1}],
-        "co2_reduction_sabatier":[{"connections":{},"amount":1}]},
-    "storages": {
-        "air_storage": [{"id": 1, "atmo_h2o": 0, "atmo_o2": 210, "atmo_co2": 10,"atmo_n2":780}],
-        "water_storage": [{"id": 1, "h2o_potb": 100, "h2o_tret": 100}, {"id": 2, "h2o_wste": 100, "h2o_urin": 100}],
-        "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
-        "power_storage": [{"id": 1, "enrg_kwh": 1000}],
-        "food_storage": [{"id": 1, "food_edbl": 200}]},
-    "termination": [
-        {"condition": "time", "value": 30, "unit": "days"},
-        {"condition": "food_leaf", "value": 10000, "unit": "kg"},
-        {"condition": "evacuation"}]
-    }
-        #print("Cannot retrieve game config. Reason: {}".format(e))
-    print("Using default config: {}".format(game_config))
+    try:
+        game_config = try_get_param("game_config")
+    except BadRequest as e:
+        game_config = {"agents": {
+            "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}, "amount": 20}],
+            "cabbage": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                         "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+            "lettuce": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                         "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+            "greenhouse_medium": [{"connections": {"power_storage": [1]}, "amount": 1}],
+            "solar_pv_array": [{"connections": {"power_storage": [1]}, "amount": 100}],
+            "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
+            "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}]},
+        "storages": {
+            "air_storage": [{"id": 1, "atmo_h2o": 100, "atmo_o2": 100, "atmo_co2": 100}],
+            "water_storage": [{"id": 1, "h2o_potb": 100, "h2o_tret": 100}, {"id": 2, "h2o_wste": 100, "h2o_urin": 100}],
+            "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
+            "power_storage": [{"id": 1, "enrg_kwh": 1000}],
+            "food_storage": [{"id": 1, "food_edbl": 200}]},
+        "termination": [
+            {"condition": "time", "value": 2, "unit": "year"},
+            {"condition": "food_leaf", "value": 10000, "unit": "kg"},
+            {"condition": "evacuation"}]
+        }
+        print("Cannot retrieve game config. Reason: {}".format(e))
+        print("Using default config: {}".format(game_config))
 
     game_runner_init_params = GameRunnerInitializationParams(game_config)
     game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
@@ -211,7 +198,7 @@ def get_step():
     '''
     step_num = request.args.get("step_num", type=int)
     agent_model_state = game_runner_manager.get_step(get_standard_user_obj(), step_num)
-    return json.dumps(agent_model_state)
+    return serialize_response(agent_model_state)
 
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
