@@ -163,7 +163,12 @@ def new_game():
     '''
 
     try:
-        game_config = convert_configuration(json.loads(request.data.decode('utf-8')['game_config']))
+        #game_config = convert_configuration(json.loads(request.data.decode('utf-8')['game_config']))
+        
+        config = json.loads(request.data.decode('utf-8'))
+        game_config = convert_configuration(config["game_config"])
+        print(game_config)
+
         #game_config = convert_configuration(json.loads(request.data)["game_config"])
             
     except BadRequest as e:
