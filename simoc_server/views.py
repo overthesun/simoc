@@ -84,9 +84,11 @@ def login():
     Logs the user in with the provided user name and password.
     'username' and 'password' should be provided on the request
     json data.
+
     Returns
     -------
     str: A success message.
+
     Raises
     ------
     simoc_server.exceptions.InvalidLogin
@@ -109,9 +111,11 @@ def register():
     Registers the user with the provided user name and password.
     'username' and 'password' should be provided on the request
     json data. This also logs the user in.
+
     Returns
     -------
     str: A success message.
+
     Raises
     ------
     simoc_server.exceptions.BadRegistration
@@ -134,6 +138,7 @@ def register():
 def logout():
     '''
     Logs current user out.
+
     Returns
     -------
     str: A success message.
@@ -148,6 +153,7 @@ def new_game():
     '''
     Creates a new game on the current session and adds
     a game runner to the game_runner_manager
+
     Returns
     -------
     str: A success message.
@@ -197,6 +203,7 @@ def get_step():
     '''
     Gets the step with the requsted 'step_num', if not specified,
         uses current model step.
+
     Returns
     -------
     str:
@@ -233,6 +240,7 @@ def get_agent_types_by_class():
 def save_game():
     '''
     Save the current game for the user.
+
     Returns
     -------
     str :
@@ -251,17 +259,21 @@ def load_game():
     '''
     Load game with given 'saved_game_id' in session.  Adds
     GameRunner to game_runner_manager.
+
     Returns
     -------
     str:
         A success message.
+
     Raises
     ------
     simoc_server.exceptions.BadRequest
         If 'saved_game_id' is not in the json data on the request.
+
     simoc_server.exceptions.NotFound
         If the SavedGame with the requested 'saved_game_id' does not
         exist in the database
+
     '''
 
     saved_game_id = try_get_param("saved_game_id")
@@ -277,10 +289,12 @@ def get_saved_games():
     '''
     Get saved games for current user. All save games fall under the root
     branch id that they are saved under.
+
     Returns
     -------
     str:
         json format -
+
         {
             <root_branch_id>: [
                 {
@@ -292,6 +306,8 @@ def get_saved_games():
             ],
             ...
         }
+
+
     '''
     saved_games = SavedGame.query.filter_by(user=get_standard_user_obj()).all()
 
@@ -330,6 +346,7 @@ def ping():
 def load_user(user_id):
     '''
     Method used by flask-login to get user with requested id
+
     Parameters
     ----------
     user_id : str
@@ -340,6 +357,7 @@ def load_user(user_id):
 def success(message, status_code=200):
     '''
     Returns a success message.
+
     Returns
     -------
     str:
@@ -347,6 +365,7 @@ def success(message, status_code=200):
         {
             "message":<success message:str>
         }
+
     Parameters
     ----------
     message : str
@@ -385,14 +404,17 @@ def handle_error(error):
 def try_get_param(name):
     """Attempts to retrieve named value from
     request parameters
+
     Parameters
     ----------
     name : str
         The name of the parameter to retrieve
+
     Returns
     -------
     Type of param
         The value of the param to retreive.
+
     Raises
     ------
     BadRequest
@@ -415,6 +437,7 @@ def get_standard_user_obj():
     to prevent issues arising when the user object is accessed
     later on.  'current_user' is actually of type LocalProxy
     rather than 'User'.
+
     Returns
     -------
     simoc_server.database.db_model.User
