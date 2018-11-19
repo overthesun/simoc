@@ -228,7 +228,7 @@ class GeneralAgent(EnclosedAgent):
             descriptions = self.agent_type_descriptions[attr].split('/')
             deprive_value = descriptions[8]
             required = descriptions[9]
-            self.deprive[currency] = int(deprive_value) if deprive_value != '' else 0
+            self.deprive[currency] = float(deprive_value) if deprive_value != '' else 0
 
             self.selected_storages[prefix][currency] = []
             for storage in storages:
@@ -275,7 +275,8 @@ class GeneralAgent(EnclosedAgent):
             elif cr_limit == '=':
                 if source != cr_value:
                     return agent_value * 0
-            print(self.agent_type + " turned on (in core.py get_step_value, turn off after testing)")
+            #Test line
+            #print("Source: "+ str(source) +" cr value: "+ str(cr_value))
         if agent_flow_time == 'min':
             multiplier *= (hours_per_step * 60)
         elif agent_flow_time == 'hour':
@@ -289,6 +290,7 @@ class GeneralAgent(EnclosedAgent):
 
     def step(self):
         super().step()
+        on = False
 
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
@@ -319,8 +321,12 @@ class GeneralAgent(EnclosedAgent):
                     for req_currency in requires:
                         if req_currency not in influx:
                             continue
-                deprive_value = int(deprive_value) if deprive_value != '' else 0
+                deprive_value = float(deprive_value) if deprive_value != '' else 0
                 step_value = self.get_step_value(attr, hours_per_step) / num_of_storages
+                #Test if
+                '''if step_value > 0 and on == False and self.agent_type == "co2_removal_SAWD":
+                    on = True
+                    print(self.agent_type + ": On")'''
                 for storage in self.selected_storages[prefix][currency]:
                     storage_cap = storage['char_capacity_' + currency]
                     storage_unit = storage.agent_type_descriptions['char_capacity_' + currency]

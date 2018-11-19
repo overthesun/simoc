@@ -198,6 +198,9 @@ def new_game():
             {"condition": "evacuation"}]
         }
         #print("Cannot retrieve game config. Reason: {}".format(e))
+    #Next 2 lines are for testing only
+    #start_data ={"game_config": {"duration" : {"value": 2, "type" : "years"},"human_agent": {"amount" : 1},"habitat" : "crew_habitat_small","greenhouse" : "greenhouse_large","food_storage":{"amount":1000}, "plants" : [{"species" : "spinach", "amount": 1}, {"species": "cabbage", "amount" : 1}], "solar_arrays" : 120, "power_storage" : 48 }}
+    #game_config = convert_configuration(start_data["game_config"])
 
     game_runner_init_params = GameRunnerInitializationParams(game_config)
     game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
@@ -217,7 +220,6 @@ def get_step():
     '''
     step_num = request.args.get("step_num", type=int)
     agent_model_state = game_runner_manager.get_step(get_standard_user_obj(), step_num)
-    #print("Step: " + str(agent_model_state["step"]) + " Terminated: " + str(agent_model_state["is_terminated"]) + "   " + str(agent_model_state["agents"]))
     return json.dumps(agent_model_state)
 
 @app.route("/get_agent_types", methods=["GET"])
@@ -536,10 +538,11 @@ def convert_configuration(config_obj):
         "oxygen_generation_SFWE" : [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
         "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
         "co2_removal_SAWD":[{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}],
-        "co2_reduction_sabatier":[{"connections":{"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]},"amount":1}],
-        "particulate_removal_TCCS" : [{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}]},
+        "co2_reduction_sabatier":[{"connections":{"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]},"amount":1}]
+        #"particulate_removal_TCCS" : [{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}]
+        },
     "storages": {
-        "air_storage": [{"id": 1, "atmo_h2o": 0, "atmo_o2": 210, "atmo_co2": 10,"atmo_n2":780}],
+        "air_storage": [{"id": 1, "atmo_h2o": 10, "atmo_o2": 2150, "atmo_co2": 3.0,"atmo_n2":7830, "atmo_ch4" : 0.009531, "atmo_h2" : 0.005295}],
         "water_storage": [{"id": 1, "h2o_potb": 400, "h2o_tret": 100}, {"id": 2, "h2o_potb": 400, "h2o_wste": 100, "h2o_urin": 100}],
         "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
         "power_storage": [],
@@ -567,7 +570,7 @@ def convert_configuration(config_obj):
         else:
             full_game_config["storages"]["power_storage"].append({"id" : x, "enrg_kwh" : power_left})
     for x,y in full_game_config["agents"].items():
-        if x == "human_agent" or x == "multifiltration_purifier_post_treament":
+        if x == "human_agent":
             continue
         else:
             y[0]["connections"]["power_storage"] = power_connections
