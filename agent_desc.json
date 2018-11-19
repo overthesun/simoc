@@ -36,18 +36,22 @@
       "enrg_kw": 0,
       "enrg_kwh": 0,
       "heat_cal": 0
+
     },
 
     "global_variables": {
-      "temp_int": 18,
-      "temp_ext": -63,
-      "sol_hrs": 0,
-      "solr_hrs": 24.67,
-      "solr_gain": 500,
+      "temp_int": 0,
+      "temp_ext": 0,
+
+      "day_hrs": 0,
+
+      "solr_gain": 0,
+
       "pres_hab": 0,
       "pres_gh": 0,
       "pres_ext": 0,
-      "grav_fld": 7.11
+
+      "grav_fld": 0
     }
   },
   "inhabitants": {
@@ -61,7 +65,7 @@
               "time": "hour"
             },
             "deprive": {
-              "value": 0.0014,
+              "value": 0,
               "unit": "day"
             }
           },
@@ -108,7 +112,7 @@
           },
           {
             "type": "h2o_wste",
-            "value": 1.584,
+            "value": 1.503,
             "flow_rate": {
               "unit": "kg",
               "time": "day"
@@ -151,7 +155,7 @@
       "data": {
         "input": [{
             "type": "h2o_wste",
-            "value": 1.5,
+            "value": 5.0,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -159,7 +163,7 @@
           },
           {
             "type": "atmo_o2",
-            "value": 0.00045,
+            "value": 0.0015,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -167,7 +171,7 @@
           },
           {
             "type": "enrg_kwh",
-            "value": 0.678,
+            "value": 0,
             "required" : true,
             "flow_rate": {
               "unit": "kWh",
@@ -177,7 +181,7 @@
         ],
         "output": [{
             "type": "sold_n",
-            "value": 0.002175,
+            "value": 0.00725,
             "requires": ["h2o_wste", "atmo_o2"],
             "flow_rate": {
               "unit": "kg",
@@ -186,7 +190,7 @@
           },
           {
             "type": "sold_p",
-            "value": 0.000261,
+            "value": 0.00087,
             "requires": ["h2o_wste", "atmo_o2"],
             "flow_rate": {
               "unit": "kg",
@@ -195,7 +199,7 @@
           },
           {
             "type": "sold_k",
-            "value": 0.000615,
+            "value": 0.00205,
             "requires": ["h2o_wste", "atmo_o2"],
             "flow_rate": {
               "unit": "kg",
@@ -205,7 +209,7 @@
           {
             "type": "h2o_urin",
             "requires": ["h2o_wste", "atmo_o2"],
-            "value": 1.495,
+            "value": 4.989,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -213,7 +217,7 @@
           },
           {
             "type": "atmo_co2",
-            "value": 0.0015,
+            "value": 0.005,
             "requires": ["h2o_wste", "atmo_o2"],
             "flow_rate": {
               "unit": "kg",
@@ -222,10 +226,18 @@
           },
           {
             "type": "atmo_ch4",
-            "value": 0.00075,
+            "value": 0.0025,
             "requires": ["h2o_wste", "atmo_o2"],
             "flow_rate": {
               "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
               "time": "hour"
             }
           }
@@ -252,18 +264,8 @@
           "flow_rate": {
             "unit": "kg",
             "time": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
-            "value": 0.012,
-            "required" : true,
-            "flow_rate": {
-              "unit": "kWh",
-              "time": "hour"
-            }
           }
-		  ],
+        }],
         "output": [{
           "type": "h2o_potb",
           "value": 4.75,
@@ -275,20 +277,18 @@
         }],
         "characteristics": [{
             "type": "mass",
-            "value": 114.6,
+            "value": 0,
             "unit": "kg"
           },
           {
             "type": "volume",
-            "value": 0.11,
+            "value": 0,
             "unit": "m^3"
           }
         ]
       },
       "description": "Purifies relatively clean water"
     },
-
-
     "urine_recycling_processor_VCD": {
       "data": {
         "input": [{
@@ -317,6 +317,14 @@
               "unit": "kg",
               "time": "hour"
             }
+          },
+          {
+            "type": "heat_cal",
+            "value": 0,
+            "flow_rate": {
+              "unit": "cal",
+              "time": "hour"
+            }
           }
         ],
         "characteristics": [{
@@ -333,8 +341,6 @@
       },
       "description": "Purifies relatively clean water"
     },
-
-
     "oxygen_generation_SFWE": {
       "data": {
         "input": [{
@@ -366,7 +372,7 @@
             },
             "criteria": {
               "name": "atmo_o2_ratio",
-              "limit": "<",
+              "limit": ">",
               "value": 0.195
             }
           },
@@ -380,7 +386,7 @@
             },
             "criteria": {
               "name": "atmo_o2_ratio",
-              "limit": "<",
+              "limit": ">",
               "value": 0.195
             }
           }
@@ -398,8 +404,52 @@
         ]
       }
     },
-
-
+    "co2_removal_SAWD": {
+      "data": {
+        "input": [
+          {
+            "type": "atmo_co2",
+            "value": 0.211,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_co2_ratio",
+              "limit": ">",
+              "value": 0.001
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 1.120,
+            "required" : true,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_co2_ratio",
+              "limit": ">",
+              "value": 0.001
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [{
+            "type": "volume",
+            "value": 0.31,
+            "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 137.35,
+            "unit": "kg"
+          }
+        ]
+      },
+      "description": "Removes CO2 from air"
+    },
     "co2_reduction_sabatier": {
       "data": {
         "input": [{
@@ -463,69 +513,19 @@
           }
         ],
         "characteristics": [{
-            "type": "mass",
-            "value": 47.9,
-            "unit": "kg"
-          },
-          {
             "type": "volume",
             "value": 0.06,
             "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 47.9,
+            "unit": "kg"
           }
         ]
       },
       "description": "Reduces co2 in air, without requiring venting"
     },
-
-
-    "co2_removal_SAWD": {
-      "data": {
-        "input": [
-          {
-            "type": "atmo_co2",
-            "value": 0.211,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "atmo_co2_ratio",
-              "limit": ">",
-              "value": 0.001
-            }
-          },
-          {
-            "type": "enrg_kwh",
-            "value": 1.120,
-            "required" : true,
-            "flow_rate": {
-              "unit": "kWh",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "atmo_co2_ratio",
-              "limit": ">",
-              "value": 0.001
-            }
-          }
-        ],
-        "output": [],
-        "characteristics": [{
-            "type": "mass",
-            "value": 137.35,
-            "unit": "kg"
-          },
-          {
-            "type": "volume",
-            "value": 0.31,
-            "unit": "m^3"
-          }
-        ]
-      },
-      "description": "Removes CO2 from air"
-    },
-
-
     "particulate_removal_TCCS": {
       "data": {
         "input": [{
@@ -556,7 +556,14 @@
             }
           }
         ],
-        "output": [],
+        "output": [{
+          "type": "heat_cal",
+          "value": 0,
+          "flow_rate": {
+            "unit": "cal",
+            "time": "hour"
+          }
+        }],
         "characteristics": [{
             "type": "mass",
             "value": 137.35,
@@ -572,8 +579,6 @@
       "description": "Removes potentially hazardous trace contaminants"
     }
   },
-
-
   "plants": {
     "rice": {
       "data": {
@@ -620,7 +625,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.2300870147,
-            "active_period": 12.0,
+            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -646,7 +651,7 @@
             "criteria": {
                 "name": "age",
                 "limit": ">",
-                "value": 85.0
+                "value": 85
               }
           }
       ],
@@ -656,7 +661,7 @@
           },
           {
             "type": "growth_period",
-            "value": 85.0,
+            "value": 85,
             "unit": "day"
           },
           {
@@ -731,7 +736,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.8018183846,
-            "active_period" : 22.0,
+            "active_period" : 22,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -756,7 +761,7 @@
             "criteria": {
               "name": "age",
               "limit": ">",
-              "value": 79.0
+              "value": 79
             }
           }],
         "characteristics": [{
@@ -765,12 +770,12 @@
           },
           {
             "type": "growth_period",
-            "value": 79.0,
+            "value": 79,
             "unit": "day"
           },
           {
             "type": "daytime_period",
-            "value": 22.0,
+            "value": 22,
             "unit": "hour"
           },
           {
@@ -3073,11 +3078,7 @@
       }
     }
   },
-
-
   "isru": {},
-
-
   "structures": {
     "crew_habitat_small": {
       "data": {
@@ -3090,25 +3091,19 @@
             }
           }        ],
         "output": [],
-        "characteristics": [
-          {
-            "type" : "category",
-            "value" : "habitat"
+        "characteristics": [{
+            "type": "volume",
+            "value": 1000,
+            "unit": "m^3"
           },
           {
             "type": "mass",
             "value": 20000,
             "unit": "kg"
-          },
-          {
-            "type": "volume",
-            "value": 1000,
-            "unit": "m^3"
           }
         ]
       }
     },
-
     "crew_habitat_medium": {
       "data": {
         "input": [{
@@ -3121,25 +3116,19 @@
           }
         ],
         "output": [],
-        "characteristics": [
-          {
-            "type" : "category",
-            "value" : "habitat"
+        "characteristics": [{
+            "type": "volume",
+            "value": 2260,
+            "unit": "m^3"
           },
           {
             "type": "mass",
             "value": 45200,
             "unit": "kg"
-          },
-          {
-            "type": "volume",
-            "value": 2260,
-            "unit": "m^3"
           }
         ]
       }
     },
-
     "crew_habitat_large": {
       "data": {
         "input": [{
@@ -3152,30 +3141,24 @@
           }
         ],
         "output": [],
-        "characteristics": [
-          {
-            "type" : "category",
-            "value" : "habitat"
+        "characteristics": [{
+            "type": "volume",
+            "value": 4020,
+            "unit": "m^3"
           },
           {
             "type": "mass",
             "value": 80400,
             "unit": "kg"
-          },
-          {
-            "type": "volume",
-            "value": 4020,
-            "unit": "m^3"
           }
         ]
       }
     },
-
     "greenhouse_small": {
       "data": {
         "input": [{
             "type": "enrg_kwh",
-            "value": 1,
+            "value": 2,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -3183,30 +3166,24 @@
           }
         ],
         "output": [],
-        "characteristics": [
-          {
-            "type" : "category",
-            "value" : "greenhouse"
+        "characteristics": [{
+            "type": "volume",
+            "value": 84,
+            "unit": "m^3"
           },
           {
             "type": "mass",
             "value": 453.59,
             "unit": "kg"
-          },
-          {
-            "type": "volume",
-            "value": 490,
-            "unit": "m^3"
           }
         ]
       }
     },
-
     "greenhouse_medium": {
       "data": {
         "input": [{
             "type": "enrg_kwh",
-            "value": 1.5,
+            "value": 2,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -3214,25 +3191,19 @@
           }
         ],
         "output": [],
-        "characteristics": [
-          {
-            "type" : "category",
-            "value" : "greenhouse"
+        "characteristics": [{
+            "type": "volume",
+            "value": 320,
+            "unit": "m^3"
           },
           {
             "type": "mass",
             "value": 1728,
             "unit": "kg"
-          },
-          {
-            "type": "volume",
-            "value": 2454,
-            "unit": "m^3"
           }
         ]
       }
     },
-
     "greenhouse_large": {
       "data": {
         "input": [{
@@ -3245,25 +3216,19 @@
           }
         ],
         "output": [],
-        "characteristics": [
-          {
-            "type" : "category",
-            "value" : "greenhouse"
+        "characteristics": [{
+            "type": "volume",
+            "value": 840,
+            "unit": "m^3"
           },
           {
             "type": "mass",
             "value": 4535.9,
             "unit": "kg"
-          },
-          {
-            "type": "volume",
-            "value": 5610,
-            "unit": "m^3"
           }
         ]
       }
     },
-
     "airlock": {
       "data": {
         "input": [{
@@ -3277,21 +3242,19 @@
         ],
         "output": [],
         "characteristics": [{
-            "type": "mass",
-            "value": 0,
-            "unit": "kg"
-          },
-          {
             "type": "volume",
             "value": 0,
             "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
           }
         ]
       }
     }
   },
-
-
   "fabrication": {},
   "power_generation": {
     "solar_pv_array_mars": {
@@ -3299,18 +3262,13 @@
         "input": [],
         "output": [{
           "type": "enrg_kwh",
-          "value": 0.53,
+          "value": 0.06,
           "flow_rate": {
             "unit": "kWh",
             "time": "hour"
           }
         }],
-        "characteristics": [
-          {
-            "type" : "category",
-            "value" : "power"
-          },
-          {
+        "characteristics": [{
             "type": "mass",
             "value": 0.30,
             "unit": "kg"
@@ -3323,7 +3281,6 @@
         ]
       }
     },
-
     "solar_pv_array_moon": {
       "data": {
         "input": [],
@@ -3348,7 +3305,6 @@
         ]
       }
     },
-
     "wind_turbine": {
       "data": {
         "input": [],
@@ -3373,7 +3329,6 @@
         ]
       }
     },
-
     "radioisotope_generator": {
       "data": {
         "input": [],
@@ -3385,12 +3340,7 @@
             "time": "hour"
           }
         }],
-        "characteristics": [
-          {
-            "type" : "category",
-            "value" : "power"
-          },
-          {
+        "characteristics": [{
             "type": "mass",
             "value": 0,
             "unit": "kg"
@@ -3404,11 +3354,7 @@
       }
     }
   },
-
-
   "mobility": {},
-
-
   "communication": {
     "radio": {
       "data": {
@@ -3423,19 +3369,18 @@
         ],
         "output": [],
         "characteristics": [{
-            "type": "mass",
-            "value": 0,
-            "unit": "kg"
-          },
-          {
             "type": "volume",
             "value": 0,
             "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
           }
         ]
       }
     },
-
     "lab_equipment": {
       "data": {
         "input": [{
@@ -3448,21 +3393,19 @@
           }        ],
         "output": [],
         "characteristics": [{
-            "type": "mass",
-            "value": 0,
-            "unit": "kg"
-          },
-          {
             "type": "volume",
             "value": 0,
             "unit": "m^3"
+          },
+          {
+            "type": "mass",
+            "value": 0,
+            "unit": "kg"
           }
         ]
       }
     }
   },
-
-
   "storage": {
     "air_storage": {
       "data": {
@@ -3470,169 +3413,170 @@
         "output": [],
         "characteristics": [{
             "type": "capacity_atmo_o2",
-            "value": 10000,
+            "value": 400,
             "unit": "kg"
           },
           {
             "type": "capacity_atmo_co2",
-            "value": 10000,
+            "value": 200,
             "unit": "kg"
           },
           {
             "type": "capacity_atmo_n2",
-            "value": 10000,
+            "value": 400,
             "unit": "kg"
           },
           {
             "type": "capacity_atmo_ch4",
-            "value": 10000,
+            "value": 200,
             "unit": "kg"
           },
           {
             "type": "capacity_atmo_h2",
-            "value": 1000,
+            "value": 100,
             "unit": "kg"
           },
           {
             "type": "capacity_atmo_h2o",
-            "value": 1000,
+            "value": 200,
             "unit": "kg"
           },
           {
             "type": "mass",
-            "value": 4348.5,
+            "value": 0,
             "unit": "kg"
           },
           {
             "type": "volume",
-            "value": 3.568,
+            "value": 0,
             "unit": "m^3"
           }
         ]
       }
     },
-
     "water_storage": {
       "data": {
         "input": [],
         "output": [],
         "characteristics": [{
             "type": "capacity_h2o_treated",
-            "value": 4000,
+            "value": 100,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o_potb",
-            "value": 4000,
+            "value": 400,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o_urin",
-            "value": 4000,
+            "value": 200,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o_wste",
-            "value": 4000,
+            "value": 250,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o_tret",
-            "value": 4000,
+            "value": 250,
             "unit": "kg"
           },
           {
             "type": "mass",
-            "value": 27.6691,
+            "value": 0,
             "unit": "kg"
           },
           {
             "type": "volume",
-            "value": 0.4288,
+            "value": 0,
             "unit": "m^3"
           }
         ]
       }
     },
-
     "nutrient_storage": {
       "data": {
         "input": [],
         "output": [],
         "characteristics": [{
             "type": "capacity_sold_n",
-            "value": 1000,
+            "value": 100,
             "unit": "kg"
           },
           {
             "type": "capacity_sold_p",
-            "value": 1000,
+            "value": 100,
             "unit": "kg"
           },
           {
             "type": "capacity_sold_k",
-            "value": 1000,
+            "value": 100,
             "unit": "kg"
           },
           {
             "type": "capacity_sold_wast",
-            "value": 1000,
+            "value": 100,
             "unit": "kg"
           },
           {
             "type": "mass",
-            "value": 6.35029,
+            "value": 0,
             "unit": "kg"
           },
           {
             "type": "volume",
-            "value": 0.354,
+            "value": 0,
             "unit": "m^3"
           }
         ]
       }
     },
-
-    "food_storage": {
-      "data": {
-        "input": [],
-        "output": [],
-        "characteristics": [{
-            "type": "capacity_food_edbl",
-            "value": 10000,
-            "unit": "kg"
-          },
-          {
-            "type": "mass",
-            "value": 100,
-            "unit": "kg"
-          },
-          {
-            "type": "volume",
-            "value": 100,
-            "unit": "m^3"
-          }
-        ]
-      }
-    },
-
     "power_storage": {
       "data": {
         "input": [],
         "output": [],
         "characteristics": [{
             "type": "capacity_enrg_kwh",
-            "value": 160,
+            "value": 1000,
             "unit": "kWh"
           },
           {
+            "type": "capacity_heat_cal",
+            "value": 1000,
+            "unit": "cal"
+          },
+          {
             "type": "mass",
-            "value": 226.796,
+            "value": 100,
             "unit": "kg"
           },
           {
             "type": "volume",
-            "value": 0.368,
+            "value": 100,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "food_storage": {
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [{
+            "type": "capacity_food_edbl",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "mass",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 100,
             "unit": "m^3"
           }
         ]
