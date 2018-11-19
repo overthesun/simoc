@@ -3299,7 +3299,7 @@
         "input": [],
         "output": [{
           "type": "enrg_kwh",
-          "value": 0.1,
+          "value": 0.53,
           "flow_rate": {
             "unit": "kWh",
             "time": "hour"
