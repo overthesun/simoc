@@ -97,9 +97,9 @@ def login():
     '''
     #userinfo = json.loads(request.data)
     userinfo = json.loads(request.data.decode('utf-8'))
-    print(request.data)
-    username = userinfo["username"]
-    password = userinfo["password"]
+    print(userinfo)
+    username = userinfo["params"]["username"]
+    password = userinfo["params"]["password"]
     user = User.query.filter_by(username=username).first()
     if user and user.validate_password(password):
         login_user(user)
