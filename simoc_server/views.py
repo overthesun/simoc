@@ -1,11 +1,12 @@
 import datetime
 import os
+import json
 from collections import OrderedDict
 from uuid import uuid4
 
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask import request, session, send_from_directory, safe_join, render_template
-
+from flask_cors import CORS
 from simoc_server.database.db_model import AgentType
 from simoc_server import app, db
 from simoc_server.serialize import serialize_response, deserialize_request, data_format_name
@@ -19,6 +20,8 @@ from simoc_server.exceptions import InvalidLogin, BadRequest, \
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+cors = CORS(app, resources={r"/*":{"origins": "*"}},supports_credentials="true")
+
 game_runner_manager = None
 
 @app.before_first_request
@@ -26,9 +29,9 @@ def create_game_runner_manager():
     global game_runner_manager
     game_runner_manager = GameRunnerManager()
 
-@app.before_request
-def deserialize_before_request():
-    deserialize_request(request)
+#@app.before_request
+#def deserialize_before_request():
+ #   deserialize_request(request)
 
 content={'formid':'wizardform',
 'wizard':{
@@ -57,7 +60,7 @@ def testroute2():
 
 @app.route("/")
 def home():
-    return render_template('base_login.html')
+    return render_template('index.html')
 
 #@app.route("/loginpanel", methods=["GET"])
 #def loginpanel():
@@ -81,19 +84,19 @@ def login():
     Logs the user in with the provided user name and password.
     'username' and 'password' should be provided on the request
     json data.
-
     Returns
     -------
     str: A success message.
-
     Raises
     ------
     simoc_server.exceptions.InvalidLogin
         If the user with the given username or password cannot
         be found.
     '''
-    username = try_get_param("username")
-    password = try_get_param("password")
+    userinfo = json.loads(request.data)
+    print(request.data)
+    username = userinfo["username"]
+    password = userinfo["password"]
     user = User.query.filter_by(username=username).first()
     if user and user.validate_password(password):
         login_user(user)
@@ -106,18 +109,17 @@ def register():
     Registers the user with the provided user name and password.
     'username' and 'password' should be provided on the request
     json data. This also logs the user in.
-
     Returns
     -------
     str: A success message.
-
     Raises
     ------
     simoc_server.exceptions.BadRegistration
         If the user already exists.
     '''
-    username = try_get_param("username")
-    password = try_get_param("password")
+    userinfo = json.loads(request.data)
+    username = userinfo["username"]
+    password = userinfo["password"]
     if(User.query.filter_by(username=username).first()):
         raise BadRegistration("User already exists")
     user = User(username=username)
@@ -132,7 +134,6 @@ def register():
 def logout():
     '''
     Logs current user out.
-
     Returns
     -------
     str: A success message.
@@ -147,38 +148,44 @@ def new_game():
     '''
     Creates a new game on the current session and adds
     a game runner to the game_runner_manager
-
     Returns
     -------
     str: A success message.
     '''
 
-    try:
-        game_config = try_get_param("game_config")
-    except BadRequest as e:
-        game_config = {"agents": {
-            "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}, "amount": 20}],
-            "cabbage": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
-                                         "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-            "lettuce": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
-                                         "power_storage": [1], "food_storage": [1]}, "amount": 10}],
-            "greenhouse_medium": [{"connections": {"power_storage": [1]}, "amount": 1}],
-            "solar_pv_array": [{"connections": {"power_storage": [1]}, "amount": 100}],
-            "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
-            "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}]},
-        "storages": {
-            "air_storage": [{"id": 1, "atmo_h2o": 100, "atmo_o2": 100, "atmo_co2": 100}],
-            "water_storage": [{"id": 1, "h2o_potb": 100, "h2o_tret": 100}, {"id": 2, "h2o_wste": 100, "h2o_urin": 100}],
-            "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
-            "power_storage": [{"id": 1, "enrg_kwh": 1000}],
-            "food_storage": [{"id": 1, "food_edbl": 200}]},
-        "termination": [
-            {"condition": "time", "value": 2, "unit": "year"},
-            {"condition": "food_leaf", "value": 10000, "unit": "kg"},
-            {"condition": "evacuation"}]
-        }
-        print("Cannot retrieve game config. Reason: {}".format(e))
-        print("Using default config: {}".format(game_config))
+    #try:
+    #    game_config = try_get_param("game_config")
+    #except BadRequest as e:
+    game_config = {"agents": {
+        "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}, "amount": 4}],
+        "cabbage": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+        "lettuce": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+        "rice": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+        "celery": [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],
+                                     "power_storage": [1], "food_storage": [1]}, "amount": 10}],
+        "greenhouse_medium": [{"connections": {"power_storage": [1]}, "amount": 1}],
+        "crew_habitat_small": [{"connections": {"power_storage": [1]}, "amount": 1}],
+        "solar_pv_array_mars": [{"connections": {"power_storage": [1]}, "amount": 20}],
+        "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
+        "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
+        "co2_removal_SAWD":[{"connections":{},"amount":1}],
+        "co2_reduction_sabatier":[{"connections":{},"amount":1}]},
+    "storages": {
+        "air_storage": [{"id": 1, "atmo_h2o": 0, "atmo_o2": 210, "atmo_co2": 10,"atmo_n2":780}],
+        "water_storage": [{"id": 1, "h2o_potb": 100, "h2o_tret": 100}, {"id": 2, "h2o_wste": 100, "h2o_urin": 100}],
+        "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
+        "power_storage": [{"id": 1, "enrg_kwh": 1000}],
+        "food_storage": [{"id": 1, "food_edbl": 200}]},
+    "termination": [
+        {"condition": "time", "value": 30, "unit": "days"},
+        {"condition": "food_leaf", "value": 10000, "unit": "kg"},
+        {"condition": "evacuation"}]
+    }
+        #print("Cannot retrieve game config. Reason: {}".format(e))
+    print("Using default config: {}".format(game_config))
 
     game_runner_init_params = GameRunnerInitializationParams(game_config)
     game_runner_manager.new_game(get_standard_user_obj(), game_runner_init_params)
@@ -190,7 +197,6 @@ def get_step():
     '''
     Gets the step with the requsted 'step_num', if not specified,
         uses current model step.
-
     Returns
     -------
     str:
@@ -198,7 +204,7 @@ def get_step():
     '''
     step_num = request.args.get("step_num", type=int)
     agent_model_state = game_runner_manager.get_step(get_standard_user_obj(), step_num)
-    return serialize_response(agent_model_state)
+    return json.dumps(agent_model_state)
 
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
@@ -227,7 +233,6 @@ def get_agent_types_by_class():
 def save_game():
     '''
     Save the current game for the user.
-
     Returns
     -------
     str :
@@ -246,21 +251,17 @@ def load_game():
     '''
     Load game with given 'saved_game_id' in session.  Adds
     GameRunner to game_runner_manager.
-
     Returns
     -------
     str:
         A success message.
-
     Raises
     ------
     simoc_server.exceptions.BadRequest
         If 'saved_game_id' is not in the json data on the request.
-
     simoc_server.exceptions.NotFound
         If the SavedGame with the requested 'saved_game_id' does not
         exist in the database
-
     '''
 
     saved_game_id = try_get_param("saved_game_id")
@@ -276,12 +277,10 @@ def get_saved_games():
     '''
     Get saved games for current user. All save games fall under the root
     branch id that they are saved under.
-
     Returns
     -------
     str:
         json format -
-
         {
             <root_branch_id>: [
                 {
@@ -293,8 +292,6 @@ def get_saved_games():
             ],
             ...
         }
-
-
     '''
     saved_games = SavedGame.query.filter_by(user=get_standard_user_obj()).all()
 
@@ -333,7 +330,6 @@ def ping():
 def load_user(user_id):
     '''
     Method used by flask-login to get user with requested id
-
     Parameters
     ----------
     user_id : str
@@ -344,7 +340,6 @@ def load_user(user_id):
 def success(message, status_code=200):
     '''
     Returns a success message.
-
     Returns
     -------
     str:
@@ -352,7 +347,6 @@ def success(message, status_code=200):
         {
             "message":<success message:str>
         }
-
     Parameters
     ----------
     message : str
@@ -391,17 +385,14 @@ def handle_error(error):
 def try_get_param(name):
     """Attempts to retrieve named value from
     request parameters
-
     Parameters
     ----------
     name : str
         The name of the parameter to retrieve
-
     Returns
     -------
     Type of param
         The value of the param to retreive.
-
     Raises
     ------
     BadRequest
@@ -424,7 +415,6 @@ def get_standard_user_obj():
     to prevent issues arising when the user object is accessed
     later on.  'current_user' is actually of type LocalProxy
     rather than 'User'.
-
     Returns
     -------
     simoc_server.database.db_model.User
