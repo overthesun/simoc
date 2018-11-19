@@ -228,7 +228,7 @@ class GeneralAgent(EnclosedAgent):
             descriptions = self.agent_type_descriptions[attr].split('/')
             deprive_value = descriptions[8]
             required = descriptions[9]
-            self.deprive[currency] = int(deprive_value) if deprive_value != '' else 0
+            self.deprive[currency] = float(deprive_value) if deprive_value != '' else 0
 
             self.selected_storages[prefix][currency] = []
             for storage in storages:
@@ -318,7 +318,7 @@ class GeneralAgent(EnclosedAgent):
                     for req_currency in requires:
                         if req_currency not in influx:
                             continue
-                deprive_value = int(deprive_value) if deprive_value != '' else 0
+                deprive_value = float(deprive_value) if deprive_value != '' else 0
                 step_value = self.get_step_value(attr, hours_per_step) / num_of_storages
                 for storage in self.selected_storages[prefix][currency]:
                     storage_cap = storage['char_capacity_' + currency]
