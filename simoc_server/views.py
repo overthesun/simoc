@@ -199,6 +199,7 @@ def new_game():
         }
         #print("Cannot retrieve game config. Reason: {}".format(e))
         
+        
     #Next 2 lines are for testing only
     #start_data ={"game_config": {"duration" : {"value": 1, "type" : "years"},"human_agent": {"amount" : 1},"habitat" : "crew_habitat_small","greenhouse" : "greenhouse_large","food_storage":{"amount":1000}, "plants" : [{"species" : "spinach", "amount": 10}, {"species": "cabbage", "amount" : 10}], "solar_arrays" : {"amount":50}, "power_storage" : {"amount":160} }}
     #game_config = convert_configuration(start_data["game_config"])
@@ -305,16 +306,23 @@ def get_energy():
     total = {}
     if not agent_quantity:
         agent_quantity = 1
-    if agent_name == "solar_pv_array_mars":
-        attribute_name = "out_enrg_kwh"
-        value_type = "energy output"
-    elif agent_name == "power_storage":
-        attribute_name = "char_capacity_enrg_kwh"
-        value_type = "energy capacity"
-    for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == attribute_name).all():
-        if agent.AgentType.name == agent_name:
-            value = float(agent.AgentTypeAttribute.value) * agent_quantity
-            total = { value_type : value}
+    if agent_name == "eclss":
+        total_eclss = 0
+        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "in_enrg_kwh").filter(AgentType.agent_class == "eclss").all():
+            total_eclss += float(agent.AgentTypeAttribute.value)
+        value = total_eclss * agent_quantity
+        total = {value_type : value}
+    else:
+        if agent_name == "solar_pv_array_mars":
+            attribute_name = "out_enrg_kwh"
+            value_type = "energy output"
+        elif agent_name == "power_storage":
+            attribute_name = "char_capacity_enrg_kwh"
+            value_type = "energy capacity"
+        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == attribute_name).all():
+            if agent.AgentType.name == agent_name:
+                value = float(agent.AgentTypeAttribute.value) * agent_quantity
+                total = { value_type : value}
     return json.dumps(total)
 
 @app.route("/save_game", methods=["POST"])

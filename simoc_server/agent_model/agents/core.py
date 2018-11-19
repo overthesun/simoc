@@ -260,7 +260,7 @@ class GeneralAgent(EnclosedAgent):
             if cr_name in self:
                 source = self[cr_name]
             else:
-                source = 0
+                source = 0                 
                 for currency in self.selected_storages[prefix]:
                     for storage in self.selected_storages[prefix][currency]:
                         agent_id = '{}_{}'.format(storage.agent_type, storage.id)                            
@@ -275,6 +275,8 @@ class GeneralAgent(EnclosedAgent):
             elif cr_limit == '=':
                 if source != cr_value:
                     return agent_value * 0
+            
+            
             
         if agent_flow_time == 'min':
             multiplier *= (hours_per_step * 60)

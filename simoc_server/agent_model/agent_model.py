@@ -256,9 +256,6 @@ class AgentModel(Model, AttributeHolder):
                     self.model_stats[agent_id][currency + '_ratio'] = temp[currency] / total.magnitude.tolist()
                 else:
                     self.model_stats[agent_id][currency + '_ratio'] = 0
-                #Test Line
-                #if(currency=="atmo_o2"):
-                #    print("o2: " + str(self.model_stats[agent_id][currency + '_ratio']))
         self.scheduler.step()
         app.logger.info("{0} step_num {1}".format(self, self.step_num))
 
