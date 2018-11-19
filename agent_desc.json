@@ -343,6 +343,11 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_o2_ratio",
+              "limit": "<",
+              "value": 0.195
             }
           },
           {
@@ -352,6 +357,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_o2_ratio",
+              "limit": "<",
+              "value": 0.195
             }
           }
 
@@ -363,11 +373,6 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
-            },
-            "criteria": {
-              "name": "atmo_o2_ratio",
-              "limit": "<",
-              "value": 0.195
             }
           },
           {
@@ -377,11 +382,6 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
-            },
-            "criteria": {
-              "name": "atmo_o2_ratio",
-              "limit": "<",
-              "value": 0.195
             }
           }
         ],

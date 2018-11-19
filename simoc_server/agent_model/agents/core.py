@@ -263,9 +263,9 @@ class GeneralAgent(EnclosedAgent):
                 source = 0
                 for currency in self.selected_storages[prefix]:
                     for storage in self.selected_storages[prefix][currency]:
-                        agent_id = '{}_{}'.format(storage.agent_type, storage.id)
+                        agent_id = '{}_{}'.format(storage.agent_type, storage.id)                            
                         if cr_name in self.model.model_stats[agent_id]:
-                            source += self.model.model_stats[agent_id][cr_name]
+                            source += self.model.model_stats[agent_id][cr_name]   
             if cr_limit == '>':
                 if source <= cr_value:
                     return agent_value * 0
@@ -275,8 +275,7 @@ class GeneralAgent(EnclosedAgent):
             elif cr_limit == '=':
                 if source != cr_value:
                     return agent_value * 0
-            #Test line
-            #print("Source: "+ str(source) +" cr value: "+ str(cr_value))
+            
         if agent_flow_time == 'min':
             multiplier *= (hours_per_step * 60)
         elif agent_flow_time == 'hour':
@@ -324,9 +323,9 @@ class GeneralAgent(EnclosedAgent):
                 deprive_value = float(deprive_value) if deprive_value != '' else 0
                 step_value = self.get_step_value(attr, hours_per_step) / num_of_storages
                 #Test if
-                '''if step_value > 0 and on == False and self.agent_type == "co2_removal_SAWD":
-                    on = True
-                    print(self.agent_type + ": On")'''
+                #if step_value > 0 and on == False and (self.agent_type == "co2_removal_SAWD" or self.agent_type == "oxygen_generation_SFWE"):
+                #    on = True
+                #    print(self.agent_type + ": On")
                 for storage in self.selected_storages[prefix][currency]:
                     storage_cap = storage['char_capacity_' + currency]
                     storage_unit = storage.agent_type_descriptions['char_capacity_' + currency]

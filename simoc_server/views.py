@@ -198,8 +198,9 @@ def new_game():
             {"condition": "evacuation"}]
         }
         #print("Cannot retrieve game config. Reason: {}".format(e))
+        
     #Next 2 lines are for testing only
-    #start_data ={"game_config": {"duration" : {"value": 2, "type" : "years"},"human_agent": {"amount" : 1},"habitat" : "crew_habitat_small","greenhouse" : "greenhouse_large","food_storage":{"amount":1000}, "plants" : [{"species" : "spinach", "amount": 1}, {"species": "cabbage", "amount" : 1}], "solar_arrays" : 120, "power_storage" : 48 }}
+    #start_data ={"game_config": {"duration" : {"value": 1, "type" : "years"},"human_agent": {"amount" : 1},"habitat" : "crew_habitat_small","greenhouse" : "greenhouse_large","food_storage":{"amount":1000}, "plants" : [{"species" : "spinach", "amount": 10}, {"species": "cabbage", "amount" : 10}], "solar_arrays" : {"amount":50}, "power_storage" : {"amount":160} }}
     #game_config = convert_configuration(start_data["game_config"])
 
     game_runner_init_params = GameRunnerInitializationParams(game_config)
@@ -542,8 +543,8 @@ def convert_configuration(config_obj):
         #"particulate_removal_TCCS" : [{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}]
         },
     "storages": {
-        "air_storage": [{"id": 1, "atmo_h2o": 10, "atmo_o2": 2150, "atmo_co2": 3.0,"atmo_n2":7830, "atmo_ch4" : 0.009531, "atmo_h2" : 0.005295}],
-        "water_storage": [{"id": 1, "h2o_potb": 400, "h2o_tret": 100}, {"id": 2, "h2o_potb": 400, "h2o_wste": 100, "h2o_urin": 100}],
+        "air_storage": [{"id": 1, "atmo_h2o": 10, "atmo_o2": 2100, "atmo_co2": 3.5,"atmo_n2":7886, "atmo_ch4" : 0.009531, "atmo_h2" : 0.005295}],
+        "water_storage": [{"id": 1, "h2o_potb": 5000, "h2o_tret": 1000}, {"id": 2, "h2o_potb": 4000, "h2o_wste": 100, "h2o_urin": 100}],
         "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
         "power_storage": [],
         "food_storage": []},
@@ -552,9 +553,9 @@ def convert_configuration(config_obj):
     food_storage_capacity = int(db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_capacity_food_edbl").first().AgentTypeAttribute.value)
     food_storage_amount = math.ceil((game_config["food_storage"]["amount"])/(int(food_storage_capacity)))
     power_storage_capacity = int(db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_capacity_enrg_kwh").first().AgentTypeAttribute.value)
-    power_storage_amount = math.ceil((game_config["power_storage"])/(int(power_storage_capacity)))
+    power_storage_amount = math.ceil((game_config["power_storage"]["amount"])/(int(power_storage_capacity)))
     food_connections, power_connections = [], []
-    food_left, power_left = game_config["food_storage"]["amount"], game_config["power_storage"]
+    food_left, power_left = game_config["food_storage"]["amount"], game_config["power_storage"]["amount"]
     for x in range(1, int(food_storage_amount)+1):
         food_connections.append(x)
         if(food_left > food_storage_capacity):
@@ -592,6 +593,6 @@ def convert_configuration(config_obj):
         full_game_config["agents"][game_config["greenhouse"]] = [{"connections": {"power_storage": [1]}, "amount": 1}]
         full_game_config["agents"][game_config["greenhouse"]][0]["connections"]["power_storage"] = power_connections
     if(game_config["solar_arrays"]):
-        full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {"power_storage": [1]}, "amount": game_config["solar_arrays"]}]
+        full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {"power_storage": [1]}, "amount": game_config["solar_arrays"]["amount"]}]
         full_game_config["agents"]["solar_pv_array_mars"][0]["connections"]["power_storage"] = power_connections
     return(full_game_config)
