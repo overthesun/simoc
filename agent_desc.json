@@ -61,7 +61,7 @@
               "time": "hour"
             },
             "deprive": {
-              "value": 0.0014,
+              "value": 0,
               "unit": "day"
             }
           },
@@ -620,7 +620,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.2300870147,
-            "active_period": 12.0,
+            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -646,7 +646,7 @@
             "criteria": {
                 "name": "age",
                 "limit": ">",
-                "value": 85.0
+                "value": 85
               }
           }
       ],
@@ -731,7 +731,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.8018183846,
-            "active_period" : 22.0,
+            "active_period" : 22,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -756,7 +756,7 @@
             "criteria": {
               "name": "age",
               "limit": ">",
-              "value": 79.0
+              "value": 79
             }
           }],
         "characteristics": [{
@@ -765,12 +765,12 @@
           },
           {
             "type": "growth_period",
-            "value": 79.0,
+            "value": 79,
             "unit": "day"
           },
           {
             "type": "daytime_period",
-            "value": 22.0,
+            "value": 22,
             "unit": "hour"
           },
           {

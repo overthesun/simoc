@@ -228,7 +228,8 @@ class GeneralAgent(EnclosedAgent):
             descriptions = self.agent_type_descriptions[attr].split('/')
             deprive_value = descriptions[8]
             required = descriptions[9]
-            self.deprive[currency] = float(deprive_value) if deprive_value != '' else 0
+            # Iurii: Can we alter this to accept floats
+            self.deprive[currency] = int(deprive_value) if deprive_value != '' else 0
 
             self.selected_storages[prefix][currency] = []
             for storage in storages:
@@ -260,24 +261,23 @@ class GeneralAgent(EnclosedAgent):
             if cr_name in self:
                 source = self[cr_name]
             else:
-                source = 0                 
-                for currency in self.selected_storages[prefix]:
+                source = 0                                
+                for currency in self.selected_storages[prefix]: 
                     for storage in self.selected_storages[prefix][currency]:
-                        agent_id = '{}_{}'.format(storage.agent_type, storage.id)                            
+                        agent_id = '{}_{}'.format(storage.agent_type, storage.id)                           
                         if cr_name in self.model.model_stats[agent_id]:
-                            source += self.model.model_stats[agent_id][cr_name]   
+                            source += self.model.model_stats[agent_id][cr_name]
+            #Test line
+            #print(str(self.agent_type)+" Source: " +str(source)+ " Limit: " + str(cr_value))
             if cr_limit == '>':
                 if source <= cr_value:
                     return agent_value * 0
-            elif cr_limit == '<':
+            elif cr_limit == '<': 
                 if source >= cr_value:
                     return agent_value * 0
             elif cr_limit == '=':
                 if source != cr_value:
                     return agent_value * 0
-            
-            
-            
         if agent_flow_time == 'min':
             multiplier *= (hours_per_step * 60)
         elif agent_flow_time == 'hour':
@@ -322,12 +322,9 @@ class GeneralAgent(EnclosedAgent):
                     for req_currency in requires:
                         if req_currency not in influx:
                             continue
-                deprive_value = float(deprive_value) if deprive_value != '' else 0
+                # Iurii: Can we change this to accept floats?
+                deprive_value = int(deprive_value) if deprive_value != '' else 0
                 step_value = self.get_step_value(attr, hours_per_step) / num_of_storages
-                #Test if
-                #if step_value > 0 and on == False and (self.agent_type == "co2_removal_SAWD" or self.agent_type == "oxygen_generation_SFWE"):
-                #    on = True
-                #    print(self.agent_type + ": On")
                 for storage in self.selected_storages[prefix][currency]:
                     storage_cap = storage['char_capacity_' + currency]
                     storage_unit = storage.agent_type_descriptions['char_capacity_' + currency]

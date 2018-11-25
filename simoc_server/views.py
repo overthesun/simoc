@@ -197,11 +197,10 @@ def new_game():
             {"condition": "food_leaf", "value": 10000, "unit": "kg"},
             {"condition": "evacuation"}]
         }
-        #print("Cannot retrieve game config. Reason: {}".format(e))
-        
+        #print("Cannot retrieve game config. Reason: {}".format(e))     
         
     #Next 2 lines are for testing only
-    #start_data ={"game_config": {"duration" : {"value": 1, "type" : "years"},"human_agent": {"amount" : 1},"habitat" : "crew_habitat_small","greenhouse" : "greenhouse_large","food_storage":{"amount":1000}, "plants" : [{"species" : "spinach", "amount": 10}, {"species": "cabbage", "amount" : 10}], "solar_arrays" : {"amount":50}, "power_storage" : {"amount":160} }}
+    #start_data ={"game_config": {"duration" : {"value": 1, "type" : "years"},"human_agent": {"amount" : 1},"habitat" : "crew_habitat_small","greenhouse" : "greenhouse_large","food_storage":{"amount" : 1000}, "plants" : [{"species" : "spinach", "amount": 10}, {"species": "cabbage", "amount" : 10}], "solar_arrays" : {"amount":50}, "power_storage" : {"amount":160}}}
     #game_config = convert_configuration(start_data["game_config"])
 
     game_runner_init_params = GameRunnerInitializationParams(game_config)
@@ -574,10 +573,10 @@ def convert_configuration(config_obj):
     for y in range(1, int(power_storage_amount)+1):
         power_connections.append(y)
         if(power_left > power_storage_capacity):
-            full_game_config["storages"]["power_storage"].append({"id" : x, "enrg_kwh" : power_storage_capacity})
+            full_game_config["storages"]["power_storage"].append({"id" : y, "enrg_kwh" : power_storage_capacity})
             power_left -= power_storage_capacity
         else:
-            full_game_config["storages"]["power_storage"].append({"id" : x, "enrg_kwh" : power_left})
+            full_game_config["storages"]["power_storage"].append({"id" : y, "enrg_kwh" : power_left})
     for x,y in full_game_config["agents"].items():
         if x == "human_agent":
             continue
