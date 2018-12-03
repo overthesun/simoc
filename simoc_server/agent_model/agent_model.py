@@ -79,7 +79,7 @@ class AgentModel(Model, AttributeHolder):
                 prefix, currency = attr.split('_', 1)
                 if prefix not in ['in', 'out']:
                     continue
-                step_value = agent.get_step_value(attr, hours_per_step)
+                step_value = agent.get_step_value(attr, hours_per_step, ignore_criteria=True)
                 if prefix == 'out':
                     if currency not in total_production:
                         total_production[currency] = step_value

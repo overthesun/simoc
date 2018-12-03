@@ -246,7 +246,7 @@ class GeneralAgent(EnclosedAgent):
     def age(self):
         return self.model['time'] - self.model_time_created
 
-    def get_step_value(self, attr, hours_per_step):
+    def get_step_value(self, attr, hours_per_step, ignore_criteria=False):
         prefix, currency = attr.split('_', 1)
         multiplier = 1
         descriptions = self.agent_type_descriptions[attr].split('/')
@@ -256,7 +256,7 @@ class GeneralAgent(EnclosedAgent):
             multiplier *= int(attr_active_period) / 24
         cr_name, cr_limit, cr_value, cr_reset = descriptions[3:7]
         cr_value = float(cr_value) if cr_value != '' else 0
-        if len(cr_name) > 0:
+        if not ignore_criteria and len(cr_name) > 0:
             if cr_name in self:
                 source = self[cr_name]
             else:
