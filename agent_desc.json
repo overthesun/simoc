@@ -491,7 +491,8 @@
             "criteria": {
               "name": "atmo_co2_ratio",
               "limit": ">",
-              "value": 0.001
+              "value": 0.001,
+              "buffer": 3
             }
           },
           {
@@ -505,7 +506,8 @@
             "criteria": {
               "name": "atmo_co2_ratio",
               "limit": ">",
-              "value": 0.001
+              "value": 0.001,
+              "buffer": 3
             }
           }
         ],

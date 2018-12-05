@@ -193,7 +193,7 @@ def new_game():
             "power_storage": [{"id": 1, "enrg_kwh": 1000}],
             "food_storage": [{"id": 1, "food_edbl": 200}]},
         "termination": [
-            {"condition": "time", "value": 30, "unit": "days"},
+            {"condition": "time", "value": 30, "unit": "day"},
             {"condition": "food_leaf", "value": 10000, "unit": "kg"},
             {"condition": "evacuation"}]
         }
@@ -222,6 +222,15 @@ def get_step():
     step_num = request.args.get("step_num", type=int)
     agent_model_state = game_runner_manager.get_step(get_standard_user_obj(), step_num)
     return json.dumps(agent_model_state)
+
+@app.route("/get_batch_steps", methods=["GET"])
+@login_required
+def get_batch_steps():
+    batch_size, batch = request.args.get("step_batch_size", type=int), []
+    for i in range(batch_size):
+        state = game_runner_manager.get_step(get_standard_user_obj())
+        batch.append(state)
+    return json.dumps(batch)
 
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
