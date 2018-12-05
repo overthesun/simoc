@@ -200,7 +200,7 @@ def new_game():
         #print("Cannot retrieve game config. Reason: {}".format(e))     
         
     #Next 2 lines are for testing only
-    #start_data ={"game_config": {"duration" : {"value": 1, "type" : "years"},"human_agent": {"amount" : 1},"habitat" : "crew_habitat_small","greenhouse" : "greenhouse_large","food_storage":{"amount" : 1000}, "plants" : [{"species" : "spinach", "amount": 10}, {"species": "cabbage", "amount" : 10}], "solar_arrays" : {"amount":50}, "power_storage" : {"amount":160}}}
+    #start_data ={"game_config": {"duration" : {"value": 1, "type" : "years"},"human_agent": {"amount" : 1},"habitat" : "crew_habitat_small","greenhouse" : "greenhouse_large","food_storage":{"amount" : 1000}, "plants" : [{"species" : "spinach", "amount": 10}, {"species": "cabbage", "amount" : 10}], "solar_arrays" : {"amount":50}, "power_storage" : {"amount":10}}}
     #game_config = convert_configuration(start_data["game_config"])
 
     game_runner_init_params = GameRunnerInitializationParams(game_config)
@@ -568,10 +568,10 @@ def convert_configuration(config_obj):
         {"condition": "evacuation"}]}
     food_storage_capacity = int(db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_capacity_food_edbl").first().AgentTypeAttribute.value)
     food_storage_amount = math.ceil((game_config["food_storage"]["amount"])/(int(food_storage_capacity)))
-    power_storage_capacity = int(db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_capacity_enrg_kwh").first().AgentTypeAttribute.value)
-    power_storage_amount = math.ceil((game_config["power_storage"]["amount"])/(int(power_storage_capacity)))
+    
+    power_storage_amount = game_config["power_storage"]["amount"]
     food_connections, power_connections = [], []
-    food_left, power_left = game_config["food_storage"]["amount"], game_config["power_storage"]["amount"]
+    food_left = game_config["food_storage"]["amount"]
     for x in range(1, int(food_storage_amount)+1):
         food_connections.append(x)
         if(food_left > food_storage_capacity):
@@ -579,13 +579,11 @@ def convert_configuration(config_obj):
             food_left -= food_storage_capacity
         else:
             full_game_config["storages"]["food_storage"].append({"id" : x, "food_edbl" : food_left})
+
     for y in range(1, int(power_storage_amount)+1):
         power_connections.append(y)
-        if(power_left > power_storage_capacity):
-            full_game_config["storages"]["power_storage"].append({"id" : y, "enrg_kwh" : power_storage_capacity})
-            power_left -= power_storage_capacity
-        else:
-            full_game_config["storages"]["power_storage"].append({"id" : y, "enrg_kwh" : power_left})
+        full_game_config["storages"]["power_storage"].append({"id" : y, "enrg_kwh" : 0})
+
     for x,y in full_game_config["agents"].items():
         if x == "human_agent":
             continue
