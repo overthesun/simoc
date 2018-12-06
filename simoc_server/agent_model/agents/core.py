@@ -251,7 +251,6 @@ class GeneralAgent(EnclosedAgent):
         multiplier = 1
         descriptions = self.agent_type_descriptions[attr].split('/')
         agent_unit, agent_flow_time, attr_active_period = descriptions[:3]
-        agent_value = pq.Quantity(self.agent_type_attributes[attr], agent_unit)
         if attr_active_period != '':
             multiplier *= int(attr_active_period) / 24
         cr_name, cr_limit, cr_value, cr_buffer = descriptions[3:7]
@@ -275,7 +274,7 @@ class GeneralAgent(EnclosedAgent):
                     if self.buffer.get(cr_id, 0) > 0:
                         self.buffer[cr_id] -= 1
                     else:
-                        return agent_value * 0.0
+                        return pq.Quantity(0.0, agent_unit)
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
             elif cr_limit == '<':
@@ -283,7 +282,7 @@ class GeneralAgent(EnclosedAgent):
                     if self.buffer.get(cr_id, 0) > 0:
                         self.buffer[cr_id] -= 1
                     else:
-                        return agent_value * 0.0
+                        return pq.Quantity(0.0, agent_unit)
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
             elif cr_limit == '=':
@@ -291,7 +290,7 @@ class GeneralAgent(EnclosedAgent):
                     if self.buffer.get(cr_id, 0) > 0:
                         self.buffer[cr_id] -= 1
                     else:
-                        return agent_value * 0.0
+                        return pq.Quantity(0.0, agent_unit)
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
         if agent_flow_time == 'min':
@@ -302,6 +301,7 @@ class GeneralAgent(EnclosedAgent):
             multiplier *= hours_per_step / 24
         else:
             raise Exception('Unknown agent flow_rate.time value.')
+        agent_value = pq.Quantity(self.agent_type_attributes[attr], agent_unit)
         return agent_value * float(multiplier)
 
 
