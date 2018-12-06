@@ -263,7 +263,7 @@
               "time": "hour"
             }
           }
-		  ],
+      ],
         "output": [{
           "type": "h2o_potb",
           "value": 4.75,
@@ -492,7 +492,7 @@
               "name": "atmo_co2_ratio",
               "limit": ">",
               "value": 0.001,
-              "buffer": 3
+              "buffer": 10
             }
           },
           {
@@ -507,7 +507,7 @@
               "name": "atmo_co2_ratio",
               "limit": ">",
               "value": 0.001,
-              "buffer": 3
+              "buffer": 10
             }
           }
         ],
@@ -581,41 +581,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 1.5399905754,
+            "value": 0.0015399905754,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 7.9341666667,
+            "value": 0.0079341666667,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0206755062,
+            "value": 0.0000206755062,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0003270886,
+            "value": 0.0000003270886,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.002466768,
+            "value": 0.000002466768,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -632,17 +632,17 @@
         "output": [
           {
               "type": "atmo_o2",
-              "value": 1.1201294643,
+              "value": 0.0011201294643,
               "flow_rate": {
-                "unit": "g",
+                "unit": "kg",
                 "time": "hour"
               }
           },
           {
               "type": "food_edbl",
-              "value": 770.95,
+              "value": 0.77095,
               "flow_rate": {
-                "unit": "g",
+                "unit": "kg",
                 "time": "day"
             },
             "criteria": {
@@ -672,18 +672,18 @@
           },
           {
             "type": "mass_total",
-            "value": 2569.55,
-            "unit": "g"
+            "value": 2.56955,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 770.95,
-            "unit": "g"
+            "value": 0.77095,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 1.2595833333,
-            "unit": "g"
+            "value": 0.0012595833333,
+            "unit": "kg"
           }
         ]
       }
@@ -692,41 +692,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 2.547123016,
+            "value": 0.002547123016,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 11.25,
+            "value": 0.01125,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.034197,
+            "value": 0.000034197,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.000541,
+            "value": 0.000000541,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.00408,
+            "value": 0.00000408,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -742,17 +742,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 1.8526785714,
+          "value": 0.0018526785714,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
           {
             "type": "food_edbl",
-            "value": 1580.0,
+            "value": 1.5800,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -786,18 +786,18 @@
           },
           {
             "type": "mass_total",
-            "value": 3950,
-            "unit": "g"
+            "value": 3.950,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 1580,
-            "unit": "g"
+            "value": 1.580,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 2.0833333333,
-            "unit": "g"
+            "value": 0.0020833333333,
+            "unit": "kg"
           }
         ]
       }
@@ -806,41 +806,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 0.3777302131,
+            "value": 0.0003777302131,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 0.25529166667,
+            "value": 0.00025529166667,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0098276438,
+            "value": 0.0000098276438,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0003632356,
+            "value": 0.0000003632356,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0027380959,
+            "value": 0.0000027380959,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -856,17 +856,17 @@
         ],
         "output": [{
             "type": "atmo_o2",
-            "value": 0.2752949011,
+            "value": 0.0002752949011,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "food_edbl",
-            "value": 515.1,
+            "value": 0.5151,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -896,18 +896,18 @@
           },
           {
             "type": "mass_total",
-            "value": 572.05,
-            "unit": "g"
+            "value": 0.57205,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 515.1,
-            "unit": "g"
+            "value": 0.5151,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.2804166667,
-            "unit": "g"
+            "value": 0.0002804166667,
+            "unit": "kg"
           }
         ]
       }
@@ -916,41 +916,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 0.6044805936,
+            "value": 0.0006044805936,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 1.4133333333,
+            "value": 0.0014133333333,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0157271507,
+            "value": 0.0000157271507,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0002493329,
+            "value": 0.0000002493329,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.001878111,
+            "value": 0.000001878111,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -966,17 +966,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 0.440553653,
+          "value": 0.000440553653,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
           {
             "type": "food_edbl",
-            "value": 315.0,
+            "value": 0.3150,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -1010,18 +1010,18 @@
           },
           {
             "type": "mass_total",
-            "value": 484.65,
-            "unit": "g"
+            "value": 0.48465,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 315,
-            "unit": "g"
+            "value": 0.315,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.44875,
-            "unit": "g"
+            "value": 0.00044875,
+            "unit": "kg"
           }
         ]
       }
@@ -1030,41 +1030,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 0.6443302892,
+            "value": 0.0006443302892,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 0.43,
+            "value": 0.00043,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0167639452,
+            "value": 0.0000167639452,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0002657699,
+            "value": 0.0000002657699,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0020019233,
+            "value": 0.0000020019233,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -1080,17 +1080,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 0.4695966514,
+          "value": 0.0004695966514,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
           {
             "type": "food_edbl",
-            "value": 774.75,
+            "value": 0.77475,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -1124,18 +1124,18 @@
           },
           {
             "type": "mass_total",
-            "value": 861,
-            "unit": "g"
+            "value": 0.861,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 774.75,
-            "unit": "g"
+            "value": 0.77475,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.4783333333,
-            "unit": "g"
+            "value": 0.0004783333333,
+            "unit": "kg"
           }
         ]
       }
@@ -1144,41 +1144,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 0.4097222222,
+            "value": 0.0004097222222,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 0.27375,
+            "value": 0.00027375,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.01066,
+            "value": 0.00001066,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.000169,
+            "value": 0.000000169,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.001273,
+            "value": 0.000001273,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -1194,17 +1194,17 @@
         ],
         "output": [{
             "type": "atmo_o2",
-            "value": 0.2986111111,
+            "value": 0.0002986111111,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "food_edbl",
-            "value": 183.96,
+            "value": 0.18396,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -1234,18 +1234,18 @@
           },
           {
             "type": "mass_total",
-            "value": 204.4,
-            "unit": "g"
+            "value": 0.2044,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 183.96,
-            "unit": "g"
+            "value": 0.18396,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.3041666667,
-            "unit": "g"
+            "value": 0.0003041666667,
+            "unit": "kg"
           }
         ]
       }
@@ -1254,41 +1254,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 0.4097222222,
+            "value": 0.0004097222222,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 0.27375,
+            "value": 0.00027375,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.01066,
+            "value": 0.00001066,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.000169,
+            "value": 0.000000169,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.001273,
+            "value": 0.000001273,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -1304,17 +1304,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 0.2986111111,
+          "value": 0.0002986111111,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
           {
             "type": "food_edbl",
-            "value": 197.1,
+            "value": 0.1971,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -1348,18 +1348,18 @@
           },
           {
             "type": "mass_total",
-            "value": 219,
-            "unit": "g"
+            "value": 0.219,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 197.1,
-            "unit": "g"
+            "value": 0.1971,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.3041666667,
-            "unit": "g"
+            "value": 0.0003041666667,
+            "unit": "kg"
           }
         ]
       }
@@ -1368,41 +1368,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 2.0616319444,
+            "value": 0.0020616319444,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 5.625,
+            "value": 0.005625,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0300195313,
+            "value": 0.0000300195313,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0005058594,
+            "value": 0.0000005058594,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0038085938,
+            "value": 0.0000038085938,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -1418,17 +1418,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 1.5010127315,
+          "value": 0.0015010127315,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
           {
             "type": "food_edbl",
-            "value": 850.0,
+            "value": 0.8500,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -1462,18 +1462,18 @@
           },
           {
             "type": "mass_total",
-            "value": 2125,
-            "unit": "g"
+            "value": 2.125,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 850,
-            "unit": "g"
+            "value": 0.850,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 1.0416666667,
-            "unit": "g"
+            "value": 0.0010416666667,
+            "unit": "kg"
           }
         ]
       }
@@ -1482,41 +1482,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 1.8562934028,
+            "value": 0.0018562934028,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 6.3258333333,
+            "value": 0.0063258333333,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0270295859,
+            "value": 0.0000270295859,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0004554758,
+            "value": 0.0000004554758,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0034292578,
+            "value": 0.0000034292578,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -1532,17 +1532,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 1.3515118634,
+          "value": 0.0013515118634,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
           {
             "type": "food_edbl",
-            "value": 585.52,
+            "value": 0.58552,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -1576,18 +1576,18 @@
           },
           {
             "type": "mass_total",
-            "value": 2341.04,
-            "unit": "g"
+            "value": 2.34104,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 585.52,
-            "unit": "g"
+            "value": 0.58552,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.9379166667,
-            "unit": "g"
+            "value": 0.0009379166667,
+            "unit": "kg"
           }
         ]
       }
@@ -1596,41 +1596,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 1.0555555556,
+            "value": 0.0010555555556,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 2.5516666667,
+            "value": 0.0025516666667,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.01537,
+            "value": 0.00001537,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.000259,
+            "value": 0.000000259,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.00195,
+            "value": 0.00000195,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -1646,17 +1646,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 0.7685185185,
+          "value": 0.0007685185185,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
           {
             "type": "food_edbl",
-            "value": 582.0,
+            "value": 0.5820,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -1690,18 +1690,18 @@
           },
           {
             "type": "mass_total",
-            "value": 1241.6,
-            "unit": "g"
+            "value": 1.2416,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 582,
-            "unit": "g"
+            "value": 0.582,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.5333333333,
-            "unit": "g"
+            "value": 0.0005333333333,
+            "unit": "kg"
           }
         ]
       }
@@ -1710,41 +1710,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 0.7907178481,
+            "value": 0.0007907178481,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 5.4183333333,
+            "value": 0.0054183333333,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0184122632,
+            "value": 0.0000184122632,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0002913426,
+            "value": 0.0000002913426,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0021961615,
+            "value": 0.0000021961615,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -1760,17 +1760,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 0.5763666242,
+          "value": 0.0005763666242,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
           "type": "food_edbl",
-            "value": 662.15,
+            "value": 0.66215,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -1804,18 +1804,18 @@
           },
           {
             "type": "mass_total",
-            "value": 1891.25,
-            "unit": "g"
+            "value": 1.89125,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 662.15,
-            "unit": "g"
+            "value": 0.66215,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.9270833333,
-            "unit": "g"
+            "value": 0.0009270833333,
+            "unit": "kg"
           }
         ]
       }
@@ -1824,41 +1824,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 0.823412698,
+            "value": 0.000823412698,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 4.77875,
+            "value": 0.00477875,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.019173579,
+            "value": 0.000019173579,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.000303389,
+            "value": 0.000000303389,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.002286969,
+            "value": 0.000002286969,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -1874,17 +1874,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 0.6001984127,
+          "value": 0.0006001984127,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
           "type": "food_edbl",
-            "value": 886.55,
+            "value": 0.88655,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -1918,18 +1918,18 @@
           },
           {
             "type": "mass_total",
-            "value": 1969.45,
-            "unit": "g"
+            "value": 1.96945,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 886.55,
-            "unit": "g"
+            "value": 0.88655,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.9654166667,
-            "unit": "g"
+            "value": 0.0009654166667,
+            "unit": "kg"
           }
         ]
       }
@@ -1938,41 +1938,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 0.5612633181,
+            "value": 0.0005612633181,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 0.375,
+            "value": 0.000375,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0146027397,
+            "value": 0.0000146027397,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0002315068,
+            "value": 0.0000002315068,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0017438356,
+            "value": 0.0000017438356,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -1988,17 +1988,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 0.4090563166,
+          "value": 0.0004090563166,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
             "type": "food_edbl",
-            "value": 515.1,
+            "value": 0.5151,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -2032,18 +2032,18 @@
           },
           {
             "type": "mass_total",
-            "value": 500,
-            "unit": "g"
+            "value": 0.500,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 450,
-            "unit": "g"
+            "value": 0.450,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.4166666667,
-            "unit": "g"
+            "value": 0.0004166666667,
+            "unit": "kg"
           }
         ]
       }
@@ -2052,41 +2052,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 0.6314212329,
+            "value": 0.0006314212329,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 0.84375,
+            "value": 0.00084375,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0164280822,
+            "value": 0.0000164280822,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0002604452,
+            "value": 0.0000002604452,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0019618151,
+            "value": 0.0000019618151,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -2102,17 +2102,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 0.4601883562,
+          "value": 0.0004601883562,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
             "type": "food_edbl",
-            "value": 450.1,
+            "value": 0.4501,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -2146,18 +2146,18 @@
           },
           {
             "type": "mass_total",
-            "value": 562.5,
-            "unit": "g"
+            "value": 0.5625,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 450,
-            "unit": "g"
+            "value": 0.450,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.46875,
-            "unit": "g"
+            "value": 0.00046875,
+            "unit": "kg"
           }
         ]
       }
@@ -2166,41 +2166,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 1.5058694825,
+            "value": 0.0015058694825,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 6.0375,
+            "value": 0.0060375,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0391791507,
+            "value": 0.0000391791507,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0006211329,
+            "value": 0.0000006211329,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.004678711,
+            "value": 0.000004678711,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -2216,17 +2216,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 1.0974980974,
+          "value": 0.0010974980974,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
             "type": "food_edbl",
-            "value": 804.75,
+            "value": 0.80475,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -2260,18 +2260,18 @@
           },
           {
             "type": "mass_total",
-            "value": 2012.25,
-            "unit": "g"
+            "value": 2.01225,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 804.75,
-            "unit": "g"
+            "value": 0.80475,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 1.1179166667,
-            "unit": "g"
+            "value": 0.0011179166667,
+            "unit": "kg"
           }
         ]
       }
@@ -2280,41 +2280,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 1.3004471081,
+            "value": 0.0013004471081,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 4.7775,
+            "value": 0.0047775,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0338345479,
+            "value": 0.0000338345479,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0005364014,
+            "value": 0.0000005364014,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0040404671,
+            "value": 0.0000040404671,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -2330,17 +2330,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 0.9477834855,
+          "value": 0.0009477834855,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
             "type": "food_edbl",
-            "value": 886.55,
+            "value": 0.88655,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -2374,18 +2374,18 @@
           },
           {
             "type": "mass_total",
-            "value": 1969.45,
-            "unit": "g"
+            "value": 1.96945,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 886.55,
-            "unit": "g"
+            "value": 0.88655,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.9654166667,
-            "unit": "g"
+            "value": 0.0009654166667,
+            "unit": "kg"
           }
         ]
       }
@@ -2394,41 +2394,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 1.6669520548,
+            "value": 0.0016669520548,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 6.6825,
+            "value": 0.0066825,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.043370137,
+            "value": 0.00043370137,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0006875753,
+            "value": 0.0000006875753,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0051791918,
+            "value": 0.0000051791918,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -2444,17 +2444,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 1.2148972603,
+          "value": 0.0012148972603,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
             "type": "food_edbl",
-            "value": 1009.8,
+            "value": 1.0098,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -2488,18 +2488,18 @@
           },
           {
             "type": "mass_total",
-            "value": 2524.5,
-            "unit": "g"
+            "value": 2.5245,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 1009.8,
-            "unit": "g"
+            "value": 1.0098,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 1.2375,
-            "unit": "g"
+            "value": 0.0012375,
+            "unit": "kg"
           }
         ]
       }
@@ -2508,41 +2508,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 0.5393177194,
+            "value": 0.0005393177194,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 2.0625,
+            "value": 0.0020625,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0091026919,
+            "value": 0.0000091026919,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0001440346,
+            "value": 0.0000001440346,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0010857428,
+            "value": 0.0000010857428,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -2558,17 +2558,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 0.5393177194,
+          "value": 0.0005393177194,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
             "type": "food_edbl",
-            "value": 137.5,
+            "value": 0.1375,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -2602,18 +2602,18 @@
           },
           {
             "type": "mass_total",
-            "value": 275,
-            "unit": "g"
+            "value": 0.275,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 137.5,
-            "unit": "g"
+            "value": 0.1375,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.4583333333,
-            "unit": "g"
+            "value": 0.0004583333333,
+            "unit": "kg"
           }
         ]
       }
@@ -2622,41 +2622,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 0.6774599116,
+            "value": 0.0006774599116,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 1.3125,
+            "value": 0.0013125,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0082751745,
+            "value": 0.0000082751745,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0009870389,
+            "value": 0.0000009870389,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0009870389,
+            "value": 0.0000009870389,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -2672,17 +2672,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 0.4902888358,
+          "value": 0.0004902888358,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
             "type": "food_edbl",
-            "value": 247.0,
+            "value": 0.2470,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -2716,18 +2716,18 @@
           },
           {
             "type": "mass_total",
-            "value": 380,
-            "unit": "g"
+            "value": 0.380,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 247,
-            "unit": "g"
+            "value": 0.247,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.4166666667,
-            "unit": "g"
+            "value": 0.0004166666667,
+            "unit": "kg"
           }
         ]
       }
@@ -2736,41 +2736,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 1.0141574877,
+            "value": 0.0010141574877,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 2.245,
+            "value": 0.002245,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0123879362,
+            "value": 0.0000123879362,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.0001960179,
+            "value": 0.0000001960179,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.0014775972,
+            "value": 0.0000014775972,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -2786,17 +2786,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 1.0141574877,
+          "value": 0.0010141574877,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
             "type": "food_edbl",
-            "value": 673.5,
+            "value": 0.6735,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -2830,18 +2830,18 @@
           },
           {
             "type": "mass_total",
-            "value": 1122.75,
-            "unit": "g"
+            "value": 1.12275,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 673.5,
-            "unit": "g"
+            "value": 0.6735,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 0.62375,
-            "unit": "g"
+            "value": 0.00062375,
+            "unit": "kg"
           }
         ]
       }
@@ -2850,41 +2850,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 2.540474668,
+            "value": 0.002540474668,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 8.4375,
+            "value": 0.0084375,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.031031904,
+            "value": 0.000031031904,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.000491027,
+            "value": 0.000000491027,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.003701396,
+            "value": 0.000003701396,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -2900,17 +2900,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 1.8385831342,
+          "value": 0.0018385831342,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
             "type": "food_edbl",
-            "value": 1275.0,
+            "value": 1.2750,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -2944,18 +2944,18 @@
           },
           {
             "type": "mass_total",
-            "value": 3187.5,
-            "unit": "g"
+            "value": 3.1875,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 1275,
-            "unit": "g"
+            "value": 1.275,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 1.5625,
-            "unit": "g"
+            "value": 0.0015625,
+            "unit": "kg"
           }
         ]
       }
@@ -2964,41 +2964,41 @@
       "data": {
         "input": [{
             "type": "atmo_co2",
-            "value": 2.038476874,
+            "value": 0.002038476874,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "h2o_potb",
-            "value": 3.3841666667,
+            "value": 0.0033841666667,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_n",
-            "value": 0.0249,
+            "value": 0.0000249,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_p",
-            "value": 0.000394,
+            "value": 0.000000394,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
           {
             "type": "sold_k",
-            "value": 0.00297,
+            "value": 0.00000297,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "hour"
             }
           },
@@ -3014,17 +3014,17 @@
         ],
         "output": [{
           "type": "atmo_o2",
-          "value": 1.4752791069,
+          "value": 0.0014752791069,
           "flow_rate": {
-            "unit": "g",
+            "unit": "kg",
             "time": "hour"
           }
         },
         {
             "type": "food_edbl",
-            "value": 2779.9,
+            "value": 2.7799,
             "flow_rate": {
-              "unit": "g",
+              "unit": "kg",
               "time": "day"
             },
             "criteria": {
@@ -3058,18 +3058,18 @@
           },
           {
             "type": "mass_total",
-            "value": 3971.88,
-            "unit": "g"
+            "value": 3.97188,
+            "unit": "kg"
           },
           {
             "type": "mass_edible",
-            "value": 2779.9,
-            "unit": "g"
+            "value": 2.7799,
+            "unit": "kg"
           },
           {
             "type": "mass_per_hour",
-            "value": 1.25375,
-            "unit": "g"
+            "value": 0.00125375,
+            "unit": "kg"
           }
         ]
       }
@@ -3301,7 +3301,7 @@
         "input": [],
         "output": [{
           "type": "enrg_kwh",
-          "value": 0.53,
+          "value": 5.30,
           "flow_rate": {
             "unit": "kWh",
             "time": "hour"
@@ -3624,7 +3624,7 @@
         "output": [],
         "characteristics": [{
             "type": "capacity_enrg_kwh",
-            "value": 160,
+            "value": 10000,
             "unit": "kWh"
           },
           {
