@@ -217,6 +217,8 @@ class GeneralAgent(EnclosedAgent):
 
         super(GeneralAgent, self).__init__(*args, **kwargs)
 
+        self.buffer = {}
+
         storages = self.model.get_agents_by_class(agent_class=StorageAgent)
         self.selected_storages = {"in": {}, 'out': {}}
         self.deprive = {}
@@ -228,7 +230,8 @@ class GeneralAgent(EnclosedAgent):
             descriptions = self.agent_type_descriptions[attr].split('/')
             deprive_value = descriptions[8]
             required = descriptions[9]
-            self.deprive[currency] = float(deprive_value) if deprive_value != '' else 0
+            # Iurii: Can we alter this to accept floats
+            self.deprive[currency] = int(deprive_value) if deprive_value != '' else 0
 
             self.selected_storages[prefix][currency] = []
             for storage in storages:
@@ -238,10 +241,7 @@ class GeneralAgent(EnclosedAgent):
                     if storage.id not in connections[storage.agent_type]:
                         continue
                 if currency in storage:
-                    if required == 'True':
-                        self.selected_storages[prefix][currency] = [storage] + self.selected_storages[prefix][currency]
-                    else:
-                        self.selected_storages[prefix][currency].append(storage)
+                    self.selected_storages[prefix][currency].append(storage)
 
     def age(self):
         return self.model['time'] - self.model_time_created
@@ -254,27 +254,46 @@ class GeneralAgent(EnclosedAgent):
         agent_value = pq.Quantity(self.agent_type_attributes[attr], agent_unit)
         if attr_active_period != '':
             multiplier *= int(attr_active_period) / 24
-        cr_name, cr_limit, cr_value, cr_reset = descriptions[3:7]
-        cr_value = float(cr_value) if cr_value != '' else 0
+        cr_name, cr_limit, cr_value, cr_buffer = descriptions[3:7]
+        cr_value = float(cr_value) if cr_value != '' else 0.0
+        cr_buffer = int(cr_buffer) if cr_buffer != '' else 0
         if len(cr_name) > 0:
             if cr_name in self:
                 source = self[cr_name]
             else:
-                source = 0
-                for currency in self.selected_storages[prefix]:
-                    for storage in self.selected_storages[prefix][currency]:
-                        agent_id = '{}_{}'.format(storage.agent_type, storage.id)
+                source = 0                                
+                for curr in self.selected_storages[prefix]:
+                    for storage in self.selected_storages[prefix][curr]:
+                        agent_id = '{}_{}'.format(storage.agent_type, storage.id)                           
                         if cr_name in self.model.model_stats[agent_id]:
                             source += self.model.model_stats[agent_id][cr_name]
+            cr_id = '{}_{}_{}'.format(prefix, currency, cr_name)
+            #Test line
+            #print(str(self.agent_type)+" Source: " +str(source)+ " Limit: " + str(cr_value))
             if cr_limit == '>':
                 if source <= cr_value:
-                    return agent_value * 0
+                    if self.buffer.get(cr_id, 0) > 0:
+                        self.buffer[cr_id] -= 1
+                    else:
+                        return agent_value * 0.0
+                elif cr_buffer > 0:
+                    self.buffer[cr_id] = cr_buffer
             elif cr_limit == '<':
                 if source >= cr_value:
-                    return agent_value * 0
+                    if self.buffer.get(cr_id, 0) > 0:
+                        self.buffer[cr_id] -= 1
+                    else:
+                        return agent_value * 0.0
+                elif cr_buffer > 0:
+                    self.buffer[cr_id] = cr_buffer
             elif cr_limit == '=':
-                if source != cr_value:
-                    return agent_value * 0
+                if cr_value != source:
+                    if self.buffer.get(cr_id, 0) > 0:
+                        self.buffer[cr_id] -= 1
+                    else:
+                        return agent_value * 0.0
+                elif cr_buffer > 0:
+                    self.buffer[cr_id] = cr_buffer
         if agent_flow_time == 'min':
             multiplier *= (hours_per_step * 60)
         elif agent_flow_time == 'hour':
@@ -283,11 +302,12 @@ class GeneralAgent(EnclosedAgent):
             multiplier *= hours_per_step / 24
         else:
             raise Exception('Unknown agent flow_rate.time value.')
-        return agent_value * multiplier
+        return agent_value * float(multiplier)
 
 
     def step(self):
         super().step()
+        on = False
 
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
@@ -318,7 +338,8 @@ class GeneralAgent(EnclosedAgent):
                     for req_currency in requires:
                         if req_currency not in influx:
                             continue
-                deprive_value = float(deprive_value) if deprive_value != '' else 0
+                # Iurii: Can we change this to accept floats?
+                deprive_value = int(deprive_value) if deprive_value != '' else 0
                 step_value = self.get_step_value(attr, hours_per_step) / num_of_storages
                 for storage in self.selected_storages[prefix][currency]:
                     storage_cap = storage['char_capacity_' + currency]

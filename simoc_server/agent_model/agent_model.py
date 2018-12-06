@@ -217,24 +217,25 @@ class AgentModel(Model, AttributeHolder):
 
     def step(self):
         self['time'] += self.timedelta_per_step()
-        if "time" in self.termination:
-            value = self.termination['time']['value']
-            unit = self.termination['time']['unit']
-            model_time = self['time'].total_seconds()
-            if unit == 'min':
-                model_time /= 60
-            elif unit == 'hour':
-                model_time /= 3600
-            elif unit == 'day':
-                model_time /= 86400
-            elif unit == 'year':
-                model_time /= 31536000
-            else:
-                raise Exception('Unknown termination time value.')
-            if model_time > value:
-                self['is_terminated'] = True
-                self['termination_reason'] = 'time'
-                return
+        for cond in self.termination:
+            if cond['condition'] == "time":
+                value = cond['value']
+                unit = cond['unit']
+                model_time = self['time'].total_seconds()
+                if unit == 'min':
+                    model_time /= 60
+                elif unit == 'hour':
+                    model_time /= 3600
+                elif unit == 'day':
+                    model_time /= 86400
+                elif unit == 'year':
+                    model_time /= 31536000
+                else:
+                    raise Exception('Unknown termination time value.')
+                if model_time > value:
+                    self['is_terminated'] = True
+                    self['termination_reason'] = 'time'
+                    return
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
             agent_id = '{}_{}'.format(storage.agent_type, storage.id)
             if agent_id not in self.model_stats:

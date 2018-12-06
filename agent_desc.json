@@ -61,7 +61,7 @@
               "time": "hour"
             },
             "deprive": {
-              "value": 0.0014,
+              "value": 0,
               "unit": "day"
             }
           },
@@ -491,7 +491,8 @@
             "criteria": {
               "name": "atmo_co2_ratio",
               "limit": ">",
-              "value": 0.001
+              "value": 0.001,
+              "buffer": 3
             }
           },
           {
@@ -505,7 +506,8 @@
             "criteria": {
               "name": "atmo_co2_ratio",
               "limit": ">",
-              "value": 0.001
+              "value": 0.001,
+              "buffer": 3
             }
           }
         ],
@@ -620,7 +622,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.2300870147,
-            "active_period": 12.0,
+            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -646,7 +648,7 @@
             "criteria": {
                 "name": "age",
                 "limit": ">",
-                "value": 85.0
+                "value": 85
               }
           }
       ],
@@ -731,7 +733,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.8018183846,
-            "active_period" : 22.0,
+            "active_period" : 22,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -748,7 +750,7 @@
         },
           {
             "type": "food_edbl",
-            "value": 1580,
+            "value": 1580.0,
             "flow_rate": {
               "unit": "g",
               "time": "day"
@@ -756,7 +758,7 @@
             "criteria": {
               "name": "age",
               "limit": ">",
-              "value": 79.0
+              "value": 79
             }
           }],
         "characteristics": [{
@@ -765,12 +767,12 @@
           },
           {
             "type": "growth_period",
-            "value": 79.0,
+            "value": 79,
             "unit": "day"
           },
           {
             "type": "daytime_period",
-            "value": 22.0,
+            "value": 22,
             "unit": "hour"
           },
           {
@@ -972,7 +974,7 @@
         },
           {
             "type": "food_edbl",
-            "value": 315,
+            "value": 315.0,
             "flow_rate": {
               "unit": "g",
               "time": "day"
@@ -1424,7 +1426,7 @@
         },
           {
             "type": "food_edbl",
-            "value": 850,
+            "value": 850.0,
             "flow_rate": {
               "unit": "g",
               "time": "day"
@@ -1652,7 +1654,7 @@
         },
           {
             "type": "food_edbl",
-            "value": 582,
+            "value": 582.0,
             "flow_rate": {
               "unit": "g",
               "time": "day"
@@ -2108,7 +2110,7 @@
         },
         {
             "type": "food_edbl",
-            "value": 450,
+            "value": 450.1,
             "flow_rate": {
               "unit": "g",
               "time": "day"
@@ -2678,7 +2680,7 @@
         },
         {
             "type": "food_edbl",
-            "value": 247,
+            "value": 247.0,
             "flow_rate": {
               "unit": "g",
               "time": "day"
@@ -2906,7 +2908,7 @@
         },
         {
             "type": "food_edbl",
-            "value": 1275,
+            "value": 1275.0,
             "flow_rate": {
               "unit": "g",
               "time": "day"
@@ -3312,12 +3314,12 @@
           },
           {
             "type": "mass",
-            "value": 0.30,
+            "value": 3.0,
             "unit": "kg"
           },
           {
             "type": "volume",
-            "value": 0.00254,
+            "value": 0.0254,
             "unit": "m^3"
           }
         ]
@@ -3329,7 +3331,7 @@
         "input": [],
         "output": [{
           "type": "enrg_kwh",
-          "value": 0.18,
+          "value": 1.8,
           "flow_rate": {
             "unit": "kWh",
             "time": "hour"
@@ -3337,12 +3339,12 @@
         }],
         "characteristics": [{
             "type": "mass",
-            "value": 0.30,
+            "value": 3.0,
             "unit": "kg"
           },
           {
             "type": "volume",
-            "value": 0.00254,
+            "value": 0.0254,
             "unit": "m^3"
           }
         ]
@@ -3517,7 +3519,7 @@
         "input": [],
         "output": [],
         "characteristics": [{
-            "type": "capacity_h2o_treated",
+            "type": "capacity_h2o_totl",
             "value": 4000,
             "unit": "kg"
           },
