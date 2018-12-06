@@ -315,12 +315,15 @@ class GeneralAgent(EnclosedAgent):
         for attr in self.agent_type_attributes:
             if attr.startswith('char_threshold_'):
                 threshold_value = self.agent_type_attributes[attr]
-                currency = attr.split('_', 2)[2]
+                type = attr.split('_', 3)[2]
+                currency = attr.split('_', 3)[3]
                 for prefix in ['in', 'out']:
                     if currency in self.selected_storages[prefix]:
                         for storage in self.selected_storages[prefix][currency]:
                             agent_id = '{}_{}'.format(storage.agent_type, storage.id)
-                            if self.model.model_stats[agent_id][currency + '_ratio'] < threshold_value:
+                            if type == 'lower' and self.model.model_stats[agent_id][currency + '_ratio'] < threshold_value:
+                                self.kill('Threshold {} met for {}. Killing the agent'.format(currency, self.agent_type))
+                            if type == 'upper' and self.model.model_stats[agent_id][currency + '_ratio'] > threshold_value:
                                 self.kill('Threshold {} met for {}. Killing the agent'.format(currency, self.agent_type))
 
         influx = []
