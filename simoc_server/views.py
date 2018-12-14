@@ -551,12 +551,12 @@ def convert_configuration(config_obj):
     game_config = config_obj
     full_game_config = {"agents": {
         "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2]}}],
-        "solid_waste_aerobic_bioreactor": [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1, 2],"nutrient_storage": [1]}, "amount": 1}],
-        "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
-        "oxygen_generation_SFWE" : [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
-        "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
-        "co2_removal_SAWD":[{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}],
-        "co2_reduction_sabatier":[{"connections":{"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]},"amount":1}]
+        #"solid_waste_aerobic_bioreactor": [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1, 2],"nutrient_storage": [1]}, "amount": 1}],
+        #"multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
+        #"oxygen_generation_SFWE" : [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
+        #"urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
+        #"co2_removal_SAWD":[{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}],
+        #"co2_reduction_sabatier":[{"connections":{"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]},"amount":1}]
         #"particulate_removal_TCCS" : [{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}]
         },
     "storages": {
@@ -610,4 +610,17 @@ def convert_configuration(config_obj):
     if(game_config["solar_arrays"]):
         full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {"power_storage": [1]}, "amount": game_config["solar_arrays"]["amount"]}]
         full_game_config["agents"]["solar_pv_array_mars"][0]["connections"]["power_storage"] = power_connections
+    if(game_config["eclss"]):
+        full_game_config["agents"]["solid_waste_aerobic_bioreactor"] = [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],"power_storage": [], "food_storage": [1]}, "amount": game_config["eclss"]["amount"]}]
+        full_game_config["agents"]["solid_waste_aerobic_bioreactor"][0]["connections"]["power_storage"] = power_connections
+        full_game_config["agents"]["multifiltration_purifier_post_treament"] = [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],"power_storage": [], "food_storage": [1]}, "amount": game_config["eclss"]["amount"]}]
+        full_game_config["agents"]["multifiltration_purifier_post_treament"][0]["connections"]["power_storage"] = power_connections
+        full_game_config["agents"]["oxygen_generation_SFWE"] = [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],"power_storage": [], "food_storage": [1]}, "amount": game_config["eclss"]["amount"]}]
+        full_game_config["agents"]["oxygen_generation_SFWE"][0]["connections"]["power_storage"] = power_connections
+        full_game_config["agents"]["urine_recycling_processor_VCD"] = [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],"power_storage": [], "food_storage": [1]}, "amount": game_config["eclss"]["amount"]}]
+        full_game_config["agents"]["urine_recycling_processor_VCD"][0]["connections"]["power_storage"] = power_connections
+        full_game_config["agents"]["co2_reduction_sabatier"] = [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],"power_storage": [], "food_storage": [1]}, "amount": game_config["eclss"]["amount"]}]
+        full_game_config["agents"]["co2_reduction_sabatier"][0]["connections"]["power_storage"] = power_connections
+        full_game_config["agents"]["co2_removal_SAWD"] = [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],"power_storage": [], "food_storage": [1]}, "amount": game_config["eclss"]["amount"]}]
+        full_game_config["agents"]["co2_removal_SAWD"][0]["connections"]["power_storage"] = power_connections
     return(full_game_config)
