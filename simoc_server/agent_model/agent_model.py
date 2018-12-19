@@ -1,11 +1,12 @@
 import numbers
 import datetime
 import numpy as np
+import pandas as pd
 
 from abc import ABCMeta, abstractmethod
 
 from mesa import Model
-from mesa.time import RandomActivation
+from mesa.time import RandomActivation, PrioritizedRandomActivation
 from mesa.space import MultiGrid
 
 from sqlalchemy.orm.exc import StaleDataError
@@ -32,8 +33,11 @@ class AgentModel(Model, AttributeHolder):
         self.seed = init_params.seed
         self.random_state = init_params.random_state
         self.termination = init_params.termination
+        self.logging = init_params.logging
         self['time'] = init_params.starting_model_time
         self['is_terminated'] = False
+        self.logs = []
+        self.priorities = init_params.priorities
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -46,13 +50,33 @@ class AgentModel(Model, AttributeHolder):
             raise Exception("Seed value must be of type 'int', got type '{}'".format(type(self.seed)))
 
         self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state)
-        self.scheduler = RandomActivation(self, random_state=self.random_state)
+        if self.priorities:
+            self.scheduler = PrioritizedRandomActivation(self, random_state=self.random_state, priorities=self.priorities)
+        else:
+            self.scheduler = RandomActivation(self, random_state=self.random_state)
         self.scheduler.steps = getattr(init_params, "starting_step_num", 0)
         self.model_stats = {}
+
 
     @property
     def logger(self):
         return app.logger
+
+    def get_logs(self, filters=[], columns=None, dtype='list'):
+        df = pd.DataFrame(self.logs)
+        for col, val in filters:
+            df = df.loc[df[col].isin(val)].drop(col, axis=1)
+        if columns:
+            df = df.loc[:, columns]
+        if dtype == 'list':
+            return df.values.tolist()
+        elif dtype == 'dict':
+            return df.to_dict(orient='records')
+        elif dtype == 'df':
+            return df
+
+    def get_step_logs(self, step_num, filters=[], columns=None, dtype='list'):
+        return self.get_logs(filters=filters+[('step_num', [step_num])], columns=columns, dtype=dtype)
 
     def get_model_stats(self):
         response = {"step": self.step_num,
@@ -62,6 +86,10 @@ class AgentModel(Model, AttributeHolder):
                     "agents": self.get_total_agents(),
                     "storages": self.get_total_storages(),
                     "model_stats": self.model_stats}
+        if self.logging is not None:
+            columns = self.logging.get('columns', [])
+            filters = self.logging.get('filters', [])
+            response["step_logs"] = self.get_step_logs(step_num=self.step_num - 1, columns=columns, filters=filters)
         if self['is_terminated']:
             response['termination_reason'] = self['termination_reason']
         return response
@@ -334,6 +362,14 @@ class AgentModelInitializationParams(object):
 
     def set_termination(self, termination):
         self.termination = termination
+        return self
+
+    def set_logging(self, logging):
+        self.logging = logging
+        return self
+
+    def set_priorities(self, priorities):
+        self.priorities = priorities
         return self
 
 class AgentInitializerRecipe(metaclass=ABCMeta):

@@ -232,6 +232,25 @@ def get_batch_steps():
         batch.append(state)
     return json.dumps(batch)
 
+@app.route("/get_logs", methods=["GET"])
+@login_required
+def get_logs():
+    filters = request.args.get("filters", [])
+    columns = request.args.get("columns", [])
+    agent_model = game_runner_manager.get_game_runner(get_standard_user_obj()).agent_model
+    logs = agent_model.get_logs(filters=filters, columns=columns, dtype='list')
+    return json.dumps(logs)
+
+@app.route("/get_step_logs", methods=["GET"])
+@login_required
+def get_step_logs():
+    step_num = request.args.get("step_num", None)
+    filters = request.args.get("filters", [])
+    columns = request.args.get("columns", [])
+    agent_model = game_runner_manager.get_game_runner(get_standard_user_obj()).agent_model
+    logs = agent_model.get_step_logs(step_num, filters=filters, columns=columns, dtype='list')
+    return json.dumps(logs)
+
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
     args, results = {}, []
@@ -568,7 +587,13 @@ def convert_configuration(config_obj):
         {"condition": "evacuation"}]}
     food_storage_capacity = int(db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_capacity_food_edbl").first().AgentTypeAttribute.value)
     food_storage_amount = math.ceil((game_config["food_storage"]["amount"])/(int(food_storage_capacity)))
-    
+
+    if 'logging' in game_config:
+        full_game_config['logging'] = game_config['logging']
+
+    if 'priorities' in game_config:
+        full_game_config['priorities'] = game_config['priorities']
+
     power_storage_amount = game_config["power_storage"]["amount"]
     food_connections, power_connections = [], []
     food_left = game_config["food_storage"]["amount"]

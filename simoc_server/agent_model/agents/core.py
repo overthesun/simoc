@@ -11,6 +11,7 @@ from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.util import timedelta_to_days, timedelta_to_hours, timedelta_hour_of_day
 
 import quantities as pq
+import numpy as np
 
 PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__, type(None).__name__, 
     bool.__name__]
@@ -34,7 +35,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
             self.load_from_db(agent_state)
             super().__init__(self.unique_id, model)
         else:
-            self.unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4())
+            self.unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4().hex[:8])
             self.model_time_created = model['time']
             super().__init__(self.unique_id, model)
 
@@ -176,14 +177,15 @@ class EnclosedAgent(BaseAgent):
     def __init__(self, *args, **kwargs):
         self.agent_type = kwargs.get("agent_type", None)
         super(EnclosedAgent, self).__init__(*args, **kwargs)
+        if 'char_lifetime' in self.agent_type_attributes:
+            self.lifetime = self.agent_type_attributes['char_lifetime']
 
     def step(self):
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
         self['age'] += hours_per_step / 24
         if 'char_lifetime' in self.agent_type_attributes:
-            lifetime = self.agent_type_attributes['char_lifetime']
-            if self['age'] >= lifetime:
+            if self['age'] >= self.lifetime:
                 if 'char_reproduce' in self.agent_type_attributes:
                     reproduce = self.agent_type_attributes['char_lifetime']
                     if reproduce:
@@ -251,6 +253,7 @@ class GeneralAgent(EnclosedAgent):
         multiplier = 1
         descriptions = self.agent_type_descriptions[attr].split('/')
         agent_unit, agent_flow_time, attr_active_period = descriptions[:3]
+        growth = descriptions[11]
         if attr_active_period != '':
             multiplier *= int(attr_active_period) / 24
         cr_name, cr_limit, cr_value, cr_buffer = descriptions[3:7]
@@ -301,7 +304,12 @@ class GeneralAgent(EnclosedAgent):
             multiplier *= hours_per_step / 24
         else:
             raise Exception('Unknown agent flow_rate.time value.')
-        agent_value = pq.Quantity(self.agent_type_attributes[attr], agent_unit)
+        agent_value = self.agent_type_attributes[attr]
+        if growth == 'linear':
+            agent_value = np.linspace(0, agent_value, self.lifetime * 24)[int(self['age'] * 24)]
+        elif growth == 'logarithmic':
+            agent_value = np.geomspace(1e-2, agent_value, self.lifetime * 24)[int(self['age'] * 24)]
+        agent_value = pq.Quantity(agent_value, agent_unit)
         return agent_value * float(multiplier)
 
 
@@ -329,6 +337,7 @@ class GeneralAgent(EnclosedAgent):
         influx = []
         for prefix in ['in', 'out']:
             for currency in self.selected_storages[prefix]:
+                log = False
                 attr = '{}_{}'.format(prefix, currency)
                 num_of_storages = len(self.selected_storages[prefix][currency])
                 if num_of_storages == 0:
@@ -373,13 +382,27 @@ class GeneralAgent(EnclosedAgent):
                         if required == 'True':
                             return
                         else:
+                            log = True
                             storage[currency] = 0
                     else:
+                        log = True
                         storage[currency] = min(new_storage_value, storage_cap)
                         if prefix == 'in':
                             influx.append(currency)
                         if deprive_value > 0:
                             self.deprive[currency] = deprive_value
+                    if self.model.logging is not None and log:
+                        record = {"step_num": self.model.step_num,
+                                  "agent_type": self.agent_type,
+                                  "agent_id": self.unique_id,
+                                  "direction": prefix,
+                                  "currency": currency,
+                                  "value": step_value.magnitude.tolist(),
+                                  "unit": str(step_value.units),
+                                  "storage_type": storage.agent_type,
+                                  "storage_id": storage.id
+                                  }
+                        self.model.logs.append(record)
 
     def kill(self, reason):
         self.destroy(reason)

@@ -23,6 +23,7 @@ def import_agents(agents, agent_class):
                 attr_active_period = attr.get("active_period", '')
                 deprive = attr.get("deprive", None)
                 flow_rate = attr.get("flow_rate", None)
+                growth = attr.get("growth", None)
                 criteria = attr.get("criteria", None)
                 required = attr.get("required", None)
                 requires = attr.get("requires", None)
@@ -42,7 +43,7 @@ def import_agents(agents, agent_class):
                     cr_limit = criteria.get('limit', '')
                     cr_value = criteria.get('value', '')
                     cr_buffer = criteria.get('buffer', '')
-                attr_descriptions = '{}/{}/{}/{}/{}/{}/{}/{}/{}/{}/{}'.format(flow_unit, flow_time, attr_active_period, cr_name, cr_limit, cr_value, cr_buffer, deprive_unit, deprive_value, required, requires)
+                attr_descriptions = '{}/{}/{}/{}/{}/{}/{}/{}/{}/{}/{}/{}'.format(flow_unit, flow_time, attr_active_period, cr_name, cr_limit, cr_value, cr_buffer, deprive_unit, deprive_value, required, requires, growth)
                 create_agent_type_attr(agent_type, attr_name, attr_value, attr_descriptions)
     util.add_all(agent_data)
 

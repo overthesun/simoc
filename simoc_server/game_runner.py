@@ -278,8 +278,19 @@ class GameRunnerInitializationParams(object):
         self.model_init_params = AgentModelInitializationParams()
         self.model_init_params.set_grid_width(100) \
                     .set_grid_height(100) \
-                    .set_starting_model_time(datetime.timedelta()) \
-                    .set_termination(config['termination'])
+                    .set_starting_model_time(datetime.timedelta())
+        if 'termination' in config:
+            self.model_init_params.set_termination(config['termination'])
+        else:
+            self.model_init_params.set_termination(None)
+        if 'logging' in config:
+            self.model_init_params.set_logging(config['logging'])
+        else:
+            self.model_init_params.set_logging(None)
+        if 'priorities' in config:
+            self.model_init_params.set_priorities(config['priorities'])
+        else:
+            self.model_init_params.set_priorities(None)
         self.agent_init_recipe = BaseLineAgentInitializerRecipe(config)
 
 
