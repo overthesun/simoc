@@ -16,6 +16,21 @@ import numpy as np
 PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__, type(None).__name__, 
     bool.__name__]
 
+def get_sigmoid_step(step_num, max_value, num_values, min_value=0, center=None, steepness=0.5):
+    center = center if center else int(num_values / 2)
+    y = ((max_value - min_value) / (1. + np.exp(-steepness * (step_num - center)))) + min_value
+    return y
+
+def get_log_step(step_num, max_value, num_values, min_value=0, zero_value=1e-2):
+    zero_value = zero_value if zero_value < max_value else max_value * zero_value
+    y = np.geomspace(zero_value, max_value - min_value, num_values) + min_value
+    return y[step_num]
+
+def get_linear_step(step_num, max_value, num_values, min_value=0):
+    y = np.linspace(min_value, max_value, num_values)
+    return y[step_num]
+
+
 class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
 
     # Used to ensure type attributes are properly inherited and
@@ -306,9 +321,20 @@ class GeneralAgent(EnclosedAgent):
             raise Exception('Unknown agent flow_rate.time value.')
         agent_value = self.agent_type_attributes[attr]
         if growth == 'linear':
-            agent_value = np.linspace(0, agent_value, self.lifetime * 24)[int(self['age'] * 24)]
+            min_value, max_value = 0, agent_value
+            num_values = self.lifetime * 24
+            step_num = int(self['age'] * 24)
+            agent_value = get_linear_step(step_num, max_value, num_values)
         elif growth == 'logarithmic':
-            agent_value = np.geomspace(1e-2, agent_value, self.lifetime * 24)[int(self['age'] * 24)]
+            min_value, max_value = 0, agent_value
+            num_values = self.lifetime * 24
+            step_num = int(self['age'] * 24)
+            agent_value = get_log_step(step_num, max_value, num_values)
+        elif growth == 'sigmoid':
+            min_value, max_value = 0, agent_value
+            num_values = self.lifetime * 24
+            step_num = int(self['age'] * 24)
+            agent_value = get_sigmoid_step(step_num, max_value, num_values)
         agent_value = pq.Quantity(agent_value, agent_unit)
         return agent_value * float(multiplier)
 
