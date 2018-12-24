@@ -601,7 +601,12 @@
               "unit": "kg",
               "time": "hour"
             },
-            "growth": "linear"
+            "growth": {
+              "daily": {
+                "type": "norm",
+                "center": 12
+              }
+            }
           },
           {
             "type": "h2o_potb",
@@ -610,7 +615,11 @@
               "unit": "kg",
               "time": "hour"
             },
-            "growth": "logarithmic"
+            "growth": {
+              "lifetime": {
+                  "type": "sigmoid"
+              }
+            }
           },
           {
             "type": "sold_n",
@@ -619,7 +628,14 @@
               "unit": "kg",
               "time": "hour"
             },
-            "growth": "sigmoid"
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           },
           {
             "type": "sold_p",
@@ -627,6 +643,11 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "linear"
+              }
             }
           },
           {
@@ -635,12 +656,16 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "logarithmic"
+              }
             }
           },
           {
             "type": "enrg_kwh",
             "value": 0.2300870147,
-            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -753,7 +778,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.8018183846,
-            "active_period": 22,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -871,7 +895,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
-            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -984,7 +1007,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "active_period": 16,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1102,7 +1124,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "active_period": 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1220,7 +1241,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "active_period": 16,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1333,7 +1353,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "active_period": 16,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1451,7 +1470,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1673360107,
-            "active_period": 18,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1569,7 +1587,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.188253012,
-            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1687,7 +1704,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
-            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1805,7 +1821,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1533913432,
-            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1923,7 +1938,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.188253012,
-            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2041,7 +2055,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1812806783,
-            "active_period": 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2159,7 +2172,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "active_period": 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2277,7 +2289,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1673360107,
-            "active_period": 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2395,7 +2406,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.188253012,
-            "active_period": 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2513,7 +2523,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1673360107,
-            "active_period": 18,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2631,7 +2640,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1812806783,
-            "active_period": 16,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2749,7 +2757,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "active_period": 16,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2867,7 +2874,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
-            "active_period": 24,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2985,7 +2991,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
-            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -3103,7 +3108,6 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
-            "active_period": 12,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"

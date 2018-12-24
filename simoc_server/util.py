@@ -25,7 +25,7 @@ def load_db_attributes_into_dict(attributes, target_values=None, target_descript
     for attribute in attributes:
         # get type of attribute
         attribute_name = attribute.name
-        units = attribute.units
+        details = attribute.details
         if attribute.value_type == type(None).__name__:
             value = None
         else:
@@ -46,7 +46,7 @@ def load_db_attributes_into_dict(attributes, target_values=None, target_descript
                 value = NotLoaded(value_str)
 
         target_values[attribute_name] = value
-        target_descriptions[attribute_name] = units
+        target_descriptions[attribute_name] = details
 
     return target_values, target_descriptions
 

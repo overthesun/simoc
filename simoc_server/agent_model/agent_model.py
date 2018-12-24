@@ -245,6 +245,7 @@ class AgentModel(Model, AttributeHolder):
 
     def step(self):
         self['time'] += self.timedelta_per_step()
+        self['daytime'] = int(self['time'].total_seconds() / 60) % (24 * 60)
         for cond in self.termination:
             if cond['condition'] == "time":
                 value = cond['value']

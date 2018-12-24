@@ -12,24 +12,45 @@ from simoc_server.util import timedelta_to_days, timedelta_to_hours, timedelta_h
 
 import quantities as pq
 import numpy as np
+from scipy.stats import norm
+from sklearn.preprocessing import MinMaxScaler
 
 PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__, type(None).__name__, 
     bool.__name__]
 
-def get_sigmoid_step(step_num, max_value, num_values, min_value=0, center=None, steepness=0.5):
+def get_sigmoid_step(step_num, max_value, num_values, min_value=0, center=None, steepness=None):
     center = center if center else int(num_values / 2)
+    steepness = steepness if steepness else 10. / float(num_values)
     y = ((max_value - min_value) / (1. + np.exp(-steepness * (step_num - center)))) + min_value
-    return y
+    return float(y)
 
 def get_log_step(step_num, max_value, num_values, min_value=0, zero_value=1e-2):
     zero_value = zero_value if zero_value < max_value else max_value * zero_value
     y = np.geomspace(zero_value, max_value - min_value, num_values) + min_value
-    return y[step_num]
+    return float(y[step_num])
 
 def get_linear_step(step_num, max_value, num_values, min_value=0):
     y = np.linspace(min_value, max_value, num_values)
-    return y[step_num]
+    return float(y[step_num])
 
+def get_norm_step(step_num, max_value, num_values, min_value=0, center=None, width=None):
+    center = center if center else int(num_values / 2)
+    width = width if width else int(num_values / 5)
+    y = norm.pdf(np.arange(num_values), center, width)
+    y = MinMaxScaler((min_value, max_value)).fit_transform(y.reshape(-1, 1))
+    return float(y[step_num])
+
+def get_scaled_step(step_num, max_value, num_values, growth_type, min_value=0, center=None):
+    if growth_type == 'linear':
+        return get_linear_step(step_num, max_value, num_values, min_value)
+    elif growth_type == 'logarithmic':
+        return get_log_step(step_num, max_value, num_values, min_value)
+    elif growth_type == 'sigmoid':
+        return get_sigmoid_step(step_num, max_value, num_values, min_value)
+    elif growth_type == 'norm':
+        return get_norm_step(step_num, max_value, num_values, min_value, center)
+    else:
+        raise ValueError("Unknown growth function type '{}'.".format(growth_type))
 
 class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
 
@@ -244,9 +265,8 @@ class GeneralAgent(EnclosedAgent):
             if prefix not in ['in', 'out']:
                 continue
 
-            descriptions = self.agent_type_descriptions[attr].split('/')
-            deprive_value = descriptions[8]
-            required = descriptions[9]
+            descriptions = self.agent_type_descriptions[attr].split(';')
+            deprive_value = descriptions[7]
             # Iurii: Can we alter this to accept floats
             self.deprive[currency] = int(deprive_value) if deprive_value != '' else 0
 
@@ -266,12 +286,11 @@ class GeneralAgent(EnclosedAgent):
     def get_step_value(self, attr, hours_per_step):
         prefix, currency = attr.split('_', 1)
         multiplier = 1
-        descriptions = self.agent_type_descriptions[attr].split('/')
-        agent_unit, agent_flow_time, attr_active_period = descriptions[:3]
-        growth = descriptions[11]
-        if attr_active_period != '':
-            multiplier *= int(attr_active_period) / 24
-        cr_name, cr_limit, cr_value, cr_buffer = descriptions[3:7]
+        descriptions = self.agent_type_descriptions[attr].split(';')
+        agent_unit, agent_flow_time = descriptions[:2]
+        lifetime_growth_type, lifetime_growth_center, lifetime_growth_min_value = descriptions[10:13]
+        daily_growth_type, daily_growth_center, daily_growth_min_value = descriptions[13:16]
+        cr_name, cr_limit, cr_value, cr_buffer = descriptions[2:6]
         cr_value = float(cr_value) if cr_value != '' else 0.0
         cr_buffer = int(cr_buffer) if cr_buffer != '' else 0
         if len(cr_name) > 0:
@@ -320,21 +339,18 @@ class GeneralAgent(EnclosedAgent):
         else:
             raise Exception('Unknown agent flow_rate.time value.')
         agent_value = self.agent_type_attributes[attr]
-        if growth == 'linear':
-            min_value, max_value = 0, agent_value
-            num_values = self.lifetime * 24
-            step_num = int(self['age'] * 24)
-            agent_value = get_linear_step(step_num, max_value, num_values)
-        elif growth == 'logarithmic':
-            min_value, max_value = 0, agent_value
-            num_values = self.lifetime * 24
-            step_num = int(self['age'] * 24)
-            agent_value = get_log_step(step_num, max_value, num_values)
-        elif growth == 'sigmoid':
-            min_value, max_value = 0, agent_value
-            num_values = self.lifetime * 24
-            step_num = int(self['age'] * 24)
-            agent_value = get_sigmoid_step(step_num, max_value, num_values)
+        if lifetime_growth_type:
+            min_value = int(lifetime_growth_min_value) if len(lifetime_growth_min_value) > 0 else 0
+            center = int(float(lifetime_growth_center)) if len(lifetime_growth_center) > 0 else None
+            step_num, num_values  = int(self['age'] * 24), int(self.lifetime * 24)
+            agent_value = get_scaled_step(step_num=step_num, max_value=agent_value, num_values=num_values,
+                                          growth_type=lifetime_growth_type, min_value=min_value, center=center)
+        if daily_growth_type:
+            min_value = int(daily_growth_min_value) if len(daily_growth_min_value) > 0 else 0
+            center = int(float(daily_growth_center)) * 60 if len(daily_growth_center) > 0 else None
+            step_num, num_values = self.model['daytime'], 24 * 60
+            agent_value = get_scaled_step(step_num=step_num, max_value=agent_value, num_values=num_values,
+                                          growth_type=daily_growth_type, min_value=min_value, center=center)
         agent_value = pq.Quantity(agent_value, agent_unit)
         return agent_value * float(multiplier)
 
@@ -368,9 +384,9 @@ class GeneralAgent(EnclosedAgent):
                 num_of_storages = len(self.selected_storages[prefix][currency])
                 if num_of_storages == 0:
                     self.kill('No storage of {} found for {}. Killing the agent'.format(currency, self.agent_type))
-                descriptions = self.agent_type_descriptions[attr].split('/')
-                deprive_unit, deprive_value = descriptions[7:9]
-                required, requires = descriptions[9:11]
+                descriptions = self.agent_type_descriptions[attr].split(';')
+                deprive_unit, deprive_value = descriptions[6:8]
+                is_required, requires = descriptions[8:10]
                 if requires != 'None':
                     requires = requires.split('#')
                     for req_currency in requires:
@@ -405,7 +421,7 @@ class GeneralAgent(EnclosedAgent):
                             if self.deprive[currency] < 0:
                                 self.kill(
                                     'There is no enough {} for {}. Killing the agent'.format(currency, self.agent_type))
-                        if required == 'True':
+                        if is_required == 'True':
                             return
                         else:
                             log = True

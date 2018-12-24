@@ -58,7 +58,7 @@ class DescriptiveAttribute(BaseAttribute):
     __abstract__ = True
 
     @declared_attr
-    def units(cls):
+    def details(cls):
         return db.Column(db.String(128), nullable=True)
 
     @declared_attr
