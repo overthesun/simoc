@@ -291,6 +291,9 @@ class GameRunnerInitializationParams(object):
             self.model_init_params.set_priorities(config['priorities'])
         else:
             self.model_init_params.set_priorities(None)
+        self.model_init_params.set_configuration(config)
+        if(config['single_agent'] == 1):
+            self.model_init_params.set_single_agent(1)
         self.agent_init_recipe = BaseLineAgentInitializerRecipe(config)
 
 

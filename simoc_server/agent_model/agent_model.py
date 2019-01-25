@@ -10,8 +10,9 @@ from mesa.time import RandomActivation, PrioritizedRandomActivation
 from mesa.space import MultiGrid
 
 from sqlalchemy.orm.exc import StaleDataError
+from sqlalchemy import or_
 
-from simoc_server.database.db_model import AgentModelState, AgentModelSnapshot, SnapshotBranch, AgentModelParam
+from simoc_server.database.db_model import AgentModelState, AgentModelSnapshot, SnapshotBranch, AgentModelParam, AgentType
 
 from simoc_server.agent_model.agents.core import GeneralAgent, StorageAgent
 
@@ -34,10 +35,12 @@ class AgentModel(Model, AttributeHolder):
         self.random_state = init_params.random_state
         self.termination = init_params.termination
         self.logging = init_params.logging
+        self.single_agent = init_params.single_agent
         self['time'] = init_params.starting_model_time
         self['is_terminated'] = False
         self.logs = []
         self.priorities = init_params.priorities
+        self.config = init_params.configuration
 
         # if no random state given, initialize a new one
         if self.random_state is None:
@@ -332,6 +335,8 @@ class AgentModelInitializationParams(object):
     seed = None
     random_state = None
     starting_step_num = 0
+    single_agent = 0
+
 
     def set_grid_width(self, grid_width):
         self.grid_width = grid_width
@@ -373,6 +378,14 @@ class AgentModelInitializationParams(object):
         self.priorities = priorities
         return self
 
+    def set_single_agent(self, single_agent):
+        self.single_agent = single_agent
+        return self
+
+    def set_configuration(self, config):
+        self.configuration = config
+        return self
+
 class AgentInitializerRecipe(metaclass=ABCMeta):
 
     @abstractmethod
@@ -384,6 +397,8 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
     def __init__(self, config):
         self.AGENTS = config['agents']
         self.STORAGES = config['storages']
+        self.SINGLE_AGENT = config['single_agent']
+        self.AGENT_LIST = [r for (r,) in db.session.query(AgentType.name).filter(or_(AgentType.agent_class == "plants", AgentType.agent_class == "power_generation"))]
 
     def init_agents(self, model):
         for type_name, instances in self.STORAGES.items():
@@ -393,7 +408,9 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         for type_name, instances in self.AGENTS.items():
             for instance in instances:
                 connections, amount = instance["connections"], instance['amount']
+                if(self.SINGLE_AGENT == 1 and type_name in self.AGENT_LIST):
+                    amount = 1
                 for i in range(amount):
-                    model.add_agent(GeneralAgent(model=model, agent_type=type_name, connections=connections))
+                    model.add_agent(GeneralAgent(model=model, agent_type=type_name, connections=connections, amount=instance['amount']))
 
         return model

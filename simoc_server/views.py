@@ -200,7 +200,7 @@ def new_game():
         #print("Cannot retrieve game config. Reason: {}".format(e))     
         
     #Next 2 lines are for testing only
-    #start_data ={"game_config": {"duration" : {"value": 1, "type" : "years"},"human_agent": {"amount" : 1},"habitat" : "crew_habitat_small","greenhouse" : "greenhouse_large","food_storage":{"amount" : 1000}, "plants" : [{"species" : "spinach", "amount": 10}, {"species": "cabbage", "amount" : 10}], "solar_arrays" : {"amount":50}, "power_storage" : {"amount":10}}}
+    #start_data ={"game_config": {"duration" : {"value": 1, "type" : "years"},"human_agent": {"amount" : 1},"habitat" : "crew_habitat_small","greenhouse" : "greenhouse_large","food_storage":{"amount" : 1000}, "plants" : [{"species" : "spinach", "amount": 10}, {"species": "cabbage", "amount" : 10}], "solar_arrays" : {"amount":50}, "power_storage" : {"amount":10}, "single_agent" : 1}}
     #game_config = convert_configuration(start_data["game_config"])
 
     game_runner_init_params = GameRunnerInitializationParams(game_config)
@@ -622,6 +622,7 @@ def convert_configuration(config_obj):
         full_game_config["termination"].append(duration)
     if(game_config["plants"]):
         for plant in game_config["plants"]:
+
             full_game_config["agents"][plant["species"]] = [{"connections": {"air_storage": [1], "water_storage": [1, 2], "nutrient_storage": [1],"power_storage": [], "food_storage": [1]}, "amount": plant["amount"]}]
             full_game_config["agents"][plant["species"]][0]["connections"]["food_storage"] = food_connections
             full_game_config["agents"][plant["species"]][0]["connections"]["power_storage"] = power_connections
@@ -632,6 +633,11 @@ def convert_configuration(config_obj):
         full_game_config["agents"][game_config["greenhouse"]] = [{"connections": {"power_storage": [1]}, "amount": 1}]
         full_game_config["agents"][game_config["greenhouse"]][0]["connections"]["power_storage"] = power_connections
     if(game_config["solar_arrays"]):
+
         full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {"power_storage": [1]}, "amount": game_config["solar_arrays"]["amount"]}]
         full_game_config["agents"]["solar_pv_array_mars"][0]["connections"]["power_storage"] = power_connections
+    if(game_config["single_agent"]):
+        full_game_config["single_agent"] = 1
+    else:
+        full_game_config["single_agent"] = 0
     return(full_game_config)

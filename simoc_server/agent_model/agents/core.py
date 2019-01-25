@@ -95,6 +95,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         if self._last_loaded_type_attr_class is not self:
             agent_type_name = self.agent_type
             agent_type = AgentType.query.filter_by(name=agent_type_name).first()
+            self.agent_class = agent_type.agent_class
 
             if agent_type is None:
                 raise Exception("Cannot find agent_type in database with name '{0}'. Please"
@@ -252,6 +253,8 @@ class GeneralAgent(EnclosedAgent):
     def __init__(self, *args, **kwargs):
         self.agent_type = kwargs.get("agent_type", None)
         connections = kwargs.pop("connections", None)
+        model = kwargs.get("model", None)
+        amount = kwargs.get("amount", None)
 
         super(GeneralAgent, self).__init__(*args, **kwargs)
 
@@ -269,6 +272,9 @@ class GeneralAgent(EnclosedAgent):
             deprive_value = descriptions[7]
             # Iurii: Can we alter this to accept floats
             self.deprive[currency] = int(deprive_value) if deprive_value != '' else 0
+
+            if(model.single_agent == 1 and (self.agent_class == "plants" or self.agent_class == "power_generation")):
+                self.agent_type_attributes[attr] *= amount
 
             self.selected_storages[prefix][currency] = []
             for storage in storages:

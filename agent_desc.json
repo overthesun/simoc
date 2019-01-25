@@ -741,6 +741,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -749,6 +757,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -757,6 +773,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -765,6 +789,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -773,6 +805,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -858,6 +898,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -866,6 +914,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -874,6 +930,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -882,6 +946,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -890,6 +962,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -970,6 +1050,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -978,6 +1066,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -986,6 +1082,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -994,6 +1098,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1002,6 +1114,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1087,6 +1207,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1095,6 +1223,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1103,6 +1239,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1111,6 +1255,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1119,6 +1271,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1204,6 +1364,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1212,6 +1380,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1220,6 +1396,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1228,6 +1412,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1236,6 +1428,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1316,6 +1516,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1324,6 +1532,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1332,6 +1548,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1340,6 +1564,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1348,6 +1580,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1433,6 +1673,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1441,6 +1689,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1449,6 +1705,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1457,6 +1721,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1465,6 +1737,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1550,6 +1830,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1558,6 +1846,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1566,6 +1862,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1574,6 +1878,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1582,6 +1894,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1667,6 +1987,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1675,6 +2003,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1683,6 +2019,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1691,6 +2035,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1699,6 +2051,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1784,6 +2144,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1792,6 +2160,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1800,6 +2176,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1808,6 +2192,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1816,6 +2208,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1901,6 +2301,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1909,6 +2317,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1917,6 +2333,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1925,6 +2349,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -1933,6 +2365,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2018,6 +2458,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2026,6 +2474,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2034,6 +2490,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2042,6 +2506,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2050,6 +2522,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2135,6 +2615,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2143,6 +2631,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2151,6 +2647,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2159,6 +2663,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2167,6 +2679,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2252,6 +2772,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2260,6 +2788,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2268,6 +2804,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2276,6 +2820,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2284,6 +2836,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2369,6 +2929,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2377,6 +2945,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2385,6 +2961,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2393,6 +2977,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2486,6 +3078,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2494,6 +3094,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2502,6 +3110,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2510,6 +3126,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2518,6 +3142,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2603,6 +3235,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2611,6 +3251,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2619,6 +3267,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2627,6 +3283,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2635,6 +3299,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2720,6 +3392,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2728,6 +3408,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2736,6 +3424,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2744,6 +3440,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2752,6 +3456,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2837,6 +3549,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2845,6 +3565,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2853,6 +3581,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2861,6 +3597,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2869,6 +3613,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2954,6 +3706,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2962,6 +3722,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2970,6 +3738,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2978,6 +3754,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2986,6 +3770,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3071,6 +3863,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3079,6 +3879,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3087,6 +3895,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3095,6 +3911,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3103,6 +3927,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
