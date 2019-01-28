@@ -636,7 +636,7 @@ def convert_configuration(config_obj):
 
         full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {"power_storage": [1]}, "amount": game_config["solar_arrays"]["amount"]}]
         full_game_config["agents"]["solar_pv_array_mars"][0]["connections"]["power_storage"] = power_connections
-    if(game_config["single_agent"]):
+    if('single_agent' in game_config and game_config["single_agent"] == 1):
         full_game_config["single_agent"] = 1
     else:
         full_game_config["single_agent"] = 0

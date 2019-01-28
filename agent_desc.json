@@ -4249,6 +4249,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -4281,6 +4286,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
