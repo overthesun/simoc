@@ -311,7 +311,7 @@ def get_energy():
     agent_name= request.args.get("agent_name", type=str)
     agent_quantity = request.args.get("quantity", type=int)
     attribute_name = "in_enrg_kwh"
-    value_type = "energy input"
+    value_type = "energy_input"
     total = {}
     if not agent_quantity:
         agent_quantity = 1
@@ -324,10 +324,10 @@ def get_energy():
     else:
         if agent_name == "solar_pv_array_mars":
             attribute_name = "out_enrg_kwh"
-            value_type = "energy output"
+            value_type = "energy_output"
         elif agent_name == "power_storage":
             attribute_name = "char_capacity_enrg_kwh"
-            value_type = "energy capacity"
+            value_type = "energy_capacity"
         for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == attribute_name).all():
             if agent.AgentType.name == agent_name:
                 value = float(agent.AgentTypeAttribute.value) * agent_quantity
