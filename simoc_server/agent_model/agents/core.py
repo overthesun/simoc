@@ -295,6 +295,7 @@ class GeneralAgent(EnclosedAgent):
                         self.buffer[cr_id] -= 1
                     else:
                         return pq.Quantity(0.0, agent_unit)
+
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
             elif cr_limit == '<':
@@ -303,6 +304,7 @@ class GeneralAgent(EnclosedAgent):
                         self.buffer[cr_id] -= 1
                     else:
                         return pq.Quantity(0.0, agent_unit)
+
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
             elif cr_limit == '=':
