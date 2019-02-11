@@ -6,14 +6,18 @@ class AttributeDescriptor(object):
         self.is_persisted_attr = is_persisted_attr
 
     def __repr__(self):
-        return "type: {} is_client_attr: {} is_persisted_attr: {}".format(self._type, self.is_client_attr, self.is_persisted_attr)
+        return "type: {} is_client_attr: {} is_persisted_attr: {}".format(self._type,
+                                                                          self.is_client_attr,
+                                                                          self.is_persisted_attr)
+
 
 class AttributeHolder(object):
 
     def __init__(self):
         self.attribute_descriptors = {}
 
-    def _attr(self, name, default_value=None, _type=None, is_client_attr=True, is_persisted_attr=True):
+    def _attr(self, name, default_value=None, _type=None, is_client_attr=True,
+              is_persisted_attr=True):
         value_exists = name in self.__dict__.keys()
 
         if _type is None:
@@ -27,7 +31,8 @@ class AttributeHolder(object):
 
         if name is None:
             raise Exception("'attribute' name cannot be equal to None.")
-        self.attribute_descriptors[name] = AttributeDescriptor(_type, is_client_attr, is_persisted_attr)
+        self.attribute_descriptors[name] = AttributeDescriptor(_type, is_client_attr,
+                                                               is_persisted_attr)
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -43,4 +48,3 @@ class AttributeHolder(object):
 
     def __len__(self):
         return len(self.__dict__)
-
