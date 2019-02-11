@@ -1,6 +1,7 @@
-from . import util
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 import json
+
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute
+from . import util
 
 
 def import_agents(agents, agent_class):
@@ -56,24 +57,23 @@ def import_agents(agents, agent_class):
                         daily_growth_center = str(daily_growth.get('center', ''))
                         daily_growth_min_value = str(daily_growth.get('min_value', ''))
                 attr_details = ';'.join([flow_unit,
-                                        flow_time,
-                                        cr_name,
-                                        cr_limit,
-                                        cr_value,
-                                        cr_buffer,
-                                        deprive_unit,
-                                        deprive_value,
-                                        is_required,
-                                        requires,
-                                        lifetime_growth_type,
-                                        lifetime_growth_center,
-                                        lifetime_growth_min_value,
-                                        daily_growth_type,
-                                        daily_growth_center,
-                                        daily_growth_min_value])
+                                         flow_time,
+                                         cr_name,
+                                         cr_limit,
+                                         cr_value,
+                                         cr_buffer,
+                                         deprive_unit,
+                                         deprive_value,
+                                         is_required,
+                                         requires,
+                                         lifetime_growth_type,
+                                         lifetime_growth_center,
+                                         lifetime_growth_min_value,
+                                         daily_growth_type,
+                                         daily_growth_center,
+                                         daily_growth_min_value])
                 create_agent_type_attr(agent_type, attr_name, attr_value, attr_details)
     util.add_all(agent_data)
-
 
 
 def seed(config_file):
@@ -85,4 +85,5 @@ def seed(config_file):
 
 def create_agent_type_attr(agent_type, name, value, details=None, description=None):
     return AgentTypeAttribute(name=name, agent_type=agent_type, value=str(value),
-        value_type=str(type(value).__name__), details=details, description=description)
+                              value_type=str(type(value).__name__), details=details,
+                              description=description)
