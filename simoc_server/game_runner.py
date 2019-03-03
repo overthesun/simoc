@@ -2,6 +2,8 @@ import threading
 import datetime
 import time
 import traceback
+import csv
+import os
 
 from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
@@ -48,6 +50,7 @@ class GameRunner(object):
         self.step_thread = None
         self.step_buffer = {}
         self.last_saved_step = last_saved_step
+        self.record_to_csv = False
         self.reset_last_accessed()
 
     @property
@@ -242,8 +245,29 @@ class GameRunner(object):
 
         if len(self.step_buffer) < self.step_buffer_size:
             self._step_to(step_num + self.step_buffer_size, True)
-
+        if(self.record_to_csv):
+            self._step_to_csv(step)
         return step
+
+    def _step_to_csv(self, step_data):
+        new_file = True
+        step = {"atmo_co2" : None, "enrg_kwh" : None, "atmo_h2o" : None} #heat biomass added later
+        step["enrg_kwh"] = step_data["agents"]["total_consumption"]["enrg_kwh"]["value"]
+        for x in step_data["storages"]:
+            if x["agent_type"] == "air_storage":
+                for y in x["currencies"]:
+                    if y["name"] == "atmo_co2":
+                        step["atmo_co2"] = y["value"]
+                    if y["name"] == "atmo_h2o":
+                        step["atmo_h2o"] = y["value"]
+        fname = "step_data.csv"
+        if os.path.isfile(fname):
+            new_file = False
+        with open(fname,"a+", newline = '') as f:
+            w = csv.DictWriter(f, step.keys())
+            if new_file:
+                w.writeheader()
+            w.writerow(step)
 
     def _step_to(self, step_num, threaded):
         """Run the agent model to the requested step.

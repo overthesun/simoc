@@ -282,6 +282,9 @@ def get_agents_by_category():
     -------
     array of strings.
     '''
+
+    """THOMAS: Should probably hand functionality off to a separate object, to maintain separation of concerns."""
+
     results = []
     agent_category = request.args.get("category", type=str)
     for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentTypeAttribute.name == "char_category").filter(AgentTypeAttribute.value == agent_category).filter(AgentType.id == AgentTypeAttribute.agent_type_id).all():   
@@ -296,8 +299,11 @@ def get_mass():
 
     Returns
     -------
-    json with total mass
+    json object with total mass
     '''
+
+    """THOMAS: Should probably hand functionality off to a separate object, to maintain separation of concerns."""
+
     value = 0
     agent_name = request.args.get("agent_name", type=str)
     agent_quantity = request.args.get("quantity", type=int)
@@ -324,8 +330,10 @@ def get_energy():
 
     Returns
     -------
-    json with energy value for agent
+    json object with energy value for agent
     '''
+
+    """THOMAS: Should probably hand functionality off to a separate object, to maintain separation of concerns."""
     agent_name= request.args.get("agent_name", type=str)
     agent_quantity = request.args.get("quantity", type=int)
     attribute_name = "in_enrg_kwh"
@@ -566,20 +574,26 @@ def convert_configuration(config_obj):
     """This method converts the json configuration from a post into
     a more complete configuration with connections"""
 
+    """THOMAS: This was created to allow the front end to send over a simplified version without connections. Connections are actually set up to connect to everything
+    automatically, so this could use a re-haul. It also has some atmosphere values that are hard coded here that should be defined either in the agent library
+    or sent from the front end. If this route is kept, most of the functionality should be moved into a separate object to help declutter and keep a solid separation
+    of concerns. If it is removed, the data from the front end needs to be changed into a format based on an object similar to the one created here or in the new game view."""
+
     game_config = config_obj
     full_game_config = {"agents": {
-        "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1, 2]}}],
-        "solid_waste_aerobic_bioreactor": [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1, 2],"nutrient_storage": [1]}, "amount": 1}],
+        "human_agent": [{"connections": {"air_storage": [1], "water_storage": [1]}}],
+        "solid_waste_aerobic_bioreactor": [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1],"nutrient_storage": [1]}, "amount": 1}],
         "multifiltration_purifier_post_treament": [{"connections": {"water_storage": [1, 2]}, "amount": 1}],
-        "oxygen_generation_SFWE" : [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
-        "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
+        "oxygen_generation_SFWE" : [{"connections": {"air_storage": [1],"power_storage": [1], "water_storage": [1]}, "amount": 1}],
+        "urine_recycling_processor_VCD": [{"connections": {"power_storage": [1], "water_storage": [1]}, "amount": 1}],
         "co2_removal_SAWD":[{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}],
-        "co2_reduction_sabatier":[{"connections":{"air_storage": [1],"power_storage": [1], "water_storage": [1, 2]},"amount":1}]
+        "co2_reduction_sabatier":[{"connections":{"air_storage": [1],"power_storage": [1], "water_storage": [1]},"amount":1}]
+        #Particulate removal was removed for the time being
         #"particulate_removal_TCCS" : [{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}]
         },
     "storages": {
         "air_storage": [{"id": 1, "atmo_h2o": 10, "atmo_o2": 2100, "atmo_co2": 3.5,"atmo_n2":7886, "atmo_ch4" : 0.009531, "atmo_h2" : 0.005295}],
-        "water_storage": [{"id": 1, "h2o_potb": 5000, "h2o_tret": 1000}, {"id": 2, "h2o_potb": 4000, "h2o_wste": 100, "h2o_urin": 100}],
+        "water_storage": [{"id": 1, "h2o_potb": 5000, "h2o_tret": 1000, "h2o_wste": 100, "h2o_urin": 100}],
         "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
         "power_storage": [],
         "food_storage": []},

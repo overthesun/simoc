@@ -1,0 +1,49 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"title" : "Power Generation",
+	"type" : "object",
+	"options" : {"disable_collapse" : true, "disable_properties" : true},
+	"id" : "power",
+	"properties" : {
+		"solar_pv_array_mars" : {
+			"type" : "object",
+			"title" : "Solar Array, Mars",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "json/schema/currency.json"
+				}
+			}
+		},
+		"solar_pv_array_moon" : {
+			"type" : "object",
+			"title" : "Solar Array, Moon",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "json/schema/currency.json"
+				}
+			}
+		},
+		"wind_turbine" : {
+			"type" : "object",
+			"title" : "Wind Turbine",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "json/schema/currency.json"
+				}
+			}
+		},
+		"radioisotope_generator" : {
+			"type" : "object",
+			"title" : "Geothermal",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "json/schema/currency.json"
+				}
+			}
+		}
+	}
+}
