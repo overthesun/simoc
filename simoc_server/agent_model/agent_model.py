@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import quantities as pq
 from mesa.space import MultiGrid
-from mesa.time import RandomActivation, PrioritizedRandomActivation
+from mesa.time import RandomActivation, BaseScheduler
 from sqlalchemy import or_
 from sqlalchemy.orm.exc import StaleDataError
 
@@ -17,6 +17,28 @@ from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentModelParam, AgentType
 from simoc_server.database.db_model import AgentModelState, AgentModelSnapshot, SnapshotBranch
 from simoc_server.util import timedelta_to_hours
+
+
+class PrioritizedRandomActivation(BaseScheduler):
+    def __init__(self, model, random_state=None, priorities=None):
+        super().__init__(model, random_state)
+        self.priorities = priorities
+
+    def step(self):
+        agent_by_class = {}
+        for agent in self.agents[:]:
+            agent_class = AgentType.query.get(agent._agent_type_id).agent_class
+            if agent_class not in agent_by_class:
+                agent_by_class[agent_class] = []
+            agent_by_class[agent_class].append(agent)
+        for agent_class in self.priorities:
+            if agent_class in agent_by_class:
+                agents = agent_by_class[agent_class]
+                self.random_state.shuffle(agents)
+                for agent in agents[:]:
+                    agent.step()
+        self.steps += 1
+        self.time += 1
 
 
 class AgentModel(Model, AttributeHolder):

@@ -257,20 +257,20 @@ def get_agent_types_by_class():
         results.append(entry)
     return json.dumps(results)
 
-@app.route("/get_agents_by_category", methods=["GET"])
-def get_agents_by_category():
-    '''
-    Gets the names of agents with the specified category characteristic.
-
-    Returns
-    -------
-    array of strings.
-    '''
-    results = []
-    agent_category = request.args.get("category", type=str)
-    for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentTypeAttribute.name == "char_category").filter(AgentTypeAttribute.value == agent_category).filter(AgentType.id == AgentTypeAttribute.agent_type_id).all():   
-        results.append(agent.AgentType.name)
-    return json.dumps(results)
+# @app.route("/get_agents_by_category", methods=["GET"])
+# def get_agents_by_category():
+#     '''
+#     Gets the names of agents with the specified category characteristic.
+#
+#     Returns
+#     -------
+#     array of strings.
+#     '''
+#     results = []
+#     agent_category = request.args.get("category", type=str)
+#     for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentTypeAttribute.name == "char_category").filter(AgentTypeAttribute.value == agent_category).filter(AgentType.id == AgentTypeAttribute.agent_type_id).all():
+#         results.append(agent.AgentType.name)
+#     return json.dumps(results)
 
 @app.route("/get_mass", methods=["GET"])
 def get_mass():
@@ -291,13 +291,13 @@ def get_mass():
         total = 0
         for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_mass").filter(AgentType.agent_class == "eclss").all():
             total += float(agent.AgentTypeAttribute.value)
-        value = total 
+        value = total
     else:
         for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_mass").all():
             if agent.AgentType.name == agent_name:
                 value = float(agent.AgentTypeAttribute.value)
     value = value * agent_quantity
-    total = { "mass" : value} 
+    total = { "mass" : value}
     return json.dumps(total)
 
 @app.route("/get_energy", methods=["GET"])
