@@ -1,21 +1,21 @@
-import threading
 import datetime
+import threading
 import time
 import traceback
 import csv
 import os
 
-from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
-from simoc_server.exceptions import GameNotFoundException, Unauthorized
-from simoc_server import db, app
+from simoc_server import app, db
 from simoc_server.agent_model import (AgentModel,
-    AgentModelInitializationParams, BaseLineAgentInitializerRecipe)
-from simoc_server.serialize import AgentModelDTO
+                                      AgentModelInitializationParams,
+                                      BaseLineAgentInitializerRecipe)
 from simoc_server.database import SavedGame
 from simoc_server.database.db_model import User
+from simoc_server.exceptions import GameNotFoundException, Unauthorized
+from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
+
 
 class GameRunner(object):
-
     """Manages a game instance and the associated agent model.
     Runs the agent model and provides dictionary representations
     of the internal state of the model at steps.
@@ -76,58 +76,58 @@ class GameRunner(object):
         """
         return self.last_saved_step == self.agent_model.step_num
 
-    # @classmethod
-    # def load_from_state(cls, user, agent_model_state, step_buffer_size=10):
-    #     """Loads a game runner for AgentModelState.
-    #
-    #     Parameters
-    #     ----------
-    #     user : simoc_server.database.db_model.User
-    #         User to associate the GameRunner with.
-    #     agent_model_state : simoc_server.database.db_model.AgentModelState
-    #         Agent model state to load the game runner from.
-    #     step_buffer_size : int, optional
-    #         Maximum number of steps to precalculate after each request.
-    #
-    #     Returns
-    #     -------
-    #     GameRunner
-    #         loaded GameRunner instance
-    #     """
-    #     agent_model = AgentModel.load_from_db(agent_model_state)
-    #     return GameRunner(agent_model, user, agent_model.step_num,
-    #         step_buffer_size=step_buffer_size)
+    @classmethod
+    def load_from_state(cls, user, agent_model_state, step_buffer_size=10):
+        """Loads a game runner for AgentModelState.
 
-    # @classmethod
-    # def load_from_saved_game(cls, user, saved_game, step_buffer_size=10):
-    #     """Loads a game runner from a SavedGame
-    #
-    #     Parameters
-    #     ----------
-    #     user : simoc_server.database.db_model.User
-    #         User to associate the GameRunner with.
-    #     saved_game : simoc_server.database.db_model.SavedGame
-    #         Saved game to load the game runner from.
-    #     step_buffer_size : int, optional
-    #         Maximum number of steps to precalculate after each request.
-    #
-    #     Returns
-    #     -------
-    #     GameRunner
-    #         loaded GameRunner instance
-    #
-    #     Raises
-    #     ------
-    #     Unauthorized
-    #         If the user provided does not match the user the game was saved
-    #         for.
-    #     """
-    #     agent_model_state = saved_game.agent_model_snapshot.agent_model_state
-    #     saved_game_user = saved_game.user
-    #     if saved_game_user != user:
-    #         raise Unauthorized("Attempted to load game belonging to another"
-    #             "user.")
-    #     return GameRunner.load_from_state(user, agent_model_state, step_buffer_size)
+        Parameters
+        ----------
+        user : simoc_server.database.db_model.User
+            User to associate the GameRunner with.
+        agent_model_state : simoc_server.database.db_model.AgentModelState
+            Agent model state to load the game runner from.
+        step_buffer_size : int, optional
+            Maximum number of steps to precalculate after each request.
+
+        Returns
+        -------
+        GameRunner
+            loaded GameRunner instance
+        """
+        agent_model = AgentModel.load_from_db(agent_model_state)
+        return GameRunner(agent_model, user, agent_model.step_num,
+                          step_buffer_size=step_buffer_size)
+
+    @classmethod
+    def load_from_saved_game(cls, user, saved_game, step_buffer_size=10):
+        """Loads a game runner from a SavedGame
+
+        Parameters
+        ----------
+        user : simoc_server.database.db_model.User
+            User to associate the GameRunner with.
+        saved_game : simoc_server.database.db_model.SavedGame
+            Saved game to load the game runner from.
+        step_buffer_size : int, optional
+            Maximum number of steps to precalculate after each request.
+
+        Returns
+        -------
+        GameRunner
+            loaded GameRunner instance
+
+        Raises
+        ------
+        Unauthorized
+            If the user provided does not match the user the game was saved
+            for.
+        """
+        agent_model_state = saved_game.agent_model_snapshot.agent_model_state
+        saved_game_user = saved_game.user
+        if saved_game_user != user:
+            raise Unauthorized("Attempted to load game belonging to another"
+                               "user.")
+        return GameRunner.load_from_state(user, agent_model_state, step_buffer_size)
 
     @classmethod
     def from_new_game(cls, user, game_runner_init_params, step_buffer_size=10):
@@ -167,7 +167,8 @@ class GameRunner(object):
         """
         self.user = db.session.merge(self.user)
         agent_model_snapshot = self.agent_model.snapshot(commit=False)
-        saved_game = SavedGame(user=self.user, agent_model_snapshot=agent_model_snapshot, name=save_name)
+        saved_game = SavedGame(
+            user=self.user, agent_model_snapshot=agent_model_snapshot, name=save_name)
         db.session.add(saved_game)
         db.session.commit()
         self.last_saved_step = self.agent_model.step_num
@@ -188,7 +189,7 @@ class GameRunner(object):
             A dictionary containing the internal state of the agent model
             at the requested step.
         """
-        if(step_num is None):
+        if (step_num is None):
             if len(self.step_buffer) > 0:
                 step_num = min(self.step_buffer.keys()) + 1
             else:
@@ -239,7 +240,7 @@ class GameRunner(object):
             min_step = min(all_step_nums) if len(all_step_nums) > 0 else None
             max_step = max(all_step_nums) if len(all_step_nums) > 0 else None
             raise Exception("Error step requested is out of range"
-                "of buffer - min: {0} max: {1}".format(min_step, max_step))
+                            "of buffer - min: {0} max: {1}".format(min_step, max_step))
         step = self.step_buffer[step_num]
         self.step_buffer = pruned_buffer
 
@@ -285,24 +286,27 @@ class GameRunner(object):
         # more than 1 thread attempting to calculate steps
         if self.step_thread is not None and self.step_thread.isAlive():
             self.step_thread.join()
+
         def step_loop(agent_model, step_num, step_buffer):
             while self.agent_model.step_num < step_num and not self.agent_model['is_terminated']:
                 agent_model.step()
                 step_buffer[self.agent_model.step_num] = self.agent_model.get_model_stats()
+
         if threaded:
-            self.step_thread = threading.Thread(target=step_loop, \
-                args=(self.agent_model, step_num, self.step_buffer))
+            self.step_thread = threading.Thread(target=step_loop,
+                                                args=(self.agent_model, step_num, self.step_buffer))
             self.step_thread.run()
         else:
             step_loop(self.agent_model, step_num, self.step_buffer)
+
 
 class GameRunnerInitializationParams(object):
 
     def __init__(self, config):
         self.model_init_params = AgentModelInitializationParams()
         self.model_init_params.set_grid_width(100) \
-                    .set_grid_height(100) \
-                    .set_starting_model_time(datetime.timedelta())
+            .set_grid_height(100) \
+            .set_starting_model_time(datetime.timedelta())
         if 'termination' in config:
             self.model_init_params.set_termination(config['termination'])
         else:
@@ -315,14 +319,13 @@ class GameRunnerInitializationParams(object):
             self.model_init_params.set_priorities(config['priorities'])
         else:
             self.model_init_params.set_priorities(None)
-        self.model_init_params.set_configuration(config)
-        if(config['single_agent'] == 1):
+        self.model_init_params.set_config(config)
+        if (config['single_agent'] == 1):
             self.model_init_params.set_single_agent(1)
         self.agent_init_recipe = BaseLineAgentInitializerRecipe(config)
 
 
 class GameRunnerManager(object):
-
     """Manages all gamerunner objects held by this instance of the application.
 
     Attributes
@@ -342,11 +345,11 @@ class GameRunnerManager(object):
 
     """
 
-    DEFAULT_TIMEOUT_INTERVAL = 120 # seconds
-    DEFAULT_CLEANUP_MAX_INTERVAL = 10 # seconds
+    DEFAULT_TIMEOUT_INTERVAL = 120  # seconds
+    DEFAULT_CLEANUP_MAX_INTERVAL = 10  # seconds
 
     def __init__(self, timeout_interval=None,
-            cleanup_max_interval=None):
+                 cleanup_max_interval=None):
         self.game_runners = {}
 
         if timeout_interval:
@@ -362,7 +365,6 @@ class GameRunnerManager(object):
         # thread will not end if it runs during unit test
         self.start_cleanup_thread()
 
-
     def start_cleanup_thread(self):
         """Starts a cleanup thread to remove game_runners
         that have timed out.  Should generally only be called
@@ -375,7 +377,8 @@ class GameRunnerManager(object):
         def cleanup_at_interval():
             self.clean_up_inactive()
             new_interval = self.get_next_timeout()
-            self.cleanup_thread = threading.Timer(new_interval, cleanup_at_interval)
+            self.cleanup_thread = threading.Timer(
+                new_interval, cleanup_at_interval)
             self.cleanup_thread.start()
 
         def close():
@@ -383,10 +386,11 @@ class GameRunnerManager(object):
             self.cleanup_thread.cancel()
             self.cleanup_thread.join()
             print("Cleanup thread closed.")
-            self.save_all(allow_repeat_save=False) # do not save if already saved
+            self.save_all(allow_repeat_save=False)
 
         handler_partial = register_exit_handler(close)
-        self.cleanup_thread = threading.Timer(self.cleanup_max_interval, cleanup_at_interval)
+        self.cleanup_thread = threading.Timer(
+            self.cleanup_max_interval, cleanup_at_interval)
         self.cleanup_thread.start()
         self._handler_partial = handler_partial
 
@@ -412,20 +416,20 @@ class GameRunnerManager(object):
         game_runner = GameRunner.from_new_game(user, game_runner_init_params)
         self._add_game_runner(user, game_runner)
 
-    # def load_game(self, user, saved_game):
-    #     """Load a game and add it to the internal game_runners dict.
-    #     If the user already holds a game instance, it is saved, if needed and removed.
-    #
-    #     Parameters
-    #     ----------
-    #     user : simoc_server.database.db_model.User
-    #         The user requesting to game, to be validated as the owner of the save by
-    #         the GameRunner on initialization.
-    #     saved_game : simoc_server.database.db_model.SavedGame
-    #         The saved game to load.
-    #     """
-    #     game_runner = GameRunner.load_from_saved_game(user, saved_game)
-    #     self._add_game_runner(saved_game.user, game_runner)
+    def load_game(self, user, saved_game):
+        """Load a game and add it to the internal game_runners dict.
+        If the user already holds a game instance, it is saved, if needed and removed.
+
+        Parameters
+        ----------
+        user : simoc_server.database.db_model.User
+            The user requesting to game, to be validated as the owner of the save by
+            the GameRunner on initialization.
+        saved_game : simoc_server.database.db_model.SavedGame
+            The saved game to load.
+        """
+        game_runner = GameRunner.load_from_saved_game(user, saved_game)
+        self._add_game_runner(saved_game.user, game_runner)
 
     def save_all(self, allow_repeat_save=True):
         """Save all currently active game_runners.
@@ -559,9 +563,9 @@ class GameRunnerManager(object):
         str
             An automatically generated auto save name.
         """
-        return "{} {}".format(
-                    "Autosave",
-                    datetime.datetime.utcnow())
+        return "{}_{}".format(
+            "Autosave",
+            datetime.datetime.utcnow())
 
     def clean_up_inactive(self):
         """Cleans up all sessions that have timed out, used by the internal
@@ -569,18 +573,17 @@ class GameRunnerManager(object):
         """
         marked_for_cleanup = []
         for user_id, game_runner in self.game_runners.items():
-            if(game_runner.seconds_since_last_accessed > self.timeout_interval):
+            if (game_runner.seconds_since_last_accessed > self.timeout_interval):
                 marked_for_cleanup.append(user_id)
 
         for user_id in marked_for_cleanup:
             try:
-                # prevent exceptions that would kill thread at all costs
                 app.logger.info("Cleaning up save game for user with id {}".format(user_id))
                 self.save_game(user_id, allow_repeat_save=False)
                 del self.game_runners[user_id]
             except KeyError as e:
                 app.logger.error("Session for user '{}' removed before it could be cleaned up."
-                                .format(user_id))
+                                 .format(user_id))
             except Exception as e:
                 app.logger.error("Unknown exception occured in game manager cleanup.")
                 traceback.print_exc()
@@ -594,6 +597,6 @@ class GameRunnerManager(object):
         int or float
             the time till the next timeout given the current state
         """
-        next_timeouts = [self.timeout_interval - runner.seconds_since_last_accessed 
-            for runner in self.game_runners.values()]
+        next_timeouts = [self.timeout_interval - runner.seconds_since_last_accessed
+                         for runner in self.game_runners.values()]
         return max(0, min([self.timeout_interval] + next_timeouts))

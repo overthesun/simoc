@@ -1,28 +1,23 @@
-import numbers
 import datetime
-import numpy as np
-import pandas as pd
-
+import json
 from abc import ABCMeta, abstractmethod
 
-from mesa import Model
-from mesa.time import RandomActivation, PrioritizedRandomActivation
+import numpy as np
+import pandas as pd
+import quantities as pq
 from mesa.space import MultiGrid
-
-from sqlalchemy.orm.exc import StaleDataError
+from mesa.time import RandomActivation, PrioritizedRandomActivation
 from sqlalchemy import or_
+from sqlalchemy.orm.exc import StaleDataError
 
-from simoc_server.database.db_model import AgentModelState, AgentModelSnapshot, SnapshotBranch, AgentModelParam, AgentType
-
-from simoc_server.agent_model.agents.core import GeneralAgent, StorageAgent
-
-from simoc_server.agent_model.attribute_meta import AttributeHolder
-
+from mesa import Model
 from simoc_server import db, app
-
+from simoc_server.agent_model.agents.core import GeneralAgent, StorageAgent
+from simoc_server.agent_model.attribute_meta import AttributeHolder
+from simoc_server.database.db_model import AgentModelParam, AgentType
+from simoc_server.database.db_model import AgentModelState, AgentModelSnapshot, SnapshotBranch
 from simoc_server.util import timedelta_to_hours
 
-import quantities as pq
 
 class AgentModel(Model, AttributeHolder):
 
@@ -38,28 +33,31 @@ class AgentModel(Model, AttributeHolder):
         self.single_agent = init_params.single_agent
         self['time'] = init_params.starting_model_time
         self['is_terminated'] = False
-        self.logs = []
+        self.logs = init_params.logs
         self.priorities = init_params.priorities
-        self.config = init_params.configuration
+        self.config = init_params.config
 
         # if no random state given, initialize a new one
         if self.random_state is None:
             # if no random seed given initialize a new one
             if self.seed is None:
-                self.seed = int(np.random.randint(2**32, dtype='int64'))
+                self.seed = int(np.random.randint(2 ** 32, dtype='int64'))
             self.random_state = np.random.RandomState(self.seed)
 
         if not isinstance(self.seed, int):
-            raise Exception("Seed value must be of type 'int', got type '{}'".format(type(self.seed)))
+            raise Exception(
+                "Seed value must be of type 'int', got type '{}'".format(type(self.seed)))
 
-        self.grid = MultiGrid(self.grid_width, self.grid_height, True, random_state=self.random_state)
+        self.grid = MultiGrid(self.grid_width, self.grid_height,
+                              True, random_state=self.random_state)
         if self.priorities:
-            self.scheduler = PrioritizedRandomActivation(self, random_state=self.random_state, priorities=self.priorities)
+            self.scheduler = PrioritizedRandomActivation(
+                self, random_state=self.random_state, priorities=self.priorities)
         else:
-            self.scheduler = RandomActivation(self, random_state=self.random_state)
+            self.scheduler = RandomActivation(
+                self, random_state=self.random_state)
         self.scheduler.steps = getattr(init_params, "starting_step_num", 0)
         self.model_stats = {}
-
 
     @property
     def logger(self):
@@ -79,20 +77,22 @@ class AgentModel(Model, AttributeHolder):
             return df
 
     def get_step_logs(self, step_num, filters=[], columns=None, dtype='list'):
-        return self.get_logs(filters=filters+[('step_num', [step_num])], columns=columns, dtype=dtype)
+        return self.get_logs(filters=filters + [('step_num', [step_num])], columns=columns,
+                             dtype=dtype)
 
     def get_model_stats(self):
-        response = {"step": self.step_num,
+        response = {"step":           self.step_num,
                     "hours_per_step": timedelta_to_hours(self.timedelta_per_step()),
-                    "is_terminated": self['is_terminated'],
-                    "time": self["time"].total_seconds(),
-                    "agents": self.get_total_agents(),
-                    "storages": self.get_total_storages(),
-                    "model_stats": self.model_stats}
+                    "is_terminated":  self['is_terminated'],
+                    "time":           self["time"].total_seconds(),
+                    "agents":         self.get_total_agents(),
+                    "storages":       self.get_total_storages(),
+                    "model_stats":    self.model_stats}
         if self.logging is not None:
             columns = self.logging.get('columns', [])
             filters = self.logging.get('filters', [])
-            response["step_logs"] = self.get_step_logs(step_num=self.step_num - 1, columns=columns, filters=filters)
+            response["step_logs"] = self.get_step_logs(
+                step_num=self.step_num - 1, columns=columns, filters=filters)
         if self['is_terminated']:
             response['termination_reason'] = self['termination_reason']
         return response
@@ -122,25 +122,34 @@ class AgentModel(Model, AttributeHolder):
                     else:
                         total_consumption[currency] += step_value
                 else:
-                    raise Exception('Unknown flow type. Neither Input nor Output.')
+                    raise Exception(
+                        'Unknown flow type. Neither Input nor Output.')
         for k in total_consumption:
             if k in total_production:
                 total_consumption[k].units = total_production[k].units
-        return {"total_production": {k: {"value": "{:.4f}".format(v.magnitude.tolist()), "units": v.units.dimensionality.string} for k, v in total_production.items()},
-                "total_consumption": {k: {"value": "{:.4f}".format(v.magnitude.tolist()), "units": v.units.dimensionality.string} for k, v in total_consumption.items()},
-                "total_agent_types": total_agent_types}
+        return {"total_production": {
+            k: {"value": "{:.4f}".format(v.magnitude.tolist()),
+                "units": v.units.dimensionality.string}
+            for k, v in total_production.items()},
+            "total_consumption":    {k: {"value": "{:.4f}".format(v.magnitude.tolist()),
+                                         "units": v.units.dimensionality.string} for k, v in
+                                     total_consumption.items()},
+            "total_agent_types":    total_agent_types}
 
     def get_total_storages(self):
         storages = []
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
-            entity = {"agent_type": storage.agent_type, "agent_id": storage.id, "currencies": []}
+            entity = {"agent_type": storage.agent_type,
+                      "agent_id":   storage.id, "currencies": []}
             for attr in storage.agent_type_attributes:
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
                     value = "{:.4f}".format(storage[currency])
                     capacity = storage.agent_type_attributes[attr]
                     storage_unit = storage.agent_type_descriptions[attr]
-                    entity["currencies"].append({"name": currency, "value": value, "capacity": capacity, "units": storage_unit})
+                    entity["currencies"].append(
+                        {"name":  currency, "value": value, "capacity": capacity,
+                         "units": storage_unit})
             storages.append(entity)
         return storages
 
@@ -158,39 +167,100 @@ class AgentModel(Model, AttributeHolder):
             else:
                 self.__dict__[param.name] = None
 
-    # def load_from_db(self, agent_model_state):
-    #     snapshot_branch = agent_model_state.agent_model_snapshot.snapshot_branch
-    #     grid_width = agent_model_state.grid_width
-    #     grid_height = agent_model_state.grid_height
-    #     step_num = agent_model_state.step_num
-    #     model_time = agent_model_state.model_time
-    #     seed = agent_model_state.seed
-    #     random_state = agent_model_state.random_state
-    #
-    #     init_params = AgentModelInitializationParams()
-    #
-    #     (init_params.set_grid_width(grid_width)
-    #                 .set_grid_height(grid_height)
-    #                 .set_starting_step_num(step_num)
-    #                 .set_starting_model_time(model_time)
-    #                 .set_snapshot_branch(snapshot_branch)
-    #                 .set_seed(seed)
-    #                 .set_random_state(random_state))
-    #
-    #     model = AgentModel(init_params)
-    #
-    #     for agent_state in agent_model_state.agent_states:
-    #         agent_type_name = agent_state.agent_type.name
-    #         agent_class = agents.get_agent_by_type_name(agent_type_name)
-    #         agent = agent_class(model, agent_state=agent_state)
-    #         model.add_agent(agent)
-    #         app.logger.info("Loaded {0} agent from db {1}".format(agent_type_name, agent.status_str()))
-    #
-    #     for agent in model.get_agents_by_type():
-    #         agent.post_db_load()
-    #
-    #     self.create_alerts_watcher(model)
-    #     return model
+    def load_from_db(agent_model_state):
+        snapshot_branch = agent_model_state.agent_model_snapshot.snapshot_branch
+        grid_width = agent_model_state.grid_width
+        grid_height = agent_model_state.grid_height
+        step_num = agent_model_state.step_num
+        model_time = agent_model_state.model_time
+        seed = agent_model_state.seed
+        random_state = agent_model_state.random_state
+        termination = json.loads(agent_model_state.termination)
+        priorities = json.loads(agent_model_state.priorities)
+        config = json.loads(agent_model_state.config)
+        logging = json.loads(agent_model_state.logging)
+        logs = json.loads(agent_model_state.logs)
+
+        init_params = AgentModelInitializationParams()
+
+        (init_params.set_grid_width(grid_width)
+         .set_grid_height(grid_height)
+         .set_starting_step_num(step_num)
+         .set_starting_model_time(model_time)
+         .set_snapshot_branch(snapshot_branch)
+         .set_seed(seed)
+         .set_random_state(random_state)
+         .set_termination(termination)
+         .set_priorities(priorities)
+         .set_config(config)
+         .set_logs(logs)
+         .set_logging(logging))
+
+        model = AgentModel(init_params)
+
+        agents = {}
+        for agent_state in agent_model_state.agent_states:
+            agent_class = agent_state.agent_type.agent_class
+            if agent_class not in agents:
+                agents[agent_class] = []
+            agents[agent_class].append({
+                "agent_type":              agent_state.agent_type.name,
+                "unique_id":               agent_state.agent_unique_id,
+                "model_time_created":      agent_state.model_time_created,
+                "active":                  agent_state.active,
+                "age":                     agent_state.age,
+                "lifetime":                agent_state.lifetime,
+                "agent_type_attributes":   json.loads(agent_state.agent_type_attributes),
+                "agent_type_descriptions": json.loads(agent_state.agent_type_descriptions),
+                "agent_id":                agent_state.agent_id,
+                "storage":                 json.loads(agent_state.storage),
+                "buffer":                  json.loads(agent_state.buffer),
+                "deprive":                 json.loads(agent_state.deprive),
+                "attribute_descriptors":   json.loads(agent_state.attribute_descriptors),
+                "selected_storages":       json.loads(agent_state.selected_storages)
+            })
+
+        for storage in agents['storage']:
+            type_name = storage['agent_type']
+            agent = StorageAgent(model=model, agent_type=type_name, **storage['storage'])
+            agent.unique_id = storage['unique_id']
+            agent.model_time_created = storage['model_time_created']
+            agent.active = storage['active']
+            agent.age = storage['age']
+            agent.lifetime = storage['lifetime']
+            agent.agent_type_attributes = storage['agent_type_attributes']
+            agent.agent_type_descriptions = storage['agent_type_descriptions']
+            agent.id = storage['agent_id']
+            model.add_agent(agent)
+        _ = agents.pop('storage')
+
+        for agent_class in agents:
+            for agent in agents[agent_class]:
+                type_name = agent['agent_type']
+                selected_storages = agent['selected_storages']
+                connections = {}
+                for storage in selected_storages:
+                    storage_class, storage_id = storage[2:4]
+                    if storage_class not in connections:
+                        connections[storage_class] = set()
+                    connections[storage_class].add(storage_id)
+                for k in connections:
+                    connections[k] = list(connections[k])
+                new_agent = GeneralAgent(model=model, agent_type=type_name, connections=connections)
+                new_agent.unique_id = agent['unique_id']
+                new_agent.model_time_created = agent['model_time_created']
+                new_agent.active = agent['active']
+                new_agent.age = agent['age']
+                new_agent.lifetime = agent['lifetime']
+                new_agent.agent_type_attributes = agent['agent_type_attributes']
+                new_agent.agent_type_descriptions = agent['agent_type_descriptions']
+                new_agent.age = agent['age']
+                new_agent.lifetime = agent['lifetime']
+                new_agent.deprive = agent['deprive']
+                new_agent.buffer = agent['buffer']
+                model.add_agent(new_agent)
+
+        return model
 
     @classmethod
     def create_new(cls, model_init_params, agent_init_recipe):
@@ -209,28 +279,37 @@ class AgentModel(Model, AttributeHolder):
         return len(self.schedule.agents)
 
     def _branch(self):
-        self.snapshot_branch = SnapshotBranch(parent_branch_id=self.snapshot_branch.id)
+        self.snapshot_branch = SnapshotBranch(
+            parent_branch_id=self.snapshot_branch.id)
 
     def snapshot(self, commit=True):
         if self.snapshot_branch is None:
             self.snapshot_branch = SnapshotBranch()
         else:
-            if(self.snapshot_branch.version_id is not None):
+            if (self.snapshot_branch.version_id is not None):
                 self.snapshot_branch.version_id += 1
         try:
             last_saved_branch_state = AgentModelState.query \
-                                .join(AgentModelSnapshot) \
-                                .join(SnapshotBranch, SnapshotBranch.id == self.snapshot_branch.id) \
-                                .order_by(AgentModelState.step_num.desc()) \
-                                .limit(1) \
-                                .first()
-            if(last_saved_branch_state is not None and \
-               last_saved_branch_state.step_num >= self.step_num):
+                .join(AgentModelSnapshot) \
+                .join(SnapshotBranch, SnapshotBranch.id == self.snapshot_branch.id) \
+                .order_by(AgentModelState.step_num.desc()) \
+                .limit(1) \
+                .first()
+            if (last_saved_branch_state is not None and
+                    last_saved_branch_state.step_num >= self.step_num):
                 self._branch()
             agent_model_state = AgentModelState(step_num=self.step_num, grid_width=self.grid.width,
-                    grid_height=self.grid.height, model_time=self['time'], seed=self.seed,
-                    random_state=self.random_state)
-            snapshot = AgentModelSnapshot(agent_model_state=agent_model_state, snapshot_branch=self.snapshot_branch)
+                                                grid_height=self.grid.height, model_time=self[
+                    'time'], seed=self.seed,
+                                                random_state=self.random_state,
+                                                termination=json.dumps(self.termination),
+                                                priorities=json.dumps(self.priorities),
+                                                config=json.dumps(self.config),
+                                                logs=json.dumps(self.logs[-5:]),
+                                                logging=json.dumps(self.logging)
+                                                )
+            snapshot = AgentModelSnapshot(
+                agent_model_state=agent_model_state, snapshot_branch=self.snapshot_branch)
             db.session.add(agent_model_state)
             db.session.add(snapshot)
             db.session.add(self.snapshot_branch)
@@ -238,10 +317,10 @@ class AgentModel(Model, AttributeHolder):
                 agent.snapshot(agent_model_state, commit=False)
             if commit:
                 db.session.commit()
-
             return snapshot
         except StaleDataError:
-            app.logger.warning("WARNING: StaleDataError during snapshot, probably a simultaneous save, changing branch.")
+            app.logger.warning(
+                "WARNING: StaleDataError during snapshot, probably a simultaneous save, changing branch.")
             db.session.rollback()
             self._branch()
             return self.snapshot()
@@ -277,7 +356,8 @@ class AgentModel(Model, AttributeHolder):
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
                     storage_unit = storage.agent_type_descriptions[attr]
-                    storage_value = pq.Quantity(float(storage[currency]), storage_unit)
+                    storage_value = pq.Quantity(
+                        float(storage[currency]), storage_unit)
                     if not total:
                         total = storage_value
                     else:
@@ -286,7 +366,8 @@ class AgentModel(Model, AttributeHolder):
                     temp[currency] = storage_value.magnitude.tolist()
             for currency in temp:
                 if temp[currency] > 0:
-                    self.model_stats[agent_id][currency + '_ratio'] = temp[currency] / total.magnitude.tolist()
+                    self.model_stats[agent_id][currency +
+                                               '_ratio'] = temp[currency] / total.magnitude.tolist()
                 else:
                     self.model_stats[agent_id][currency + '_ratio'] = 0
         self.scheduler.step()
@@ -294,17 +375,6 @@ class AgentModel(Model, AttributeHolder):
 
     def timedelta_per_step(self):
         return datetime.timedelta(minutes=self.minutes_per_step)
-
-    def get_meters_per_grid_unit(self):
-        return self.meters_per_grid_unit
-
-    def grid_units_to_meters(self, dist_grid):
-        if isinstance(dist_grid, tuple):
-            return tuple(d * self.meters_per_grid_unit for d in dist_grid)
-        elif isinstance(dist_grid, numbers.Number):
-            return self.meters_per_grid_unit * dist_grid
-        else:
-            raise TypeError("Expected number or tuple of numbers")
 
     def remove(self, agent):
         self.scheduler.remove(agent)
@@ -325,18 +395,22 @@ class AgentModel(Model, AttributeHolder):
 
     def agent_by_id(self, id):
         for agent in self.get_agents_by_type():
-            if(agent.id == id):
+            if (agent.id == id):
                 return agent
         return None
 
-class AgentModelInitializationParams(object):
 
+class AgentModelInitializationParams(object):
     snapshot_branch = None
     seed = None
     random_state = None
     starting_step_num = 0
     single_agent = 0
-
+    termination = []
+    logging = {}
+    priorities = []
+    logs = []
+    config = {}
 
     def set_grid_width(self, grid_width):
         self.grid_width = grid_width
@@ -366,6 +440,10 @@ class AgentModelInitializationParams(object):
         self.random_state = random_state
         return self
 
+    def set_single_agent(self, single_agent):
+        self.single_agent = single_agent
+        return self
+
     def set_termination(self, termination):
         self.termination = termination
         return self
@@ -378,13 +456,14 @@ class AgentModelInitializationParams(object):
         self.priorities = priorities
         return self
 
-    def set_single_agent(self, single_agent):
-        self.single_agent = single_agent
+    def set_config(self, config):
+        self.config = config
         return self
 
-    def set_configuration(self, config):
-        self.configuration = config
+    def set_logs(self, logs):
+        self.logs = logs
         return self
+
 
 class AgentInitializerRecipe(metaclass=ABCMeta):
 
@@ -392,25 +471,30 @@ class AgentInitializerRecipe(metaclass=ABCMeta):
     def init_agents(self, model):
         pass
 
+
 class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
 
     def __init__(self, config):
         self.AGENTS = config['agents']
         self.STORAGES = config['storages']
         self.SINGLE_AGENT = config['single_agent']
-        self.AGENT_LIST = [r for (r,) in db.session.query(AgentType.name).filter(or_(AgentType.agent_class == "plants", AgentType.agent_class == "power_generation"))]
+        self.AGENT_LIST = [r for (r,) in db.session.query(AgentType.name).filter(or_(
+            AgentType.agent_class == "plants", AgentType.agent_class == "power_generation"))]
 
     def init_agents(self, model):
         for type_name, instances in self.STORAGES.items():
             for instance in instances:
-                model.add_agent(StorageAgent(model=model, agent_type=type_name, **instance))
+                model.add_agent(StorageAgent(
+                    model=model, agent_type=type_name, **instance))
 
         for type_name, instances in self.AGENTS.items():
             for instance in instances:
                 connections, amount = instance["connections"], instance['amount']
-                if(self.SINGLE_AGENT == 1 and type_name in self.AGENT_LIST):
+                if (self.SINGLE_AGENT == 1 and type_name in self.AGENT_LIST):
                     amount = 1
                 for i in range(amount):
-                    model.add_agent(GeneralAgent(model=model, agent_type=type_name, connections=connections, amount=instance['amount']))
+                    model.add_agent(GeneralAgent(
+                        model=model, agent_type=type_name, connections=connections,
+                        amount=instance['amount']))
 
         return model

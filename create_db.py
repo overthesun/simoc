@@ -1,9 +1,11 @@
 import argparse
 import os
+
 import simoc_server
-from simoc_server import db, app
+from simoc_server import app
 from simoc_server.database import *
-from simoc_server.database.seed_data import seed
+from simoc_server.database.seed_data import seed_agents, seed_model
+
 
 def confirm(message):
     choice = input(message + "[y/N]")
@@ -11,13 +13,17 @@ def confirm(message):
         return False
     return True
 
+
 def create(agent_conf):
     db.create_all()
-    seed.seed(agent_conf)
+    seed_agents.seed(agent_conf)
+    seed_model.seed()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Seed database")
-    parser.add_argument("--no_seed", action="store_true", help="Do not add seed data.")
+    parser.add_argument("--no_seed", action="store_true",
+                        help="Do not add seed data.")
     args = parser.parse_args()
 
     if app.config['DB_TYPE'] == 'sqlite':
@@ -31,21 +37,20 @@ if __name__ == "__main__":
                 package_path = os.path.dirname(simoc_server.__file__)
                 db_path = os.path.join(package_path, db_rel_path)
             if os.path.isfile(db_path):
-                if not confirm("Database already exists, continuing will delete old database"):
-                    print("Exiting without creating database")
-                    exit()
-                else:
-                    os.remove(db_path)
+                #if not confirm("Database already exists, continuing will delete old database"):
+                #    print("Exiting without creating database")
+                #    exit()
+                #else:
+                os.remove(db_path)
         else:
-            if not confirm("Continuing will delete old database"):
-                print("Exiting without creating database")
-                exit()
-            else:
-                db.sessionmaker.close_all()
-                # db.engine.dispose()
-                db.drop_all()
+            #if not confirm("Continuing will delete old database"):
+            #    print("Exiting without creating database")
+            #    exit()
+            #else:
+            db.sessionmaker.close_all()
+            # db.engine.dispose()
+            db.drop_all()
 
     create(app.config["AGENT_CONFIG"])
 
-    # temporary fix for poorly handled threading
     os._exit(0)

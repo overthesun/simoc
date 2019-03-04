@@ -4396,8 +4396,7 @@
           }
         ],
         "output": [],
-        "characteristics": [
-          {
+        "characteristics": [{
             "type": "mass",
             "value": 0,
             "unit": "kg"
@@ -4561,8 +4560,7 @@
           }
         ],
         "output": [],
-        "characteristics": [
-          {
+        "characteristics": [{
             "type": "mass",
             "value": 0,
             "unit": "kg"
@@ -4589,8 +4587,7 @@
           }
         ],
         "output": [],
-        "characteristics": [
-          {
+        "characteristics": [{
             "type": "mass",
             "value": 0,
             "unit": "kg"

@@ -1,46 +1,56 @@
-from abc import ABCMeta, abstractmethod
-from mesa import Agent
+import json
+from abc import ABCMeta
 from uuid import uuid4
-import inspect
 
-from simoc_server import db
-from simoc_server.util import load_db_attributes_into_dict, NotLoaded
-from simoc_server.database.db_model import AgentType, AgentState, AgentStateAttribute
-from simoc_server.agent_model.attribute_meta import AttributeHolder
-
-from simoc_server.util import timedelta_to_days, timedelta_to_hours, timedelta_hour_of_day
-
-import quantities as pq
 import numpy as np
+import quantities as pq
 from scipy.stats import norm
 from sklearn.preprocessing import MinMaxScaler
 
-PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__, type(None).__name__, 
-    bool.__name__]
+from mesa import Agent
+from simoc_server import db
+from simoc_server.agent_model.attribute_meta import AttributeHolder
+from simoc_server.database.db_model import AgentType, AgentState
+from simoc_server.util import load_db_attributes_into_dict
+from simoc_server.util import timedelta_to_hours
 
-def get_sigmoid_step(step_num, max_value, num_values, min_value=0, center=None, steepness=None):
+
+# PERSISTABLE_ATTRIBUTE_TYPES = [int.__name__, float.__name__, str.__name__, type(None).__name__,
+#                                bool.__name__]
+
+
+def get_sigmoid_step(step_num, max_value, num_values,
+                     min_value=0, center=None, steepness=None):
     center = center if center else int(num_values / 2)
     steepness = steepness if steepness else 10. / float(num_values)
-    y = ((max_value - min_value) / (1. + np.exp(-steepness * (step_num - center)))) + min_value
+    y = ((max_value - min_value) /
+         (1. + np.exp(-steepness * (step_num - center)))) + min_value
     return float(y)
 
-def get_log_step(step_num, max_value, num_values, min_value=0, zero_value=1e-2):
+
+def get_log_step(step_num, max_value, num_values,
+                 min_value=0, zero_value=1e-2):
     zero_value = zero_value if zero_value < max_value else max_value * zero_value
     y = np.geomspace(zero_value, max_value - min_value, num_values) + min_value
     return float(y[step_num])
+
 
 def get_linear_step(step_num, max_value, num_values, min_value=0):
     y = np.linspace(min_value, max_value, num_values)
     return float(y[step_num])
 
-def get_norm_step(step_num, max_value, num_values, min_value=0, center=None, width=None):
+
+def get_norm_step(step_num, max_value, num_values,
+                  min_value=0, center=None, width=None):
     center = center if center else int(num_values / 2)
     width = width if width else int(num_values / 5)
     y = norm.pdf(np.arange(num_values), center, width)
     y = MinMaxScaler((min_value, max_value)).fit_transform(y.reshape(-1, 1))
     return float(y[step_num])
 
-def get_scaled_step(step_num, max_value, num_values, growth_type, min_value=0, center=None):
+
+def get_scaled_step(step_num, max_value, num_values,
+                    growth_type, min_value=0, center=None):
     if growth_type == 'linear':
         return get_linear_step(step_num, max_value, num_values, min_value)
     elif growth_type == 'logarithmic':
@@ -48,33 +58,27 @@ def get_scaled_step(step_num, max_value, num_values, growth_type, min_value=0, c
     elif growth_type == 'sigmoid':
         return get_sigmoid_step(step_num, max_value, num_values, min_value)
     elif growth_type == 'norm':
-        return get_norm_step(step_num, max_value, num_values, min_value, center)
+        return get_norm_step(step_num, max_value,
+                             num_values, min_value, center)
     else:
-        raise ValueError("Unknown growth function type '{}'.".format(growth_type))
+        raise ValueError(
+            "Unknown growth function type '{}'.".format(growth_type))
+
 
 class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
-
     # Used to ensure type attributes are properly inherited and
     # only loaded once
     _last_loaded_type_attr_class = False
 
-
     def __init__(self, *args, **kwargs):
         self.agent_type = kwargs.get("agent_type", None)
-        agent_state = kwargs.get("agent_state", None)
         model = kwargs.get("model", None)
         self._load_agent_type_attributes()
         AttributeHolder.__init__(self)
-
         self.active = True
-        if agent_state is not None:
-            self.load_from_db(agent_state)
-            super().__init__(self.unique_id, model)
-        else:
-            self.unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4().hex[:8])
-            self.model_time_created = model['time']
-            super().__init__(self.unique_id, model)
-
+        self.unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4().hex[:8])
+        self.model_time_created = model['time']
+        super().__init__(self.unique_id, model)
         self._attr('age', 0, is_client_attr=True, is_persisted_attr=True)
 
     def _load_agent_type_attributes(self):
@@ -94,18 +98,22 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
 
         if self._last_loaded_type_attr_class is not self:
             agent_type_name = self.agent_type
-            agent_type = AgentType.query.filter_by(name=agent_type_name).first()
+            agent_type = AgentType.query.filter_by(
+                name=agent_type_name).first()
             self.agent_class = agent_type.agent_class
 
             if agent_type is None:
                 raise Exception("Cannot find agent_type in database with name '{0}'. Please"
-                    " create associated AgentType and add to database".format(agent_type_name))
+                                " create associated AgentType and add to database".format(
+                    agent_type_name))
 
             attributes, descriptions = {}, {}
             try:
-                load_db_attributes_into_dict(agent_type.agent_type_attributes, attributes, descriptions)
+                load_db_attributes_into_dict(
+                    agent_type.agent_type_attributes, attributes, descriptions)
             except ValueError as e:
-                raise ValueError("Error loading agent type attributes for class '{}'.".format(self.__name__)) from e
+                raise ValueError("Error loading agent type attributes for class '{}'.".format(
+                    self.__name__)) from e
 
             self.agent_type_attributes, self.agent_type_descriptions = attributes, descriptions
 
@@ -138,71 +146,46 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         """
         return self.agent_type_attributes[name]
 
-    def load_from_db(self, agent_state):
-        """ Load agent with the given state
-
-        Parameters
-        ----------
-        agent_state : AgentState
-            AgentState loaded from database to initialize the agent from
-        """
-        if agent_state.pos_x is not None and agent_state.pos_y is not None:
-            self.pos = (agent_state.pos_x, agent_state.pos_y)
-        self.unique_id = agent_state.agent_unique_id
-        self.model_time_created = agent_state.model_time_created
-
-        self.requires_post_load = {}
-
-        try:
-            load_db_attributes_into_dict(agent_state.agent_state_attributes, self.__dict__, load_later=[BaseAgent])
-        except ValueError as e:
-            raise ValueError("Error loading agent state attributes for class '{}'".format(self.__class__.__name__)) from e
-
-    def post_db_load(self):
-        for name, attribute_descriptor in self.attribute_descriptors.items():
-            current_value = getattr(self, name)
-            if issubclass(attribute_descriptor._type, BaseAgent) and isinstance(current_value, NotLoaded):
-                id_value = current_value._db_raw_value
-                # TODO remove check for str value 'None' and move it elsewhere, make better
-                if id_value is not None:
-                    if id_value == "None":
-                        self.__dict__[name] = None
-                    else:
-                        self.__dict__[name] = self.model.agent_by_id(id_value)
-
     def snapshot(self, agent_model_state, commit=True):
-        pos = self.pos if hasattr(self, "pos") else (None, None)
-        agent_state = AgentState(agent_type_id=self._agent_type_id,
-                 agent_model_state=agent_model_state, agent_unique_id=self.unique_id,
-                 model_time_created=self.model_time_created, pos_x=pos[0], pos_y=pos[1])
+        args = {'agent_type_id':           self._agent_type_id,
+                'agent_model_state':       agent_model_state,
+                'agent_unique_id':         self.unique_id,
+                'model_time_created':      self.model_time_created,
+                'active':                  self.active,
+                'age':                     self.age,
+                'lifetime':                self.lifetime,
+                'agent_type_attributes':   json.dumps(self.agent_type_attributes),
+                'agent_type_descriptions': json.dumps(self.agent_type_descriptions),
+                'agent_id':                self.__dict__.get('id', None),
+                'buffer':                  json.dumps(self.__dict__.get('buffer', None)),
+                'deprive':                 json.dumps(self.__dict__.get('deprive', None)),
+                }
+        args['attribute_descriptors'] = []
+        attribute_descriptors = self.attribute_descriptors
+        for k in attribute_descriptors:
+            args['attribute_descriptors'].append([k, attribute_descriptors[k]._type.__name__,
+                                                  attribute_descriptors[k].is_client_attr,
+                                                  attribute_descriptors[k].is_persisted_attr])
+        args['attribute_descriptors'] = json.dumps(args['attribute_descriptors'])
+        args['storage'] = {}
+        for attr in self.agent_type_attributes:
+            if attr.startswith('char_capacity'):
+                currency = attr.split('_', 2)[2]
+                args['storage'][currency] = self[currency]
+        args['storage'] = json.dumps(args['storage'])
+        args['selected_storages'] = []
+        selected_storages = self.__dict__.get('selected_storages', [])
+        for k in selected_storages:
+            for v in selected_storages[k]:
+                for storage in selected_storages[k][v]:
+                    args['selected_storages'].append(
+                        [k, v, storage.agent_type, storage.id, storage.unique_id])
+        args['selected_storages'] = json.dumps(args['selected_storages'])
+        agent_state = AgentState(**args)
 
-        for attribute_name, attribute_descriptor in self.attribute_descriptors.items():
-            if attribute_descriptor.is_persisted_attr:
-                value = self.__dict__[attribute_name]
-                value_type = attribute_descriptor._type
-                is_agent_reference = False
-                if issubclass(value_type, BaseAgent):
-                    value_type_str = value_type.__module__ + "." + value_type.__name__
-                    if value is not None:
-                        value = value.unique_id
-                    is_agent_reference = True
-                else:
-                    value_type_str =  value_type.__name__
-                value_str = str(value)
-                if value_type_str not in PERSISTABLE_ATTRIBUTE_TYPES and not is_agent_reference:
-                    raise Exception("Attribute set to non-persistable type.")
-
-                agent_state.agent_state_attributes.append(AgentStateAttribute(name=attribute_name, 
-                    value=value_str, value_type=value_type_str))
         db.session.add(agent_state)
         if commit:
             db.session.commit()
-
-    def status_str(self):
-        sb = []
-        for attribute_name, attribute_descriptor in self.attribute_descriptors.items():
-            sb.append("{0}: {1}".format(attribute_name, self.__dict__[attribute_name]))
-        return " ".join(sb)
 
     def destroy(self):
         self.active = False
@@ -216,6 +199,8 @@ class EnclosedAgent(BaseAgent):
         super(EnclosedAgent, self).__init__(*args, **kwargs)
         if 'char_lifetime' in self.agent_type_attributes:
             self.lifetime = self.agent_type_attributes['char_lifetime']
+        else:
+            self.lifetime = 0
 
     def step(self):
         timedelta_per_step = self.model.timedelta_per_step()
@@ -228,24 +213,14 @@ class EnclosedAgent(BaseAgent):
                     if reproduce:
                         self['age'] = 0
                         return
-                self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(self.agent_type))
+                self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
+                    self.agent_type))
 
     def destroy(self, reason):
         self.model.logger.info("Object Died! Reason: {}".format(reason))
         print("Object Died! Reason: {}".format(reason))
         self.cause_of_death = reason
         super().destroy()
-
-    def add_to_structure(self, target):
-        if self.structure is not None:
-            self.structure.remove_agent_from(self)
-        target.place_agent_inside(self)
-        self.structure = target
-
-    def post_db_load(self):
-        super().post_db_load()
-        if self.structure is not None:
-            self.structure.place_agent_inside(self)
 
 
 class GeneralAgent(EnclosedAgent):
@@ -271,9 +246,11 @@ class GeneralAgent(EnclosedAgent):
             descriptions = self.agent_type_descriptions[attr].split(';')
             deprive_value = descriptions[7]
             # Iurii: Can we alter this to accept floats
-            self.deprive[currency] = int(deprive_value) if deprive_value != '' else 0
+            self.deprive[currency] = int(
+                deprive_value) if deprive_value != '' else 0
 
-            if(model.single_agent == 1 and (self.agent_class == "plants" or self.agent_class == "power_generation")):
+            if (model.single_agent == 1 and (
+                    self.agent_class == "plants" or self.agent_class == "power_generation")):
                 self.agent_type_attributes[attr] *= amount
 
             self.selected_storages[prefix][currency] = []
@@ -294,7 +271,8 @@ class GeneralAgent(EnclosedAgent):
         multiplier = 1
         descriptions = self.agent_type_descriptions[attr].split(';')
         agent_unit, agent_flow_time = descriptions[:2]
-        lifetime_growth_type, lifetime_growth_center, lifetime_growth_min_value = descriptions[10:13]
+        lifetime_growth_type, lifetime_growth_center, lifetime_growth_min_value = descriptions[
+                                                                                  10:13]
         daily_growth_type, daily_growth_center, daily_growth_min_value = descriptions[13:16]
         cr_name, cr_limit, cr_value, cr_buffer = descriptions[2:6]
         cr_value = float(cr_value) if cr_value != '' else 0.0
@@ -303,21 +281,21 @@ class GeneralAgent(EnclosedAgent):
             if cr_name in self:
                 source = self[cr_name]
             else:
-                source = 0                                
+                source = 0
                 for curr in self.selected_storages[prefix]:
                     for storage in self.selected_storages[prefix][curr]:
-                        agent_id = '{}_{}'.format(storage.agent_type, storage.id)                           
+                        agent_id = '{}_{}'.format(
+                            storage.agent_type, storage.id)
                         if cr_name in self.model.model_stats[agent_id]:
                             source += self.model.model_stats[agent_id][cr_name]
             cr_id = '{}_{}_{}'.format(prefix, currency, cr_name)
-            #Test line
-            #print(str(self.agent_type)+" Source: " +str(source)+ " Limit: " + str(cr_value))
             if cr_limit == '>':
                 if source <= cr_value:
                     if self.buffer.get(cr_id, 0) > 0:
                         self.buffer[cr_id] -= 1
                     else:
                         return pq.Quantity(0.0, agent_unit)
+
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
             elif cr_limit == '<':
@@ -326,6 +304,7 @@ class GeneralAgent(EnclosedAgent):
                         self.buffer[cr_id] -= 1
                     else:
                         return pq.Quantity(0.0, agent_unit)
+
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
             elif cr_limit == '=':
@@ -346,20 +325,28 @@ class GeneralAgent(EnclosedAgent):
             raise Exception('Unknown agent flow_rate.time value.')
         agent_value = self.agent_type_attributes[attr]
         if lifetime_growth_type:
-            min_value = int(lifetime_growth_min_value) if len(lifetime_growth_min_value) > 0 else 0
-            center = int(float(lifetime_growth_center)) if len(lifetime_growth_center) > 0 else None
-            step_num, num_values  = int(self['age'] * 24), int(self.lifetime * 24)
-            agent_value = get_scaled_step(step_num=step_num, max_value=agent_value, num_values=num_values,
-                                          growth_type=lifetime_growth_type, min_value=min_value, center=center)
+            min_value = int(lifetime_growth_min_value) if len(
+                lifetime_growth_min_value) > 0 else 0
+            center = int(float(lifetime_growth_center)) if len(
+                lifetime_growth_center) > 0 else None
+            step_num, num_values = int(
+                self['age'] * 24), int(self.lifetime * 24)
+            agent_value = get_scaled_step(step_num=step_num, max_value=agent_value,
+                                          num_values=num_values,
+                                          growth_type=lifetime_growth_type, min_value=min_value,
+                                          center=center)
         if daily_growth_type:
-            min_value = int(daily_growth_min_value) if len(daily_growth_min_value) > 0 else 0
-            center = int(float(daily_growth_center)) * 60 if len(daily_growth_center) > 0 else None
+            min_value = int(daily_growth_min_value) if len(
+                daily_growth_min_value) > 0 else 0
+            center = int(float(daily_growth_center)) * \
+                     60 if len(daily_growth_center) > 0 else None
             step_num, num_values = self.model['daytime'], 24 * 60
-            agent_value = get_scaled_step(step_num=step_num, max_value=agent_value, num_values=num_values,
-                                          growth_type=daily_growth_type, min_value=min_value, center=center)
+            agent_value = get_scaled_step(step_num=step_num, max_value=agent_value,
+                                          num_values=num_values,
+                                          growth_type=daily_growth_type, min_value=min_value,
+                                          center=center)
         agent_value = pq.Quantity(agent_value, agent_unit)
         return agent_value * float(multiplier)
-
 
     def step(self):
         super().step()
@@ -376,11 +363,16 @@ class GeneralAgent(EnclosedAgent):
                 for prefix in ['in', 'out']:
                     if currency in self.selected_storages[prefix]:
                         for storage in self.selected_storages[prefix][currency]:
-                            agent_id = '{}_{}'.format(storage.agent_type, storage.id)
-                            if type == 'lower' and self.model.model_stats[agent_id][currency + '_ratio'] < threshold_value:
-                                self.kill('Threshold {} met for {}. Killing the agent'.format(currency, self.agent_type))
-                            if type == 'upper' and self.model.model_stats[agent_id][currency + '_ratio'] > threshold_value:
-                                self.kill('Threshold {} met for {}. Killing the agent'.format(currency, self.agent_type))
+                            agent_id = '{}_{}'.format(
+                                storage.agent_type, storage.id)
+                            if type == 'lower' and self.model.model_stats[agent_id][
+                                currency + '_ratio'] < threshold_value:
+                                self.kill('Threshold {} met for {}. Killing the agent'.format(
+                                    currency, self.agent_type))
+                            if type == 'upper' and self.model.model_stats[agent_id][
+                                currency + '_ratio'] > threshold_value:
+                                self.kill('Threshold {} met for {}. Killing the agent'.format(
+                                    currency, self.agent_type))
 
         influx = []
         for prefix in ['in', 'out']:
@@ -389,7 +381,8 @@ class GeneralAgent(EnclosedAgent):
                 attr = '{}_{}'.format(prefix, currency)
                 num_of_storages = len(self.selected_storages[prefix][currency])
                 if num_of_storages == 0:
-                    self.kill('No storage of {} found for {}. Killing the agent'.format(currency, self.agent_type))
+                    self.kill('No storage of {} found for {}. Killing the agent'.format(
+                        currency, self.agent_type))
                 descriptions = self.agent_type_descriptions[attr].split(';')
                 deprive_unit, deprive_value = descriptions[6:8]
                 is_required, requires = descriptions[8:10]
@@ -399,19 +392,23 @@ class GeneralAgent(EnclosedAgent):
                         if req_currency not in influx:
                             continue
                 # Iurii: Can we change this to accept floats?
-                deprive_value = int(deprive_value) if deprive_value != '' else 0
-                step_value = self.get_step_value(attr, hours_per_step) / num_of_storages
+                deprive_value = int(
+                    deprive_value) if deprive_value != '' else 0
+                step_value = self.get_step_value(
+                    attr, hours_per_step) / num_of_storages
                 for storage in self.selected_storages[prefix][currency]:
                     storage_cap = storage['char_capacity_' + currency]
                     storage_unit = storage.agent_type_descriptions['char_capacity_' + currency]
-                    storage_value = pq.Quantity(storage[currency], storage_unit)
+                    storage_value = pq.Quantity(
+                        storage[currency], storage_unit)
                     step_value.units = storage_unit
                     if prefix == 'out':
                         new_storage_value = storage_value + step_value
                     elif prefix == 'in':
                         new_storage_value = storage_value - step_value
                     else:
-                        raise Exception('Unknown flow type. Neither Input nor Output.')
+                        raise Exception(
+                            'Unknown flow type. Neither Input nor Output.')
                     new_storage_value = new_storage_value.magnitude.tolist()
                     if new_storage_value < 0 and storage_value >= 0:
                         if deprive_value > 0:
@@ -422,11 +419,13 @@ class GeneralAgent(EnclosedAgent):
                             elif deprive_unit == 'day':
                                 delta_per_step = hours_per_step / 24
                             else:
-                                raise Exception('Unknown agent deprive_unit value.')
+                                raise Exception(
+                                    'Unknown agent deprive_unit value.')
                             self.deprive[currency] -= delta_per_step
                             if self.deprive[currency] < 0:
                                 self.kill(
-                                    'There is no enough {} for {}. Killing the agent'.format(currency, self.agent_type))
+                                    'There is no enough {} for {}. Killing the agent'.format(
+                                        currency, self.agent_type))
                         if is_required == 'True':
                             return
                         else:
@@ -440,15 +439,15 @@ class GeneralAgent(EnclosedAgent):
                         if deprive_value > 0:
                             self.deprive[currency] = deprive_value
                     if self.model.logging is not None and log:
-                        record = {"step_num": self.model.step_num,
-                                  "agent_type": self.agent_type,
-                                  "agent_id": self.unique_id,
-                                  "direction": prefix,
-                                  "currency": currency,
-                                  "value": step_value.magnitude.tolist(),
-                                  "unit": str(step_value.units),
+                        record = {"step_num":     self.model.step_num,
+                                  "agent_type":   self.agent_type,
+                                  "agent_id":     self.unique_id,
+                                  "direction":    prefix,
+                                  "currency":     currency,
+                                  "value":        step_value.magnitude.tolist(),
+                                  "unit":         str(step_value.units),
                                   "storage_type": storage.agent_type,
-                                  "storage_id": storage.id
+                                  "storage_id":   storage.id
                                   }
                         self.model.logs.append(record)
 
@@ -468,9 +467,11 @@ class StorageAgent(EnclosedAgent):
                 currency = attr.split('_', 2)[2]
                 initial_value = kwargs.get(currency, None)
                 initial_value = initial_value if initial_value is not None else 0
-                self._attr(currency, initial_value, is_client_attr=True, is_persisted_attr=True)
+                self._attr(currency, initial_value,
+                           is_client_attr=True, is_persisted_attr=True)
                 capacity = self.agent_type_attributes[attr]
-                self._attr(attr, capacity, is_client_attr=True, is_persisted_attr=True)
+                self._attr(attr, capacity, is_client_attr=True,
+                           is_persisted_attr=True)
 
     def age(self):
         return self.model['time'] - self.model_time_created
