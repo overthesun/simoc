@@ -1,0 +1,73 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"title" : "Habitat",
+	"type" : "object",
+	"id" : "habitat",
+	"properties" : {
+		"plant data" : {
+			"type" : "array",
+			"format" : "tab",
+			"title" : "Plants",
+			"uniqueItems" : true,
+			"items" : {
+				"type" : "object",
+				"options" :{"collapsed" : true},
+				"headerTemplate" : "{{self.type}}",
+				"properties" : {
+					"type" : {
+						"type" : "string",
+						"propertyOrder" : 1
+					},
+					"oxygen_produced" : {
+						"type" : "number"
+					},
+					"carbon_uptake" : {
+						"type" : "number"
+					},
+					"water_uptake" : {
+						"type" : "number"
+					},
+					"edible_mass" : {
+						"type" : "number"
+					},
+					"inedible_mass" : {
+						"type" : "number"
+					},
+					"growth_period" : {
+						"type" : "number"
+					},
+					"density" : {
+						"type" : "number"
+					},
+					"max_height" : {
+						"type" : "number"
+					},
+					"energy_density" : {
+						"type" : "number"
+					},
+					"fatal_co2" : {
+						"type" : "number"
+					}
+				}
+			}
+		},
+
+		"human data" : {
+			"type" : "array",
+			"format" : "table",
+			"title" : "Humans",
+			"uniqueItems" : true,
+			"items" : {
+				"type" : "object",
+				"headerTemplate" : "{{self.data}}",
+				"options" : {"expand_height": true},
+				"properties" : {
+					"data" : {"type" : "string"},
+					"value" : {"type" : "number"}
+				}
+			}
+		}
+
+	}
+
+}

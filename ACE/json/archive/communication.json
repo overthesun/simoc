@@ -1,0 +1,30 @@
+{
+	"radio":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"wifi":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"laser":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"data storage":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	}
+}

@@ -1,0 +1,79 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"title" : "Structures",
+	"type" : "object",
+	"options" : {"disable_collapse" : true, "disable_properties" : true},
+	"id" : "structures",
+	"properties" : {
+		"crew_habitat_small" : {
+			"type" : "object",
+			"title" : "Small Crew Habitat",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "json/schema/currency.json"
+				}
+			}
+		},
+		"crew_habitat_medium" : {
+			"type" : "object",
+			"title" : "Medium Crew Habitat",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "json/schema/currency.json"
+				}
+			}
+		},
+		"crew_habitat_large" : {
+			"type" : "object",
+			"title" : "Large Crew Habitat",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "json/schema/currency.json"
+				}
+			}
+		},
+		"greenhouse_small" : {
+			"type" : "object",
+			"title" : "Small Greenhouse",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "json/schema/currency.json"
+				}
+			}
+		},
+		"greenhouse_medium" : {
+			"type" : "object",
+			"title" : "Medium Greenhouse",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "json/schema/currency.json"
+				}
+			}
+		},
+		"greenhouse_large" : {
+			"type" : "object",
+			"title" : "Large Greenhouse",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "json/schema/currency.json"
+				}
+			}
+		},
+		"airlock" : {
+			"type" : "object",
+			"title" : "Airlock",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "json/schema/currency.json"
+				}
+			}
+		}
+	}
+}
