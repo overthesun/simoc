@@ -1,0 +1,44 @@
+{
+	"bioreactor":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"solar":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"wind":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"geothermal":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"battery_array":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"nuclear":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	}
+}

@@ -1,0 +1,238 @@
+{
+	"co2_removal_SAWD":{
+		"data":{
+			"input":[
+				{
+					"type" : "cabin_air",
+					"value" : 30.167,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hour"
+					}
+				},
+				{
+					"type" : "power_consumption",
+					"value" : 1.120,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hour"
+					}
+				}
+			],
+			"output":[
+				{
+					"type" : "decarbed_cabin_air",
+					"value" : 30.04167,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hour"
+					}
+				}
+			],
+			"characteristics" : [
+				{
+					"type" : "volume",
+					"value" : 0.31,
+					"unit" : "m^3"
+				},
+				{
+					"type" :"mass", 
+					"value" : 137.35,
+					"unit" : "kg"
+				}
+			]
+		}
+	},
+	"co2_reduction_sabatier":{
+		"data":{
+			"input":[
+				{
+					"type" : "co2",
+					"value" : 0.00125,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hour"
+					}
+				},
+				{
+					"type" : "h2",
+					"value" : 0.00691,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hour"
+					}
+				},
+				{
+					"type" : "power_consumption",
+					"value" : 0.291,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hour"
+					}
+				}
+			],
+			"output":[],
+			"characteristics" : [
+				{
+					"type" : "volume",
+					"value" : 0.06,
+					"unit" : "m^3"
+				},
+				{
+					"type" :"mass", 
+					"value" : 47.9,
+					"unit" : "kg"
+				}
+			]
+		}
+	},
+	"urine_recycling_processor":{
+		"data":{
+			"input":[
+				{
+					"type" : "liquid",
+					"value" : 1.36,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hr" 
+					}
+				},
+				{
+					"type" : "gas",
+					"value" : 0.036,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hr"
+					}
+				},
+				{
+					"type" : "power_consumption",
+					"value" : 1.501,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hour"
+					}
+				}
+			],
+
+			"output":[
+				{
+					"type" : "gas",
+					"value" : 0.03,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "day"
+					}
+				},
+				{
+					"type" : "liquid",
+					"value" : 32.64,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "day"
+					}
+				},
+				{
+					"type" : "solid",
+					"value" : 0.84,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "day"
+					}
+				}
+			],
+			"characteristics" : [
+				{
+					"type" : "volume",
+					"value" : 0.39,
+					"unit" : "m^3"
+				},
+				{
+					"type" : "mass",
+					"value" : 193.3,
+					"unit" : "kg"
+				}
+			]
+		}
+	},
+	"oxygen_generation":{
+		"data":{
+			"input":[
+				{
+					"type" : "h20",
+					"value" : 0.413,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hour"
+					}
+				}
+			],
+			"output":[
+				{
+					"type" : "h2",
+					"value" : 0.0454,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hour"
+					}
+				},
+				{
+					"type" : "o2",
+					"value" : 0.367,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "hour"
+					}
+				}
+			], 
+			"characteristics" : [
+				{
+					"type" : "mass",
+					"value" : 83.43,
+					"unit" : "kg"
+				},
+				{
+					"type" : "volume",
+					"value" : "0.05",
+					"unit" : "m3"
+				}
+			]
+		}
+	},
+	"multifiltration_purifier":{
+		"data":{
+			"input":[
+				{
+					"type" : "liquid",
+					"value" : 114,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "day"
+					}
+				},
+				{
+					"type" : "gas",
+					"value" : 0.015,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "day"
+					}
+				}
+			],
+			"output":[
+				{
+					"type" : "liquid",
+					"value" : 114,
+					"flow rate" : {
+						"unit" : "kg",
+						"time" : "day"
+					}
+				}
+			], 
+			"characteristics" : []
+		}
+	},
+	"air_revitalization" : {},
+	"particulate_removal_TCCS" : {},
+	"gas_control" : {}
+}

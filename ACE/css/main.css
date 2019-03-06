@@ -1,0 +1,107 @@
+@font-face {
+    font-family: 'Nasalization';
+    src: url('../images/fonts/nasalization-rg.ttf') format('truetype');
+}
+
+*{font-family:Nasalization;}
+
+html {
+    
+    color: #e9f0f4;
+    /*background: url(/images/bg/mars_background.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;*/
+}
+body{
+  background-image: url("../images/bg/simoc-background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  text-align: center;
+}
+
+button {
+    background-image: url("../images/blue-transparent.png");
+    border: 1px solid #3b7493;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+    
+}
+
+table {
+    margin-left:auto; 
+    margin-right:auto;
+}
+
+.file{
+    
+    background-image: url("../images/blue-transparent.png");
+    border: 1px solid #3b7493;
+}
+
+.tab {
+    
+    background-image: url("../images/blue-transparent.png");
+    overflow: hidden;
+    border: 1px solid #3b7493;
+    margin: 0 auto;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+    
+    background-image: url("../images/blue-transparent.png");
+    float: left;
+    border: 1px solid #3b7493;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #3b7493;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    background-color: #3b7493;
+}
+
+.main {
+    background-image: url("../images/blue-transparent.png");
+    display: ;
+    padding: 6px 12px;
+    border: 1px solid #3b7493;
+    border-top: none;
+}
+
+.content{
+    margin: 0 auto;
+    width: 60%;
+}
+
+.highlighted {
+    background-color: #3b7493;
+}
+
+.buttons {
+    /*display: inline-block;*/
+    height: auto;
+    margin: 0 auto;
+    padding: 10px;
+    position: relative;
+    width: 80%;
+}
+
+.bottom {
+    float: bottom;
+}
+
+.editor >*{
+    border: 1px solid #3b7493;
+}
+

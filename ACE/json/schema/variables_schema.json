@@ -1,0 +1,68 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"title" : "Simulation Variables",
+	"type" : "object",
+	"id" : "simulation_variables",
+	"properties" : {
+		"currencies_of_exchange" : {
+			"type" : "object",
+			"title" : "Currencies of Exchange",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"atmo_o2": {"type" : "number"},
+				"atmo_co2": {"type" : "number"},
+				"atmo_h2" : {"type" : "number"},
+				"atmo_n2" : {"type" : "number"},
+				"atmo_h2o": {"type" : "number"},
+				"atmo_ch4": {"type" : "number"},
+				"atmo_cont": {"type" : "number"},
+
+				"sold_n" : {"type" : "number"},
+				"sold_p" : {"type" : "number"},
+				"sold_k": {"type" : "number"},
+				"sold_wast" : {"type" : "number"},
+
+				"food_totl" : {"type" : "number"},
+				"food_stor" : {"type" : "number"},
+				"food_edbl" : {"type" : "number"},
+				"food_ined" : {"type" : "number"},
+				"food_legu" : {"type" : "number"},
+				"food_leaf" : {"type" : "number"},
+				"food_vegi" : {"type" : "number"}, 
+				"food_frut" : {"type" : "number"}, 
+				"food_cers" : {"type" : "number"}, 
+				"food_root" : {"type" : "number"}, 
+				"food_othr" : {"type" : "number"}, 
+				
+				"h2o_totl" : {"type" : "number"}, 
+				"h2o_tret" : {"type" : "number"},
+				"h2o_potb" : {"type" : "number"}, 
+				"h2o_urin" : {"type" : "number"}, 
+				"h2o_wste" : {"type" : "number"}, 
+
+				"enrg_kw" : {"type" : "number"},
+				"enrg_kwh" : {"type" : "number"},
+				"heat_cal" : {"type" : "number"}
+			}
+		},
+		"global_variables" : {
+			"type" : "object",
+			"title" : "Global Variables",
+			"id" : "global_variables",
+			"properties" : {
+				"temp_int" : {"type" : "number"},
+				"temp_ext" : {"type" : "number"},
+
+				"sol_hrs" : {"type" : "number"},
+				"solr_hrs" : {"type" : "number"},
+				"solr_gain" : {"type" : "number"},
+
+				"pres_hab" : {"type" : "number"},
+				"pres_gh" : {"type" : "number"},
+				"pres_ext" : {"type" : "number"},
+
+				"grav_fld" : {"type" : "number"}
+			}
+		}
+	}
+}

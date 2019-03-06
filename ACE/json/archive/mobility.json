@@ -1,0 +1,44 @@
+{
+	"eva_suit":{
+		"data":{
+			"input":[],
+			"output":[],
+			"characteristics" : []
+		}
+	},
+	"train":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"rover":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"rocket":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"shuttle":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"weapon":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	}
+}

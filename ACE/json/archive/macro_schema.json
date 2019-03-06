@@ -1,0 +1,153 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"title" : "Habitat",
+	"type" : "object",
+	"id" : "habitat",
+	"properties" : {
+		"starting_resources" : {
+			"type" : "object",
+			"title" : "Starting Resources",
+			"properties" : {
+				"o2" : {
+					"type" : "number"			
+				},
+				"co2" : {
+					"type" : "number"
+				},
+				"nitrogen" : {
+					"type" : "number"			
+				},
+				"argon" : {
+					"type" : "number"
+				},
+				"water" : {
+					"type" : "number"			
+				},
+				"waste_water" : {
+					"type" : "number"
+				}
+			}
+			
+
+		},
+		"power" : {
+			"type" : "object",
+			"title" : "Power",
+			"properties" : {
+				"solar_arrays" : {
+					"type" : "integer"				
+				},
+				"battery_capacity" : {
+					"type" : "number"
+				},
+				"stored_power" : {
+					"type" : "number"
+				}
+			}
+		},
+		"structures" : {
+			"type" : "array",
+			"format" : "table",
+			"title" : "Structures",
+			"uniqueItems" : false,
+			"items" : {
+				"type" : "object",
+				"properties" : {
+					"type" : {
+						"type" : "string",
+						"enum" : [
+							"greenhouse",
+							"kitchen",
+							"rec center",
+							"clinic",
+							"crew quarters",
+							"storage facility",
+							"lab",
+							"bathroom",
+							"shuttle bay",
+							"rocket pad",
+							"dining hall",
+							"laundry",
+							"classroom",
+							"light rail",
+							"sanctuary",
+							"theatre",
+							"workshop",
+							"airlock",
+							"rover dock"
+						],
+						"default" : "crew quarters"
+					},
+					"square_meters" : {
+						"type" : "number"
+					}
+				}
+			}
+		},
+		"starting_plants" : {
+			"type" : "array",
+			"format" : "table",
+			"title" : "Starting Plants",
+			"uniqueItems" : true,
+			"items" : {
+				"type" : "object",
+				"properties" : {
+					"type" : {
+						"type" : "string",
+						"enum" : [
+							"cabbage",
+							"carrot",
+							"chard",
+							"celery",
+							"dry_bean",
+							"green_onion",
+							"lettuce",
+							"pea", 
+							"peanut", 
+							"pepper",
+							"radish",
+							"red_beet",
+							"rice",
+							"snap_bean",
+							"soybean",
+							"spinach",
+							"strawberry",
+							"sweet_potato",
+							"tomato",
+							"wheat",
+							"white_potato",
+							"default_plant"
+						],
+						"default" : "default_plant"
+					},
+					"square_meters" : {
+						"type" : "number"
+					}
+				}
+			}
+		},
+		"habitants" : {
+			"type" : "array",
+			"format" : "table",
+			"title" : "Habitants",
+			"uniqueItems" : true,
+			"items" : {
+				"type" : "object",
+				"properties" : {
+					"type" : {
+						"type" : "string",
+						"enum" : [
+							"human",
+							"drone"
+						],
+						"default" : "human"
+					},
+					"quantity" : {
+						"type" : "integer"
+					}
+				}
+			}
+		}
+	}
+
+}

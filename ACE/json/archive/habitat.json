@@ -1,0 +1,100 @@
+{
+	"starting_currencies":{
+
+		"atmo_o2": 21.22,
+		"atmo_co2": 0.041,
+		"atmo_n2" : 79.11,
+		"atmo_h20": 0,
+		"atmo_ch4": 0,
+		"atmo_cont": 0,
+
+		"sold_n" : 0,
+		"sold_h2" : 0,
+		"sold_p" : 0,
+		"sold_k": 0,
+		"sold_wast" : 0,
+
+		"food_totl" : 0,
+		"food_legu" : 0,
+		"food_leaf" : 0,
+		"food_vegi" : 0, 
+		"food_frut" : 0, 
+		"food_cers" : 0, 
+		"food_root" : 0, 
+		"food_othr" : 0, 
+		"food_stor" : 0,
+		"food_ined" : 0,
+
+		"h2o_totl" : 0, 
+		"h2o_tret" : 0,
+		"h2o_potb" : 0, 
+		"h2o_urin" : 0, 
+		"h2o_wste" : 0, 
+
+		"enrg_w" : 0,
+		"enrg_kwh" : 0,
+		"enrg_k" : 0
+
+	},
+
+	"starting_temp" : 293,
+	 
+	"power":{
+		"solar_gain" : 0,
+		"solar_arrays" : 10,
+		"batteries" : 10,
+		"stored_power": 10000
+	},
+
+	"structures":[
+		{
+			"type":"greenhouse",
+			"square_meters":450
+		},
+		{
+			"type":"crew quarters",
+			"square_meters":225
+		},
+		{
+			"type":"kitchen",
+			"square_meters":100
+		}
+	],
+
+	"starting_plants":[
+		{
+			"type":"wheat",
+			"square_meters":100
+		},
+		{
+			"type":"spinach",
+			"square_meters":100
+		},
+		{
+			"type":"radish",
+			"square_meters":100
+		},
+		{
+			"type":"chard",
+			"square_meters":50
+		},
+		{
+			"type" : "carrot",
+			"square_meters" : 50
+		},
+		{
+			"type" : "tomato",
+			"square_meters" : 50
+		}
+	],
+	"habitants":[
+		{
+			"type":"human",
+			"quantity": 4
+		},
+		{
+			"type":"drone",
+			"quantity":1
+		}
+	]
+}
