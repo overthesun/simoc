@@ -45,17 +45,33 @@ def import_agents(agents, agent_class):
                     cr_buffer = str(criteria.get('buffer', ''))
                 lifetime_growth_type, lifetime_growth_center, lifetime_growth_min_value = '', '', ''
                 daily_growth_type, daily_growth_center, daily_growth_min_value = '', '', ''
+                lifetime_growth_min_threshold = ''
+                lifetime_growth_max_threshold = ''
+                daily_growth_min_threshold = ''
+                daily_growth_max_threshold = ''
+                lifetime_growth_invert = ''
+                daily_growth_invert = ''
+                lifetime_growth_noise = ''
+                daily_growth_noise = ''
                 if growth:
                     lifetime_growth = growth.get('lifetime', None)
                     if lifetime_growth:
                         lifetime_growth_type = lifetime_growth.get('type', '')
                         lifetime_growth_center = str(lifetime_growth.get('center', ''))
                         lifetime_growth_min_value = str(lifetime_growth.get('min_value', ''))
+                        lifetime_growth_min_threshold = str(lifetime_growth.get('min_threshold', ''))
+                        lifetime_growth_max_threshold = str(lifetime_growth.get('max_threshold', ''))
+                        lifetime_growth_invert = str(lifetime_growth.get('invert', ''))
+                        lifetime_growth_noise = str(lifetime_growth.get('noise', ''))
                     daily_growth = growth.get('daily', None)
                     if daily_growth:
                         daily_growth_type = daily_growth.get('type', '')
                         daily_growth_center = str(daily_growth.get('center', ''))
                         daily_growth_min_value = str(daily_growth.get('min_value', ''))
+                        daily_growth_min_threshold = str(daily_growth.get('min_threshold', ''))
+                        daily_growth_max_threshold = str(daily_growth.get('max_threshold', ''))
+                        daily_growth_invert = str(daily_growth.get('invert', ''))
+                        daily_growth_noise = str(daily_growth.get('noise', ''))
                 attr_details = ';'.join([flow_unit,
                                          flow_time,
                                          cr_name,
@@ -71,7 +87,15 @@ def import_agents(agents, agent_class):
                                          lifetime_growth_min_value,
                                          daily_growth_type,
                                          daily_growth_center,
-                                         daily_growth_min_value])
+                                         daily_growth_min_value,
+                                         lifetime_growth_min_threshold,
+                                         lifetime_growth_max_threshold,
+                                         daily_growth_min_threshold,
+                                         daily_growth_max_threshold,
+                                         daily_growth_invert,
+                                         lifetime_growth_invert,
+                                         daily_growth_noise,
+                                         lifetime_growth_noise])
                 create_agent_type_attr(agent_type, attr_name, attr_value, attr_details)
     util.add_all(agent_data)
 
