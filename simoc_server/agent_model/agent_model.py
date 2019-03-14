@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import quantities as pq
 from mesa.space import MultiGrid
-from mesa.time import RandomActivation, BaseScheduler
+from mesa.time import BaseScheduler
 from sqlalchemy import or_
 from sqlalchemy.orm.exc import StaleDataError
 
@@ -21,8 +21,9 @@ from simoc_server.util import timedelta_to_hours
 
 class PrioritizedRandomActivation(BaseScheduler):
     def __init__(self, model, random_state=None, priorities=None):
-        super().__init__(model, random_state)
+        super().__init__(model)
         self.priorities = priorities
+        self.random_state = random_state
 
     def step(self):
         agent_by_class = {}
@@ -59,25 +60,17 @@ class AgentModel(Model, AttributeHolder):
         self.priorities = init_params.priorities
         self.config = init_params.config
 
-        # if no random state given, initialize a new one
+        if self.seed is None:
+            self.seed = int(np.random.randint(2 ** 32, dtype='int64'))
         if self.random_state is None:
-            # if no random seed given initialize a new one
-            if self.seed is None:
-                self.seed = int(np.random.randint(2 ** 32, dtype='int64'))
             self.random_state = np.random.RandomState(self.seed)
 
-        if not isinstance(self.seed, int):
-            raise Exception(
-                "Seed value must be of type 'int', got type '{}'".format(type(self.seed)))
-
-        self.grid = MultiGrid(self.grid_width, self.grid_height,
-                              True, random_state=self.random_state)
+        self.grid = MultiGrid(self.grid_width, self.grid_height, True)
         if self.priorities:
             self.scheduler = PrioritizedRandomActivation(
                 self, random_state=self.random_state, priorities=self.priorities)
         else:
-            self.scheduler = RandomActivation(
-                self, random_state=self.random_state)
+            self.scheduler = BaseScheduler(self)
         self.scheduler.steps = getattr(init_params, "starting_step_num", 0)
         self.model_stats = {}
 
@@ -276,8 +269,6 @@ class AgentModel(Model, AttributeHolder):
                 new_agent.lifetime = agent['lifetime']
                 new_agent.agent_type_attributes = agent['agent_type_attributes']
                 new_agent.agent_type_descriptions = agent['agent_type_descriptions']
-                new_agent.age = agent['age']
-                new_agent.lifetime = agent['lifetime']
                 new_agent.deprive = agent['deprive']
                 new_agent.buffer = agent['buffer']
                 model.add_agent(new_agent)
