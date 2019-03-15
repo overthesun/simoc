@@ -355,7 +355,7 @@ class AgentModel(Model, AttributeHolder):
                 elif unit == 'year':
                     model_time /= 31536000
                 else:
-                    raise Exception('Unknown termination time value.')
+                    model_time /= 3600
                 if model_time > value:
                     self['is_terminated'] = True
                     self['termination_reason'] = 'time'

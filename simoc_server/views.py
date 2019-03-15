@@ -90,7 +90,6 @@ def login():
         be found.
     '''
     userinfo = json.loads(request.data.decode('utf-8'))
-    print(request.data)
     username = userinfo["username"]
     password = userinfo["password"]
     user = User.query.filter_by(username=username).first()
@@ -253,7 +252,7 @@ def get_agent_types_by_class():
                 entry[prefix].append(currency)
             else:
                 entry[prefix].append(
-                    {"name": currency, "value": attr.value, "units": attr.units})
+                    {"name": currency, "value": attr.value, "units": attr.details})
         results.append(entry)
     return json.dumps(results)
 
