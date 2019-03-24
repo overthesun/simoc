@@ -17,9 +17,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials="true")
-
 game_runner_manager = None
 
+# GRAPHQL route
+from flask_graphql import GraphQLView
+from .schema import schema
+app.add_url_rule('/graphql', view_func=GraphQLView.as_view('graphql',
+                 schema=schema, graphiql=True,
+                 context={'session': db}))
 
 @app.before_first_request
 def create_game_runner_manager():

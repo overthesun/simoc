@@ -15,3 +15,6 @@ quantities==0.12.3
 mesa==0.8.5
 scikit-learn==0.20.3
 pandas
+graphene
+flask_graphql
+graphene_sqlalchemy
