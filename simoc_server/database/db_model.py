@@ -131,6 +131,8 @@ class AgentModelState(BaseEntity):
     random_state = db.Column(db.PickleType, nullable=False)
     termination = db.Column(db.String(300), nullable=False)
     priorities = db.Column(db.String(300), nullable=False)
+    location = db.Column(db.String(300), nullable=False)
+    minutes_per_step = db.Column(db.Integer, nullable=False)
     config = db.Column(db.String(300), nullable=False)
     logging = db.Column(db.String(300), nullable=False)
     logs = db.Column(db.String(1000), nullable=False)

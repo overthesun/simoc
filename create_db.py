@@ -4,7 +4,7 @@ import os
 import simoc_server
 from simoc_server import app
 from simoc_server.database import *
-from simoc_server.database.seed_data import seed_agents, seed_model
+from simoc_server.database.seed_data import seed_agents
 
 
 def confirm(message):
@@ -17,7 +17,6 @@ def confirm(message):
 def create(agent_conf):
     db.create_all()
     seed_agents.seed(agent_conf)
-    seed_model.seed()
 
 
 if __name__ == "__main__":

@@ -1,9 +1,9 @@
+import csv
 import datetime
+import os
 import threading
 import time
 import traceback
-import csv
-import os
 
 from simoc_server import app, db
 from simoc_server.agent_model import (AgentModel,
@@ -246,13 +246,13 @@ class GameRunner(object):
 
         if len(self.step_buffer) < self.step_buffer_size:
             self._step_to(step_num + self.step_buffer_size, True)
-        if(self.record_to_csv):
+        if (self.record_to_csv):
             self._step_to_csv(step)
         return step
 
     def _step_to_csv(self, step_data):
         new_file = True
-        step = {"atmo_co2" : None, "enrg_kwh" : None, "atmo_h2o" : None} #heat biomass added later
+        step = {"atmo_co2": None, "enrg_kwh": None, "atmo_h2o": None}  # heat biomass added later
         step["enrg_kwh"] = step_data["agents"]["total_consumption"]["enrg_kwh"]["value"]
         for x in step_data["storages"]:
             if x["agent_type"] == "air_storage":
@@ -264,7 +264,7 @@ class GameRunner(object):
         fname = "step_data.csv"
         if os.path.isfile(fname):
             new_file = False
-        with open(fname,"a+", newline = '') as f:
+        with open(fname, "a+", newline='') as f:
             w = csv.DictWriter(f, step.keys())
             if new_file:
                 w.writeheader()
@@ -288,7 +288,7 @@ class GameRunner(object):
             self.step_thread.join()
 
         def step_loop(agent_model, step_num, step_buffer):
-            while self.agent_model.step_num < step_num and not self.agent_model['is_terminated']:
+            while self.agent_model.step_num < step_num and not self.agent_model.is_terminated:
                 agent_model.step()
                 step_buffer[self.agent_model.step_num] = self.agent_model.get_model_stats()
 
@@ -309,16 +309,14 @@ class GameRunnerInitializationParams(object):
             .set_starting_model_time(datetime.timedelta())
         if 'termination' in config:
             self.model_init_params.set_termination(config['termination'])
-        else:
-            self.model_init_params.set_termination(None)
         if 'logging' in config:
             self.model_init_params.set_logging(config['logging'])
-        else:
-            self.model_init_params.set_logging(None)
+        if 'minutes_per_step' in config:
+            self.model_init_params.set_minutes_per_step(config['minutes_per_step'])
         if 'priorities' in config:
             self.model_init_params.set_priorities(config['priorities'])
-        else:
-            self.model_init_params.set_priorities(None)
+        if 'location' in config:
+            self.model_init_params.set_location(config['location'])
         self.model_init_params.set_config(config)
         if (config['single_agent'] == 1):
             self.model_init_params.set_single_agent(1)

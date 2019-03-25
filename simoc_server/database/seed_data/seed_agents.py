@@ -5,6 +5,14 @@ from . import util
 
 
 def import_agents(agents, agent_class):
+    """TODO
+
+    TODO
+
+    Args:
+      agents: TODO
+      agent_class: TODO
+    """
     agent_data = {}
     for name in agents:
         if not agents[name].get('data', None):
@@ -44,7 +52,7 @@ def import_agents(agents, agent_class):
                     cr_value = str(criteria.get('value', ''))
                     cr_buffer = str(criteria.get('buffer', ''))
                 lifetime_growth_type, lifetime_growth_center, lifetime_growth_min_value = '', '', ''
-                daily_growth_type, daily_growth_center, daily_growth_min_value = '', '', ''
+                daily_growth_type, daily_growth_center, daily_growth_min_rate = '', '', ''
                 lifetime_growth_min_threshold = ''
                 lifetime_growth_max_threshold = ''
                 daily_growth_min_threshold = ''
@@ -59,15 +67,17 @@ def import_agents(agents, agent_class):
                         lifetime_growth_type = lifetime_growth.get('type', '')
                         lifetime_growth_center = str(lifetime_growth.get('center', ''))
                         lifetime_growth_min_value = str(lifetime_growth.get('min_value', ''))
-                        lifetime_growth_min_threshold = str(lifetime_growth.get('min_threshold', ''))
-                        lifetime_growth_max_threshold = str(lifetime_growth.get('max_threshold', ''))
+                        lifetime_growth_min_threshold = str(
+                            lifetime_growth.get('min_threshold', ''))
+                        lifetime_growth_max_threshold = str(
+                            lifetime_growth.get('max_threshold', ''))
                         lifetime_growth_invert = str(lifetime_growth.get('invert', ''))
                         lifetime_growth_noise = str(lifetime_growth.get('noise', ''))
                     daily_growth = growth.get('daily', None)
                     if daily_growth:
                         daily_growth_type = daily_growth.get('type', '')
                         daily_growth_center = str(daily_growth.get('center', ''))
-                        daily_growth_min_value = str(daily_growth.get('min_value', ''))
+                        daily_growth_min_rate = str(daily_growth.get('min_rate', ''))
                         daily_growth_min_threshold = str(daily_growth.get('min_threshold', ''))
                         daily_growth_max_threshold = str(daily_growth.get('max_threshold', ''))
                         daily_growth_invert = str(daily_growth.get('invert', ''))
@@ -87,7 +97,7 @@ def import_agents(agents, agent_class):
                                          lifetime_growth_min_value,
                                          daily_growth_type,
                                          daily_growth_center,
-                                         daily_growth_min_value,
+                                         daily_growth_min_rate,
                                          lifetime_growth_min_threshold,
                                          lifetime_growth_max_threshold,
                                          daily_growth_min_threshold,
@@ -101,6 +111,13 @@ def import_agents(agents, agent_class):
 
 
 def seed(config_file):
+    """TODO
+
+    TODO
+
+    Args:
+      config_file: TODO
+    """
     with open(config_file, 'r') as f:
         abm_config = json.load(f)
     for agent_class in abm_config:
@@ -108,6 +125,23 @@ def seed(config_file):
 
 
 def create_agent_type_attr(agent_type, name, value, details=None, description=None):
-    return AgentTypeAttribute(name=name, agent_type=agent_type, value=str(value),
-                              value_type=str(type(value).__name__), details=details,
+    """TODO
+
+    TODO
+
+    Args:
+      agent_type: TODO
+      name: TODO
+      value: TODO
+      details: TODO
+      description: TODO
+
+    Returns:
+      TODO
+    """
+    return AgentTypeAttribute(name=name,
+                              agent_type=agent_type,
+                              value=str(value),
+                              value_type=str(type(value).__name__),
+                              details=details,
                               description=description)

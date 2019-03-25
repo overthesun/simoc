@@ -1,4 +1,4 @@
-import json
+simoc_server/tests/test_util.pyimport json
 import math
 from collections import OrderedDict
 
@@ -638,6 +638,12 @@ def convert_configuration(config_obj):
 
     if 'priorities' in game_config:
         full_game_config['priorities'] = game_config['priorities']
+
+    if 'minutes_per_step' in game_config:
+        full_game_config['minutes_per_step'] = game_config['minutes_per_step']
+
+    if 'location' in game_config:
+        full_game_config['location'] = game_config['location']
 
     power_storage_amount = game_config["power_storage"]["amount"]
     food_connections, power_connections = [], []
