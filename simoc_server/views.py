@@ -1,4 +1,4 @@
-simoc_server/tests/test_util.pyimport json
+import json
 import math
 from collections import OrderedDict
 
