@@ -321,55 +321,6 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         """
         return self.agent_type_attributes[name]
 
-    def snapshot(self, agent_model_state, commit=True):
-        """TODO
-
-        TODO
-
-        Args:
-          agent_model_state: TODO
-          commit: bool, TODO
-        """
-        args = dict(agent_type_id=self._agent_type_id,
-                    agent_model_state=agent_model_state,
-                    agent_unique_id=self.unique_id,
-                    model_time_created=self.model_time_created,
-                    active=self.active,
-                    age=self.age,
-                    agent_id=self.__dict__.get('id', None),
-                    lifetime=self.lifetime,
-                    agent_type_attributes=json.dumps(self.agent_type_attributes),
-                    agent_type_descriptions=json.dumps(self.agent_type_descriptions),
-                    buffer=json.dumps(self.__dict__.get('buffer', None)),
-                    deprive=json.dumps(self.__dict__.get('deprive', None)))
-        args['attribute_descriptors'] = []
-        attribute_descriptors = self.attribute_descriptors
-        for k in attribute_descriptors:
-            args['attribute_descriptors'].append(
-                [k, attribute_descriptors[k]._type.__name__,
-                 attribute_descriptors[k].is_client_attr,
-                 attribute_descriptors[k].is_persisted_attr])
-        args['attribute_descriptors'] = json.dumps(args['attribute_descriptors'])
-        args['storage'] = {}
-        for attr in self.agent_type_attributes:
-            if attr.startswith('char_capacity'):
-                currency = attr.split('_', 2)[2]
-                args['storage'][currency] = self[currency]
-        args['storage'] = json.dumps(args['storage'])
-        args['selected_storages'] = []
-        selected_storages = self.__dict__.get('selected_storages', [])
-        for k in selected_storages:
-            for v in selected_storages[k]:
-                for storage in selected_storages[k][v]:
-                    args['selected_storages'].append(
-                        [k, v, storage.agent_type, storage.id, storage.unique_id])
-        args['selected_storages'] = json.dumps(args['selected_storages'])
-        agent_state = AgentState(**args)
-
-        db.session.add(agent_state)
-        if commit:
-            db.session.commit()
-
     def destroy(self):
         """Destroys the agent and removes it from the model"""
         self.active = False
@@ -397,6 +348,10 @@ class EnclosedAgent(BaseAgent):
           agent_type: TODO
         """
         self.age = 0
+        self.buffer = {}
+        self.deprive = {}
+        self.amount = kwargs.get("amount", 1)
+        self.connections = kwargs.get("connections", {})
         self.agent_type = kwargs.get("agent_type", None)
         super(EnclosedAgent, self).__init__(*args, **kwargs)
         if 'char_lifetime' in self.agent_type_attributes:
@@ -418,6 +373,57 @@ class EnclosedAgent(BaseAgent):
                         return
                 self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
                     self.agent_type))
+
+    def snapshot(self, agent_model_state, commit=True):
+        """TODO
+
+        TODO
+
+        Args:
+          agent_model_state: TODO
+          commit: bool, TODO
+        """
+        args = dict(agent_type_id=self._agent_type_id,
+                    agent_model_state=agent_model_state,
+                    agent_unique_id=self.unique_id,
+                    model_time_created=self.model_time_created,
+                    active=self.active,
+                    amount=self.amount,
+                    age=self.age,
+                    agent_id=self.id,
+                    lifetime=self.lifetime,
+                    connections=json.dumps(self.connections),
+                    agent_type_attributes=json.dumps(self.agent_type_attributes),
+                    agent_type_descriptions=json.dumps(self.agent_type_descriptions),
+                    buffer=json.dumps(self.buffer),
+                    deprive=json.dumps(self.deprive))
+        args['attribute_descriptors'] = []
+        attribute_descriptors = self.attribute_descriptors
+        for k in attribute_descriptors:
+            args['attribute_descriptors'].append(
+                [k, attribute_descriptors[k]._type.__name__,
+                 attribute_descriptors[k].is_client_attr,
+                 attribute_descriptors[k].is_persisted_attr])
+        args['attribute_descriptors'] = json.dumps(args['attribute_descriptors'])
+        args['storage'] = {}
+        for attr in self.agent_type_attributes:
+            if attr.startswith('char_capacity'):
+                currency = attr.split('_', 2)[2]
+                args['storage'][currency] = self[currency]
+        args['storage'] = json.dumps(args['storage'])
+        args['selected_storages'] = []
+        selected_storages = self.__dict__.get('selected_storages', [])
+        for k in selected_storages:
+            for v in selected_storages[k]:
+                for storage in selected_storages[k][v]:
+                    args['selected_storages'].append(
+                        [k, v, storage.agent_type, storage.id, storage.unique_id])
+        args['selected_storages'] = json.dumps(args['selected_storages'])
+        agent_state = AgentState(**args)
+
+        db.session.add(agent_state)
+        if commit:
+            db.session.commit()
 
     def age(self):
         """Return the age of the agent."""
@@ -454,19 +460,15 @@ class GeneralAgent(EnclosedAgent):
 
         Args:
           agent_type: Dict, TODO
+          amount: int, TODO
           connections: Dict, TODO
-          model: Dict, TODO
-          model: Dict, TODO
         """
-        self.agent_type = kwargs.get("agent_type", None)
-        connections = kwargs.pop("connections", None)
-        model = kwargs.get("model", None)
-        amount = kwargs.get("model", None)
+        # self.agent_type = kwargs.get("agent_type", None)
+        self.amount = kwargs.get("amount", None)
+        self.connections = kwargs.pop("connections", None)
         super(GeneralAgent, self).__init__(*args, **kwargs)
-        self.buffer = {}
         storages = self.model.get_agents_by_class(agent_class=StorageAgent)
         self.selected_storages = {"in": {}, 'out': {}}
-        self.deprive = {}
         for attr in self.agent_type_attributes:
             prefix, currency = attr.split('_', 1)
             if prefix not in ['in', 'out']:
@@ -475,15 +477,12 @@ class GeneralAgent(EnclosedAgent):
             deprive_value = descriptions[7]
             self.deprive[currency] = int(
                 deprive_value) if deprive_value != '' else 0
-            if (model.single_agent == 1 and (
-                    self.agent_class == "plants" or self.agent_class == "power_generation")):
-                self.agent_type_attributes[attr] *= amount
             self.selected_storages[prefix][currency] = []
             for storage in storages:
-                if len(connections) > 0:
-                    if storage.agent_type not in connections:
+                if len(self.connections) > 0:
+                    if storage.agent_type not in self.connections:
                         continue
-                    if storage.id not in connections[storage.agent_type]:
+                    if storage.id not in self.connections[storage.agent_type]:
                         continue
                 if currency in storage:
                     self.selected_storages[prefix][currency].append(storage)
@@ -608,6 +607,7 @@ class GeneralAgent(EnclosedAgent):
                                           center=center,
                                           noise=noise,
                                           invert=invert)
+        agent_value = agent_value * self.amount
         agent_value = pq.Quantity(agent_value, agent_unit)
         return agent_value * float(multiplier)
 
@@ -659,7 +659,8 @@ class GeneralAgent(EnclosedAgent):
                         if req_currency not in influx:
                             continue
                 deprive_value = int(deprive_value) if deprive_value != '' else 0
-                step_value = self.get_step_value(attr, hours_per_step) / num_of_storages
+                step_value = self.get_step_value(attr, hours_per_step)
+                step_value = step_value / num_of_storages
                 for storage in self.selected_storages[prefix][currency]:
                     storage_cap = storage['char_capacity_' + currency]
                     storage_unit = storage.agent_type_descriptions[
@@ -701,16 +702,17 @@ class GeneralAgent(EnclosedAgent):
                         if deprive_value > 0:
                             self.deprive[currency] = deprive_value
                     if self.model.logging is not None and log:
-                        record = {"step_num": self.model.step_num,
+                        for i in range(self.amount):
+                            record = {"step_num": self.model.step_num,
                                   "agent_type": self.agent_type,
                                   "agent_id": self.unique_id,
                                   "direction": prefix,
                                   "currency": currency,
-                                  "value": step_value.magnitude.tolist(),
+                                  "value": step_value.magnitude.tolist() / self.amount,
                                   "unit": str(step_value.units),
                                   "storage_type": storage.agent_type,
                                   "storage_id": storage.id}
-                        self.model.logs.append(record)
+                            self.model.logs.append(record)
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model

@@ -110,6 +110,8 @@ class AgentState(BaseEntity):
     buffer = db.Column(db.String(1000), nullable=True)
     deprive = db.Column(db.String(1000), nullable=True)
     selected_storages = db.Column(db.String(1000), nullable=True)
+    amount = db.Column(db.Integer, nullable=False)
+    connections = db.Column(db.String(1000), nullable=True)
 
 
 class AgentStateAttribute(BaseAttribute):
