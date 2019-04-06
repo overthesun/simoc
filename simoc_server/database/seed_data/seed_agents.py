@@ -61,6 +61,10 @@ def import_agents(agents, agent_class):
                 daily_growth_invert = ''
                 lifetime_growth_noise = ''
                 daily_growth_noise = ''
+                lifetime_growth_steepness = ''
+                lifetime_growth_scale = ''
+                daily_growth_scale = ''
+                daily_growth_steepness = ''
                 if growth:
                     lifetime_growth = growth.get('lifetime', None)
                     if lifetime_growth:
@@ -73,6 +77,8 @@ def import_agents(agents, agent_class):
                             lifetime_growth.get('max_threshold', ''))
                         lifetime_growth_invert = str(lifetime_growth.get('invert', ''))
                         lifetime_growth_noise = str(lifetime_growth.get('noise', ''))
+                        lifetime_growth_scale = str(lifetime_growth.get('scale', ''))
+                        lifetime_growth_steepness = str(lifetime_growth.get('steepness', ''))
                     daily_growth = growth.get('daily', None)
                     if daily_growth:
                         daily_growth_type = daily_growth.get('type', '')
@@ -82,6 +88,8 @@ def import_agents(agents, agent_class):
                         daily_growth_max_threshold = str(daily_growth.get('max_threshold', ''))
                         daily_growth_invert = str(daily_growth.get('invert', ''))
                         daily_growth_noise = str(daily_growth.get('noise', ''))
+                        daily_growth_scale = str(daily_growth.get('scale', ''))
+                        daily_growth_steepness = str(daily_growth.get('steepness', ''))
                 attr_details = ';'.join([flow_unit,
                                          flow_time,
                                          cr_name,
@@ -105,7 +113,11 @@ def import_agents(agents, agent_class):
                                          daily_growth_invert,
                                          lifetime_growth_invert,
                                          daily_growth_noise,
-                                         lifetime_growth_noise])
+                                         lifetime_growth_noise,
+                                         daily_growth_scale,
+                                         lifetime_growth_scale,
+                                         daily_growth_steepness,
+                                         lifetime_growth_steepness])
                 create_agent_type_attr(agent_type, attr_name, attr_value, attr_details)
     util.add_all(agent_data)
 

@@ -226,7 +226,7 @@ class AgentModel(Model, AttributeHolder):
                 prefix, currency = attr.split('_', 1)
                 if prefix not in ['in', 'out']:
                     continue
-                step_value = agent.get_step_value(attr, hours_per_step)
+                step_value = agent.get_step_value(attr)
                 if prefix == 'out':
                     if currency not in total_production:
                         total_production[currency] = step_value
@@ -521,8 +521,7 @@ class AgentModel(Model, AttributeHolder):
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
                     storage_unit = storage.agent_type_descriptions[attr]
-                    storage_value = pq.Quantity(
-                        float(storage[currency]), storage_unit)
+                    storage_value = pq.Quantity(float(storage[currency]), storage_unit)
                     if not total:
                         total = storage_value
                     else:
