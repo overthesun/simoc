@@ -228,6 +228,9 @@ class GameRunner(object):
         Exception
             If the requested step is not found in the step buffer.
         """
+        if len(self.step_buffer) < self.step_buffer_size:
+            self._step_to(step_num + self.step_buffer_size, True)
+
         step_num = min(step_num, max(self.step_buffer.keys()))
 
         pruned_buffer = {}
@@ -244,8 +247,6 @@ class GameRunner(object):
         step = self.step_buffer[step_num]
         self.step_buffer = pruned_buffer
 
-        if len(self.step_buffer) < self.step_buffer_size:
-            self._step_to(step_num + self.step_buffer_size, True)
         if (self.record_to_csv):
             self._step_to_csv(step)
         return step

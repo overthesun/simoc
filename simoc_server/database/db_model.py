@@ -89,29 +89,25 @@ class AgentTypeAttribute(DescriptiveAttribute):
 
 class AgentState(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-    agent_unique_id = db.Column(db.String(120), nullable=False)
-    model_time_created = db.Column(db.Interval(), nullable=False)
-    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"),
-                              nullable=False)
-    agent_type = db.relationship("AgentType")
     agent_model_state_id = db.Column(db.Integer, db.ForeignKey("agent_model_state.id"),
                                      nullable=False, index=True)
     agent_model_state = db.relationship("AgentModelState",
                                         backref=db.backref("agent_states", lazy=False,
                                                            cascade="all, delete-orphan"))
-    active = db.Column(db.String(120), nullable=False)
-    age = db.Column(db.Float, nullable=False)
-    lifetime = db.Column(db.Integer, nullable=False)
-    agent_type_attributes = db.Column(db.String(1000), nullable=False)
-    agent_type_descriptions = db.Column(db.String(1000), nullable=False)
-    attribute_descriptors = db.Column(db.String(1000), nullable=False)
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"),
+                              nullable=False)
+    agent_type = db.relationship("AgentType")
+    agent_unique_id = db.Column(db.String(120), nullable=False)
+    model_time_created = db.Column(db.Interval(), nullable=False)
     agent_id = db.Column(db.Integer, nullable=True)
-    storage = db.Column(db.String(1000), nullable=True)
+    active = db.Column(db.String(120), nullable=True)
+    age = db.Column(db.Float, nullable=True)
+    amount = db.Column(db.Integer, nullable=True)
+    lifetime = db.Column(db.Integer, nullable=True)
+    connections = db.Column(db.String(1000), nullable=True)
     buffer = db.Column(db.String(1000), nullable=True)
     deprive = db.Column(db.String(1000), nullable=True)
-    selected_storages = db.Column(db.String(1000), nullable=True)
-    amount = db.Column(db.Integer, nullable=False)
-    connections = db.Column(db.String(1000), nullable=True)
+    attributes = db.Column(db.String(1000), nullable=False)
 
 
 class AgentStateAttribute(BaseAttribute):

@@ -48,3 +48,4 @@ db = SQLAlchemy(app, session_options={
 })
 
 import simoc_server.views
+import simoc_server.front_end_routes
