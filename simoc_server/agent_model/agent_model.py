@@ -11,7 +11,6 @@ import quantities as pq
 from mesa import Model
 from mesa.space import MultiGrid
 from mesa.time import RandomActivation
-from sqlalchemy import or_
 from sqlalchemy.orm.exc import StaleDataError
 
 from simoc_server import db, app
@@ -309,9 +308,9 @@ class AgentModel(Model, AttributeHolder):
         seed = agent_model_state.seed
         random_state = agent_model_state.random_state
         minutes_per_step = agent_model_state.minutes_per_step
+        location = agent_model_state.location
         termination = json.loads(agent_model_state.termination)
         priorities = json.loads(agent_model_state.priorities)
-        location = json.loads(agent_model_state.location)
         config = json.loads(agent_model_state.config)
         logging = json.loads(agent_model_state.logging)
         logs = json.loads(agent_model_state.logs)
@@ -336,57 +335,29 @@ class AgentModel(Model, AttributeHolder):
             agent_class = agent_state.agent_type.agent_class
             if agent_class not in agents:
                 agents[agent_class] = []
-            agents[agent_class].append({
-                "agent_type": agent_state.agent_type.name,
-                "unique_id": agent_state.agent_unique_id,
-                "model_time_created": agent_state.model_time_created,
-                "active": agent_state.active,
-                "age": agent_state.age,
-                "lifetime": agent_state.lifetime,
-                "agent_type_attributes": json.loads(agent_state.agent_type_attributes),
-                "agent_type_descriptions": json.loads(agent_state.agent_type_descriptions),
-                "agent_id": agent_state.agent_id,
-                "storage": json.loads(agent_state.storage),
-                "buffer": json.loads(agent_state.buffer),
-                "deprive": json.loads(agent_state.deprive),
-                "attribute_descriptors": json.loads(agent_state.attribute_descriptors),
-                "selected_storages": json.loads(agent_state.selected_storages)
-            })
+            agents[agent_class].append({"agent_type": agent_state.agent_type.name,
+                                        "unique_id": agent_state.agent_unique_id,
+                                        "model_time_created": agent_state.model_time_created,
+                                        "id": agent_state.agent_id,
+                                        "active": agent_state.active,
+                                        "age": agent_state.age,
+                                        "amount": agent_state.amount,
+                                        "lifetime": agent_state.lifetime,
+                                        "connections": json.loads(agent_state.connections),
+                                        "buffer": json.loads(agent_state.buffer),
+                                        "deprive": json.loads(agent_state.deprive),
+                                        "attributes": json.loads(agent_state.attributes)})
         for storage in agents['storage']:
-            type_name = storage.agent_type
-            agent = StorageAgent(model=model, agent_type=type_name, **storage['storage'])
-            agent.unique_id = storage.unique_id
-            agent.model_time_created = storage.model_time_created
-            agent.active = storage.active
-            agent.age = storage.age
-            agent.lifetime = storage.lifetime
-            agent.agent_type_attributes = storage.agent_type_attributes
-            agent.agent_type_descriptions = storage.agent_type_descriptions
-            agent.id = storage.agent_id
+            agent = StorageAgent(model=model, **storage)
+            for attr in storage['attributes']:
+                agent[attr['name']] = attr['value']
             model.add_agent(agent)
         _ = agents.pop('storage')
         for agent_class in agents:
             for agent in agents[agent_class]:
-                type_name = agent.agent_type
-                selected_storages = agent.selected_storages
-                connections = {}
-                for storage in selected_storages:
-                    storage_class, storage_id = storage[2:4]
-                    if storage_class not in connections:
-                        connections[storage_class] = set()
-                    connections[storage_class].add(storage_id)
-                for k in connections:
-                    connections[k] = list(connections[k])
-                new_agent = GeneralAgent(model=model, agent_type=type_name, connections=connections)
-                new_agent.unique_id = agent.unique_id
-                new_agent.model_time_created = agent.model_time_created
-                new_agent.active = agent.active
-                new_agent.age = agent.age
-                new_agent.lifetime = agent.lifetime
-                new_agent.agent_type_attributes = agent.agent_type_attributes
-                new_agent.agent_type_descriptions = agent.agent_type_descriptions
-                new_agent.deprive = agent.deprive
-                new_agent.buffer = agent.buffer
+                new_agent = GeneralAgent(model=model, **agent)
+                for attr in agent['attributes']:
+                    new_agent[attr['name']] = attr['value']
                 model.add_agent(new_agent)
         return model
 
@@ -871,8 +842,6 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         self.AGENTS = config['agents']
         self.STORAGES = config['storages']
         self.SINGLE_AGENT = config['single_agent']
-        self.AGENT_LIST = [r for (r,) in db.session.query(AgentType.name).filter(or_(
-            AgentType.agent_class == "plants", AgentType.agent_class == "power_generation"))]
 
     def init_agents(self, model):
         """TODO
@@ -893,11 +862,15 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         for type_name, instances in self.AGENTS.items():
             for instance in instances:
                 connections, amount = instance["connections"], instance['amount']
-                if self.SINGLE_AGENT == 1 and type_name in self.AGENT_LIST:
-                    amount = 1
-                for i in range(amount):
+                if self.SINGLE_AGENT == 1:
                     model.add_agent(GeneralAgent(model=model,
                                                  agent_type=type_name,
                                                  connections=connections,
-                                                 amount=instance['amount']))
+                                                 amount=amount))
+                else:
+                    for i in range(amount):
+                        model.add_agent(GeneralAgent(model=model,
+                                                     agent_type=type_name,
+                                                     connections=connections,
+                                                     amount=1))
         return model
