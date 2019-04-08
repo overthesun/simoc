@@ -67,6 +67,10 @@ class DescriptiveAttribute(BaseAttribute):
     def description(cls):
         return db.Column(db.String(512), nullable=True)
 
+    @declared_attr
+    def growth(cls):
+        return db.Column(db.Integer, nullable=True)
+
 
 class AgentModelParam(DescriptiveAttribute):
     id = db.Column(db.Integer, primary_key=True)

@@ -63,7 +63,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
             be static values that define the behaviors of a particular *class* of agents. They do
             not define instance level behavoirs or traits.
         """
-        agent_type = AgentType.query.filter_by(name= self.agent_type).first()
+        agent_type = AgentType.query.filter_by(name=self.agent_type).first()
         self.agent_class = agent_type.agent_class
         self._agent_type_id = agent_type.id
         attributes, descriptions = {}, {}
@@ -287,7 +287,7 @@ class GeneralAgent(EnclosedAgent):
                 multiplier *= hours_per_step / self.model.day_length_hours
             else:
                 raise Exception('Unknown agent flow_rate.time value.')
-            agent_value = self.agent_type_attributes[attr]
+            agent_value = float(self.agent_type_attributes[attr])
             agent_value *= float(multiplier)
 
             if lifetime_growth_type:
@@ -342,7 +342,7 @@ class GeneralAgent(EnclosedAgent):
                     if len(daily_growth_min_rate) > 0:
                         start_value = agent_value * float(daily_growth_min_rate)
                     elif daily_min < daily_max:
-                        start_value = daily_min
+                        start_value = daily_min or 0
                     else:
                         start_value = 0
                     if (i + day_length) > num_values:
@@ -358,7 +358,10 @@ class GeneralAgent(EnclosedAgent):
                               'invert': invert,
                               'steepness': steepness,
                               'scale': scale}
-                    self.step_values[attr][i:i+day_length] = growth_func.get_growth_values(**kwargs)
+                    if start_value == agent_value:
+                        self.step_values[attr][i:i+day_length] = np.ones(day_length) * agent_value
+                    else:
+                        self.step_values[attr][i:i+day_length] = growth_func.get_growth_values(**kwargs)
 
     def get_step_value(self, attr):
         """TODO

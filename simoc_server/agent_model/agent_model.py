@@ -18,7 +18,7 @@ from simoc_server.agent_model.agents.core import GeneralAgent, StorageAgent
 from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentModelParam, AgentType, AgentModelState, \
     AgentModelSnapshot, SnapshotBranch
-from simoc_server.util import timedelta_to_hours
+from simoc_server.util import timedelta_to_hours, location_to_day_length_minutes
 
 
 class PrioritizedRandomActivation(RandomActivation):
@@ -112,14 +112,7 @@ class AgentModel(Model, AttributeHolder):
         self.is_terminated = False
         self.model_stats = {}
         self.grid = MultiGrid(self.grid_width, self.grid_height, True)
-        if self.location == "moon":
-            self.day_length_minutes = ((27 * 24 + 7) * 60) + 43
-        elif self.location == "earth":
-            self.day_length_minutes = 24 * 60
-        elif self.location == "mars":
-            self.day_length_minutes = (24 * 60) + 39
-        else:
-            raise Exception("Unknown location: {}".format(self.location))
+        self.day_length_minutes = location_to_day_length_minutes(self.location)
         self.day_length_hours = self.day_length_minutes / 60
         self.daytime = int(self.time.total_seconds() / 60) % self.day_length_minutes
         if self.seed is None:
@@ -288,7 +281,8 @@ class AgentModel(Model, AttributeHolder):
             else:
                 self.__dict__[param.name] = None
 
-    def load_from_db(agent_model_state):
+    @classmethod
+    def load_from_db(cls, agent_model_state):
         """TODO
 
         TODO
