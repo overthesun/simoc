@@ -185,10 +185,13 @@ class AgentModel(Model, AttributeHolder):
     def get_model_stats(self):
         """TODO
 
-        TODO
+        Collects the information for this step into a dictionary.
+
+        Called from:
+            game_runner.py GameRunner.step_to.step_loop
 
         Returns:
-          TODO
+          A dictionary with the step information
         """
         response = {"step": self.step_num,
                     "hours_per_step": timedelta_to_hours(self.timedelta_per_step()),
@@ -254,13 +257,18 @@ class AgentModel(Model, AttributeHolder):
     def get_total_storages(self):
         """TODO
 
-        TODO
+        Formats the agent storages and currencies for easier access to the step information later.
+
+        Called from:
+            get_model_stats()
 
         Returns:
-          TODO
+          A dictionary of the storages information for this step
         """
+#        storages = {}
         storages = []
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
+#            storages[storage.agent_type] = {"agent_id": storage.id, "currencies": {}}
             entity = {"agent_type": storage.agent_type, "agent_id": storage.id, "currencies": []}
             for attr in storage.agent_type_attributes:
                 if attr.startswith('char_capacity'):
@@ -270,6 +278,8 @@ class AgentModel(Model, AttributeHolder):
                     storage_unit = storage.agent_type_descriptions[attr]
                     entity["currencies"].append({"name": currency, "value": value,
                                                  "capacity": capacity, "units": storage_unit})
+#                    storages[storage.agent_type]["currencies"][currency] = {"value": value,
+#                                                 "capacity": capacity, "units": storage_unit}
             storages.append(entity)
         return storages
 
