@@ -8,222 +8,13 @@ from uuid import uuid4
 import numpy as np
 import quantities as pq
 from mesa import Agent
-from scipy.stats import norm
-from sklearn.preprocessing import MinMaxScaler
 
 from simoc_server import db
 from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentType, AgentState
 from simoc_server.util import load_db_attributes_into_dict
 from simoc_server.util import timedelta_to_hours
-
-
-def get_sigmoid_step(step_num, mean_value, num_values, min_value=0.0, max_value=None, center=None,
-                     steepness=None, noise=False, noise_factor=20.0):
-    """TODO
-
-    TODO
-
-    Args:
-      step_num: int, TODO
-      mean_value: float, TODO
-      num_values: int, TODO
-      min_value: float, TODO
-      max_value: float, TODO
-      center: float, TODO
-      steepness: float, TODO
-      noise: float, TODO
-      noise_factor: float, TODO
-
-    Returns:
-      TODO
-    """
-    center = center if center else int(num_values / 2)
-    max_value = max_value if max_value else (mean_value * 2) - min_value
-    steepness = steepness if steepness else 10. / float(num_values)
-    y = np.arange(num_values)
-    y = ((max_value - min_value) /
-         (1. + np.exp(-steepness * (y - center)))) + min_value
-    if noise:
-        y += np.random.normal(0, y.std() / noise_factor, num_values)
-    y = np.clip(y, min_value, max_value)
-    return y[step_num]
-
-
-def get_log_step(step_num, max_value, num_values, min_value=0, zero_value=1e-2, noise=False,
-                 noise_factor=20):
-    """TODO
-
-    TODO
-
-    Args:
-      step_num: int, TODO
-      max_value: float, TODO
-      num_values: int, TODO
-      min_value: float, TODO
-      zero_value: float, TODO
-      noise: float, TODO
-      noise_factor: float, TODO
-
-    Returns:
-      TODO
-    """
-    zero_value = zero_value if zero_value < max_value else max_value * zero_value
-    y = np.geomspace(zero_value, max_value - min_value, num_values) + min_value
-    if noise:
-        y += np.random.normal(0, y.std() / noise_factor, num_values)
-    y = np.clip(y, min_value, max_value)
-    return y[step_num]
-
-
-def get_linear_step(step_num, max_value, num_values, min_value=0.0, noise=False, noise_factor=20.0):
-    """TODO
-
-    TODO
-
-    Args:
-      step_num: int, TODO
-      max_value: float, TODO
-      num_values: int, TODO
-      min_value: float, TODO
-      noise: float, TODO
-      noise_factor: float, TODO
-
-    Returns:
-      TODO
-    """
-    y = np.linspace(min_value, max_value, num_values)
-    if noise:
-        y += np.random.normal(0, y.std() / noise_factor, num_values)
-    y = np.clip(y, min_value, max_value)
-    return y[step_num]
-
-
-def get_norm_step(step_num, mean_value, num_values, min_value=0.0, max_value=None, center=None,
-                  width=None, invert=False, noise=False, noise_factor=10.0):
-    """TODO
-
-    TODO
-
-    Args:
-      step_num: int, TODO
-      mean_value: float, TODO
-      num_values: int, TODO
-      min_value: float, TODO
-      max_value: float, TODO
-      center: float, TODO
-      width: float, TODO
-      invert: bool, TODO
-      noise: float, TODO
-      noise_factor: float, TODO
-
-    Returns:
-      TODO
-    """
-    max_value = max_value if max_value else (mean_value * 2) - min_value
-    center = center if center else num_values / 2
-    width = width if width else center / 2
-    y = norm.pdf(np.arange(num_values), center, width)
-    y = MinMaxScaler((min_value, max_value)).fit_transform(y.reshape(-1, 1))
-    y = y.reshape(num_values)
-    if invert:
-        y = -1 * y
-        y = y + max_value + min_value
-    if noise:
-        y += np.random.normal(0, y.std() / noise_factor, num_values)
-    y = np.clip(y, min_value, max_value)
-    return y[step_num]
-
-
-def get_switch_step(step_num, max_value, min_threshold, max_threshold, num_values, min_value=0.0,
-                    noise=False, noise_factor=20.0):
-    """TODO
-
-    TODO
-
-    Args:
-      step_num: int, TODO
-      max_value: float, TODO
-      min_threshold: float, TODO
-      max_threshold: float, TODO
-      num_values: int, TODO
-      min_value: float, TODO
-      noise: float, TODO
-      noise_factor: float, TODO
-
-    Returns:
-      TODO
-    """
-    y = np.zeros(num_values) + min_value
-    y[min_threshold:max_threshold] = max_value
-    if noise:
-        y[min_threshold:max_threshold] += np.random.normal(0,
-                                                           y.std() / noise_factor,
-                                                           max_threshold - min_threshold)
-    return y[step_num]
-
-
-def get_scaled_step(step_num, mean_value, num_values, growth_type, min_threshold=None,
-                    max_threshold=None, max_value=None, noise=False, invert=False, min_value=0,
-                    center=None):
-    """TODO
-
-    TODO
-
-    Args:
-      step_num: int, TODO
-      mean_value: float, TODO
-      num_values: int, TODO
-      growth_type: str, TODO
-      min_threshold: float, TODO
-      max_threshold: float, TODO
-      max_value: float, TODO
-      noise: float, TODO
-      invert: bool, TODO
-      min_value: float, TODO
-      center: float, TODO
-
-    Returns:
-      TODO
-    """
-    if growth_type == 'linear' or growth_type == 'lin':
-        return get_linear_step(step_num=step_num,
-                               max_value=max_value,
-                               num_values=num_values,
-                               min_value=min_value,
-                               noise=noise)
-    elif growth_type == 'logarithmic' or growth_type == 'log':
-        return get_log_step(step_num=step_num,
-                            max_value=max_value,
-                            num_values=num_values,
-                            min_value=min_value,
-                            noise=noise)
-    elif growth_type == 'sigmoid' or growth_type == 'sig':
-        return get_sigmoid_step(step_num=step_num,
-                                mean_value=mean_value,
-                                min_value=min_value,
-                                max_value=max_value,
-                                num_values=num_values,
-                                noise=noise)
-    elif growth_type == 'normal' or growth_type == 'norm':
-        return get_norm_step(step_num=step_num,
-                             mean_value=mean_value,
-                             min_value=min_value,
-                             max_value=max_value,
-                             num_values=num_values,
-                             center=center,
-                             invert=invert,
-                             noise=noise)
-    elif growth_type == 'step' or growth_type == 'switch':
-        return get_switch_step(step_num=step_num,
-                               max_value=max_value,
-                               min_threshold=min_threshold,
-                               max_threshold=max_threshold,
-                               num_values=num_values,
-                               min_value=min_value,
-                               noise=noise)
-    else:
-        raise ValueError("Unknown growth function type '{}'.".format(growth_type))
+from simoc_server.agent_model.agents import growth_func
 
 
 class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
@@ -233,7 +24,6 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
 
     Attributes:
           _agent_type_id: TODO
-          _last_loaded_type_attr_class: TODO
           active: TODO
           agent_class: TODO
           agent_type: TODO
@@ -242,9 +32,6 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
           model_time_created: TODO
           unique_id: TODO
     """
-
-    # Used to ensure type attributes are properly inherited and only loaded once
-    _last_loaded_type_attr_class = False
 
     def __init__(self, *args, **kwargs):
         """Creates a Base Agent object.
@@ -255,14 +42,19 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
           agent_type: Dict, TODO
           model: Dict, TODO
         """
+        self.model = kwargs.pop("model", None)
+        assert self.model
+
+        self.agent_type = kwargs.get("agent_type", None)
+        self.active = kwargs.pop("active", True)
+        self.model_time_created = kwargs.pop("model_time_created", self.model.time)
+        self.unique_id = kwargs.pop("unique_id", None)
+        if not self.unique_id:
+            self.unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4().hex[:8])
+
         self._load_agent_type_attributes()
         AttributeHolder.__init__(self)
-        self.active = True
-        self.unique_id = "{0}_{1}".format(self.__class__.__name__, uuid4().hex[:8])
-        self.agent_type = kwargs.get("agent_type", None)
-        model = kwargs.get("model", None)
-        self.model_time_created = model.time
-        super().__init__(self.unique_id, model)
+        super().__init__(self.unique_id, self.model)
 
     def _load_agent_type_attributes(self):
         """ TODO
@@ -270,41 +62,13 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         Load the agent type attributes from database into class. These agent type attributes should
             be static values that define the behaviors of a particular *class* of agents. They do
             not define instance level behavoirs or traits.
-
-        Raises:
-            Exception: if class does not define _agent_type_name or if the specified agent type
-            cannot be located in the database
         """
-        if self.agent_type is None:
-            raise Exception("agent_type not set for class {}".format(self))
-
-        if self._last_loaded_type_attr_class is not self:
-            agent_type_name = self.agent_type
-            agent_type = AgentType.query.filter_by(
-                name=agent_type_name).first()
-            self.agent_class = agent_type.agent_class
-
-            if agent_type is None:
-                raise Exception(
-                    "Cannot find agent_type in database with name '{0}'. Please"
-                    " create associated AgentType and add to database".format(
-                        agent_type_name))
-
-            attributes, descriptions = {}, {}
-            try:
-                load_db_attributes_into_dict(
-                    agent_type.agent_type_attributes, attributes, descriptions)
-            except ValueError as e:
-                raise ValueError(
-                    "Error loading agent type attributes for class '{}'.".format(
-                        self.__name__)) from e
-
-            self.agent_type_attributes, self.agent_type_descriptions = attributes, descriptions
-
-            self._last_loaded_type_attr_class = self
-
-            # store agent type id for later saving of agent state
-            self._agent_type_id = agent_type.id
+        agent_type = AgentType.query.filter_by(name=self.agent_type).first()
+        self.agent_class = agent_type.agent_class
+        self._agent_type_id = agent_type.id
+        attributes, descriptions = {}, {}
+        load_db_attributes_into_dict(agent_type.agent_type_attributes, attributes, descriptions)
+        self.agent_type_attributes, self.agent_type_descriptions = attributes, descriptions
 
     def get_agent_type(self):
         """Returns the AgentType related to the instance Agent"""
@@ -330,42 +94,23 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
           agent_model_state: TODO
           commit: bool, TODO
         """
-        args = dict(agent_type_id=self._agent_type_id,
-                    agent_model_state=agent_model_state,
+        args = dict(agent_model_state=agent_model_state,
+                    agent_type_id=self._agent_type_id,
                     agent_unique_id=self.unique_id,
                     model_time_created=self.model_time_created,
-                    active=self.active,
-                    age=self.age,
                     agent_id=self.__dict__.get('id', None),
-                    lifetime=self.lifetime,
-                    agent_type_attributes=json.dumps(self.agent_type_attributes),
-                    agent_type_descriptions=json.dumps(self.agent_type_descriptions),
+                    active=self.__dict__.get('active', None),
+                    age=self.__dict__.get('age', None),
+                    amount=self.__dict__.get('amount', None),
+                    lifetime=self.__dict__.get('lifetime', None),
+                    connections=json.dumps(self.__dict__.get('connections', None)),
                     buffer=json.dumps(self.__dict__.get('buffer', None)),
                     deprive=json.dumps(self.__dict__.get('deprive', None)))
-        args['attribute_descriptors'] = []
-        attribute_descriptors = self.attribute_descriptors
-        for k in attribute_descriptors:
-            args['attribute_descriptors'].append(
-                [k, attribute_descriptors[k]._type.__name__,
-                 attribute_descriptors[k].is_client_attr,
-                 attribute_descriptors[k].is_persisted_attr])
-        args['attribute_descriptors'] = json.dumps(args['attribute_descriptors'])
-        args['storage'] = {}
-        for attr in self.agent_type_attributes:
-            if attr.startswith('char_capacity'):
-                currency = attr.split('_', 2)[2]
-                args['storage'][currency] = self[currency]
-        args['storage'] = json.dumps(args['storage'])
-        args['selected_storages'] = []
-        selected_storages = self.__dict__.get('selected_storages', [])
-        for k in selected_storages:
-            for v in selected_storages[k]:
-                for storage in selected_storages[k][v]:
-                    args['selected_storages'].append(
-                        [k, v, storage.agent_type, storage.id, storage.unique_id])
-        args['selected_storages'] = json.dumps(args['selected_storages'])
+        args['attributes'] = []
+        for k in self.attribute_descriptors:
+            args['attributes'].append({'name': k, 'value': self[k]})
+        args['attributes'] = json.dumps(args['attributes'])
         agent_state = AgentState(**args)
-
         db.session.add(agent_state)
         if commit:
             db.session.commit()
@@ -396,27 +141,27 @@ class EnclosedAgent(BaseAgent):
         Args:
           agent_type: TODO
         """
-        self.age = 0
-        self.agent_type = kwargs.get("agent_type", None)
+        self.age = kwargs.pop("age", 0)
         super(EnclosedAgent, self).__init__(*args, **kwargs)
         if 'char_lifetime' in self.agent_type_attributes:
             self.lifetime = self.agent_type_attributes['char_lifetime']
         else:
             self.lifetime = 0
+        if 'char_reproduce' in self.agent_type_attributes:
+            self.reproduce = self.agent_type_attributes['char_reproduce']
+        else:
+            self.reproduce = 0
 
     def step(self):
         """TODO"""
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
         self.age += hours_per_step / self.model.day_length_hours
-        if 'char_lifetime' in self.agent_type_attributes:
-            if self.age >= self.lifetime:
-                if 'char_reproduce' in self.agent_type_attributes:
-                    reproduce = self.agent_type_attributes['char_lifetime']
-                    if reproduce:
-                        self.age = 0
-                        return
-                self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
+        if 0 < self.lifetime <= self.age:
+            if self.reproduce:
+                self.age = 0
+                return
+            self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
                     self.agent_type))
 
     def age(self):
@@ -444,7 +189,7 @@ class GeneralAgent(EnclosedAgent):
           agent_type: TODO
           buffer: TODO
           deprive: TODO
-          selected_storages: TODO
+          selected_storage: TODO
     """
 
     def __init__(self, *args, **kwargs):
@@ -456,62 +201,185 @@ class GeneralAgent(EnclosedAgent):
           agent_type: Dict, TODO
           connections: Dict, TODO
           model: Dict, TODO
-          model: Dict, TODO
+          amount: Dict, TODO
         """
-        self.agent_type = kwargs.get("agent_type", None)
-        connections = kwargs.pop("connections", None)
-        model = kwargs.get("model", None)
-        amount = kwargs.get("model", None)
+        self.amount = kwargs.pop("amount", 1)
+        self.connections = kwargs.pop("connections", [])
+        self.buffer = kwargs.pop("buffer", {})
+        self.deprive = kwargs.pop("deprive", None)
         super(GeneralAgent, self).__init__(*args, **kwargs)
-        self.buffer = {}
-        storages = self.model.get_agents_by_class(agent_class=StorageAgent)
-        self.selected_storages = {"in": {}, 'out': {}}
+        self._init_attrs()
+        self._init_selected_storage()
+        self._calculate_step_values()
+        if not self.deprive:
+            self._init_deprive()
+
+    def _init_attrs(self):
+        self.attrs = {}
+        for attr in self.agent_type_attributes:
+            prefix, currency = attr.split('_', 1)
+            if prefix not in ['in', 'out']:
+                continue
+            self.attrs[attr] = json.loads(self.agent_type_descriptions[attr])
+
+    def _init_deprive(self):
         self.deprive = {}
         for attr in self.agent_type_attributes:
             prefix, currency = attr.split('_', 1)
             if prefix not in ['in', 'out']:
                 continue
-            descriptions = self.agent_type_descriptions[attr].split(';')
-            deprive_value = descriptions[7]
-            self.deprive[currency] = int(
-                deprive_value) if deprive_value != '' else 0
-            if (model.single_agent == 1 and (
-                    self.agent_class == "plants" or self.agent_class == "power_generation")):
-                self.agent_type_attributes[attr] *= amount
-            self.selected_storages[prefix][currency] = []
+            deprive_value = self.attrs[attr]['deprive_value']
+            self.deprive[currency] = int(deprive_value) if deprive_value != '' else 0
+
+    def _init_selected_storage(self):
+        storages = self.model.get_agents_by_class(agent_class=StorageAgent)
+        self.selected_storage = {"in": {}, 'out': {}}
+        for attr in self.agent_type_attributes:
+            prefix, currency = attr.split('_', 1)
+            if prefix not in ['in', 'out']:
+                continue
+            self.selected_storage[prefix][currency] = []
             for storage in storages:
-                if len(connections) > 0:
-                    if storage.agent_type not in connections:
+                if len(self.connections) > 0:
+                    if storage.agent_type not in self.connections:
                         continue
-                    if storage.id not in connections[storage.agent_type]:
+                    if storage.id not in self.connections[storage.agent_type]:
                         continue
                 if currency in storage:
-                    self.selected_storages[prefix][currency].append(storage)
+                    self.selected_storage[prefix][currency].append(storage)
 
-    def get_step_value(self, attr, hours_per_step):
+    def _calculate_step_values(self):
+        num_values = int((self.lifetime or 1) * self.model.day_length_hours) + 1
+        timedelta_per_step = self.model.timedelta_per_step()
+        hours_per_step = timedelta_to_hours(timedelta_per_step)
+        self.step_values = {}
+        for attr in self.agent_type_attributes:
+            prefix, currency = attr.split('_', 1)
+            if prefix not in ['in', 'out']:
+                continue
+
+            agent_flow_time = self.attrs[attr]['flow_time']
+            lifetime_growth_type = self.attrs[attr]['lifetime_growth_type']
+            lifetime_growth_center = self.attrs[attr]['lifetime_growth_center']
+            lifetime_growth_min_value = self.attrs[attr]['lifetime_growth_min_value']
+            daily_growth_type = self.attrs[attr]['daily_growth_type']
+            daily_growth_center = self.attrs[attr]['daily_growth_center']
+            daily_growth_min_rate = self.attrs[attr]['daily_growth_min_rate']
+            lifetime_growth_min_threshold = self.attrs[attr]['lifetime_growth_min_threshold']
+            lifetime_growth_max_threshold = self.attrs[attr]['lifetime_growth_max_threshold']
+            daily_growth_min_threshold = self.attrs[attr]['daily_growth_min_threshold']
+            daily_growth_max_threshold = self.attrs[attr]['daily_growth_max_threshold']
+            daily_growth_invert = self.attrs[attr]['daily_growth_invert']
+            lifetime_growth_invert = self.attrs[attr]['lifetime_growth_invert']
+            daily_growth_noise = self.attrs[attr]['daily_growth_noise']
+            lifetime_growth_noise = self.attrs[attr]['lifetime_growth_noise']
+            daily_growth_scale = self.attrs[attr]['daily_growth_scale']
+            lifetime_growth_scale = self.attrs[attr]['lifetime_growth_scale']
+            daily_growth_steepness = self.attrs[attr]['daily_growth_steepness']
+            lifetime_growth_steepness = self.attrs[attr]['lifetime_growth_steepness']
+
+            multiplier = 1
+            if agent_flow_time == 'min':
+                multiplier *= (hours_per_step * 60)
+            elif agent_flow_time == 'hour':
+                multiplier *= hours_per_step
+            elif agent_flow_time == 'day':
+                multiplier *= hours_per_step / self.model.day_length_hours
+            else:
+                raise Exception('Unknown agent flow_rate.time value.')
+            agent_value = float(self.agent_type_attributes[attr])
+            agent_value *= float(multiplier)
+
+            if lifetime_growth_type:
+                start_value = float(lifetime_growth_min_value) \
+                    if len(lifetime_growth_min_value) > 0 else 0.0
+                center = float(lifetime_growth_center) * self.model.day_length_hours \
+                    if len(lifetime_growth_center) > 0 else None
+                min_threshold = int(lifetime_growth_min_threshold) * self.model.day_length_hours \
+                    if len(lifetime_growth_min_threshold) > 0 else 0
+                max_threshold = int(lifetime_growth_max_threshold) * self.model.day_length_hours \
+                    if len(lifetime_growth_max_threshold) > 0 else 0
+                scale = float(lifetime_growth_scale) \
+                    if len(lifetime_growth_scale) > 0 else None
+                steepness = float(lifetime_growth_steepness) / self.model.day_length_hours \
+                    if len(lifetime_growth_steepness) > 0 else None
+                invert = bool(lifetime_growth_invert)
+                noise = bool(lifetime_growth_noise)
+                kwargs = {'agent_value': agent_value,
+                          'num_values': num_values,
+                          'growth_type': lifetime_growth_type,
+                          'min_value': start_value,
+                          'min_threshold': min_threshold,
+                          'max_threshold': max_threshold,
+                          'center': center,
+                          'noise': noise,
+                          'invert': invert,
+                          'steepness': steepness,
+                          'scale': scale}
+                self.step_values[attr] = growth_func.get_growth_values(**kwargs)
+            else:
+                self.step_values[attr] = np.ones(num_values) * agent_value
+
+            if daily_growth_type:
+                day_length = int(self.model.day_length_hours)
+                center = float(daily_growth_center) \
+                    if len(daily_growth_center) > 0 else None
+                min_threshold = int(daily_growth_min_threshold) \
+                    if len(daily_growth_min_threshold) > 0 else 0
+                max_threshold = int(daily_growth_max_threshold) \
+                    if len(daily_growth_max_threshold) > 0 else 0
+                scale = float(daily_growth_scale) \
+                    if len(daily_growth_scale) > 0 else None
+                steepness = float(daily_growth_steepness) \
+                    if len(daily_growth_steepness) > 0 else None
+                invert = bool(daily_growth_invert)
+                noise = bool(daily_growth_noise)
+                for i in range(0, num_values, day_length):
+                    day_values = self.step_values[attr][i:i+day_length]
+                    agent_value = np.mean(day_values)
+                    daily_min = np.min(day_values)
+                    daily_max = np.max(day_values)
+                    if len(daily_growth_min_rate) > 0:
+                        start_value = agent_value * float(daily_growth_min_rate)
+                    elif daily_min < daily_max:
+                        start_value = daily_min or 0
+                    else:
+                        start_value = 0
+                    if (i + day_length) > num_values:
+                        day_length = num_values - i
+                    kwargs = {'agent_value': agent_value,
+                              'num_values': day_length,
+                              'growth_type': daily_growth_type,
+                              'min_value': start_value,
+                              'min_threshold': min_threshold,
+                              'max_threshold': max_threshold,
+                              'center': center,
+                              'noise': noise,
+                              'invert': invert,
+                              'steepness': steepness,
+                              'scale': scale}
+                    if start_value == agent_value:
+                        self.step_values[attr][i:i+day_length] = np.ones(day_length) * agent_value
+                    else:
+                        self.step_values[attr][i:i+day_length] = growth_func.get_growth_values(**kwargs)
+
+    def get_step_value(self, attr):
         """TODO
 
         TODO
 
         Args:
             attr: TODO
-            hours_per_step: TODO
 
         Returns:
           TODO
         """
         prefix, currency = attr.split('_', 1)
-        multiplier = 1
-        descriptions = self.agent_type_descriptions[attr].split(';')
-        agent_unit, agent_flow_time = descriptions[:2]
-        lifetime_growth_type, lifetime_growth_center, lifetime_growth_min_value = descriptions[
-                                                                                  10:13]
-        daily_growth_type, daily_growth_center, daily_growth_min_rate = descriptions[13:16]
-        lifetime_growth_min_threshold, lifetime_growth_max_threshold = descriptions[16:18]
-        daily_growth_min_threshold, daily_growth_max_threshold = descriptions[18:20]
-        daily_growth_invert, lifetime_growth_invert = descriptions[20:22]
-        daily_growth_noise, lifetime_growth_noise = descriptions[22:24]
-        cr_name, cr_limit, cr_value, cr_buffer = descriptions[2:6]
+        agent_unit = self.attrs[attr]['flow_unit']
+        cr_name = self.attrs[attr]['cr_name']
+        cr_limit = self.attrs[attr]['cr_limit']
+        cr_value = self.attrs[attr]['cr_value']
+        cr_buffer = self.attrs[attr]['cr_buffer']
         cr_value = float(cr_value) if cr_value != '' else 0.0
         cr_buffer = int(cr_buffer) if cr_buffer != '' else 0
         if len(cr_name) > 0:
@@ -519,8 +387,8 @@ class GeneralAgent(EnclosedAgent):
                 source = self[cr_name]
             else:
                 source = 0
-                for curr in self.selected_storages[prefix]:
-                    for storage in self.selected_storages[prefix][curr]:
+                for curr in self.selected_storage[prefix]:
+                    for storage in self.selected_storage[prefix][curr]:
                         agent_id = '{}_{}'.format(
                             storage.agent_type, storage.id)
                         if cr_name in self.model.model_stats[agent_id]:
@@ -550,66 +418,11 @@ class GeneralAgent(EnclosedAgent):
                         return pq.Quantity(0.0, agent_unit)
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
-        if agent_flow_time == 'min':
-            multiplier *= (hours_per_step * 60)
-        elif agent_flow_time == 'hour':
-            multiplier *= hours_per_step
-        elif agent_flow_time == 'day':
-            multiplier *= hours_per_step / self.model.day_length_hours
-        else:
-            raise Exception('Unknown agent flow_rate.time value.')
-        agent_value = self.agent_type_attributes[attr]
-        if lifetime_growth_type:
-            mean_value = agent_value
-            start_value = float(lifetime_growth_min_value) \
-                if len(lifetime_growth_min_value) > 0 else 0.0
-            center = float(lifetime_growth_center) * self.model.day_length_hours \
-                if len(lifetime_growth_center) > 0 else None
-            step_num = int(self.age * self.model.day_length_hours)
-            num_values = int(self.lifetime * self.model.day_length_hours)
-            min_threshold = self.model.day_length_hours * int(lifetime_growth_min_threshold) \
-                if len(lifetime_growth_min_threshold) > 0 else 0
-            max_threshold = self.model.day_length_hours * int(lifetime_growth_max_threshold) \
-                if len(lifetime_growth_max_threshold) > 0 else 0
-            invert = bool(lifetime_growth_invert)
-            noise = bool(lifetime_growth_noise)
-            agent_value = get_scaled_step(step_num=step_num,
-                                          mean_value=mean_value,
-                                          num_values=num_values,
-                                          growth_type=lifetime_growth_type,
-                                          min_value=start_value,
-                                          min_threshold=min_threshold,
-                                          max_threshold=max_threshold,
-                                          center=center,
-                                          noise=noise,
-                                          invert=invert)
-        if daily_growth_type:
-            mean_value = agent_value
-            daily_growth_min_rate = float(daily_growth_min_rate) \
-                if len(daily_growth_min_rate) > 0 else 0.0
-            start_value = agent_value * daily_growth_min_rate
-            center = float(daily_growth_center) * 60 \
-                if len(daily_growth_center) > 0 else None
-            step_num = int(self.model.daytime)
-            num_values = int(self.model.day_length_minutes)
-            min_threshold = 60 * int(daily_growth_min_threshold) \
-                if len(daily_growth_min_threshold) > 0 else 0
-            max_threshold = 60 * int(daily_growth_max_threshold) \
-                if len(daily_growth_max_threshold) > 0 else 0
-            invert = bool(daily_growth_invert)
-            noise = bool(lifetime_growth_noise)
-            agent_value = get_scaled_step(step_num=step_num,
-                                          mean_value=mean_value,
-                                          num_values=num_values,
-                                          growth_type=daily_growth_type,
-                                          min_value=start_value,
-                                          min_threshold=min_threshold,
-                                          max_threshold=max_threshold,
-                                          center=center,
-                                          noise=noise,
-                                          invert=invert)
-        agent_value = pq.Quantity(agent_value, agent_unit)
-        return agent_value * float(multiplier)
+        step_num = int(self.age * self.model.day_length_hours)
+        if step_num >= self.step_values[attr].shape[0]:
+            step_num = int(step_num % self.model.day_length_hours)
+        agent_value = self.step_values[attr][step_num]
+        return pq.Quantity(agent_value, agent_unit)
 
     def step(self):
         """TODO
@@ -629,8 +442,8 @@ class GeneralAgent(EnclosedAgent):
                 type = attr.split('_', 3)[2]
                 currency = attr.split('_', 3)[3]
                 for prefix in ['in', 'out']:
-                    if currency in self.selected_storages[prefix]:
-                        for storage in self.selected_storages[prefix][currency]:
+                    if currency in self.selected_storage[prefix]:
+                        for storage in self.selected_storage[prefix][currency]:
                             agent_id = '{}_{}'.format(
                                 storage.agent_type, storage.id)
                             if type == 'lower' and self.model.model_stats[agent_id][
@@ -643,29 +456,28 @@ class GeneralAgent(EnclosedAgent):
                                     currency, self.agent_type))
         influx = []
         for prefix in ['in', 'out']:
-            for currency in self.selected_storages[prefix]:
+            for currency in self.selected_storage[prefix]:
                 log = False
                 attr = '{}_{}'.format(prefix, currency)
-                num_of_storages = len(self.selected_storages[prefix][currency])
+                num_of_storages = len(self.selected_storage[prefix][currency])
                 if num_of_storages == 0:
                     self.kill('No storage of {} found for {}. Killing the agent'.format(
                         currency, self.agent_type))
-                descriptions = self.agent_type_descriptions[attr].split(';')
-                deprive_unit, deprive_value = descriptions[6:8]
-                is_required, requires = descriptions[8:10]
+                deprive_unit = self.attrs[attr]['deprive_unit']
+                deprive_value = self.attrs[attr]['deprive_value']
+                is_required = self.attrs[attr]['is_required']
+                requires = self.attrs[attr]['requires']
                 if requires != 'None':
                     requires = requires.split('#')
                     for req_currency in requires:
                         if req_currency not in influx:
                             continue
                 deprive_value = int(deprive_value) if deprive_value != '' else 0
-                step_value = self.get_step_value(attr, hours_per_step) / num_of_storages
-                for storage in self.selected_storages[prefix][currency]:
+                step_value = self.get_step_value(attr) / num_of_storages
+                for storage in self.selected_storage[prefix][currency]:
                     storage_cap = storage['char_capacity_' + currency]
-                    storage_unit = storage.agent_type_descriptions[
-                        'char_capacity_' + currency]
-                    storage_value = pq.Quantity(
-                        storage[currency], storage_unit)
+                    storage_unit = storage.agent_type_descriptions['char_capacity_' + currency]
+                    storage_value = pq.Quantity(storage[currency], storage_unit)
                     step_value.units = storage_unit
                     if prefix == 'out':
                         new_storage_value = storage_value + step_value
@@ -674,7 +486,7 @@ class GeneralAgent(EnclosedAgent):
                     else:
                         raise Exception('Unknown flow type. Neither Input nor Output.')
                     new_storage_value = new_storage_value.magnitude.tolist()
-                    if new_storage_value < 0 and storage_value >= 0:
+                    if new_storage_value < 0 <= storage_value:
                         if deprive_value > 0:
                             if deprive_unit == 'min':
                                 delta_per_step = hours_per_step * 60
@@ -701,16 +513,17 @@ class GeneralAgent(EnclosedAgent):
                         if deprive_value > 0:
                             self.deprive[currency] = deprive_value
                     if self.model.logging is not None and log:
-                        record = {"step_num": self.model.step_num,
-                                  "agent_type": self.agent_type,
-                                  "agent_id": self.unique_id,
-                                  "direction": prefix,
-                                  "currency": currency,
-                                  "value": step_value.magnitude.tolist(),
-                                  "unit": str(step_value.units),
-                                  "storage_type": storage.agent_type,
-                                  "storage_id": storage.id}
-                        self.model.logs.append(record)
+                        for i in range(self.amount):
+                            record = {"step_num": self.model.step_num,
+                                      "agent_type": self.agent_type,
+                                      "agent_id": self.unique_id,
+                                      "direction": prefix,
+                                      "currency": currency,
+                                      "value": step_value.magnitude.tolist() / self.amount,
+                                      "unit": str(step_value.units),
+                                      "storage_type": storage.agent_type,
+                                      "storage_id": storage.id}
+                            self.model.logs.append(record)
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model
@@ -741,8 +554,7 @@ class StorageAgent(EnclosedAgent):
           id: TODO
           currency: TODO
         """
-        self.agent_type = kwargs.get("agent_type", None)
-        self.id = kwargs.get("id", None)
+        self.id = kwargs.pop("id", None)
         super(StorageAgent, self).__init__(*args, **kwargs)
         for attr in self.agent_type_attributes:
             if attr.startswith('char_capacity'):
