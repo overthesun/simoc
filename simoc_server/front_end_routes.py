@@ -78,7 +78,7 @@ def get_energy():
     return json.dumps(total)
 
 
-def convert_configuration(config_obj):
+def convert_configuration(game_config):
     """This method converts the json configuration from a post into
     a more complete configuration with connections"""
 
@@ -87,16 +87,23 @@ def convert_configuration(config_obj):
     or sent from the front end. If this route is kept, most of the functionality should be moved into a separate object to help declutter and keep a solid separation
     of concerns. If it is removed, the data from the front end needs to be changed into a format based on an object similar to the one created here or in the new game view."""
 
-    game_config = config_obj
+    #Anything in this list will be copied as is from the input to the full_game_config. If it's not in the input it will be ignored
+    labels_to_direct_copy = ["logging","priorities","minutes_per_step","location"]
+    #If a game_config element should be assigned as an agent with connections: power_storage only, add it to the list below (unless you want to rename the agent, then it will need it's own code)
+    #Note, this assumes power_storage is the only connection for this agent. Do not add agents which have other connections. Only agents which are present in the input game_config will be assigned
+    agents_to_assign_power_storage = ["habitat","greenhouse"]
+
+    #Any agents with power_storage or food_storage will be assined power_storage = power_connections (defined later) etc. 
+    #Agents initialised here must have all connections named here
     full_game_config = {"agents": {
         "human_agent":                            [
-            {"connections": {"air_storage": [1], "water_storage": [1, 2]}}],
+            {"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}}],
         "solid_waste_aerobic_bioreactor":         [
             {"connections": {"air_storage":   [1], "power_storage": [1],
                              "water_storage": [1, 2], "nutrient_storage": [1]},
              "amount":      1}],
         "multifiltration_purifier_post_treament": [
-            {"connections": {"water_storage": [1, 2]}, "amount": 1}],
+            {"connections": {"water_storage": [1, 2], "power_storage": [1]}, "amount": 1}],
         "oxygen_generation_SFWE":                 [
             {"connections": {"air_storage": [1], "power_storage": [1], "water_storage": [1, 2]},
              "amount":      1}],
@@ -129,18 +136,27 @@ def convert_configuration(config_obj):
     food_storage_amount = math.ceil(
         (game_config["food_storage"]["amount"]) / (int(food_storage_capacity)))
 
-    if 'logging' in game_config:
-        full_game_config['logging'] = game_config['logging']
 
-    if 'priorities' in game_config:
-        full_game_config['priorities'] = game_config['priorities']
+    #This is where labels from labels_to_direct_copy are copied directly from game_config to full_game_config
+    for labeldc in labels_to_direct_copy:
+        if labeldc in game_config:
+            full_game_config[labeldc] = game_config[labeldc]
 
-    if 'minutes_per_step' in game_config:
-        full_game_config['minutes_per_step'] = game_config['minutes_per_step']
+    #Assign termination values
+    if (game_config["duration"]):
+        duration = {
+            "condition": "time",
+            "value":     game_config["duration"]["value"],
+            "unit":      game_config["duration"]["type"]}
+        full_game_config["termination"].append(duration)
 
-    if 'location' in game_config:
-        full_game_config['location'] = game_config['location']
+    #is it a single agent
+    full_game_config["single_agent"] = 1 if ('single_agent' in game_config and game_config["single_agent"] == 1) else 0
 
+    #The rest of this function is for reformatting agents.
+    #food_connections and power_connections will be assigned to all agents with food_storage or power_storage respecitively, at the end of this function.
+
+    #Determine the food and power connections to be assigned to all agents with food and power storage later
     power_storage_amount = game_config["power_storage"]["amount"]
     food_connections, power_connections = [], []
     food_left = game_config["food_storage"]["amount"]
@@ -159,51 +175,41 @@ def convert_configuration(config_obj):
         full_game_config["storages"]["power_storage"].append(
             {"id": y, "enrg_kwh": 0})
 
+
+    #Here, agents from agents_to_assign_power_storage are assigned with only a power_storage connection.
+    for labelps in agents_to_assign_power_storage:
+        if (game_config[labelps]):
+            amount = 1 if not "amount" in game_config[labelps] else game_config[labelps]["amount"]
+            full_game_config["agents"][game_config[labelps]] = [
+                {"connections": {"power_storage": [1]}, "amount": amount}]
+
+
+    #If you must rename it, it needs its own if statement.
+    if (game_config["solar_arrays"]):
+        full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {
+            "power_storage": [1]}, "amount":                                 game_config[
+                                                                                 "solar_arrays"][
+                                                                                 "amount"]}]
+
+    #If the front_end specifies an amount for this agent, overwrite any default values with the specified value
     for x, y in full_game_config["agents"].items():
-        if x == "human_agent":
-            continue
-        else:
-            y[0]["connections"]["power_storage"] = power_connections
-    if (game_config["human_agent"]):
-        full_game_config["agents"]["human_agent"][0]["amount"] = game_config["human_agent"][
-            "amount"]
-        full_game_config["agents"]["human_agent"][0]["connections"][
-            "food_storage"] = food_connections
-    if (game_config["duration"]):
-        duration = {
-            "condition": "time",
-            "value":     game_config["duration"]["value"],
-            "unit":      game_config["duration"]["type"]}
-        full_game_config["termination"].append(duration)
+        if x in game_config and "amount" in game_config[x]:
+            y[0]["amount"] = game_config[x]["amount"]
+
+    #Plants are treated separately because its a list of items which must be assigned as agents
     if (game_config["plants"]):
         for plant in game_config["plants"]:
             full_game_config["agents"][plant["species"]] = [
                 {"connections": {"air_storage": [1], "water_storage": [
                     1, 2], "nutrient_storage":  [1], "power_storage": [], "food_storage": [1]},
                  "amount":      plant["amount"]}]
-            full_game_config["agents"][plant["species"]
-            ][0]["connections"]["food_storage"] = food_connections
-            full_game_config["agents"][plant["species"]
-            ][0]["connections"]["power_storage"] = power_connections
-    if (game_config["habitat"]):
-        full_game_config["agents"][game_config["habitat"]] = [
-            {"connections": {"power_storage": [1]}, "amount": 1}]
-        full_game_config["agents"][game_config["habitat"]
-        ][0]["connections"]["power_storage"] = power_connections
-    if (game_config["greenhouse"]):
-        full_game_config["agents"][game_config["greenhouse"]] = [
-            {"connections": {"power_storage": [1]}, "amount": 1}]
-        full_game_config["agents"][game_config["greenhouse"]
-        ][0]["connections"]["power_storage"] = power_connections
-    if (game_config["solar_arrays"]):
-        full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {
-            "power_storage": [1]}, "amount":                                 game_config[
-                                                                                 "solar_arrays"][
-                                                                                 "amount"]}]
-        full_game_config["agents"]["solar_pv_array_mars"][0]["connections"][
-            "power_storage"] = power_connections
-    if ('single_agent' in game_config and game_config["single_agent"] == 1):
-        full_game_config["single_agent"] = 1
-    else:
-        full_game_config["single_agent"] = 0
+
+
+    #Here, power connections and food connections are assigned to all agents with power_storage or food_storage specified. 
+    for x, y in full_game_config["agents"].items():
+        if "power_storage" in y[0]["connections"]:
+            y[0]["connections"]["power_storage"] = power_connections
+        if "food_storage" in y[0]["connections"]:
+            y[0]["connections"]["food_storage"] = food_connections
+
     return (full_game_config)
