@@ -143,7 +143,7 @@ def convert_configuration(game_config):
             full_game_config[labeldc] = game_config[labeldc]
 
     #Assign termination values
-    if (game_config["duration"]):
+    if "duration" in game_config:
         duration = {
             "condition": "time",
             "value":     game_config["duration"]["value"],
@@ -178,7 +178,7 @@ def convert_configuration(game_config):
 
     #Here, agents from agents_to_assign_power_storage are assigned with only a power_storage connection.
     for labelps in agents_to_assign_power_storage:
-        if (game_config[labelps]):
+        if labelps in game_config:
             amount = 1 if not "amount" in game_config[labelps] else game_config[labelps]["amount"]
             full_game_config["agents"][game_config[labelps]] = [
                 {"connections": {"power_storage": [1]}, "amount": amount}]
@@ -189,7 +189,7 @@ def convert_configuration(game_config):
             y[0]["amount"] = game_config[x]["amount"]
 
     #Plants are treated separately because its a list of items which must be assigned as agents
-    if (game_config["plants"]):
+    if "plants" in game_config:
         for plant in game_config["plants"]:
             full_game_config["agents"][plant["species"]] = [
                 {"connections": {"air_storage": [1], "water_storage": [
