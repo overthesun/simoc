@@ -48,12 +48,13 @@ def get_property():
             total_eclss += float(agent.AgentTypeAttribute.value)
         value = total_eclss 
     else:
-        if agent_name == "solar_pv_array_mars":
-            attribute_name = "out_enrg_kwh"
-            value_type = "energy_output"
-        elif agent_name == "power_storage":
-            attribute_name = "char_capacity_enrg_kwh"
-            value_type = "energy_capacity"
+        if property_name == "energy":
+            if agent_name == "solar_pv_array_mars":
+                attribute_name = "out_enrg_kwh"
+                value_type = "energy_output"
+            elif agent_name == "power_storage":
+                attribute_name = "char_capacity_enrg_kwh"
+                value_type = "energy_capacity"
         for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == attribute_name).all():
             #This is strange, value is not a sum, it's a single assignment, so why is this within a loop
             if agent.AgentType.name == agent_name:
