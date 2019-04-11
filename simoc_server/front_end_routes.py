@@ -11,59 +11,42 @@ from flask import request
 from simoc_server import app, db
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 
-@app.route("/get_mass", methods=["GET"])
-def get_mass():
+@app.route("/get_property", methods=["GET"])
+def get_property():
     '''
-    Sends front end mass values for config wizard.
+    Sends front end mass or energy values for config wizard.
     Takes in the request values "agent_name" and "quantity"
+
+    Current options for property_name are mass and energy
 
     Returns
     -------
     json object with total mass
     '''
+    
+    property_name = request.args.get("property_name", type=str)
 
     value = 0
     agent_name = request.args.get("agent_name", type=str)
     agent_quantity = request.args.get("quantity", type=int)
-    if not agent_quantity:
-        agent_quantity = 1
-    if agent_name == "eclss":
-        total = 0
-        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_mass").filter(AgentType.agent_class == "eclss").all():
-            total += float(agent.AgentTypeAttribute.value)
-        value = total
+
+    attribute_name = value_type = ""
+    if property_name == "energy":
+        attribute_name = "in_enrg_kwh"
+        value_type = "energy_input"
+    elif property_name == "mass":
+        attribute_name = "char_mass"
+        value_type = "mass"
     else:
-        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_mass").all():
-            if agent.AgentType.name == agent_name:
-                value = float(agent.AgentTypeAttribute.value)
-    value = value * agent_quantity
-    total = { "mass" : value}
-    return json.dumps(total)
-
-@app.route("/get_energy", methods=["GET"])
-def get_energy():
-    '''
-    Sends front end energy values for config wizard.
-    Takes in the request values "agent_name" and "quantity"
-
-    Returns
-    -------
-    json object with energy value for agent
-    '''
-
-    agent_name= request.args.get("agent_name", type=str)
-    agent_quantity = request.args.get("quantity", type=int)
-    attribute_name = "in_enrg_kwh"
-    value_type = "energy_input"
+        sys.exit("ERROR: invalid property name in front_end_routes.get_property():"+property_name)
     total = {}
     if not agent_quantity:
         agent_quantity = 1
     if agent_name == "eclss":
         total_eclss = 0
-        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "in_enrg_kwh").filter(AgentType.agent_class == "eclss").all():
+        for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == attribute_name).filter(AgentType.agent_class == "eclss").all():
             total_eclss += float(agent.AgentTypeAttribute.value)
-        value = total_eclss * agent_quantity
-        total = {value_type : value}
+        value = total_eclss 
     else:
         if agent_name == "solar_pv_array_mars":
             attribute_name = "out_enrg_kwh"
@@ -72,11 +55,14 @@ def get_energy():
             attribute_name = "char_capacity_enrg_kwh"
             value_type = "energy_capacity"
         for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == attribute_name).all():
+            #This is strange, value is not a sum, it's a single assignment, so why is this within a loop
             if agent.AgentType.name == agent_name:
-                value = float(agent.AgentTypeAttribute.value) * agent_quantity
-                total = { value_type : value}
-    return json.dumps(total)
+                value = float(agent.AgentTypeAttribute.value)
 
+    value = value * agent_quantity
+    total = { value_type : value}
+
+    return json.dumps(total)
 
 def convert_configuration(game_config):
     """This method converts the json configuration from a post into
