@@ -20,14 +20,14 @@ class AgentType(gp.ObjectType):
     name = gp.String()
     agent_class = gp.String(name="agent_class")
 
-class AgentTypeAttribute(DescriptiveAttribute):
-    id = gp.Int()
+#class AgentTypeAttribute(DescriptiveAttribute):
+#    id = gp.Int()
     #FIXME: to be convertred to graphene
-    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), index=True,
-                              nullable=False)
-    agent_type = db.relationship("AgentType",
-                                 backref=db.backref("agent_type_attributes", lazy=False,
-                                                    cascade="all, delete-orphan"))
+#    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), index=True,
+#                              nullable=False)
+#    agent_type = db.relationship("AgentType",
+#                                 backref=db.backref("agent_type_attributes", lazy=False,
+#                                                    cascade="all, delete-orphan"))
 
 class Query(gp.ObjectType):
     
@@ -40,7 +40,7 @@ schema = gp.Schema(query=Query)
 
 #/get_agent_types?agent_class=plants&agent_name=none                                                                   
 #def get_agent_types_by_class():
-def get_agent_types():
+def get_agent_types_by_class():
     args, results = {}, []
     agent_class = request.args.get("agent_class", type=str)
     agent_name = request.args.get("agent_name", type=str)
@@ -51,6 +51,9 @@ def get_agent_types():
     
     #Step 1: want to use graphene to get agent, TBD: filter by class and naem
     result = schema.execute(query)
+    #FIXME: hardcoded example of returned format
+    return '[{"agent_class": "plants", "name": "cabbage", "char": [{"name": "category", "value": "food_leaf", "units": ""}, {"name": "growth_period", "value": "85", "units": "day"}, {"name": "lifetime", "value": "100.0", "units": "days"}, {"name": "reproduce", "value": "True", "units": ""}, {"name": "mass_total", "value": "0.57205", "units": "kg"}, {"name": "mass_edible", "value": "0.5151", "units": "kg"}, {"name": "mass_per_hour", "value": "0.0002804166667", "units": "kg"}], "out": ["food_edbl", "atmo_o2"], "in": ["atmo_co2", "h2o_potb", "sold_n", "sold_p", "sold_k", "enrg_kwh"]}]'
+
     #if I understand correctly, this will return all agent objects. 
 
     #step2: get attributes for all returned agents, check if I can avoid loops and have graphene return
@@ -68,5 +71,5 @@ def get_agent_types():
 ##%                    {"name": currency, "value": attr.value, "units": attr.details})
 ##%        results.append(entry)
     #FIXME: here is an example of the output which should be produced, for reference.
-    results = 
-    return json.dumps(results)
+#    results = 
+#    return json.dumps(results)
