@@ -234,6 +234,7 @@ def get_step_logs():
         step_num, filters=filters, columns=columns, dtype='list')
     return json.dumps(logs)
 
+
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
     args, results = {}, []

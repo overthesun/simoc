@@ -1,4 +1,4 @@
-import datetime
+import datetime,json
 
 from flask_login import UserMixin
 from sqlalchemy.ext.declarative import declared_attr
@@ -6,6 +6,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from simoc_server import db
 
+import graphene
+from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
+from flask_graphql import GraphQLView
+from simoc_server import app
 
 class BaseEntity(db.Model):
     __abstract__ = True  # Prevent sql alchemy from creating a table for BaseEntity
@@ -80,6 +84,81 @@ class AgentType(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False, unique=True)
     agent_class = db.Column(db.String(80), nullable=False, unique=False)
+
+#graphene definitions
+class AgentTypeObject(SQLAlchemyObjectType):
+    class Meta:
+        model =AgentType
+#        filter_fields = ["name","agent_class","id"]
+        interfaces = (graphene.relay.Node,)
+
+class Query(graphene.ObjectType):
+    node = graphene.relay.Node.Field()
+    agent_type = graphene.relay.Node.Field(AgentTypeObject)
+#    agent_type = graphene.Field(AgentTypeObject,filters=graphene.Argument(graphene.Filters,default_value={}))
+#    agent_class=graphene.String()
+    all_agent_types = SQLAlchemyConnectionField(AgentTypeObject)
+    energy = graphene.String(agentName=graphene.String())
+#    energy = graphene.String(agent_name = graphene.String())
+
+#    def resolve_agent_type(self,args,context,info):
+#        print ("CONTEXT",context)
+#        query = AgentTypeObject.get_query(context)
+#        return query.get(args.get("agentClass"))
+
+    def resolve_energy(self,info,**args):
+        '''
+        Sends front end energy values for config wizard.
+        Takes in the request values "agent_name" and "quantity"
+        
+        Returns
+        -------
+        json object with energy value for agent
+        '''
+#        print ("HERE1")
+        agent_name= args.get("agentName")
+        agent_quantity = None
+        
+        attribute_name = "in_enrg_kwh"
+        value_type = "energy_input"
+        total = {}
+        if not agent_quantity:
+            agent_quantity = 1
+        if agent_name == "eclss":
+            total_eclss = 0
+            for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "in_enrg_kwh").filter(AgentType.agent_class == "eclss").all():
+                total_eclss += float(agent.AgentTypeAttribute.value)
+            value = total_eclss * agent_quantity
+            total = {value_type : value}
+        else:
+            if agent_name == "solar_pv_array_mars":
+                attribute_name = "out_enrg_kwh"
+                value_type = "energy_output"
+            elif agent_name == "power_storage":
+                attribute_name = "char_capacity_enrg_kwh"
+                value_type = "energy_capacity"
+            for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == attribute_name).all():
+                if agent.AgentType.name == agent_name:
+                    value = float(agent.AgentTypeAttribute.value) * agent_quantity
+                    total = { value_type : value}
+        return json.dumps(total)
+        
+
+
+    #may be able to take json as input. so can specify quantity with get_energy. 
+#    some_func = Field(SomeObjectType, args={'value': graphene.List(graphene.String)})
+
+schema = graphene.Schema(query=Query)
+
+#route to check out graphene interface
+app.add_url_rule(
+    '/graphql',
+    view_func=GraphQLView.as_view(
+        'graphql',
+        schema=schema,
+        graphiql=True # for having the GraphiQL interface
+    )
+)
 
 
 class AgentTypeAttribute(DescriptiveAttribute):
