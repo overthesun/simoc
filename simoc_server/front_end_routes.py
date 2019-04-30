@@ -11,24 +11,59 @@ from flask import request
 from simoc_server import app, db
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 
-@app.route("/get_property", methods=["GET"])
-def get_property():
+@app.route("/get_mass_energy", methods=["GET"])
+def get_mass_energy():
     '''
-    Sends front end mass or energy values for config wizard.
+    Returns the mass and energy for specified agents. 
+
+    Input format example: 
+    {
+    crew_habitat_small:{quantity:1} ,
+    greenhouse_medium:{quantity:2}
+    }
+
+    Output example:
+    {
+     crew_habitat_small:{power_input:2.5,mass:1000},
+     greenhouse_medium:{power_input:6,mass:2800}
+     }
+    '''
+    
+    agent_names = request.get_json()
+    
+    #tmp example
+#    agent_names =     {   "crew_habitat_small":{"quantity":1} ,    "greenhouse_medium":{"quantity":2}    }
+    response = {}
+    for agent_name, q in agent_names.items():
+        mass_id,mass_val = get_property(agent_name,q["quantity"],"mass")
+        energy_id,energy_val = get_property(agent_name,q["quantity"],"energy")
+        response[agent_name] = {energy_id:energy_val,mass_id:mass_val}
+
+    return response
+
+    
+#works for property name mass or energy
+#@app.route("/get_property", methods=["GET"])
+def get_property(agent_name,agent_quantity=1,property_name=""):
+    '''
     Takes in the request values "agent_name" and "quantity"
+
+    Returns the mass or energy
 
     Current options for property_name are mass and energy
 
     Returns
     -------
-    json object with total mass
+    value_type,value e.g. energy_input:5
     '''
     
-    property_name = request.args.get("property_name", type=str)
+    if not property_name in ["mass","energy"]:
+        sys.exit("ERROR: get property only works for mass and energy, not ",property_name)
+#    property_name = request.args.get("property_name", type=str)
 
     value = 0
-    agent_name = request.args.get("agent_name", type=str)
-    agent_quantity = request.args.get("quantity", type=int)
+#    agent_name = request.args.get("agent_name", type=str)
+#    agent_quantity = request.args.get("quantity", type=int)
 
     attribute_name = value_type = ""
     if property_name == "energy":
@@ -61,9 +96,10 @@ def get_property():
                 value = float(agent.AgentTypeAttribute.value)
 
     value = value * agent_quantity
-    total = { value_type : value}
+#    total = { value_type : value}
 
-    return json.dumps(total)
+    #json.dumps(total)
+    return value_type,value
 
 def convert_configuration(game_config):
     """This method converts the json configuration from a post into
