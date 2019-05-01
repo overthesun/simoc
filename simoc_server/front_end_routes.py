@@ -13,10 +13,11 @@ from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 
 @app.route("/get_mass_energy", methods=["GET"])
 def get_mass_energy():
+
     '''
     Returns the mass and energy for specified agents. 
 
-    Input format example: 
+    Input format JSON of agent names and quantities, example: 
     {
     crew_habitat_small:{quantity:1} ,
     greenhouse_medium:{quantity:2}
@@ -24,26 +25,22 @@ def get_mass_energy():
 
     Output example:
     {
-     crew_habitat_small:{power_input:2.5,mass:1000},
-     greenhouse_medium:{power_input:6,mass:2800}
+     crew_habitat_small:{energy_input:2.5,mass:1000},
+     greenhouse_medium:{energy_input:6,mass:2800}
      }
     '''
-    
     agent_names = request.get_json()
-    
-    #tmp example
-#    agent_names =     {   "crew_habitat_small":{"quantity":1} ,    "greenhouse_medium":{"quantity":2}    }
+
+    properties = ["energy","mass"]
     response = {}
     for agent_name, q in agent_names.items():
-        mass_id,mass_val = get_property(agent_name,q["quantity"],"mass")
-        energy_id,energy_val = get_property(agent_name,q["quantity"],"energy")
-        response[agent_name] = {energy_id:energy_val,mass_id:mass_val}
+        response[agent_name] = {}
+        for property in properties:
+            prop_id,prop_val = get_property(agent_name,q["quantity"],property)
+            response[agent_name][prop_id] = prop_val
 
-    return response
+    return json.dumps(response)
 
-    
-#works for property name mass or energy
-#@app.route("/get_property", methods=["GET"])
 def get_property(agent_name,agent_quantity=1,property_name=""):
     '''
     Takes in the request values "agent_name" and "quantity"
@@ -52,19 +49,14 @@ def get_property(agent_name,agent_quantity=1,property_name=""):
 
     Current options for property_name are mass and energy
 
+    This is not called from the front end. This is called from get_mass_energy, which is called from the front end. 
+
     Returns
     -------
-    value_type,value e.g. energy_input:5
+    value_type,value e.g. energy_input,5
     '''
     
-    if not property_name in ["mass","energy"]:
-        sys.exit("ERROR: get property only works for mass and energy, not ",property_name)
-#    property_name = request.args.get("property_name", type=str)
-
     value = 0
-#    agent_name = request.args.get("agent_name", type=str)
-#    agent_quantity = request.args.get("quantity", type=int)
-
     attribute_name = value_type = ""
     if property_name == "energy":
         attribute_name = "in_enrg_kwh"
@@ -96,9 +88,7 @@ def get_property(agent_name,agent_quantity=1,property_name=""):
                 value = float(agent.AgentTypeAttribute.value)
 
     value = value * agent_quantity
-#    total = { value_type : value}
 
-    #json.dumps(total)
     return value_type,value
 
 def convert_configuration(game_config):
