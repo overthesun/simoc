@@ -236,6 +236,20 @@ def get_step_logs():
 
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
+    '''
+    NOTE: OBSOLETE. You should use get_agent_info instead of this. 
+    Example input format for get_agent_info to reproduce this functionality:
+    { 
+        "agent_filters":{"agent_class":"storage"},
+        "attr_filters":{"name":"char_capacity_atmo_o2"},
+        "agent_output":["name","agent_class"],
+        "attr_output":["name","value","units"]
+    }
+
+    The above does not produce identical output to here. The "in" and "out" attribute lists 
+    will have the same format as the "char" attribute list.
+    '''
+
     args, results = {}, []
     agent_class = request.args.get("agent_class", type=str)
     agent_name = request.args.get("agent_name", type=str)
@@ -257,27 +271,18 @@ def get_agent_types_by_class():
         results.append(entry)
     return json.dumps(results)
 
-# @app.route("/get_agents_by_category", methods=["GET"])
-# def get_agents_by_category():
-#     '''
-#     Gets the names of agents with the specified category characteristic.
-#
-#     Returns
-#     -------
-#     array of strings.
-#     '''
-
-#     """THOMAS: Should probably hand functionality off to a separate object, to maintain separation of concerns."""
-
-#     results = []
-#     agent_category = request.args.get("category", type=str)
-#     for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentTypeAttribute.name == "char_category").filter(AgentTypeAttribute.value == agent_category).filter(AgentType.id == AgentTypeAttribute.agent_type_id).all():
-#         results.append(agent.AgentType.name)
-#     return json.dumps(results)
-
 @app.route("/get_agents_by_category", methods=["GET"])
 def get_agents_by_category():
     '''
+    **
+    NOTE: OBSOLETE. You should use get_agent_info instead of this. 
+    Example input format for get_agent_info to reproduce this functionality:
+    { 
+        "attr_filters":{"name":"char_category","value":"food_cers"},
+        "agent_output":["name"]
+    }
+    **
+    
     Gets the names of agents with the specified category characteristic.
 
     Returns
@@ -293,6 +298,119 @@ def get_agents_by_category():
         AgentType.id == AgentTypeAttribute.agent_type_id).all():
         results.append(agent.AgentType.name)
     return json.dumps(results)
+
+@app.route("/get_agent_info", methods=["GET"])
+def get_agent_info():
+    ''' 
+    Returns AgentType and AgentTypeAttribute information from database
+
+    The filters to be applied, and the output wanted, is defined by the front end. NOTE: attribute name filters must include the char/in/out prefix
+
+    Input format JSON of filters and outputs
+
+    Example 1, get names of agents in a specific category:
+    { 
+        "attr_filters":{"name":"char_category","value":"food_cers"},
+        "agent_output":["name"]
+    }
+    Output example 1:
+    [
+        {"name":"wheat"}
+        {"name":"rice"}
+    ]
+
+    Example 2, Get agents and attributes based on agent class
+    { 
+        "agent_filters":{"agent_class":"storage"},
+        "attr_filters":{"name":"char_capacity_atmo_o2"},
+        "agent_output":["name","agent_class"],
+        "attr_output":["name","value","units"]
+    }
+    Output example 2:
+    [
+        {'name': 'air_storage', 'agent_class': 'storage', 'char': [{'name': 'capacity_atmo_o2', 'value': '10000', 'units': 'kg'}]}
+    ]
+
+    Example 3, Get agents and attributes based on agent class. Return all available output information
+    { 
+        "agent_filters":{"agent_class":"storage"},
+        "attr_filters":{"name":"char_capacity_atmo_o2"},
+        "return_all_output":1
+    }
+
+    Output example 3:
+    [
+        {'name': 'air_storage', 'agent_class': 'storage', 'id': 44, 'char': [{'name': 'capacity_atmo_o2', 'value': '10000', 'units': 'kg', 'value_type': 'int', 'description': None, 'growth': 0, 'id': 585}]}
+    ]
+
+    
+    You can filter on agent and attr at the same time. If the filters ={} or are not defined, no filter is applied.
+    If the agent_output and attr_output are not defined, or empty, the output is an empty array regardless of how many agents passed the filter
+
+    '''
+
+    args = request.get_json()
+
+    agent_filters = args["agent_filters"] if "agent_filters" in args else {}
+    attr_filters = args["attr_filters"] if "attr_filters" in args else {}
+    agent_output = args["agent_output"] if "agent_output" in args else []
+    attr_output = args["attr_output"] if "attr_output" in args else []
+    return_all_output = args["return_all_output"] if "return_all_output" in args else 0
+
+    #results are saved in dictionary as {agent_name: } to simplify avoiding duplication of agents in output list when multiple agent,attr filters found. 
+    #For the output, this is converted to a list of dictionaries [{name: agent_name}] (if "name" specified in agent_output)
+    results = {}
+    #The attr name is split into e.g. char_category -> prefix=char name = category. Need to keep track of the prefixes found to remember to pass them to output
+    prefixes_found = []
+
+    #Filter agent and attributes, and loop over results
+    #All agent information is saved in results, a subset of information to be send to front end is chosen later and output as a list
+    #the attribute information is already reduced to only the requested info here for simplicity
+    for agent,attr in db.session.query(AgentType,AgentTypeAttribute).filter_by(**agent_filters).join(AgentType.agent_type_attributes).filter_by(**attr_filters).all():
+        #probably don't want "char" filter below, can filter on output instead. 
+        if not agent.name in results:
+            results[agent.name] = {"name":agent.name,"agent_class":agent.agent_class,"id":agent.id}
+        
+        if (not attr_output == {}) or return_all_output:
+            prefix, currency = attr.name.split('_', 1)
+            attr_info = {"name": currency, "value": attr.value, "units": attr.details,"value_type":attr.value_type,"description":attr.description,"growth":attr.growth,"id":attr.id}
+            attr_info_subset = {}
+            if return_all_output:
+                attr_info_subset = attr_info
+            else:
+                for label in attr_output:
+                    if not label in attr_info:
+                        print ("ERROR: there is no ",label," available for AgentTypeAttributed. If it's a new option you need to add it to attr_info in get_agent_info in views.py")
+                    else:
+                        attr_info_subset[label] = attr_info[label]
+            if len(attr_info_subset) == 0:
+                continue
+            elif not prefix in prefixes_found:
+                prefixes_found.append(prefix)
+            if not prefix in results[agent.name]:
+                results[agent.name][prefix] = [attr_info_subset]
+            else:
+                results[agent.name][prefix].append(attr_info_subset)
+        
+
+    output = []
+    #Select subset of results to be returned to the front end, based on front end specifications in agent_output and attr_output
+    for agent_name,rdict in results.items():
+        entry={} 
+        if return_all_output:
+            entry=rdict
+        else:
+            for label in agent_output:
+                if not label in rdict:
+                    print ("ERROR: there is no ",label," available for AgentType. If it's a new option you need to add it to the results dictionary in get_agent_info in views.py")
+                else:
+                    entry[label] = rdict[label]
+            for prefix in prefixes_found:
+                entry[prefix] = rdict[prefix]
+        
+        output.append(entry)
+
+    return json.dumps(output)
 
 
 @app.route("/save_game", methods=["POST"])
