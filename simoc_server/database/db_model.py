@@ -123,35 +123,6 @@ class AgentStateAttribute(BaseAttribute):
                                                      cascade="all, delete-orphan"))
 
 
-class StepRecord(BaseEntity):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    user = db.relationship("User")
-    step_num = db.Column(db.Integer, nullable=False)
-    agent_type = db.Column(db.String(120), nullable=False)
-    agent_id = db.Column(db.Integer, nullable=False)
-    direction = db.Column(db.String(120), nullable=False)
-    currency = db.Column(db.String(120), nullable=False)
-    value = db.Column(db.Float, nullable=False)
-    unit = db.Column(db.String(120), nullable=False)
-    storage_type = db.Column(db.String(120), nullable=False)
-    storage_id = db.Column(db.Integer, nullable=False)
-
-
-class ModelRecord(BaseEntity):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    user = db.relationship("User")
-    step = db.Column(db.Integer, nullable=False)
-    hours_per_step = db.Column(db.Float, nullable=False)
-    is_terminated = db.Column(db.String(10), nullable=False)
-    time = db.Column(db.Float, nullable=False)
-    agents = db.Column(db.String(3000), nullable=False)
-    storages = db.Column(db.String(3000), nullable=False)
-    model_stats = db.Column(db.String(3000), nullable=False)
-    termination_reason = db.Column(db.String(100), nullable=True)
-
-
 class AgentModelState(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     step_num = db.Column(db.Integer, nullable=False)
@@ -165,6 +136,8 @@ class AgentModelState(BaseEntity):
     location = db.Column(db.String(300), nullable=False)
     minutes_per_step = db.Column(db.Integer, nullable=False)
     config = db.Column(db.String(300), nullable=False)
+    logging = db.Column(db.String(300), nullable=False)
+    logs = db.Column(db.String(1000), nullable=False)
 
 
 class AgentModelSnapshot(BaseEntity):
