@@ -202,6 +202,14 @@ def get_step():
         get_standard_user_obj(), step_num)
     return json.dumps(agent_model_state)
 
+
+@app.route("/get_step_to", methods=["GET"])
+@login_required
+def get_step_to():
+    step_num = request.args.get("step_num", type=int)
+    game_runner_manager.get_step_to(get_standard_user_obj(), step_num)
+
+
 @app.route("/get_batch_steps", methods=["GET"])
 @login_required
 def get_batch_steps():
@@ -211,28 +219,6 @@ def get_batch_steps():
         batch.append(state)
     return json.dumps(batch)
 
-@app.route("/get_logs", methods=["GET"])
-@login_required
-def get_logs():
-    filters = request.args.get("filters", [])
-    columns = request.args.get("columns", [])
-    agent_model = game_runner_manager.get_game_runner(
-        get_standard_user_obj()).agent_model
-    logs = agent_model.get_logs(filters=filters, columns=columns, dtype='list')
-    return json.dumps(logs)
-
-
-@app.route("/get_step_logs", methods=["GET"])
-@login_required
-def get_step_logs():
-    step_num = request.args.get("step_num", None)
-    filters = request.args.get("filters", [])
-    columns = request.args.get("columns", [])
-    agent_model = game_runner_manager.get_game_runner(
-        get_standard_user_obj()).agent_model
-    logs = agent_model.get_step_logs(
-        step_num, filters=filters, columns=columns, dtype='list')
-    return json.dumps(logs)
 
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():

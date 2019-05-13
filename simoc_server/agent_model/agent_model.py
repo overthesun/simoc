@@ -95,12 +95,14 @@ class AgentModel(Model, AttributeHolder):
         """
         super(Model, self).__init__()
         self.load_params()
+        self.user_id = None
         self.grid_width = init_params.grid_width
         self.grid_height = init_params.grid_height
         self.snapshot_branch = init_params.snapshot_branch
         self.seed = init_params.seed
         self.random_state = init_params.random_state
         self.termination = init_params.termination
+        self.termination_reason = None
         self.logging = init_params.logging
         self.single_agent = init_params.single_agent
         self.logs = init_params.logs
@@ -174,7 +176,7 @@ class AgentModel(Model, AttributeHolder):
         return self.get_logs(filters=filters + [('step_num', [step_num])], columns=columns,
                              dtype=dtype)
 
-    def get_model_stats(self):
+    def get_model_step_data(self):
         """TODO
 
         Collects the information for this step into a dictionary.
@@ -186,17 +188,13 @@ class AgentModel(Model, AttributeHolder):
           A dictionary with the step information
         """
         response = {"step": self.step_num,
+                    "user_id": self.user_id,
                     "hours_per_step": timedelta_to_hours(self.timedelta_per_step()),
-                    "is_terminated": self.is_terminated,
+                    "is_terminated": str(self.is_terminated),
                     "time": self["time"].total_seconds(),
-                    "agents": self.get_total_agents(),
-                    "storages": self.get_total_storages(),
-                    "model_stats": self.model_stats}
-        if self.logging is not None:
-            columns = self.logging.get('columns', [])
-            filters = self.logging.get('filters', [])
-            response["step_logs"] = self.get_step_logs(
-                step_num=self.step_num - 1, columns=columns, filters=filters)
+                    "agents": json.dumps(self.get_total_agents()),
+                    "storages": json.dumps(self.get_total_storages()),
+                    "model_stats": json.dumps(self.model_stats)}
         if self.is_terminated:
             response.termination_reason = self.termination_reason
         return response
@@ -209,8 +207,6 @@ class AgentModel(Model, AttributeHolder):
         Returns:
           TODO
         """
-        timedelta_per_step = self.timedelta_per_step()
-        hours_per_step = timedelta_to_hours(timedelta_per_step)
         total_production, total_consumption, total_agent_types = {}, {}, {}
         for agent in self.get_agents_by_class(agent_class=GeneralAgent):
             agent_type = agent.agent_type
@@ -257,10 +253,8 @@ class AgentModel(Model, AttributeHolder):
         Returns:
           A dictionary of the storages information for this step
         """
-#        storages = {}
         storages = []
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
-#            storages[storage.agent_type] = {"agent_id": storage.id, "currencies": {}}
             entity = {"agent_type": storage.agent_type, "agent_id": storage.id, "currencies": []}
             for attr in storage.agent_type_attributes:
                 if attr.startswith('char_capacity'):
@@ -270,8 +264,6 @@ class AgentModel(Model, AttributeHolder):
                     storage_unit = storage.agent_type_descriptions[attr]
                     entity["currencies"].append({"name": currency, "value": value,
                                                  "capacity": capacity, "units": storage_unit})
-#                    storages[storage.agent_type]["currencies"][currency] = {"value": value,
-#                                                 "capacity": capacity, "units": storage_unit}
             storages.append(entity)
         return storages
 
@@ -441,9 +433,7 @@ class AgentModel(Model, AttributeHolder):
                                                 termination=json.dumps(self.termination),
                                                 priorities=json.dumps(self.priorities),
                                                 location=self.location,
-                                                config=json.dumps(self.config),
-                                                logs=json.dumps(self.logs[-5:]),
-                                                logging=json.dumps(self.logging))
+                                                config=json.dumps(self.config))
             snapshot = AgentModelSnapshot(agent_model_state=agent_model_state,
                                           snapshot_branch=self.snapshot_branch)
             db.session.add(agent_model_state)

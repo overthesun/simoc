@@ -11,7 +11,7 @@ from mesa import Agent
 
 from simoc_server import db
 from simoc_server.agent_model.attribute_meta import AttributeHolder
-from simoc_server.database.db_model import AgentType, AgentState
+from simoc_server.database.db_model import AgentType, AgentState, StepRecord
 from simoc_server.util import load_db_attributes_into_dict
 from simoc_server.util import timedelta_to_hours
 from simoc_server.agent_model.agents import growth_func
@@ -433,7 +433,6 @@ class GeneralAgent(EnclosedAgent):
         Exception: TODO
         """
         super().step()
-        on = False
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
         for attr in self.agent_type_attributes:
@@ -450,10 +449,12 @@ class GeneralAgent(EnclosedAgent):
                                 currency + '_ratio'] < threshold_value:
                                 self.kill('Threshold {} met for {}. Killing the agent'.format(
                                     currency, self.agent_type))
+                                return
                             if type == 'upper' and self.model.model_stats[agent_id][
                                 currency + '_ratio'] > threshold_value:
                                 self.kill('Threshold {} met for {}. Killing the agent'.format(
                                     currency, self.agent_type))
+                                return
         influx = []
         for prefix in ['in', 'out']:
             for currency in self.selected_storage[prefix]:
@@ -474,56 +475,60 @@ class GeneralAgent(EnclosedAgent):
                             continue
                 deprive_value = int(deprive_value) if deprive_value != '' else 0
                 step_value = self.get_step_value(attr) / num_of_storages
-                for storage in self.selected_storage[prefix][currency]:
-                    storage_cap = storage['char_capacity_' + currency]
-                    storage_unit = storage.agent_type_descriptions['char_capacity_' + currency]
-                    storage_value = pq.Quantity(storage[currency], storage_unit)
-                    step_value.units = storage_unit
-                    if prefix == 'out':
-                        new_storage_value = storage_value + step_value
-                    elif prefix == 'in':
-                        new_storage_value = storage_value - step_value
-                    else:
-                        raise Exception('Unknown flow type. Neither Input nor Output.')
-                    new_storage_value = new_storage_value.magnitude.tolist()
-                    if new_storage_value < 0 <= storage_value:
-                        if deprive_value > 0:
-                            if deprive_unit == 'min':
-                                delta_per_step = hours_per_step * 60
-                            elif deprive_unit == 'hour':
-                                delta_per_step = hours_per_step
-                            elif deprive_unit == 'day':
-                                delta_per_step = hours_per_step / int(self.model.day_length_hours)
+                if step_value > 0:
+                    for storage in self.selected_storage[prefix][currency]:
+                        storage_cap = storage['char_capacity_' + currency]
+                        storage_unit = storage.agent_type_descriptions['char_capacity_' + currency]
+                        storage_value = pq.Quantity(storage[currency], storage_unit)
+                        step_value.units = storage_unit
+                        if prefix == 'out':
+                            new_storage_value = storage_value + step_value
+                        elif prefix == 'in':
+                            new_storage_value = storage_value - step_value
+                        else:
+                            raise Exception('Unknown flow type. Neither Input nor Output.')
+                        new_storage_value = new_storage_value.magnitude.tolist()
+                        if new_storage_value < 0 <= storage_value:
+                            if deprive_value > 0:
+                                if deprive_unit == 'min':
+                                    delta_per_step = hours_per_step * 60
+                                elif deprive_unit == 'hour':
+                                    delta_per_step = hours_per_step
+                                elif deprive_unit == 'day':
+                                    delta_per_step = hours_per_step / int(self.model.day_length_hours)
+                                else:
+                                    raise Exception('Unknown agent deprive_unit value.')
+                                self.deprive[currency] -= delta_per_step
+                                if self.deprive[currency] < 0:
+                                    self.kill('There is no enough {} for {}. Killing the agent'.format(
+                                        currency, self.agent_type))
+                            if is_required == 'True':
+                                return
                             else:
-                                raise Exception('Unknown agent deprive_unit value.')
-                            self.deprive[currency] -= delta_per_step
-                            if self.deprive[currency] < 0:
-                                self.kill('There is no enough {} for {}. Killing the agent'.format(
-                                    currency, self.agent_type))
-                        if is_required == 'True':
-                            return
+                                log = True
+                                storage[currency] = 0
                         else:
                             log = True
-                            storage[currency] = 0
-                    else:
-                        log = True
-                        storage[currency] = min(new_storage_value, storage_cap)
-                        if prefix == 'in':
-                            influx.append(currency)
-                        if deprive_value > 0:
-                            self.deprive[currency] = deprive_value
-                    if self.model.logging is not None and log:
-                        for i in range(self.amount):
-                            record = {"step_num": self.model.step_num,
-                                      "agent_type": self.agent_type,
-                                      "agent_id": self.unique_id,
-                                      "direction": prefix,
-                                      "currency": currency,
-                                      "value": step_value.magnitude.tolist() / self.amount,
-                                      "unit": str(step_value.units),
-                                      "storage_type": storage.agent_type,
-                                      "storage_id": storage.id}
-                            self.model.logs.append(record)
+                            storage[currency] = min(new_storage_value, storage_cap)
+                            if prefix == 'in':
+                                influx.append(currency)
+                            if deprive_value > 0:
+                                self.deprive[currency] = deprive_value
+                        if log:
+                            for i in range(self.amount):
+                                record = {"step_num": self.model.step_num,
+                                          "user_id": self.model.user_id,
+                                          "agent_type": self.agent_type,
+                                          "agent_id": self.unique_id,
+                                          "direction": prefix,
+                                          "currency": currency,
+                                          "value": step_value.magnitude.tolist() / self.amount,
+                                          "unit": str(step_value.units),
+                                          "storage_type": storage.agent_type,
+                                          "storage_id": storage.id}
+                                step_record = StepRecord(**record)
+                                db.session.add(step_record)
+        db.session.commit()
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model

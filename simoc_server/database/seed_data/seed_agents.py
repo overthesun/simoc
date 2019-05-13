@@ -215,7 +215,7 @@ def calculate_growth_coef():
                 details['lifetime_growth_scale'] = str(res['scale'])
                 attr.value = str(res['max_value'])
                 update = True
-            elif details['lifetime_growth_type']  in ['sig', 'sigmoid'] \
+            elif details['lifetime_growth_type'] in ['sig', 'sigmoid'] \
                     and details['lifetime_growth_steepness'] == '':
                 mean_value = float(attr.value)
                 day_length_minutes = location_to_day_length_minutes(location)
