@@ -243,7 +243,7 @@ class AgentModel(Model, AttributeHolder):
                 "total_agent_types": total_agent_types}
 
     def get_total_storages(self):
-        """TODO
+        """
 
         Formats the agent storages and currencies for easier access to the step information later.
 
@@ -253,18 +253,17 @@ class AgentModel(Model, AttributeHolder):
         Returns:
           A dictionary of the storages information for this step
         """
-        storages = []
+        storages = {}
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
-            entity = {"agent_type": storage.agent_type, "agent_id": storage.id, "currencies": []}
+            storages[storage.agent_type] = {"agent_id": storage.id, "currencies": {}}
             for attr in storage.agent_type_attributes:
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
                     value = "{:.4f}".format(storage[currency])
                     capacity = storage.agent_type_attributes[attr]
                     storage_unit = storage.agent_type_descriptions[attr]
-                    entity["currencies"].append({"name": currency, "value": value,
-                                                 "capacity": capacity, "units": storage_unit})
-            storages.append(entity)
+                    storages[storage.agent_type]["currencies"][currency] = {"value": value,
+                                                 "capacity": capacity, "units": storage_unit}
         return storages
 
     @property
