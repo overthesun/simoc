@@ -1,0 +1,9 @@
+include MANIFEST.in
+include LICENSE
+include HISTORY.rst
+include README.rst
+include setup.py
+include mesa/visualization/templates/*.html
+include mesa/visualization/templates/css/*
+include mesa/visualization/templates/fonts/*
+include mesa/visualization/templates/js/*
