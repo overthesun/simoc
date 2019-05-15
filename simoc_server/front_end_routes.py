@@ -104,7 +104,7 @@ def convert_configuration(game_config):
     labels_to_direct_copy = ["logging","priorities","minutes_per_step","location"]
     #If a game_config element should be assigned as an agent with connections: power_storage only, add it to the list below (unless you want to rename the agent, then it will need it's own code)
     #Note, this assumes power_storage is the only connection for this agent. Do not add agents which have other connections. Only agents which are present in the input game_config will be assigned
-    agents_to_assign_power_storage = ["habitat","greenhouse"]
+    agents_to_assign_power_storage = ["habitat","greenhouse","solar_pv_array_mars"]
 
     #Any agents with power_storage or food_storage will be assined power_storage = power_connections (defined later) etc. 
     #Agents initialised here must have all connections named here
@@ -156,7 +156,7 @@ def convert_configuration(game_config):
             full_game_config[labeldc] = game_config[labeldc]
 
     #Assign termination values
-    if (game_config["duration"]):
+    if "duration" in game_config:
         duration = {
             "condition": "time",
             "value":     game_config["duration"]["value"],
@@ -191,18 +191,10 @@ def convert_configuration(game_config):
 
     #Here, agents from agents_to_assign_power_storage are assigned with only a power_storage connection.
     for labelps in agents_to_assign_power_storage:
-        if (game_config[labelps]):
+        if labelps in game_config:
             amount = 1 if not "amount" in game_config[labelps] else game_config[labelps]["amount"]
             full_game_config["agents"][game_config[labelps]] = [
                 {"connections": {"power_storage": [1]}, "amount": amount}]
-
-
-    #If you must rename it, it needs its own if statement.
-    if (game_config["solar_arrays"]):
-        full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {
-            "power_storage": [1]}, "amount":                                 game_config[
-                                                                                 "solar_arrays"][
-                                                                                 "amount"]}]
 
     #If the front_end specifies an amount for this agent, overwrite any default values with the specified value
     for x, y in full_game_config["agents"].items():
@@ -210,7 +202,7 @@ def convert_configuration(game_config):
             y[0]["amount"] = game_config[x]["amount"]
 
     #Plants are treated separately because its a list of items which must be assigned as agents
-    if (game_config["plants"]):
+    if "plants" in game_config:
         for plant in game_config["plants"]:
             full_game_config["agents"][plant["species"]] = [
                 {"connections": {"air_storage": [1], "water_storage": [
