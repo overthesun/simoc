@@ -36,20 +36,9 @@ if __name__ == "__main__":
                 package_path = os.path.dirname(simoc_server.__file__)
                 db_path = os.path.join(package_path, db_rel_path)
             if os.path.isfile(db_path):
-                #if not confirm("Database already exists, continuing will delete old database"):
-                #    print("Exiting without creating database")
-                #    exit()
-                #else:
                 os.remove(db_path)
         else:
-            #if not confirm("Continuing will delete old database"):
-            #    print("Exiting without creating database")
-            #    exit()
-            #else:
-            db.sessionmaker.close_all()
-            # db.engine.dispose()
-            db.drop_all()
+            raise ValueError('Wrong sqlite URL.')
 
     create(app.config["AGENT_CONFIG"])
 
-    os._exit(0)

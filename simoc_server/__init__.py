@@ -32,6 +32,12 @@ if db_type == 'mysql':
         user=db_user, password=db_password,
         dns=db_dns, port=db_port,
         database=db_name)
+elif db_type == 'postgres':
+    SQLALCHEMY_DATABASE_URI = (
+        'postgres://{user}:{password}@{dns}:{port}/{database}').format(
+        user=db_user, password=db_password,
+        dns=db_dns, port=db_port,
+        database=db_name)
 elif db_type == 'sqlite':
     SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite'
 else:

@@ -80,7 +80,7 @@ class DescriptiveAttribute(BaseAttribute):
 
     @declared_attr
     def details(cls):
-        return db.Column(db.String(128), nullable=True)
+        return db.Column(db.String(2048), nullable=True)
 
     @declared_attr
     def description(cls):
@@ -120,17 +120,17 @@ class AgentState(BaseEntity):
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"),
                               nullable=False)
     agent_type = db.relationship("AgentType")
-    agent_unique_id = db.Column(db.String(120), nullable=False)
+    agent_unique_id = db.Column(db.String(100), nullable=False)
     model_time_created = db.Column(db.Interval(), nullable=False)
     agent_id = db.Column(db.Integer, nullable=True)
-    active = db.Column(db.String(120), nullable=True)
+    active = db.Column(db.String(100), nullable=True)
     age = db.Column(db.Float, nullable=True)
     amount = db.Column(db.Integer, nullable=True)
     lifetime = db.Column(db.Integer, nullable=True)
-    connections = db.Column(db.String(1000), nullable=True)
-    buffer = db.Column(db.String(1000), nullable=True)
-    deprive = db.Column(db.String(1000), nullable=True)
-    attributes = db.Column(db.String(1000), nullable=False)
+    connections = db.Column(db.String(2048), nullable=True)
+    buffer = db.Column(db.String(2048), nullable=True)
+    deprive = db.Column(db.String(2048), nullable=True)
+    attributes = db.Column(db.String(2048), nullable=False)
 
 
 class AgentStateAttribute(BaseAttribute):
@@ -151,7 +151,7 @@ class StepRecord(BaseEntity):
     game_id = db.Column(db.String(100), nullable=False)
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
     agent_type = db.relationship("AgentType", foreign_keys=[agent_type_id])
-    agent_id = db.Column(db.Integer, nullable=False)
+    agent_id = db.Column(db.String(100), nullable=False)
     direction = db.Column(db.String(100), nullable=False)
     currency = db.Column(db.String(100), nullable=False)
     value = db.Column(db.Float, nullable=False)
