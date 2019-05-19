@@ -6,7 +6,6 @@ import json
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
-import pandas as pd
 import quantities as pq
 from mesa import Model
 from mesa.space import MultiGrid
@@ -139,7 +138,7 @@ class AgentModel(Model, AttributeHolder):
 
         Returns:
         """
-        model_record = ModelRecord(step=self.step_num,
+        model_record = ModelRecord(step_num=self.step_num,
                                    user_id=self.user_id,
                                    time=self["time"].total_seconds(),
                                    hours_per_step=timedelta_to_hours(self.timedelta_per_step()),
@@ -148,14 +147,12 @@ class AgentModel(Model, AttributeHolder):
         records = [model_record]
         for agent_type_id, counter in self.get_agent_type_counts().items():
             agent_type_count_record = AgentTypeCountRecord(model_record=model_record,
-                                                           user_id=self.user_id,
                                                            agent_type_id=agent_type_id,
                                                            agent_counter=counter)
             records.append(agent_type_count_record)
         for storage in self.get_storage_capacities():
             for currency in storage['currencies']:
                 storage_capacity_record = StorageCapacityRecord(model_record=model_record,
-                                                                user_id=self.user_id,
                                                                 agent_type_id=storage['agent_type_id'],
                                                                 agent_id=storage['agent_id'],
                                                                 currency=currency['name'],

@@ -2,16 +2,15 @@ import datetime
 import threading
 import time
 import traceback
+from uuid import uuid4
 
 from simoc_server import app, db
 from simoc_server.agent_model import (AgentModel,
                                       AgentModelInitializationParams,
                                       BaseLineAgentInitializerRecipe)
 from simoc_server.database import SavedGame
-from simoc_server.database.db_model import (AgentTypeCountRecord,
-                                            ModelRecord,
+from simoc_server.database.db_model import (ModelRecord,
                                             StepRecord,
-                                            StorageCapacityRecord,
                                             User)
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
@@ -39,17 +38,14 @@ class GameRunner(object):
     """
 
     def __init__(self, agent_model, user, last_saved_step):
-        self.agent_model = agent_model
+        self.game_id = str(uuid4().hex[:8])
+        self.start_time = int(time.time())
         self.user = user
-        self.step_thread = None
-        self.last_saved_step = last_saved_step
+        self.agent_model = agent_model
         self.agent_model.user_id = self.user.id
-        for log in ModelRecord.query.filter_by(user_id=user.id).all() + \
-                   StepRecord.query.filter_by(user_id=user.id).all() + \
-                   AgentTypeCountRecord.query.filter_by(user_id=user.id).all() + \
-                   StorageCapacityRecord.query.filter_by(user_id=user.id).all():
-            db.session.delete(log)
-        db.session.commit()
+        self.step_thread = None
+        self.last_accessed = None
+        self.last_saved_step = last_saved_step
         self.reset_last_accessed()
 
     @property
@@ -195,19 +191,23 @@ class GameRunner(object):
             self.step_thread.join()
 
         def step_loop(agent_model, step_num, buffer_size=10):
+
+            def _save_records(model_records, step_records):
+                for record in model_records + step_records:
+                    record['start_time'] = self.start_time
+                    record['game_id'] = self.game_id
+                db.session.add_all(StepRecord(**step) for step in step_records)
+                db.session.add_all(model_records)
+                db.session.commit()
+
             model_records = []
             while agent_model.step_num <= step_num and not agent_model.is_terminated:
                 agent_model.step()
                 model_records += agent_model.get_step_logs()
                 if agent_model.step_num % buffer_size == 0:
-                    db.session.add_all(StepRecord(**step) for step in agent_model.step_records)
-                    db.session.add_all(model_records)
-                    db.session.commit()
-                    agent_model.step_records = []
-                    model_records = []
-            db.session.add_all(model_records)
-            db.session.add_all(StepRecord(**step) for step in agent_model.step_records)
-            db.session.commit()
+                    _save_records(model_records, agent_model.step_records)
+                    agent_model.step_records, model_records = [], []
+            _save_records(model_records, agent_model.step_records)
 
         if threaded:
             self.step_thread = threading.Thread(target=step_loop,
@@ -237,7 +237,7 @@ class GameRunnerInitializationParams(object):
         if 'location' in config:
             self.model_init_params.set_location(config['location'])
         self.model_init_params.set_config(config)
-        if (config['single_agent'] == 1):
+        if config['single_agent'] == 1:
             self.model_init_params.set_single_agent(1)
         self.agent_init_recipe = BaseLineAgentInitializerRecipe(config)
 
@@ -262,7 +262,7 @@ class GameRunnerManager(object):
 
     """
 
-    DEFAULT_TIMEOUT_INTERVAL = 120  # seconds
+    DEFAULT_TIMEOUT_INTERVAL = 300  # seconds
     DEFAULT_CLEANUP_MAX_INTERVAL = 10  # seconds
 
     def __init__(self, timeout_interval=None,
@@ -411,7 +411,26 @@ class GameRunnerManager(object):
         except KeyError:
             return None
 
-    def get_step(self, user, step_num=None):
+    @staticmethod
+    def parse_step_data(step_data):
+        response = step_data.get_data()
+        response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters]
+        response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities]
+        return response
+
+    def get_steps(self, user, game_id, start_step_num=0, stop_step_num=0):
+        steps = ModelRecord.query \
+            .filter_by(user_id=user.id) \
+            .filter_by(game_id=game_id) \
+            .filter(ModelRecord.step_num >= start_step_num) \
+            .filter(ModelRecord.step_num <= stop_step_num) \
+            .all()
+        if len(steps) > 0:
+            return [self.parse_step_data(step_data) for step_data in steps]
+        else:
+            return []
+
+    def get_step(self, user, game_id, step_num=None):
         """Get the step number requested for the given user.
 
         Accessed from front end using route get_step() in views.py
@@ -435,18 +454,15 @@ class GameRunnerManager(object):
         GameNotFoundException
             If there is no active game for the provided user.
         """
-        game_runner = self.get_game_runner(user)
-        if game_runner is None:
-            raise GameNotFoundException()
-        game_runner.step_to(step_num, False)
         step_data = ModelRecord.query \
-            .filter_by(step=step_num) \
             .filter_by(user_id=user.id) \
+            .filter_by(game_id=game_id) \
+            .filter_by(step_num=step_num) \
             .first()
-        response = step_data.get_data()
-        response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters]
-        response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities]
-        return response
+        if step_data is None:
+            return {}
+        else:
+            return self.parse_step_data(step_data)
 
     def get_step_to(self, user, step_num=None):
         game_runner = self.get_game_runner(user)
@@ -487,7 +503,8 @@ class GameRunnerManager(object):
 
         self.game_runners[user.id] = game_runner
 
-    def _autosave_name(self):
+    @staticmethod
+    def _autosave_name():
         """Generates an autosave name using the format "Autosave <current_utc_datetime>"
 
         Returns
@@ -505,7 +522,7 @@ class GameRunnerManager(object):
         """
         marked_for_cleanup = []
         for user_id, game_runner in self.game_runners.items():
-            if (game_runner.seconds_since_last_accessed > self.timeout_interval):
+            if game_runner.seconds_since_last_accessed > self.timeout_interval:
                 marked_for_cleanup.append(user_id)
 
         for user_id in marked_for_cleanup:
@@ -517,7 +534,7 @@ class GameRunnerManager(object):
                 app.logger.error("Session for user '{}' removed before it could be cleaned up."
                                  .format(user_id))
             except Exception as e:
-                app.logger.error("Unknown exception occured in game manager cleanup.")
+                app.logger.error("Unknown exception occurred in game manager cleanup.")
                 traceback.print_exc()
 
     def get_next_timeout(self):

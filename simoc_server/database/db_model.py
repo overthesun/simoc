@@ -1,5 +1,4 @@
 import datetime
-import json
 
 from flask_login import UserMixin
 from sqlalchemy.ext.declarative import declared_attr
@@ -21,6 +20,25 @@ class BaseEntity(db.Model):
         # work around to move columns to end of table
         return db.Column(db.DateTime, server_default=db.func.now(),
                          server_onupdate=db.func.now())
+
+    def _attr(self, name, default_value=None):
+        if name not in self.__dict__.keys():
+            self.__dict__[name] = default_value
+
+    def __getitem__(self, key):
+        return self.__dict__[key]
+
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
+
+    def __delitem__(self, key):
+        del self.__dict__[key]
+
+    def __contains__(self, key):
+        return key in self.__dict__
+
+    def __len__(self):
+        return len(self.__dict__)
 
 
 class User(BaseEntity, UserMixin):
@@ -129,6 +147,8 @@ class StepRecord(BaseEntity):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     user = db.relationship("User")
     step_num = db.Column(db.Integer, nullable=False)
+    start_time = db.Column(db.Integer, nullable=False)
+    game_id = db.Column(db.String(100), nullable=False)
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
     agent_type = db.relationship("AgentType", foreign_keys=[agent_type_id])
     agent_id = db.Column(db.Integer, nullable=False)
@@ -145,14 +165,20 @@ class ModelRecord(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     user = db.relationship("User")
-    step = db.Column(db.Integer, nullable=False)
+    start_time = db.Column(db.Integer, nullable=False)
+    game_id = db.Column(db.String(100), nullable=False)
+    step_num = db.Column(db.Integer, nullable=False)
     hours_per_step = db.Column(db.Float, nullable=False)
     is_terminated = db.Column(db.String(100), nullable=False)
     time = db.Column(db.Float, nullable=False)
     termination_reason = db.Column(db.String(100), nullable=True)
 
     def get_data(self):
-        return {"step": self.step,
+        return {'user_id': self.user_id,
+                'username': self.user.username,
+                'start_time': self.start_time,
+                'game_id': self.game_id,
+                "step_num": self.step_num,
                 "hours_per_step": self.hours_per_step,
                 "is_terminated": self.is_terminated,
                 "time": self.time,
@@ -161,8 +187,6 @@ class ModelRecord(BaseEntity):
 
 class AgentTypeCountRecord(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    user = db.relationship("User")
     model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False)
     model_record = db.relationship("ModelRecord",
                                    backref=db.backref("agent_type_counters", lazy=False,
@@ -178,8 +202,6 @@ class AgentTypeCountRecord(BaseEntity):
 
 class StorageCapacityRecord(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    user = db.relationship("User")
     model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False)
     model_record = db.relationship("ModelRecord",
                                    backref=db.backref("storage_capacities", lazy=False,
