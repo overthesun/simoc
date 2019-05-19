@@ -414,6 +414,8 @@ class GameRunnerManager(object):
     def get_step(self, user, step_num=None):
         """Get the step number requested for the given user.
 
+        Accessed from front end using route get_step() in views.py
+
         Parameters
         ----------
         user : simoc_server.database.db_model.User
