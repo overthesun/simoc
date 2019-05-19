@@ -143,6 +143,10 @@
           {
             "type": "threshold_atmo_o2",
             "value": 0.08
+          },
+          {
+            "type": "location",
+            "value": "mars"
           }
         ]
       }
@@ -602,9 +606,11 @@
               "time": "hour"
             },
             "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
               "daily": {
-                "type": "norm",
-                "center": 12
+                "type": "norm"
               }
             }
           },
@@ -618,6 +624,9 @@
             "growth": {
               "lifetime": {
                   "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
               }
             }
           },
@@ -646,7 +655,10 @@
             },
             "growth": {
               "lifetime": {
-                "type": "linear"
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
               }
             }
           },
@@ -659,7 +671,10 @@
             },
             "growth": {
               "lifetime": {
-                "type": "logarithmic"
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
               }
             }
           },
@@ -669,6 +684,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -679,6 +699,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -693,17 +721,44 @@
               "limit": ">",
               "value": 85
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.001259583,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "biomass_edible",
+            "value": 0.000377916,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_cers"
-          },
-          {
-            "type": "growth_period",
-            "value": 85.0,
-            "unit": "day"
           },
           {
             "type": "lifetime",
@@ -713,21 +768,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 2.56955,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.77095,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0012595833333,
-            "unit": "kg"
           }
         ]
       }
@@ -4526,6 +4566,16 @@
         "input": [],
         "output": [],
         "characteristics": [
+          {
+            "type": "capacity_biomass_totl",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_biomass_edible",
+            "value": 10000,
+            "unit": "kg"
+          },
           {
             "type": "capacity_sold_n",
             "value": 1000,
