@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from flask_login import UserMixin
 from sqlalchemy.ext.declarative import declared_attr
@@ -128,13 +129,15 @@ class StepRecord(BaseEntity):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     user = db.relationship("User")
     step_num = db.Column(db.Integer, nullable=False)
-    agent_type = db.Column(db.String(120), nullable=False)
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
+    agent_type = db.relationship("AgentType", foreign_keys=[agent_type_id])
     agent_id = db.Column(db.Integer, nullable=False)
-    direction = db.Column(db.String(120), nullable=False)
-    currency = db.Column(db.String(120), nullable=False)
+    direction = db.Column(db.String(100), nullable=False)
+    currency = db.Column(db.String(100), nullable=False)
     value = db.Column(db.Float, nullable=False)
-    unit = db.Column(db.String(120), nullable=False)
-    storage_type = db.Column(db.String(120), nullable=False)
+    unit = db.Column(db.String(100), nullable=False)
+    storage_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
+    storage_type = db.relationship("AgentType", foreign_keys=[storage_type_id])
     storage_id = db.Column(db.Integer, nullable=False)
 
 
@@ -144,12 +147,58 @@ class ModelRecord(BaseEntity):
     user = db.relationship("User")
     step = db.Column(db.Integer, nullable=False)
     hours_per_step = db.Column(db.Float, nullable=False)
-    is_terminated = db.Column(db.String(10), nullable=False)
+    is_terminated = db.Column(db.String(100), nullable=False)
     time = db.Column(db.Float, nullable=False)
-    agents = db.Column(db.String(3000), nullable=False)
-    storages = db.Column(db.String(3000), nullable=False)
-    model_stats = db.Column(db.String(3000), nullable=False)
     termination_reason = db.Column(db.String(100), nullable=True)
+
+    def get_data(self):
+        return {"step": self.step,
+                "hours_per_step": self.hours_per_step,
+                "is_terminated": self.is_terminated,
+                "time": self.time,
+                "termination_reason": self.termination_reason}
+
+
+class AgentTypeCountRecord(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user = db.relationship("User")
+    model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False)
+    model_record = db.relationship("ModelRecord",
+                                   backref=db.backref("agent_type_counters", lazy=False,
+                                                    cascade="all, delete-orphan"))
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
+    agent_type = db.relationship("AgentType")
+    agent_counter = db.Column(db.Integer, nullable=False)
+
+    def get_data(self):
+        return {"agent_type": self.agent_type.name,
+                "agent_counter": self.agent_counter}
+
+
+class StorageCapacityRecord(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user = db.relationship("User")
+    model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False)
+    model_record = db.relationship("ModelRecord",
+                                   backref=db.backref("storage_capacities", lazy=False,
+                                                      cascade="all, delete-orphan"))
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
+    agent_type = db.relationship("AgentType")
+    agent_id = db.Column(db.Integer, nullable=False)
+    currency = db.Column(db.String(100), nullable=False)
+    value = db.Column(db.Float, nullable=False)
+    units = db.Column(db.String(100), nullable=False)
+    capacity = db.Column(db.Float, nullable=False)
+
+    def get_data(self):
+        return {"agent_type": self.agent_type.name,
+                "agent_id": self.agent_id,
+                "currency": self.currency,
+                "value": self.value,
+                "units": self.units,
+                "capacity": self.capacity}
 
 
 class AgentModelState(BaseEntity):

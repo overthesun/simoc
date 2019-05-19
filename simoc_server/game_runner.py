@@ -1,6 +1,4 @@
-import csv
 import datetime
-import os
 import threading
 import time
 import traceback
@@ -10,7 +8,11 @@ from simoc_server.agent_model import (AgentModel,
                                       AgentModelInitializationParams,
                                       BaseLineAgentInitializerRecipe)
 from simoc_server.database import SavedGame
-from simoc_server.database.db_model import User, ModelRecord, StepRecord
+from simoc_server.database.db_model import (AgentTypeCountRecord,
+                                            ModelRecord,
+                                            StepRecord,
+                                            StorageCapacityRecord,
+                                            User)
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
 
@@ -42,9 +44,10 @@ class GameRunner(object):
         self.step_thread = None
         self.last_saved_step = last_saved_step
         self.agent_model.user_id = self.user.id
-        model_logs = ModelRecord.query.filter_by(user_id=user.id).all()
-        agent_logs = StepRecord.query.filter_by(user_id=user.id).all()
-        for log in [*agent_logs, *model_logs]:
+        for log in ModelRecord.query.filter_by(user_id=user.id).all() + \
+                   StepRecord.query.filter_by(user_id=user.id).all() + \
+                   AgentTypeCountRecord.query.filter_by(user_id=user.id).all() + \
+                   StorageCapacityRecord.query.filter_by(user_id=user.id).all():
             db.session.delete(log)
         db.session.commit()
         self.reset_last_accessed()
@@ -191,13 +194,19 @@ class GameRunner(object):
         if self.step_thread is not None and self.step_thread.isAlive():
             self.step_thread.join()
 
-        def step_loop(agent_model, step_num):
+        def step_loop(agent_model, step_num, buffer_size=10):
+            model_records = []
             while agent_model.step_num <= step_num and not agent_model.is_terminated:
                 agent_model.step()
-                step_record = ModelRecord(**self.agent_model.get_model_step_data())
-                db.session.add(step_record)
-                if (agent_model.step_num % 10) == 0:
+                model_records += agent_model.get_model_logs()
+                if agent_model.step_num % buffer_size == 0:
+                    db.session.add_all(StepRecord(**step) for step in agent_model.step_records)
+                    db.session.add_all(model_records)
                     db.session.commit()
+                    agent_model.step_records = []
+                    model_records = []
+            db.session.add_all(model_records)
+            db.session.add_all(StepRecord(**step) for step in agent_model.step_records)
             db.session.commit()
 
         if threaded:
@@ -432,15 +441,10 @@ class GameRunnerManager(object):
             .filter_by(step=step_num) \
             .filter_by(user_id=user.id) \
             .first()
-        return {'step': step_data.step,
-                'user_id': step_data.user_id,
-                'hours_per_step': step_data.hours_per_step,
-                'is_terminated': step_data.is_terminated,
-                'time': step_data.time,
-                'agents': step_data.agents,
-                'storages': step_data.storages,
-                'model_stats': step_data.model_stats,
-                'termination_reason': step_data.termination_reason}
+        response = step_data.get_data()
+        response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters]
+        response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities]
+        return response
 
     def get_step_to(self, user, step_num=None):
         game_runner = self.get_game_runner(user)

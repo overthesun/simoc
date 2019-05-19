@@ -23,7 +23,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
     TODO
 
     Attributes:
-          _agent_type_id: TODO
+          agent_type_id: TODO
           active: TODO
           agent_class: TODO
           agent_type: TODO
@@ -65,14 +65,14 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         """
         agent_type = AgentType.query.filter_by(name=self.agent_type).first()
         self.agent_class = agent_type.agent_class
-        self._agent_type_id = agent_type.id
+        self.agent_type_id = agent_type.id
         attributes, descriptions = {}, {}
         load_db_attributes_into_dict(agent_type.agent_type_attributes, attributes, descriptions)
         self.agent_type_attributes, self.agent_type_descriptions = attributes, descriptions
 
     def get_agent_type(self):
         """Returns the AgentType related to the instance Agent"""
-        return AgentType.query.get(self._agent_type_id)
+        return AgentType.query.get(self.agent_type_id)
 
     def get_agent_type_attribute(self, name):
         """Get agent type attribute by name as it was defined in database.
@@ -95,7 +95,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
           commit: bool, TODO
         """
         args = dict(agent_model_state=agent_model_state,
-                    agent_type_id=self._agent_type_id,
+                    agent_type_id=self.agent_type_id,
                     agent_unique_id=self.unique_id,
                     model_time_created=self.model_time_created,
                     agent_id=self.__dict__.get('id', None),
@@ -389,10 +389,10 @@ class GeneralAgent(EnclosedAgent):
                 source = 0
                 for curr in self.selected_storage[prefix]:
                     for storage in self.selected_storage[prefix][curr]:
-                        agent_id = '{}_{}'.format(
+                        storage_id = '{}_{}'.format(
                             storage.agent_type, storage.id)
-                        if cr_name in self.model.model_stats[agent_id]:
-                            source += self.model.model_stats[agent_id][cr_name]
+                        if cr_name in self.model.storage_ratios[storage_id]:
+                            source += self.model.storage_ratios[storage_id][cr_name]
             cr_id = '{}_{}_{}'.format(prefix, currency, cr_name)
             if cr_limit == '>':
                 if source <= cr_value:
@@ -515,20 +515,18 @@ class GeneralAgent(EnclosedAgent):
                             if deprive_value > 0:
                                 self.deprive[currency] = deprive_value
                         if log:
+                            record = {"step_num": self.model.step_num,
+                                      "user_id": self.model.user_id,
+                                      "agent_type_id": self.agent_type_id,
+                                      "agent_id": self.unique_id,
+                                      "direction": prefix,
+                                      "currency": currency,
+                                      "value": step_value.magnitude.tolist() / self.amount,
+                                      "unit": str(step_value.units),
+                                      "storage_type_id": storage.agent_type_id,
+                                      "storage_id": storage.id}
                             for i in range(self.amount):
-                                record = {"step_num": self.model.step_num,
-                                          "user_id": self.model.user_id,
-                                          "agent_type": self.agent_type,
-                                          "agent_id": self.unique_id,
-                                          "direction": prefix,
-                                          "currency": currency,
-                                          "value": step_value.magnitude.tolist() / self.amount,
-                                          "unit": str(step_value.units),
-                                          "storage_type": storage.agent_type,
-                                          "storage_id": storage.id}
-                                step_record = StepRecord(**record)
-                                db.session.add(step_record)
-        db.session.commit()
+                                self.model.step_records.append(record)
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model

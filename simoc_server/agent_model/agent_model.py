@@ -17,7 +17,7 @@ from simoc_server import db, app
 from simoc_server.agent_model.agents.core import GeneralAgent, StorageAgent
 from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentModelParam, AgentType, AgentModelState, \
-    AgentModelSnapshot, SnapshotBranch
+    AgentModelSnapshot, ModelRecord, SnapshotBranch, AgentTypeCountRecord, StorageCapacityRecord
 from simoc_server.util import timedelta_to_hours, location_to_day_length_minutes
 
 
@@ -72,9 +72,8 @@ class AgentModel(Model, AttributeHolder):
           is_terminated: int,
           location: int,
           logging: int,
-          logs: int,
           minutes_per_step: int,
-          model_stats: int,
+          storage_ratios: Dict,
           priorities: int,
           random_state: int,
           scheduler: int,
@@ -105,14 +104,14 @@ class AgentModel(Model, AttributeHolder):
         self.termination_reason = None
         self.logging = init_params.logging
         self.single_agent = init_params.single_agent
-        self.logs = init_params.logs
         self.priorities = init_params.priorities
         self.location = init_params.location
         self.config = init_params.config
         self.time = init_params.starting_model_time
         self.minutes_per_step = init_params.minutes_per_step
         self.is_terminated = False
-        self.model_stats = {}
+        self.storage_ratios = {}
+        self.step_records = []
         self.grid = MultiGrid(self.grid_width, self.grid_height, True)
         self.day_length_minutes = location_to_day_length_minutes(self.location)
         self.day_length_hours = self.day_length_minutes / 60
@@ -132,74 +131,41 @@ class AgentModel(Model, AttributeHolder):
         """Returns Flask logger object."""
         return app.logger
 
-    def get_logs(self, filters=[], columns=None, dtype='list'):
+    def get_model_logs(self):
         """TODO
-
-        TODO
-
-        Args:
-          filters: list, TODO
-          columns: list, TODO
-          dtype: str, TODO
-
-        Returns:
-          TODO
-        """
-        df = pd.DataFrame(self.logs)
-        for col, val in filters:
-            df = df.loc[df[col].isin(val)].drop(col, axis=1)
-        if columns:
-            df = df.loc[:, columns]
-        if dtype == 'list':
-            return df.values.tolist()
-        elif dtype == 'dict':
-            return df.to_dict(orient='records')
-        elif dtype == 'df':
-            return df
-        else:
-            return df
-
-    def get_step_logs(self, step_num, filters=(), columns=None, dtype='list'):
-        """TODO
-
-        TODO
-
-        Args:
-          step_num: int, TODO
-          filters: list, TODO
-          columns: list, TODO
-          dtype: str, TODO
-
-        Returns:
-          TODO
-        """
-        return self.get_logs(filters=filters + [('step_num', [step_num])], columns=columns,
-                             dtype=dtype)
-
-    def get_model_step_data(self):
-        """TODO
-
-        Collects the information for this step into a dictionary.
 
         Called from:
             game_runner.py GameRunner.step_to.step_loop
 
         Returns:
-          A dictionary with the step information
         """
-        response = {"step": self.step_num,
-                    "user_id": self.user_id,
-                    "hours_per_step": timedelta_to_hours(self.timedelta_per_step()),
-                    "is_terminated": str(self.is_terminated),
-                    "time": self["time"].total_seconds(),
-                    "agents": json.dumps(self.get_total_agents()),
-                    "storages": json.dumps(self.get_total_storages()),
-                    "model_stats": json.dumps(self.model_stats)}
-        if self.is_terminated:
-            response.termination_reason = self.termination_reason
-        return response
+        model_record = ModelRecord(step=self.step_num,
+                                   user_id=self.user_id,
+                                   time=self["time"].total_seconds(),
+                                   hours_per_step=timedelta_to_hours(self.timedelta_per_step()),
+                                   is_terminated=str(self.is_terminated),
+                                   termination_reason=self.termination_reason)
+        records = [model_record]
+        for agent_type_id, counter in self.get_agent_type_counts().items():
+            agent_type_count_record = AgentTypeCountRecord(model_record=model_record,
+                                                           user_id=self.user_id,
+                                                           agent_type_id=agent_type_id,
+                                                           agent_counter=counter)
+            records.append(agent_type_count_record)
+        for storage in self.get_storage_capacities():
+            for currency in storage['currencies']:
+                storage_capacity_record = StorageCapacityRecord(model_record=model_record,
+                                                                user_id=self.user_id,
+                                                                agent_type_id=storage['agent_type_id'],
+                                                                agent_id=storage['agent_id'],
+                                                                currency=currency['name'],
+                                                                value=currency['value'],
+                                                                capacity=currency['capacity'],
+                                                                units=currency['units'])
+                records.append(storage_capacity_record)
+        return records
 
-    def get_total_agents(self):
+    def get_agent_type_counts(self):
         """TODO
 
         TODO
@@ -207,55 +173,25 @@ class AgentModel(Model, AttributeHolder):
         Returns:
           TODO
         """
-        total_production, total_consumption, total_agent_types = {}, {}, {}
+        counter = {}
         for agent in self.get_agents_by_class(agent_class=GeneralAgent):
-            agent_type = agent.agent_type
-            if agent_type not in total_agent_types:
-                total_agent_types[agent_type] = 0
-            total_agent_types[agent_type] += 1
-            for attr in agent.agent_type_attributes:
-                prefix, currency = attr.split('_', 1)
-                if prefix not in ['in', 'out']:
-                    continue
-                step_value = agent.get_step_value(attr)
-                if prefix == 'out':
-                    if currency not in total_production:
-                        total_production[currency] = step_value
-                    else:
-                        total_production[currency] += step_value
-                elif prefix == 'in':
-                    if currency not in total_consumption:
-                        total_consumption[currency] = step_value
-                    else:
-                        total_consumption[currency] += step_value
-                else:
-                    raise Exception(
-                        'Unknown flow type. Neither Input nor Output.')
-        for k in total_consumption:
-            if k in total_production:
-                total_consumption[k].units = total_production[k].units
-        return {"total_production": {k: {"value": "{:.4f}".format(v.magnitude.tolist()),
-                                         "units": v.units.dimensionality.string}
-                                     for k, v in total_production.items()},
-                "total_consumption": {k: {"value": "{:.4f}".format(v.magnitude.tolist()),
-                                          "units": v.units.dimensionality.string}
-                                      for k, v in total_consumption.items()},
-                "total_agent_types": total_agent_types}
+            agent_type_id = agent.agent_type_id
+            if agent_type_id not in counter:
+                counter[agent_type_id] = 0
+            counter[agent_type_id] += 1 * agent.amount
+        return counter
 
-    def get_total_storages(self):
+    def get_storage_capacities(self):
         """TODO
 
         Formats the agent storages and currencies for easier access to the step information later.
-
-        Called from:
-            get_model_stats()
 
         Returns:
           A dictionary of the storages information for this step
         """
         storages = []
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
-            entity = {"agent_type": storage.agent_type, "agent_id": storage.id, "currencies": []}
+            entity = {"agent_type_id": storage.agent_type_id, "agent_id": storage.id, "currencies": []}
             for attr in storage.agent_type_attributes:
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
@@ -309,7 +245,6 @@ class AgentModel(Model, AttributeHolder):
         priorities = json.loads(agent_model_state.priorities)
         config = json.loads(agent_model_state.config)
         logging = json.loads(agent_model_state.logging)
-        logs = json.loads(agent_model_state.logs)
         init_params = AgentModelInitializationParams()
         (init_params.set_grid_width(grid_width)
          .set_grid_height(grid_height)
@@ -323,7 +258,6 @@ class AgentModel(Model, AttributeHolder):
          .set_minutes_per_step(minutes_per_step)
          .set_location(location)
          .set_config(config)
-         .set_logs(logs)
          .set_logging(logging))
         model = AgentModel(init_params)
         agents = {}
@@ -478,9 +412,9 @@ class AgentModel(Model, AttributeHolder):
                     self.termination_reason = 'time'
                     return
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
-            agent_id = '{}_{}'.format(storage.agent_type, storage.id)
-            if agent_id not in self.model_stats:
-                self.model_stats[agent_id] = {}
+            storage_id = '{}_{}'.format(storage.agent_type, storage.id)
+            if storage_id not in self.storage_ratios:
+                self.storage_ratios[storage_id] = {}
             temp, total = {}, None
             for attr in storage.agent_type_attributes:
                 if attr.startswith('char_capacity'):
@@ -495,10 +429,10 @@ class AgentModel(Model, AttributeHolder):
                     temp[currency] = storage_value.magnitude.tolist()
             for currency in temp:
                 if temp[currency] > 0:
-                    self.model_stats[agent_id][currency + '_ratio'] = \
+                    self.storage_ratios[storage_id][currency + '_ratio'] = \
                         temp[currency] / total.magnitude.tolist()
                 else:
-                    self.model_stats[agent_id][currency + '_ratio'] = 0
+                    self.storage_ratios[storage_id][currency + '_ratio'] = 0
         self.scheduler.step()
         app.logger.info("{0} step_num {1}".format(self, self.step_num))
 
@@ -577,7 +511,6 @@ class AgentModelInitializationParams(object):
           logging: TODO
           priorities: TODO
           location: TODO
-          logs: TODO
           config: TODO
     """
     snapshot_branch = None
@@ -590,7 +523,6 @@ class AgentModelInitializationParams(object):
     logging = {}
     priorities = []
     location = 'mars'
-    logs = []
     config = {}
 
     def set_grid_width(self, grid_width):
@@ -789,19 +721,6 @@ class AgentModelInitializationParams(object):
         self.config = config
         return self
 
-    def set_logs(self, logs):
-        """TODO
-
-        TODO
-
-        Args:
-            logs: TODO
-
-        Returns:
-          TODO
-        """
-        self.logs = logs
-        return self
 
 
 class AgentInitializerRecipe(metaclass=ABCMeta):
