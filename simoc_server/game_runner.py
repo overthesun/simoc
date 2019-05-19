@@ -400,8 +400,14 @@ class GameRunnerManager(object):
     @staticmethod
     def parse_step_data(step_data):
         response = step_data.get_data()
+        agent_logs = StepRecord.query \
+            .filter_by(user=step_data.user) \
+            .filter_by(game_id=step_data.game_id) \
+            .filter_by(step_num=step_data.step_num) \
+            .all()
         response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters]
         response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities]
+        response['agent_logs'] = [i.get_data() for i in agent_logs]
         return response
 
     def get_last_steps(self, user, game_id, num_last_steps=1):

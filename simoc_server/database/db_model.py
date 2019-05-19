@@ -160,6 +160,21 @@ class StepRecord(BaseEntity):
     storage_type = db.relationship("AgentType", foreign_keys=[storage_type_id])
     storage_id = db.Column(db.Integer, nullable=False)
 
+    def get_data(self):
+        return {'user_id': self.user_id,
+                'username': self.user.username,
+                "step_num": self.step_num,
+                'start_time': self.start_time,
+                'game_id': self.game_id,
+                "agent_type": self.agent_type.name,
+                "agent_id": self.agent_id,
+                "direction": self.direction,
+                "currency": self.currency,
+                "value": self.value,
+                "unit": self.unit,
+                "storage_type": self.storage_type.name,
+                "storage_id": self.storage_id}
+
 
 class ModelRecord(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
