@@ -131,7 +131,7 @@ class AgentModel(Model, AttributeHolder):
         """Returns Flask logger object."""
         return app.logger
 
-    def get_model_logs(self):
+    def get_step_logs(self):
         """TODO
 
         Called from:

@@ -198,7 +198,7 @@ class GameRunner(object):
             model_records = []
             while agent_model.step_num <= step_num and not agent_model.is_terminated:
                 agent_model.step()
-                model_records += agent_model.get_model_logs()
+                model_records += agent_model.get_step_logs()
                 if agent_model.step_num % buffer_size == 0:
                     db.session.add_all(StepRecord(**step) for step in agent_model.step_records)
                     db.session.add_all(model_records)
