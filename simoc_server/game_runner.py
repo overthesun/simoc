@@ -187,7 +187,7 @@ class GameRunner(object):
             for record in model_records + step_records:
                 record['start_time'] = self.start_time
                 record['game_id'] = self.game_id
-            db.session.add_all(StepRecord(**step) for step in step_records)
+            db.session.execute(StepRecord.__table__.insert(), step_records,)
             db.session.add_all(model_records)
             db.session.commit()
 
