@@ -510,6 +510,7 @@ class GeneralAgent(EnclosedAgent):
                                       "value": step_value.magnitude.tolist() / self.amount,
                                       "unit": str(step_value.units),
                                       "storage_type_id": storage.agent_type_id,
+                                      "storage_agent_id": storage.unique_id,
                                       "storage_id": storage.id}
                             for i in range(self.amount):
                                 self.model.step_records_buffer.append(record)
