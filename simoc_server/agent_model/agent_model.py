@@ -159,6 +159,7 @@ class AgentModel(Model, AttributeHolder):
                 storage_capacity_record = dict(model_record_id=record_id,
                                                agent_type_id=storage['agent_type_id'],
                                                agent_id=storage['agent_id'],
+                                               storage_id=storage['storage_id'],
                                                currency=currency['name'],
                                                value=currency['value'],
                                                capacity=currency['capacity'],
@@ -192,15 +193,17 @@ class AgentModel(Model, AttributeHolder):
         """
         storages = []
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
-            entity = {"agent_type_id": storage.agent_type_id, "agent_id": storage.id, "currencies": []}
+            entity = {"agent_type_id": storage.agent_type_id,
+                      "agent_id": storage.unique_id,
+                      "storage_id": storage.id,
+                      "currencies": []}
             for attr in storage.attrs:
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
-                    value = "{:.4f}".format(storage[currency])
-                    capacity = storage.attrs[attr]
-                    storage_unit = storage.attr_details[attr]['units']
-                    entity["currencies"].append({"name": currency, "value": value,
-                                                 "capacity": capacity, "units": storage_unit})
+                    entity["currencies"].append({"name": currency,
+                                                 "value": storage[currency],
+                                                 "capacity": storage.attrs[attr],
+                                                 "units": storage.attr_details[attr]['units']})
             storages.append(entity)
         return storages
 
