@@ -219,6 +219,7 @@ class GameRunner(object):
                           agent_model.step_records_buffer)
 
         step_loop(self.agent_model)
+        db.session.commit()
         self.reset_last_accessed()
 
 
