@@ -246,11 +246,11 @@ class AgentModelState(BaseEntity):
     model_time = db.Column(db.Interval, nullable=False)
     seed = db.Column(db.BigInteger, nullable=False)
     random_state = db.Column(db.PickleType, nullable=False)
-    termination = db.Column(db.String(300), nullable=False)
-    priorities = db.Column(db.String(300), nullable=False)
-    location = db.Column(db.String(300), nullable=False)
+    termination = db.Column(db.String(2048), nullable=False)
+    priorities = db.Column(db.String(2048), nullable=False)
+    location = db.Column(db.String(2048), nullable=False)
     minutes_per_step = db.Column(db.Integer, nullable=False)
-    config = db.Column(db.String(300), nullable=False)
+    config = db.Column(db.String(2048), nullable=False)
 
 
 class AgentModelSnapshot(BaseEntity):
