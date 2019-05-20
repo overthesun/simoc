@@ -3,7 +3,7 @@ import json
 from . import util
 from simoc_server import db
 from simoc_server.agent_model.agents import growth_func
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, AgentTypeAttributeDetails
 from simoc_server.util import location_to_day_length_minutes
 
 
@@ -26,97 +26,118 @@ def import_agents(agents, agent_class):
             attr_name = 'char_{}'.format(attr['type'])
             attr_value = attr.get("value", '')
             attr_units = attr.get("unit", '')
-            create_agent_type_attr(agent_type=agent_type, name=attr_name, value=attr_value,
-                                   details=attr_units, description=None, growth=0)
+            agent_type_attribute = AgentTypeAttribute(name=attr_name,
+                                                      agent_type=agent_type,
+                                                      value=str(attr_value),
+                                                      value_type=str(type(attr_value).__name__),
+                                                      description=None)
+            AgentTypeAttributeDetails(agent_type_attribute=agent_type_attribute,
+                                      agent_type=agent_type,
+                                      units=attr_units)
+
         for section in ['input', 'output']:
             for attr in agents[name]['data'][section]:
                 prefix = 'in' if section == 'input' else 'out'
                 attr_name = '{}_{}'.format(prefix, attr['type'])
-                attr_value = attr.get("value", '')
-                is_required = str(attr.get("required", ''))
-                requires = attr.get("requires", '')
-                if requires is not None:
-                    requires = "#".join(requires)
+                attr_value = attr.get("value", None)
+                is_required = attr.get("required", None)
+                requires = attr.get("requires", None)
+                deprive_unit = None
+                deprive_value = None
+                flow_unit = None
+                flow_time = None
+                criteria_name = None
+                criteria_limit = None
+                criteria_value = None
+                criteria_buffer = None
+                lifetime_growth_type = None
+                lifetime_growth_center = None
+                lifetime_growth_min_value = None
+                lifetime_growth_max_value = None
+                lifetime_growth_min_threshold = None
+                lifetime_growth_max_threshold = None
+                lifetime_growth_invert = None
+                lifetime_growth_noise = None
+                lifetime_growth_steepness = None
+                lifetime_growth_scale = None
+                daily_growth_type = None
+                daily_growth_center = None
+                daily_growth_min_value = None
+                daily_growth_max_value = None
+                daily_growth_min_threshold = None
+                daily_growth_max_threshold = None
+                daily_growth_invert = None
+                daily_growth_noise = None
+                daily_growth_scale = None
+                daily_growth_steepness = None
                 deprive = attr.get("deprive", None)
-                deprive_unit = ''
-                deprive_value = ''
                 if deprive:
-                    deprive_unit = deprive.get('unit', '')
-                    deprive_value = str(deprive.get('value', ''))
+                    deprive_unit = deprive.get('unit', None)
+                    deprive_value = deprive.get('value', None)
                 flow_rate = attr.get("flow_rate", None)
-                flow_unit = ''
-                flow_time = ''
                 if flow_rate:
-                    flow_unit = flow_rate.get('unit', '')
-                    flow_time = flow_rate.get('time', '')
+                    flow_unit = flow_rate.get('unit', None)
+                    flow_time = flow_rate.get('time', None)
                 criteria = attr.get("criteria", None)
-                cr_name = ''
-                cr_limit = ''
-                cr_value = ''
-                cr_buffer = ''
                 if criteria:
-                    cr_name = criteria.get('name', '')
-                    cr_limit = criteria.get('limit', '')
-                    cr_value = str(criteria.get('value', ''))
-                    cr_buffer = str(criteria.get('buffer', ''))
-                lifetime_growth_type = ''
-                lifetime_growth_center = ''
-                lifetime_growth_min_value = ''
-                lifetime_growth_min_threshold = ''
-                lifetime_growth_max_threshold = ''
-                lifetime_growth_invert = ''
-                lifetime_growth_noise = ''
-                lifetime_growth_steepness = ''
-                lifetime_growth_scale = ''
-                daily_growth_type = ''
-                daily_growth_center = ''
-                daily_growth_min_rate = ''
-                daily_growth_min_threshold = ''
-                daily_growth_max_threshold = ''
-                daily_growth_invert = ''
-                daily_growth_noise = ''
-                daily_growth_scale = ''
-                daily_growth_steepness = ''
+                    criteria_name = criteria.get('name', None)
+                    criteria_limit = criteria.get('limit', None)
+                    criteria_value = criteria.get('value', None)
+                    criteria_buffer = criteria.get('buffer', None)
+                is_growing = 0
                 growth = attr.get("growth", None)
                 if growth:
+                    is_growing = 1
                     lifetime_growth = growth.get('lifetime', None)
                     if lifetime_growth:
-                        lifetime_growth_type = lifetime_growth.get('type', '')
-                        lifetime_growth_center = str(lifetime_growth.get('center', ''))
-                        lifetime_growth_min_value = str(lifetime_growth.get('min_value', ''))
-                        lifetime_growth_min_threshold = str(lifetime_growth.get('min_threshold', ''))
-                        lifetime_growth_max_threshold = str(lifetime_growth.get('max_threshold', ''))
-                        lifetime_growth_invert = str(lifetime_growth.get('invert', ''))
-                        lifetime_growth_noise = str(lifetime_growth.get('noise', ''))
-                        lifetime_growth_scale = str(lifetime_growth.get('scale', ''))
-                        lifetime_growth_steepness = str(lifetime_growth.get('steepness', ''))
+                        lifetime_growth_type = lifetime_growth.get('type', None)
+                        lifetime_growth_center = lifetime_growth.get('center', None)
+                        lifetime_growth_min_value = lifetime_growth.get('min_value', None)
+                        lifetime_growth_max_value = lifetime_growth.get('man_value', None)
+                        lifetime_growth_min_threshold = lifetime_growth.get('min_threshold', None)
+                        lifetime_growth_max_threshold = lifetime_growth.get('max_threshold', None)
+                        lifetime_growth_invert = lifetime_growth.get('invert', None)
+                        lifetime_growth_noise = lifetime_growth.get('noise', None)
+                        lifetime_growth_scale = lifetime_growth.get('scale', None)
+                        lifetime_growth_steepness = lifetime_growth.get('steepness', None)
                     daily_growth = growth.get('daily', None)
                     if daily_growth:
-                        daily_growth_type = daily_growth.get('type', '')
-                        daily_growth_center = str(daily_growth.get('center', ''))
-                        daily_growth_min_rate = str(daily_growth.get('min_rate', ''))
-                        daily_growth_min_threshold = str(daily_growth.get('min_threshold', ''))
-                        daily_growth_max_threshold = str(daily_growth.get('max_threshold', ''))
-                        daily_growth_invert = str(daily_growth.get('invert', ''))
-                        daily_growth_noise = str(daily_growth.get('noise', ''))
-                        daily_growth_scale = str(daily_growth.get('scale', ''))
-                        daily_growth_steepness = str(daily_growth.get('steepness', ''))
-                attr_details = {'flow_unit': flow_unit,
+                        daily_growth_type = daily_growth.get('type', None)
+                        daily_growth_center = daily_growth.get('center', None)
+                        daily_growth_min_value = daily_growth.get('min_value', None)
+                        daily_growth_max_value = daily_growth.get('man_value', None)
+                        daily_growth_min_threshold = daily_growth.get('min_threshold', None)
+                        daily_growth_max_threshold = daily_growth.get('max_threshold', None)
+                        daily_growth_invert = daily_growth.get('invert', None)
+                        daily_growth_noise = daily_growth.get('noise', None)
+                        daily_growth_scale = daily_growth.get('scale', None)
+                        daily_growth_steepness = daily_growth.get('steepness', None)
+                agent_type_attribute = AgentTypeAttribute(name=attr_name,
+                                                          agent_type=agent_type,
+                                                          value=str(attr_value),
+                                                          value_type=str(type(attr_value).__name__),
+                                                          description=None)
+                attr_details = {'agent_type_attribute':  agent_type_attribute,
+                                'agent_type': agent_type,
+                                'flow_unit': flow_unit,
                                 'flow_time': flow_time,
-                                'cr_name': cr_name,
-                                'cr_limit': cr_limit,
-                                'cr_value': cr_value,
-                                'cr_buffer': cr_buffer,
+                                'criteria_name': criteria_name,
+                                'criteria_limit': criteria_limit,
+                                'criteria_value': criteria_value,
+                                'criteria_buffer': criteria_buffer,
                                 'deprive_unit': deprive_unit,
                                 'deprive_value': deprive_value,
                                 'is_required': is_required,
                                 'requires': requires,
+                                'is_growing': is_growing,
                                 'lifetime_growth_type': lifetime_growth_type,
                                 'lifetime_growth_center': lifetime_growth_center,
                                 'lifetime_growth_min_value': lifetime_growth_min_value,
+                                'lifetime_growth_max_value': lifetime_growth_max_value,
                                 'daily_growth_type': daily_growth_type,
                                 'daily_growth_center': daily_growth_center,
-                                'daily_growth_min_rate': daily_growth_min_rate,
+                                'daily_growth_min_value': daily_growth_min_value,
+                                'daily_growth_max_value': daily_growth_max_value,
                                 'lifetime_growth_min_threshold': lifetime_growth_min_threshold,
                                 'lifetime_growth_max_threshold': lifetime_growth_max_threshold,
                                 'daily_growth_min_threshold': daily_growth_min_threshold,
@@ -129,9 +150,7 @@ def import_agents(agents, agent_class):
                                 'lifetime_growth_scale': lifetime_growth_scale,
                                 'daily_growth_steepness': daily_growth_steepness,
                                 'lifetime_growth_steepness': lifetime_growth_steepness}
-                create_agent_type_attr(agent_type=agent_type, name=attr_name, value=attr_value,
-                                       details=json.dumps(attr_details), description=None,
-                                       growth=1 if growth else 0)
+                AgentTypeAttributeDetails(**attr_details)
     util.add_all(agent_data)
     calculate_growth_coef()
 
@@ -150,31 +169,6 @@ def seed(config_file):
         import_agents(abm_config[agent_class], agent_class)
 
 
-def create_agent_type_attr(agent_type, name, value, details=None, description=None, growth=None):
-    """TODO
-
-    TODO
-
-    Args:
-      agent_type: TODO
-      name: TODO
-      value: TODO
-      growth: TODO
-      details: TODO
-      description: TODO
-
-    Returns:
-      TODO
-    """
-    return AgentTypeAttribute(name=name,
-                              agent_type=agent_type,
-                              value=str(value),
-                              value_type=str(type(value).__name__),
-                              details=details,
-                              description=description,
-                              growth=growth)
-
-
 def calculate_growth_coef():
     agents = AgentType.query.all()
     for agent in agents:
@@ -190,93 +184,86 @@ def calculate_growth_coef():
             lifetime = float(lifetime.value)
         else:
             lifetime = 1
-        agent_type_attrs = AgentTypeAttribute.query.filter_by(agent_type=agent, growth=1).all()
-        for attr in agent_type_attrs:
+        agent_type_attribute_details = AgentTypeAttributeDetails.query.filter_by(agent_type=agent,
+                                                                                 is_growing=1).all()
+        for attr_details in agent_type_attribute_details:
+            attr = AgentTypeAttribute.query.filter_by(id=attr_details['agent_type_attribute_id']).first()
             update = False
-            details = json.loads(attr.details)
-            if details['lifetime_growth_type'] in ['norm', 'normal'] \
-                    and details['lifetime_growth_scale'] == '':
+            if attr_details['lifetime_growth_type'] in ['norm', 'normal'] \
+                    and attr_details['lifetime_growth_scale'] is None:
                 mean_value = float(attr.value)
                 day_length_minutes = location_to_day_length_minutes(location)
                 day_length_hours = day_length_minutes / 60
                 num_values = int(lifetime * day_length_hours + 1)
-                center = details['lifetime_growth_center']
-                center = float(center) if len(center) > 0 else None
-                min_value = details['lifetime_growth_min_value']
-                min_value = float(min_value) if len(min_value) > 0 else 0
-                invert = details['lifetime_growth_invert']
-                invert = bool(invert) if len(invert) > 0 else False
+                center = attr_details['lifetime_growth_center']
+                min_value = attr_details['lifetime_growth_min_value'] or 0
+                invert = attr_details['lifetime_growth_invert']
                 res = growth_func.optimize_bell_curve_mean(mean_value=mean_value,
                                                            num_values=num_values,
                                                            center=center,
                                                            min_value=min_value,
                                                            invert=invert,
                                                            noise=False)
-                details['lifetime_growth_scale'] = str(res['scale'])
-                attr.value = str(res['max_value'])
+                attr_details['lifetime_growth_scale'] = float(res['scale'])
+                attr.value = float(res['max_value'])
                 update = True
-            elif details['lifetime_growth_type'] in ['sig', 'sigmoid'] \
-                    and details['lifetime_growth_steepness'] == '':
+            elif attr_details['lifetime_growth_type'] in ['sig', 'sigmoid'] \
+                    and attr_details['lifetime_growth_steepness'] is None:
                 mean_value = float(attr.value)
                 day_length_minutes = location_to_day_length_minutes(location)
                 day_length_hours = day_length_minutes / 60
                 num_values = int(lifetime * day_length_hours + 1)
-                center = details['lifetime_growth_center']
-                center = float(center) if len(center) > 0 else None
-                min_value = details['lifetime_growth_min_value']
-                min_value = float(min_value) if len(min_value) > 0 else 0
+                center = attr_details['lifetime_growth_center']
+                min_value = attr_details['lifetime_growth_min_value'] or 0
                 res = growth_func.optimize_sigmoid_curve_mean(mean_value=mean_value,
                                                               num_values=num_values,
                                                               center=center,
                                                               min_value=min_value,
                                                               noise=False)
-                details['lifetime_growth_steepness'] = str(res['steepness'])
-                attr.value = str(res['max_value'])
+                attr_details['lifetime_growth_steepness'] = float(res['steepness'])
+                attr.value = float(res['max_value'])
                 update = True
-            if details['daily_growth_type'] in ['norm', 'normal'] \
-                    and details['daily_growth_scale'] == '':
+            if attr_details['daily_growth_type'] in ['norm', 'normal'] \
+                    and attr_details['daily_growth_scale'] is None:
                 mean_value = float(attr.value)
                 day_length_minutes = location_to_day_length_minutes(location)
                 day_length_hours = day_length_minutes / 60
                 day_length = int(day_length_hours)
-                center = details['daily_growth_center']
-                center = float(center) if len(center) > 0 else None
-                min_rate = details['daily_growth_min_rate']
-                min_value = float(min_rate) * mean_value if len(min_rate) else 0
-                invert = details['daily_growth_invert']
-                invert = bool(invert) if len(invert) > 0 else False
+                center = attr_details['daily_growth_center']
+                min_value = attr_details['daily_growth_min_value'] or 0
+                invert = attr_details['daily_growth_invert']
                 res = growth_func.optimize_bell_curve_mean(mean_value=mean_value,
                                                            num_values=day_length,
                                                            center=center,
                                                            min_value=min_value,
                                                            invert=invert,
                                                            noise=False)
-                details['daily_growth_scale'] = str(res['scale'])
+                attr_details['daily_growth_scale'] = float(res['scale'])
                 update = True
-            elif details['daily_growth_type'] in ['sig', 'sigmoid'] \
-                    and details['daily_growth_steepness'] == '':
+            elif attr_details['daily_growth_type'] in ['sig', 'sigmoid'] \
+                    and attr_details['daily_growth_steepness'] is None:
                 mean_value = float(attr.value)
                 day_length_minutes = location_to_day_length_minutes(location)
                 day_length_hours = day_length_minutes / 60
                 day_length = int(day_length_hours)
-                center = details['daily_growth_center']
-                center = float(center) if center else None
-                min_rate = details['daily_growth_min_rate']
-                min_value = float(min_rate) * mean_value if min_rate else 0
+                center = attr_details['daily_growth_center']
+                min_value = attr_details['daily_growth_min_rate'] or 0
                 res = growth_func.optimize_sigmoid_curve_mean(mean_value=mean_value,
                                                               num_values=day_length,
                                                               center=center,
                                                               min_value=min_value,
                                                               noise=False)
-                details['daily_growth_steepness'] = str(res['steepness'])
+                attr_details['daily_growth_steepness'] = float(res['steepness'])
                 update = True
             if update:
                 db.session.delete(attr)
-                new_attr = AgentTypeAttribute(name=attr.name, agent_type=agent,
+                db.session.delete(attr_details)
+                new_attr = AgentTypeAttribute(id=attr.id,
+                                              name=attr.name,
+                                              agent_type=agent,
                                               value=attr.value,
                                               value_type=str(type(attr.value).__name__),
-                                              details=json.dumps(details),
-                                              description=attr.description,
-                                              growth=attr.growth)
-                db.session.add(new_attr)
+                                              description=None)
+                new_attr_details = AgentTypeAttributeDetails(**attr_details.get_data())
+                db.session.add_all([new_attr, new_attr_details])
                 db.session.commit()

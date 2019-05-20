@@ -79,16 +79,8 @@ class DescriptiveAttribute(BaseAttribute):
     __abstract__ = True
 
     @declared_attr
-    def details(cls):
-        return db.Column(db.String(2048), nullable=True)
-
-    @declared_attr
     def description(cls):
         return db.Column(db.String(512), nullable=True)
-
-    @declared_attr
-    def growth(cls):
-        return db.Column(db.Integer, nullable=True)
 
 
 class AgentModelParam(DescriptiveAttribute):
@@ -110,6 +102,85 @@ class AgentTypeAttribute(DescriptiveAttribute):
                                                     cascade="all, delete-orphan"))
 
 
+class AgentTypeAttributeDetails(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    agent_type_attribute_id = db.Column(db.Integer, db.ForeignKey("agent_type_attribute.id"),
+                                        nullable=False)
+    agent_type_attribute = db.relationship("AgentTypeAttribute",
+                                           backref=db.backref("attribute_details", lazy=False,
+                                                              cascade="all, delete-orphan"))
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
+    agent_type = db.relationship("AgentType")
+    units = db.Column(db.String(100), nullable=True)
+    flow_unit = db.Column(db.String(100), nullable=True)
+    flow_time = db.Column(db.String(100), nullable=True)
+    criteria_name = db.Column(db.String(100), nullable=True)
+    criteria_limit = db.Column(db.String(100), nullable=True)
+    criteria_value = db.Column(db.Float, nullable=True)
+    criteria_buffer = db.Column(db.Float, nullable=True)
+    deprive_unit = db.Column(db.String(100), nullable=True)
+    deprive_value = db.Column(db.Float, nullable=True)
+    is_required = db.Column(db.Integer, nullable=True)
+    requires = db.Column(db.JSON, nullable=True)
+    is_growing = db.Column(db.Integer, nullable=True)
+    lifetime_growth_type = db.Column(db.String(100), nullable=True)
+    lifetime_growth_center = db.Column(db.Float, nullable=True)
+    lifetime_growth_min_value = db.Column(db.Float, nullable=True)
+    lifetime_growth_max_value = db.Column(db.Float, nullable=True)
+    lifetime_growth_min_threshold = db.Column(db.Float, nullable=True)
+    lifetime_growth_max_threshold = db.Column(db.Float, nullable=True)
+    lifetime_growth_invert = db.Column(db.Integer, nullable=True)
+    lifetime_growth_noise = db.Column(db.Integer, nullable=True)
+    lifetime_growth_scale = db.Column(db.Float, nullable=True)
+    lifetime_growth_steepness = db.Column(db.Float, nullable=True)
+    daily_growth_type = db.Column(db.String(100), nullable=True)
+    daily_growth_center = db.Column(db.Float, nullable=True)
+    daily_growth_min_value = db.Column(db.Float, nullable=True)
+    daily_growth_max_value = db.Column(db.Float, nullable=True)
+    daily_growth_min_threshold = db.Column(db.Float, nullable=True)
+    daily_growth_max_threshold = db.Column(db.Float, nullable=True)
+    daily_growth_invert = db.Column(db.Integer, nullable=True)
+    daily_growth_noise = db.Column(db.Integer, nullable=True)
+    daily_growth_scale = db.Column(db.Float, nullable=True)
+    daily_growth_steepness = db.Column(db.Float, nullable=True)
+
+    def get_data(self):
+        return {'agent_type_attribute_id':  self.agent_type_attribute_id,
+                'agent_type_id': self.agent_type_id,
+                'units': self.units,
+                'flow_unit': self.flow_unit,
+                'flow_time': self.flow_time,
+                'criteria_name': self.criteria_name,
+                'criteria_limit': self.criteria_limit,
+                'criteria_value': self.criteria_value,
+                'criteria_buffer': self.criteria_buffer,
+                'deprive_unit': self.deprive_unit,
+                'deprive_value': self.deprive_value,
+                'is_required': self.is_required,
+                'requires': self.requires,
+                'is_growing': self.is_growing,
+                'lifetime_growth_type': self.lifetime_growth_type,
+                'lifetime_growth_center': self.lifetime_growth_center,
+                'lifetime_growth_min_value': self.lifetime_growth_min_value,
+                'lifetime_growth_max_value': self.lifetime_growth_max_value,
+                'daily_growth_type': self.daily_growth_type,
+                'daily_growth_center': self.daily_growth_center,
+                'daily_growth_min_value': self.daily_growth_min_value,
+                'daily_growth_max_value': self.daily_growth_max_value,
+                'lifetime_growth_min_threshold': self.lifetime_growth_min_threshold,
+                'lifetime_growth_max_threshold': self.lifetime_growth_max_threshold,
+                'daily_growth_min_threshold': self.daily_growth_min_threshold,
+                'daily_growth_max_threshold': self.daily_growth_max_threshold,
+                'daily_growth_invert': self.daily_growth_invert,
+                'lifetime_growth_invert': self.lifetime_growth_invert,
+                'daily_growth_noise': self.daily_growth_noise,
+                'lifetime_growth_noise': self.lifetime_growth_noise,
+                'daily_growth_scale': self.daily_growth_scale,
+                'lifetime_growth_scale': self.lifetime_growth_scale,
+                'daily_growth_steepness': self.daily_growth_steepness,
+                'lifetime_growth_steepness': self.lifetime_growth_steepness}
+
+
 class AgentState(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     agent_model_state_id = db.Column(db.Integer, db.ForeignKey("agent_model_state.id"),
@@ -117,8 +188,7 @@ class AgentState(BaseEntity):
     agent_model_state = db.relationship("AgentModelState",
                                         backref=db.backref("agent_states", lazy=False,
                                                            cascade="all, delete-orphan"))
-    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"),
-                              nullable=False)
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
     agent_type = db.relationship("AgentType")
     agent_unique_id = db.Column(db.String(100), nullable=False)
     model_time_created = db.Column(db.Interval(), nullable=False)

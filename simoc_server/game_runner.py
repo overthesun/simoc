@@ -193,6 +193,7 @@ class GameRunner(object):
             db.session.execute(AgentTypeCountRecord.__table__.insert(), agent_type_counts,)
             db.session.execute(StorageCapacityRecord.__table__.insert(), storage_capacities,)
             db.session.execute(StepRecord.__table__.insert(), step_records,)
+            db.session.commit()
 
         def step_loop(agent_model):
             model_records_buffer = []
@@ -219,7 +220,6 @@ class GameRunner(object):
                           agent_model.step_records_buffer)
 
         step_loop(self.agent_model)
-        db.session.commit()
         self.reset_last_accessed()
 
 

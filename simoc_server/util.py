@@ -1,7 +1,6 @@
 import datetime
 import importlib
 
-from simoc_server.exceptions import ServerError
 
 class NotLoaded(object):
 
@@ -18,16 +17,15 @@ class NotLoaded(object):
         raise ValueError("Object is not yet loaded from database.")
 
 
-def load_db_attributes_into_dict(attributes, target_values=None, target_descriptions=None,
-        load_later=[]):
-    if target_values is None:
-        target = {}
-
+def load_db_attributes_into_dict(attributes, target_values=None, target_details=None, load_later=[]):
     for attribute in attributes:
-        # get type of attribute
         attribute_name = attribute.name
-        details = attribute.details
-        if attribute.value_type == type(None).__name__:
+        details = attribute.attribute_details
+        if len(details) > 0:
+            details = details[0].get_data()
+        else:
+            details = None
+        if attribute.value_type is None:
             value = None
         else:
             try:
@@ -47,9 +45,9 @@ def load_db_attributes_into_dict(attributes, target_values=None, target_descript
                 value = NotLoaded(value_str)
 
         target_values[attribute_name] = value
-        target_descriptions[attribute_name] = details
+        target_details[attribute_name] = details
 
-    return target_values, target_descriptions
+    return target_values, target_details
 
 
 def extend_dict(dict_a, dict_b, in_place=False):

@@ -17,7 +17,7 @@ from simoc_server import db, app
 from simoc_server.agent_model.agents.core import GeneralAgent, StorageAgent
 from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentModelParam, AgentType, AgentModelState, \
-    AgentModelSnapshot, ModelRecord, SnapshotBranch, AgentTypeCountRecord, StorageCapacityRecord
+    AgentModelSnapshot, SnapshotBranch
 from simoc_server.util import timedelta_to_hours, location_to_day_length_minutes
 
 
@@ -193,12 +193,12 @@ class AgentModel(Model, AttributeHolder):
         storages = []
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
             entity = {"agent_type_id": storage.agent_type_id, "agent_id": storage.id, "currencies": []}
-            for attr in storage.agent_type_attributes:
+            for attr in storage.attrs:
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
                     value = "{:.4f}".format(storage[currency])
-                    capacity = storage.agent_type_attributes[attr]
-                    storage_unit = storage.agent_type_descriptions[attr]
+                    capacity = storage.attrs[attr]
+                    storage_unit = storage.attr_details[attr]['units']
                     entity["currencies"].append({"name": currency, "value": value,
                                                  "capacity": capacity, "units": storage_unit})
             storages.append(entity)
@@ -417,10 +417,10 @@ class AgentModel(Model, AttributeHolder):
             if storage_id not in self.storage_ratios:
                 self.storage_ratios[storage_id] = {}
             temp, total = {}, None
-            for attr in storage.agent_type_attributes:
+            for attr in storage.attrs:
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
-                    storage_unit = storage.agent_type_descriptions[attr]
+                    storage_unit = storage.attr_details[attr]['units']
                     storage_value = pq.Quantity(float(storage[currency]), storage_unit)
                     if not total:
                         total = storage_value
