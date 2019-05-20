@@ -12,7 +12,7 @@ from simoc_server.exceptions import InvalidLogin, BadRequest, BadRegistration, \
     GenericError, NotFound
 from simoc_server.game_runner import (GameRunnerManager, GameRunnerInitializationParams)
 from simoc_server.serialize import serialize_response, data_format_name
-from simoc_server.front_end_routes import convert_configuration
+from simoc_server.front_end_routes import convert_configuration,calc_step_in_out
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -192,14 +192,43 @@ def get_step():
     Gets the step with the requsted 'step_num', if not specified,
         uses current model step.
 
+    total_production, total_consumption and model_stats are not calculated by default. 
+    They must be requested as per the examples below.
+
+    Input:
+       JSON specifying step_num, and the info you want included in the step_data returned
+       
+
+    Example 1:
+    {"step_num": 1, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"]}    TBD: implement ,"storage_ratios":{"air_storage_1":["atmo_co2"]}}
+    Added to output for example 1: 
+    'total_production': {'atmo_co2': {'value': 0.128, 'unit': '1.0 kg'}, 'h2o_wste': {'value': 0.13418926977687629, 'unit': '1.0 kg'}}, 'total_consumption': {'h2o_wste': {'value': 1.5, 'unit': '1.0 kg'}}
+
     Returns
     -------
     str:
         json format -
     '''
-    step_num = request.args.get("step_num", type=int)
+    input = request.get_json()
+#    input = {"step_num": 1, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]}}
+
+    step_num = input["step_num"] if "step_num" in input else None
+
+    #FIXME: should this come from the backend or the frontend. 
+    if not "game_id" in input:
+        game_runner = game_runner_manager.get_game_runner(get_standard_user_obj())
+        game_id = game_runner.game_id
+    else:
+        game_id = input["game_id"]
+
     agent_model_state = game_runner_manager.get_step(
-        get_standard_user_obj(), step_num)
+        get_standard_user_obj(), game_id, step_num)
+    
+    if "total_production" in input:
+        agent_model_state["total_production"] = calc_step_in_out(step_num,"out",input["total_production"]) 
+    if "total_consumption" in input:
+        agent_model_state["total_consumption"] = calc_step_in_out(step_num,"in",input["total_consumption"])
+
     return json.dumps(agent_model_state)
 
 

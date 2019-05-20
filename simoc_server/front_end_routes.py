@@ -9,7 +9,7 @@ import math
 from flask import request
 
 from simoc_server import app, db
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute,StepRecord
 
 @app.route("/get_mass", methods=["GET"])
 def get_mass():
@@ -213,3 +213,30 @@ def convert_configuration(game_config):
             y[0]["connections"]["food_storage"] = food_connections
 
     return (full_game_config)
+
+
+def calc_step_in_out(step_num,direction,currencies):
+    ''' 
+    Calculate the total production or total consumption of given currencies for a given step.
+
+    Called from: route views.get_step()
+
+    Input: step_num, direction "in" or "out" in=consumption, out=production
+    currencies = list of currencies for which to calculate consumption or production. e.g. currencies = ["atmo_o2",""engr_kwh"]
+
+    Output: dictionary of values and units for each currency. e.g. {"atmo_o2":{"value":0.05,"units":"kg"}}
+    The unit is selected from the first currency, assuming all currencies with this name have the same units.
+    
+    FIXME: can't handle step_num=None
+    '''
+    output = {}
+
+    step_data = StepRecord.query.filter_by(step_num = step_num).filter_by(direction=direction)
+    
+    for currency in currencies:
+        this_step_data = step_data.filter_by(currency=currency).all()
+        values = [i.value for i in this_step_data]
+        output[currency] = {"value":sum(values),"unit":this_step_data[0].unit}
+
+    return output
+
