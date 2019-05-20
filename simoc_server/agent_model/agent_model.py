@@ -3,6 +3,7 @@ r"""Describes Agent Model interface and behaviour,
 
 import datetime
 import json
+import random
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
@@ -138,29 +139,32 @@ class AgentModel(Model, AttributeHolder):
 
         Returns:
         """
-        model_record = ModelRecord(step_num=self.step_num,
-                                   user_id=self.user_id,
-                                   time=self["time"].total_seconds(),
-                                   hours_per_step=timedelta_to_hours(self.timedelta_per_step()),
-                                   is_terminated=str(self.is_terminated),
-                                   termination_reason=self.termination_reason)
-        records = [model_record]
+        record_id = random.randint(1, 1e7)
+        model_record = dict(id=record_id,
+                            step_num=self.step_num,
+                            user_id=self.user_id,
+                            time=self["time"].total_seconds(),
+                            hours_per_step=timedelta_to_hours(self.timedelta_per_step()),
+                            is_terminated=str(self.is_terminated),
+                            termination_reason=self.termination_reason)
+        agent_type_counts = []
         for agent_type_id, counter in self.get_agent_type_counts().items():
-            agent_type_count_record = AgentTypeCountRecord(model_record=model_record,
-                                                           agent_type_id=agent_type_id,
-                                                           agent_counter=counter)
-            records.append(agent_type_count_record)
+            agent_type_count_record = dict(model_record_id=record_id,
+                                           agent_type_id=agent_type_id,
+                                           agent_counter=counter)
+            agent_type_counts.append(agent_type_count_record)
+        storage_capacities = []
         for storage in self.get_storage_capacities():
             for currency in storage['currencies']:
-                storage_capacity_record = StorageCapacityRecord(model_record=model_record,
-                                                                agent_type_id=storage['agent_type_id'],
-                                                                agent_id=storage['agent_id'],
-                                                                currency=currency['name'],
-                                                                value=currency['value'],
-                                                                capacity=currency['capacity'],
-                                                                units=currency['units'])
-                records.append(storage_capacity_record)
-        return records
+                storage_capacity_record = dict(model_record_id=record_id,
+                                               agent_type_id=storage['agent_type_id'],
+                                               agent_id=storage['agent_id'],
+                                               currency=currency['name'],
+                                               value=currency['value'],
+                                               capacity=currency['capacity'],
+                                               units=currency['units'])
+                storage_capacities.append(storage_capacity_record)
+        return model_record, agent_type_counts, storage_capacities
 
     def get_agent_type_counts(self):
         """TODO

@@ -9,8 +9,10 @@ from simoc_server.agent_model import (AgentModel,
                                       AgentModelInitializationParams,
                                       BaseLineAgentInitializerRecipe)
 from simoc_server.database import SavedGame
-from simoc_server.database.db_model import (ModelRecord,
+from simoc_server.database.db_model import (AgentTypeCountRecord,
+                                            ModelRecord,
                                             StepRecord,
+                                            StorageCapacityRecord,
                                             User)
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
@@ -183,23 +185,38 @@ class GameRunner(object):
         buffer_size : int
             Size of the buffer used to batch the database updates
         """
-        def _save_records(model_records, step_records):
-            for record in model_records + step_records:
+        def _save_records(model_records, agent_type_counts, storage_capacities, step_records):
+            for record in model_records + agent_type_counts + storage_capacities + step_records:
                 record['start_time'] = self.start_time
                 record['game_id'] = self.game_id
+            db.session.execute(ModelRecord.__table__.insert(), model_records,)
+            db.session.execute(AgentTypeCountRecord.__table__.insert(), agent_type_counts,)
+            db.session.execute(StorageCapacityRecord.__table__.insert(), storage_capacities,)
             db.session.execute(StepRecord.__table__.insert(), step_records,)
-            db.session.add_all(model_records)
-            db.session.commit()
 
         def step_loop(agent_model):
-            model_records = []
+            model_records_buffer = []
+            agent_type_counts_buffer = []
+            storage_capacities_buffer = []
             while agent_model.step_num <= step_num and not agent_model.is_terminated:
                 agent_model.step()
-                model_records += agent_model.get_step_logs()
+                model_record, agent_type_counts, storage_capacities = agent_model.get_step_logs()
+                model_records_buffer.append(model_record)
+                agent_type_counts_buffer += agent_type_counts
+                storage_capacities_buffer += storage_capacities
                 if agent_model.step_num % buffer_size == 0:
-                    _save_records(model_records, agent_model.step_records)
-                    agent_model.step_records, model_records = [], []
-            _save_records(model_records, agent_model.step_records)
+                    _save_records(model_records_buffer,
+                                  agent_type_counts_buffer,
+                                  storage_capacities_buffer,
+                                  agent_model.step_records)
+                    model_records_buffer = []
+                    agent_type_counts_buffer = []
+                    storage_capacities_buffer = []
+                    agent_model.step_records = []
+            _save_records(model_records_buffer,
+                          agent_type_counts_buffer,
+                          storage_capacities_buffer,
+                          agent_model.step_records)
 
         step_loop(self.agent_model)
         self.reset_last_accessed()
