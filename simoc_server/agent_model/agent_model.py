@@ -111,7 +111,7 @@ class AgentModel(Model, AttributeHolder):
         self.minutes_per_step = init_params.minutes_per_step
         self.is_terminated = False
         self.storage_ratios = {}
-        self.step_records = []
+        self.step_records_buffer = []
         self.grid = MultiGrid(self.grid_width, self.grid_height, True)
         self.day_length_minutes = location_to_day_length_minutes(self.location)
         self.day_length_hours = self.day_length_minutes / 60

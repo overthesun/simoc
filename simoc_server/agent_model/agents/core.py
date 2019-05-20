@@ -526,7 +526,7 @@ class GeneralAgent(EnclosedAgent):
                                       "storage_type_id": storage.agent_type_id,
                                       "storage_id": storage.id}
                             for i in range(self.amount):
-                                self.model.step_records.append(record)
+                                self.model.step_records_buffer.append(record)
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model

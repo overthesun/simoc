@@ -208,15 +208,15 @@ class GameRunner(object):
                     _save_records(model_records_buffer,
                                   agent_type_counts_buffer,
                                   storage_capacities_buffer,
-                                  agent_model.step_records)
+                                  agent_model.step_records_buffer)
                     model_records_buffer = []
                     agent_type_counts_buffer = []
                     storage_capacities_buffer = []
-                    agent_model.step_records = []
+                    agent_model.step_records_buffer = []
             _save_records(model_records_buffer,
                           agent_type_counts_buffer,
                           storage_capacities_buffer,
-                          agent_model.step_records)
+                          agent_model.step_records_buffer)
 
         step_loop(self.agent_model)
         self.reset_last_accessed()
