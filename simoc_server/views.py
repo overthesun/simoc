@@ -7,7 +7,7 @@ from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from simoc_server import app, db
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, AgentTypeAttributeDetails, SavedGame, User
 from simoc_server.exceptions import InvalidLogin, BadRequest, BadRegistration, \
     GenericError, NotFound
 from simoc_server.game_runner import (GameRunnerManager, GameRunnerInitializationParams)
@@ -200,36 +200,45 @@ def get_step():
        
 
     Example 1:
-    {"step_num": 1, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"]}    TBD: implement ,"storage_ratios":{"air_storage_1":["atmo_co2"]}}
+    {"min_step_num": 1, "n_steps": 5, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"]}    TBD: implement ,"storage_ratios":{"air_storage_1":["atmo_co2"]}}
     Added to output for example 1: 
-    'total_production': {'atmo_co2': {'value': 0.128, 'unit': '1.0 kg'}, 'h2o_wste': {'value': 0.13418926977687629, 'unit': '1.0 kg'}}, 'total_consumption': {'h2o_wste': {'value': 1.5, 'unit': '1.0 kg'}}
+    {1: {...,'total_production': {'atmo_co2': {'value': 0.128, 'unit': '1.0 kg'}, 'h2o_wste': {'value': 0.13418926977687629, 'unit': '1.0 kg'}}, 'total_consumption': {'h2o_wste': {'value': 1.5, 'unit': '1.0 kg'}}, 2:{...},...,5:{...}}
 
     Returns
     -------
     str:
         json format -
     '''
+
     input = request.get_json()
-#    input = {"step_num": 1, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]}}
+#    input = {"min_step_num": 2, "n_steps":1, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]}}
 
-    step_num = input["step_num"] if "step_num" in input else None
+    if not "min_step_num" in input and "n_steps" in input:
+        sys.exit("ERROR: min_step_num and n_steps are required as input to views.get_step() route")
+    min_step_num = int(input["min_step_num"])
+    n_steps = int(input["min_step_num"])
 
-    #FIXME: should this come from the backend or the frontend. 
+    #FIXME: this should come from the front end (gets passed to front end in new_game route)
     if not "game_id" in input:
         game_runner = game_runner_manager.get_game_runner(get_standard_user_obj())
         game_id = game_runner.game_id
     else:
         game_id = input["game_id"]
 
-    agent_model_state = game_runner_manager.get_step(
-        get_standard_user_obj(), game_id, step_num)
+    output = {}
+    for step_num in range(min_step_num,min_step_num+n_steps):
+        agent_model_state = game_runner_manager.get_step(
+            get_standard_user_obj(), game_id, step_num)
     
-    if "total_production" in input:
-        agent_model_state["total_production"] = calc_step_in_out(step_num,"out",input["total_production"]) 
-    if "total_consumption" in input:
-        agent_model_state["total_consumption"] = calc_step_in_out(step_num,"in",input["total_consumption"])
+        if "total_production" in input:
+            agent_model_state["total_production"] = calc_step_in_out(step_num,"out",input["total_production"]) 
+        if "total_consumption" in input:
+            agent_model_state["total_consumption"] = calc_step_in_out(step_num,"in",input["total_consumption"])
 
-    return json.dumps(agent_model_state)
+        output[int(step_num)] = agent_model_state
+
+#    print ("FIXMESW: output",json.dumps(output))
+    return json.dumps(output)
 
 
 @app.route("/get_step_to", methods=["GET"])
@@ -268,7 +277,7 @@ def get_agent_types_by_class():
                 entry[prefix].append(currency)
             else:
                 entry[prefix].append(
-                    {"name": currency, "value": attr.value, "units": attr.details})
+                    {"name": currency, "value": attr.value})#FIXME: see issue #68, "units": attr.details})
         results.append(entry)
     return json.dumps(results)
 
