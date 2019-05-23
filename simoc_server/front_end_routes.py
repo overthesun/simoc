@@ -9,7 +9,7 @@ import math
 from flask import request
 
 from simoc_server import app, db
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute,StepRecord
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, StepRecord, ModelRecord, StorageCapacityRecord
 
 @app.route("/get_mass", methods=["GET"])
 def get_mass():
@@ -226,8 +226,7 @@ def calc_step_in_out(step_num,direction,currencies):
 
     Output: dictionary of values and units for each currency. e.g. {"atmo_o2":{"value":0.05,"units":"kg"}}
     The unit is selected from the first currency, assuming all currencies with this name have the same units.
-    
-    FIXME: can't handle step_num=None
+
     '''
     output = {}
 
@@ -237,6 +236,48 @@ def calc_step_in_out(step_num,direction,currencies):
         this_step_data = step_data.filter_by(currency=currency).all()
         values = [i.value for i in this_step_data]
         output[currency] = {"value":sum(values),"unit":this_step_data[0].unit}
+
+    return output
+
+
+def calc_step_storage_ratios(step_num,agents):
+    ''' 
+    Calculate the ratio for the requested currencies for the requested <agent_type>_<agent_id> and step_num.
+
+    Called from: route views.get_step()
+
+    Input: step_num, agents = dictionary of agents for which to calculate ratios. For each agent, give a list of the currencies which should be included in the output. e.g.{"air_storage_1":["atmo_co2"]}
+
+    Output: dictionary of agents, each agent has a dictionary of currency:ratio pairs. e.g. {"air_storage_1": {"atmo_co2": 0.21001018914835098}
+    '''
+    output = {}
+
+    step_data = ModelRecord.query.filter_by(step_num = step_num).first()
+    
+    for agent in agents:
+        agent_type = agent[:agent.rfind("_")]
+        agent_id = int(agent[agent.rfind("_")+1:])
+
+        agent_type = AgentType.query.filter_by(name=agent_type).first()
+        
+        capacities = StorageCapacityRecord.query.filter_by(agent_type=agent_type).filter_by(model_record=step_data).filter_by(storage_id=agent_id)
+
+        #First, get sum of all currencies
+        sum = 0
+        unit = ""
+        for cap in capacities.all():
+            sum += cap.value
+            if unit == "":
+                unit = cap.units
+            else:
+                if not cap.units == unit:
+                    sys.exit("ERROR in front_end_routes.calc_step_storage_ratios(). Currencies do not have same units.",unit,cap.unit)
+
+        output[agent] = {}
+        #Now, calculate the ratio for specified currencies.
+        for currency in agents[agent]:
+            c_step_data = capacities.filter_by(currency=currency).first()
+            output[agent][currency] = c_step_data.value/sum
 
     return output
 

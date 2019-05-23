@@ -12,7 +12,7 @@ from simoc_server.exceptions import InvalidLogin, BadRequest, BadRegistration, \
     GenericError, NotFound
 from simoc_server.game_runner import (GameRunnerManager, GameRunnerInitializationParams)
 from simoc_server.serialize import serialize_response, data_format_name
-from simoc_server.front_end_routes import convert_configuration,calc_step_in_out
+from simoc_server.front_end_routes import convert_configuration,calc_step_in_out, calc_step_storage_ratios
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -200,9 +200,9 @@ def get_step():
        
 
     Example 1:
-    {"min_step_num": 1, "n_steps": 5, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"]}    TBD: implement ,"storage_ratios":{"air_storage_1":["atmo_co2"]}}
+    {"min_step_num": 1, "n_steps": 5, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]}}
     Added to output for example 1: 
-    {1: {...,'total_production': {'atmo_co2': {'value': 0.128, 'unit': '1.0 kg'}, 'h2o_wste': {'value': 0.13418926977687629, 'unit': '1.0 kg'}}, 'total_consumption': {'h2o_wste': {'value': 1.5, 'unit': '1.0 kg'}}, 2:{...},...,5:{...}}
+    {1: {...,'total_production': {'atmo_co2': {'value': 0.128, 'unit': '1.0 kg'}, 'h2o_wste': {'value': 0.13418926977687629, 'unit': '1.0 kg'}}, 'total_consumption': {'h2o_wste': {'value': 1.5, 'unit': '1.0 kg'}}, 2:{...},...,5:{...},"storage_ratios": {"air_storage_1": {"atmo_co2": 0.00038879091443387717}}}
 
     Returns
     -------
@@ -212,8 +212,10 @@ def get_step():
 
     input = request.get_json()
 #    input = {"min_step_num": 2, "n_steps":1, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]}}
+#    get_step_to()
 
-    if not "min_step_num" in input and "n_steps" in input:
+
+    if not "min_step_num" in input and not "n_steps" in input:
         sys.exit("ERROR: min_step_num and n_steps are required as input to views.get_step() route")
     min_step_num = int(input["min_step_num"])
     n_steps = int(input["min_step_num"])
@@ -234,10 +236,12 @@ def get_step():
             agent_model_state["total_production"] = calc_step_in_out(step_num,"out",input["total_production"]) 
         if "total_consumption" in input:
             agent_model_state["total_consumption"] = calc_step_in_out(step_num,"in",input["total_consumption"])
+        if "storage_ratios" in input:
+            agent_model_state["storage_ratios"] = calc_step_storage_ratios(step_num,input["storage_ratios"])
 
         output[int(step_num)] = agent_model_state
 
-#    print ("FIXMESW: output",json.dumps(output))
+#    print ("FIXMESW: output get step",json.dumps(output))
     return json.dumps(output)
 
 
