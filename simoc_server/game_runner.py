@@ -416,17 +416,27 @@ class GameRunnerManager(object):
             return None
 
     @staticmethod
-    def parse_step_data(step_data):
-        response = step_data.get_data()
+    def parse_step_data(step_data,filters=["agent_type_counters","storage_capacities"]):
+        reduced_output = step_data.get_data()
+
         agent_logs = StepRecord.query \
             .filter_by(user=step_data.user) \
             .filter_by(game_id=step_data.game_id) \
             .filter_by(step_num=step_data.step_num) \
             .all()
+
+        response = {}
         response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters]
         response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities]
         response['agent_logs'] = [i.get_data() for i in agent_logs]
-        return response
+
+        for filter in filters:
+            if not filter in response:
+                print ("WARNING: No parse_filters option",filter,"in game_runner.parse_step_data.")
+            else:
+                reduced_output[filter] = response[filter]
+        
+        return reduced_output
 
     def get_last_steps(self, user, game_id, num_last_steps=1):
         """Get the the last N steps for the given user and the game.
@@ -490,7 +500,7 @@ class GameRunnerManager(object):
         else:
             return []
 
-    def get_step(self, user, game_id, step_num=None):
+    def get_step(self, user, game_id, step_num=None,parse_filters=["agent_type_counters","storage_capacities"]):
         """Get the step number requested for the given user and the game.
 
         Accessed from front end using route get_step() in views.py
@@ -523,7 +533,7 @@ class GameRunnerManager(object):
         if step_data is None:
             return {}
         else:
-            return self.parse_step_data(step_data)
+            return self.parse_step_data(step_data,parse_filters)
 
     def get_step_to(self, user, step_num=None, buffer_size=10):
         """Run the agent model to the requested step.

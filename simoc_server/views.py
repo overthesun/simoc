@@ -195,6 +195,10 @@ def get_step():
     total_production, total_consumption and model_stats are not calculated by default. 
     They must be requested as per the examples below.
 
+    By default, "agent_type_counters" and "storage_capacities" are included in the output, but "agent_logs" is not. If you want to change what is included, of these three, specify "parse_filters":[] in the input. An empty list will mean none of the three are included in the output.
+
+    The following options are always returned, but if wanted could have option to filter out in future: {'user_id': 1, 'username': 'sinead', 'start_time': 1559046239, 'game_id': '7b966b7a', 'step_num': 3, 'hours_per_step': 1.0, 'is_terminated': 'False', 'time': 10800.0, 'termination_reason': None}
+
     Input:
        JSON specifying step_num, and the info you want included in the step_data returned
        
@@ -212,7 +216,6 @@ def get_step():
 
     input = request.get_json()
 #    input = {"min_step_num": 2, "n_steps":1, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]}}
-#    get_step_to()
 
 
     if not "min_step_num" in input and not "n_steps" in input:
@@ -227,10 +230,13 @@ def get_step():
     else:
         game_id = input["game_id"]
 
+    #Which of the output from game_runner.parse_step_data to you want returned. 
+    parse_filters=["agent_type_counters","storage_capacities"] if not "parse_filters" in input else input["parse_filters"]
+
     output = {}
     for step_num in range(min_step_num,min_step_num+n_steps):
         agent_model_state = game_runner_manager.get_step(
-            get_standard_user_obj(), game_id, step_num)
+            get_standard_user_obj(), game_id, step_num,parse_filters)
     
         if "total_production" in input:
             agent_model_state["total_production"] = calc_step_in_out(step_num,"out",input["total_production"]) 
@@ -241,7 +247,6 @@ def get_step():
 
         output[int(step_num)] = agent_model_state
 
-#    print ("FIXMESW: output get step",json.dumps(output))
     return json.dumps(output)
 
 
