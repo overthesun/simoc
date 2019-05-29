@@ -150,9 +150,11 @@ def new_game():
     Creates a new game on the current session and adds
     a game runner to the game_runner_manager
 
+    Prints a success message
+
     Returns
     -------
-    str: A success message.
+    str: The game ID
     '''
 
     try:
@@ -182,7 +184,13 @@ def new_game():
     game_runner_manager.new_game(
         get_standard_user_obj(),
         game_runner_init_params)
-    return success("New Game Starts")
+
+    #get game ID
+    game_runner = game_runner_manager.get_game_runner(get_standard_user_obj())
+    game_id = game_runner.game_id
+
+    success("New Game Starts")
+    return game_id
 
 
 @app.route("/get_step", methods=["GET"])
