@@ -223,13 +223,13 @@ def get_step():
     '''
 
     input = request.get_json()
-#    input = {"min_step_num": 2, "n_steps":1, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]}}
-
+#    input = {"min_step_num": 1, "n_steps": 3, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]},"parse_filters":[]}
+#    get_step_to()
 
     if not "min_step_num" in input and not "n_steps" in input:
         sys.exit("ERROR: min_step_num and n_steps are required as input to views.get_step() route")
     min_step_num = int(input["min_step_num"])
-    n_steps = int(input["min_step_num"])
+    n_steps = int(input["n_steps"])
 
     #FIXME: this should come from the front end (gets passed to front end in new_game route)
     if not "game_id" in input:
