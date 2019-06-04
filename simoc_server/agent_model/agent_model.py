@@ -8,7 +8,7 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 import quantities as pq
-from mesa import Model
+#from mesa import Model
 from mesa.space import MultiGrid
 from mesa.time import RandomActivation
 from sqlalchemy.orm.exc import StaleDataError
