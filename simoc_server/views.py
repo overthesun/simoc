@@ -1,5 +1,14 @@
 import json
 import math
+
+from flask import after_this_request, request
+from io import StringIO as IO
+import gzip
+import functools 
+
+
+from flask_compress import Compress
+
 from collections import OrderedDict
 
 from flask import request, render_template
@@ -7,12 +16,12 @@ from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from simoc_server import app, db
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, AgentTypeAttributeDetails, SavedGame, User
 from simoc_server.exceptions import InvalidLogin, BadRequest, BadRegistration, \
     GenericError, NotFound
 from simoc_server.game_runner import (GameRunnerManager, GameRunnerInitializationParams)
 from simoc_server.serialize import serialize_response, data_format_name
-from simoc_server.front_end_routes import convert_configuration
+from simoc_server.front_end_routes import convert_configuration,calc_step_in_out, calc_step_storage_ratios
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -27,51 +36,15 @@ def create_game_runner_manager():
     global game_runner_manager
     game_runner_manager = GameRunnerManager()
 
-
-content = {
-    'formid': 'wizardform',
-    'wizard': {
-        'startInformation':          'Welcome to SIMOC, a scalable model of an isolated, off-world community. Here you will enjoy the challenges and rewards of growing your habitat to a thriving city, or exploring the surrounding terrain with a limited crew. Whatever your mode of operation, be warned that closed ecosystems are a delicate thing, easy to unbalance and difficult to recover.',
-        'startInformationp2':        'Select from Play Mode or Science Run. In Play Mode you will interact regularly, making decisions that alter the course of the growth of your community. In a Science Run you will configure the model up-front and let it run its full course without interaction, then collect the data when done.',
-        'configurationInformation':  'Select from Preset models or Configure your own SIMOC community. The Preset models are each based upon a real-world experiment or base-line configuration. They require very little input and as such, the outcome is anticipated within a certain margin of error. These are used primarily for Science Runs. If you select to Configure your own model, you will be taken step-by-step through the panels in this Configuration Wizard.',
-        'locationInformation':       'Where you place your initial habitat and build your community is perhaps the single most important decision made. In Earth orbit you are just hours away from a launch pad and supplies and realtime communications. On the Moon things become more challenging, yet you remain relatively close to home where an evacuation puts you safely on terra firma within a matter of days. But on Mars, in the asteroid belt, or on the distant moons of Jupiter or Saturn you are months from home even with the fastest rocket available. Truly isolated, successful in situ resource utilization may be the difference between success and failure.',
-        'regionInformation':         'Within the Location you must choose where on the celestial body you desire to place your foundational habitat. You may take into consideration the overall mission objective: to grow a massive, thriving city, to conduct geologic exploration, or to search for life.',
-        'terrainInformation':        'Your mission may be to explore a unique geological area, but that same area is devoid of water in relatively dry soil, forcing you to import water or extract it from a distant region at the cost of fuel for transport. With regolith rich in minerals you can more rapidly build new structures. With longer days you gain more energy by means of solar panels.',
-        'launchInformation':         'Select the date of launch and how long your crew remains at the habitat dictates whether you are to rely solely upon imported goods and supplies, or those enabled through in situ resource utilization.',
-        'transportationInformation': 'Select the type of rocket, resulting in how long it takes to arrive to the destination. A shorter flight consumes more fuel and thereby forces a smaller payload. A longer flight enables more humans and/or supplies, but requires more time to arrive.',
-        'payloadInformation':        'Select a balance between cargo (goods, machinery, habitat modules, food and water stores) and humans. This is governed by the total kilograms (Kg) of carrying capacity for the given rocket. The user must select the number of humans taken along for the ride, which invokes a certain mass of water, food, and breathable atmosphere. What remains is for cargo.',
-        'modelInformation':          'The Model defines the basic mode of operation, and the underlying algorithm that will govern the growth policy of the community. Based upon the prior screen (PAYLOAD), the system will auto-select provisions, rovers, structures, manufacturing equipment. These are listed as preloaded configurations. In a later version, the player can manually select the specific payload.'}}
-
-
-@app.route("/test_route", methods=["GET", "POST"])
-def testroute():
-    return render_template('partial_dashboard.html', static_url_path='/static')
-
-
-@app.route("/test_route2", methods=["GET", "POST"])
-def testroute2():
-    return render_template('test.html')
-
-
 @app.route("/")
 def home():
     return render_template('index.html')
 
-
-@app.route("/registerpanel", methods=["GET"])
-def registerpanel():
-    return render_template("base_registration.html")
-
-
-@app.route("/gameinit", methods=["GET"])
-def gameinit():
-    return render_template("base_template.html", content=content)
-
-
+'''
 @app.route("/data_format", methods=["GET"])
 def data_format():
     return data_format_name()
-
+'''
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -150,9 +123,11 @@ def new_game():
     Creates a new game on the current session and adds
     a game runner to the game_runner_manager
 
+    Prints a success message
+
     Returns
     -------
-    str: A success message.
+    str: The game ID
     '''
 
     try:
@@ -182,25 +157,92 @@ def new_game():
     game_runner_manager.new_game(
         get_standard_user_obj(),
         game_runner_init_params)
-    return success("New Game Starts")
+
+    #get game ID
+    game_runner = game_runner_manager.get_game_runner(get_standard_user_obj())
+    game_id = game_runner.game_id
+
+    success("New Game Starts")
+    return game_id
 
 
-@app.route("/get_step", methods=["GET"])
+@app.route("/get_step", methods=["POST"])
 @login_required
 def get_step():
     '''
     Gets the step with the requsted 'step_num', if not specified,
         uses current model step.
 
+    total_production, total_consumption and model_stats are not calculated by default. 
+    They must be requested as per the examples below.
+
+    By default, "agent_type_counters" and "storage_capacities" are included in the output, but "agent_logs" is not. If you want to change what is included, of these three, specify "parse_filters":[] in the input. An empty list will mean none of the three are included in the output.
+
+    The following options are always returned, but if wanted could have option to filter out in future: {'user_id': 1, 'username': 'sinead', 'start_time': 1559046239, 'game_id': '7b966b7a', 'step_num': 3, 'hours_per_step': 1.0, 'is_terminated': 'False', 'time': 10800.0, 'termination_reason': None}
+
+    Input:
+       JSON specifying step_num, and the info you want included in the step_data returned
+       
+
+    Example 1:
+    {"min_step_num": 1, "n_steps": 5, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]}}
+    Added to output for example 1: 
+    {1: {...,'total_production': {'atmo_co2': {'value': 0.128, 'unit': '1.0 kg'}, 'h2o_wste': {'value': 0.13418926977687629, 'unit': '1.0 kg'}}, 'total_consumption': {'h2o_wste': {'value': 1.5, 'unit': '1.0 kg'}}, 2:{...},...,5:{...},"storage_ratios": {"air_storage_1": {"atmo_co2": 0.00038879091443387717}}}
+
     Returns
     -------
     str:
         json format -
     '''
+
+    input = json.loads(request.data)
+#    input = {"min_step_num": 1, "n_steps": 3, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]},"parse_filters":[]}
+#    get_step_to()
+
+    if not "min_step_num" in input and not "n_steps" in input:
+        sys.exit("ERROR: min_step_num and n_steps are required as input to views.get_step() route")
+    min_step_num = int(input["min_step_num"])
+    n_steps = int(input["n_steps"])
+
+    #FIXME: this should come from the front end (gets passed to front end in new_game route)
+    if not "game_id" in input:
+        game_runner = game_runner_manager.get_game_runner(get_standard_user_obj())
+        game_id = game_runner.game_id
+    else:
+        game_id = input["game_id"]
+
+    #Which of the output from game_runner.parse_step_data to you want returned. 
+    parse_filters=["agent_type_counters","storage_capacities"] if not "parse_filters" in input else input["parse_filters"]
+
+    output = {}
+    for step_num in range(min_step_num,min_step_num+n_steps):
+        agent_model_state = game_runner_manager.get_step(
+            get_standard_user_obj(), game_id, step_num,parse_filters)
+    
+        if "total_production" in input:
+            agent_model_state["total_production"] = calc_step_in_out(step_num,"out",input["total_production"]) 
+        if "total_consumption" in input:
+            agent_model_state["total_consumption"] = calc_step_in_out(step_num,"in",input["total_consumption"])
+        if "storage_ratios" in input:
+            agent_model_state["storage_ratios"] = calc_step_storage_ratios(step_num,input["storage_ratios"])
+
+        output[int(step_num)] = agent_model_state
+
+    response = json.dumps(output)
+    response = response.encode('utf-8')
+    response = gzip.compress(response)
+    return response
+
+
+
+@app.route("/get_step_to", methods=["GET"])
+@login_required
+def get_step_to():
     step_num = request.args.get("step_num", type=int)
-    agent_model_state = game_runner_manager.get_step(
-        get_standard_user_obj(), step_num)
-    return json.dumps(agent_model_state)
+    game_runner_manager.get_step_to(get_standard_user_obj(), step_num)
+
+    return success("Steps Created")
+
 
 @app.route("/get_batch_steps", methods=["GET"])
 @login_required
@@ -211,28 +253,6 @@ def get_batch_steps():
         batch.append(state)
     return json.dumps(batch)
 
-@app.route("/get_logs", methods=["GET"])
-@login_required
-def get_logs():
-    filters = request.args.get("filters", [])
-    columns = request.args.get("columns", [])
-    agent_model = game_runner_manager.get_game_runner(
-        get_standard_user_obj()).agent_model
-    logs = agent_model.get_logs(filters=filters, columns=columns, dtype='list')
-    return json.dumps(logs)
-
-
-@app.route("/get_step_logs", methods=["GET"])
-@login_required
-def get_step_logs():
-    step_num = request.args.get("step_num", None)
-    filters = request.args.get("filters", [])
-    columns = request.args.get("columns", [])
-    agent_model = game_runner_manager.get_game_runner(
-        get_standard_user_obj()).agent_model
-    logs = agent_model.get_step_logs(
-        step_num, filters=filters, columns=columns, dtype='list')
-    return json.dumps(logs)
 
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
@@ -253,7 +273,7 @@ def get_agent_types_by_class():
                 entry[prefix].append(currency)
             else:
                 entry[prefix].append(
-                    {"name": currency, "value": attr.value, "units": attr.details})
+                    {"name": currency, "value": attr.value})#FIXME: see issue #68, "units": attr.details})
         results.append(entry)
     return json.dumps(results)
 

@@ -21,6 +21,25 @@ class BaseEntity(db.Model):
         return db.Column(db.DateTime, server_default=db.func.now(),
                          server_onupdate=db.func.now())
 
+    def _attr(self, name, default_value=None):
+        if name not in self.__dict__.keys():
+            self.__dict__[name] = default_value
+
+    def __getitem__(self, key):
+        return self.__dict__[key]
+
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
+
+    def __delitem__(self, key):
+        del self.__dict__[key]
+
+    def __contains__(self, key):
+        return key in self.__dict__
+
+    def __len__(self):
+        return len(self.__dict__)
+
 
 class User(BaseEntity, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -60,16 +79,8 @@ class DescriptiveAttribute(BaseAttribute):
     __abstract__ = True
 
     @declared_attr
-    def details(cls):
-        return db.Column(db.String(128), nullable=True)
-
-    @declared_attr
     def description(cls):
         return db.Column(db.String(512), nullable=True)
-
-    @declared_attr
-    def growth(cls):
-        return db.Column(db.Integer, nullable=True)
 
 
 class AgentModelParam(DescriptiveAttribute):
@@ -91,6 +102,85 @@ class AgentTypeAttribute(DescriptiveAttribute):
                                                     cascade="all, delete-orphan"))
 
 
+class AgentTypeAttributeDetails(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    agent_type_attribute_id = db.Column(db.Integer, db.ForeignKey("agent_type_attribute.id"),
+                                        nullable=False)
+    agent_type_attribute = db.relationship("AgentTypeAttribute",
+                                           backref=db.backref("attribute_details", lazy=False,
+                                                              cascade="all, delete-orphan"))
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
+    agent_type = db.relationship("AgentType")
+    units = db.Column(db.String(100), nullable=True)
+    flow_unit = db.Column(db.String(100), nullable=True)
+    flow_time = db.Column(db.String(100), nullable=True)
+    criteria_name = db.Column(db.String(100), nullable=True)
+    criteria_limit = db.Column(db.String(100), nullable=True)
+    criteria_value = db.Column(db.Float, nullable=True)
+    criteria_buffer = db.Column(db.Float, nullable=True)
+    deprive_unit = db.Column(db.String(100), nullable=True)
+    deprive_value = db.Column(db.Float, nullable=True)
+    is_required = db.Column(db.Integer, nullable=True)
+    requires = db.Column(db.JSON, nullable=True)
+    is_growing = db.Column(db.Integer, nullable=True)
+    lifetime_growth_type = db.Column(db.String(100), nullable=True)
+    lifetime_growth_center = db.Column(db.Float, nullable=True)
+    lifetime_growth_min_value = db.Column(db.Float, nullable=True)
+    lifetime_growth_max_value = db.Column(db.Float, nullable=True)
+    lifetime_growth_min_threshold = db.Column(db.Float, nullable=True)
+    lifetime_growth_max_threshold = db.Column(db.Float, nullable=True)
+    lifetime_growth_invert = db.Column(db.Integer, nullable=True)
+    lifetime_growth_noise = db.Column(db.Integer, nullable=True)
+    lifetime_growth_scale = db.Column(db.Float, nullable=True)
+    lifetime_growth_steepness = db.Column(db.Float, nullable=True)
+    daily_growth_type = db.Column(db.String(100), nullable=True)
+    daily_growth_center = db.Column(db.Float, nullable=True)
+    daily_growth_min_value = db.Column(db.Float, nullable=True)
+    daily_growth_max_value = db.Column(db.Float, nullable=True)
+    daily_growth_min_threshold = db.Column(db.Float, nullable=True)
+    daily_growth_max_threshold = db.Column(db.Float, nullable=True)
+    daily_growth_invert = db.Column(db.Integer, nullable=True)
+    daily_growth_noise = db.Column(db.Integer, nullable=True)
+    daily_growth_scale = db.Column(db.Float, nullable=True)
+    daily_growth_steepness = db.Column(db.Float, nullable=True)
+
+    def get_data(self):
+        return {'agent_type_attribute_id':  self.agent_type_attribute_id,
+                'agent_type_id': self.agent_type_id,
+                'units': self.units,
+                'flow_unit': self.flow_unit,
+                'flow_time': self.flow_time,
+                'criteria_name': self.criteria_name,
+                'criteria_limit': self.criteria_limit,
+                'criteria_value': self.criteria_value,
+                'criteria_buffer': self.criteria_buffer,
+                'deprive_unit': self.deprive_unit,
+                'deprive_value': self.deprive_value,
+                'is_required': self.is_required,
+                'requires': self.requires,
+                'is_growing': self.is_growing,
+                'lifetime_growth_type': self.lifetime_growth_type,
+                'lifetime_growth_center': self.lifetime_growth_center,
+                'lifetime_growth_min_value': self.lifetime_growth_min_value,
+                'lifetime_growth_max_value': self.lifetime_growth_max_value,
+                'daily_growth_type': self.daily_growth_type,
+                'daily_growth_center': self.daily_growth_center,
+                'daily_growth_min_value': self.daily_growth_min_value,
+                'daily_growth_max_value': self.daily_growth_max_value,
+                'lifetime_growth_min_threshold': self.lifetime_growth_min_threshold,
+                'lifetime_growth_max_threshold': self.lifetime_growth_max_threshold,
+                'daily_growth_min_threshold': self.daily_growth_min_threshold,
+                'daily_growth_max_threshold': self.daily_growth_max_threshold,
+                'daily_growth_invert': self.daily_growth_invert,
+                'lifetime_growth_invert': self.lifetime_growth_invert,
+                'daily_growth_noise': self.daily_growth_noise,
+                'lifetime_growth_noise': self.lifetime_growth_noise,
+                'daily_growth_scale': self.daily_growth_scale,
+                'lifetime_growth_scale': self.lifetime_growth_scale,
+                'daily_growth_steepness': self.daily_growth_steepness,
+                'lifetime_growth_steepness': self.lifetime_growth_steepness}
+
+
 class AgentState(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     agent_model_state_id = db.Column(db.Integer, db.ForeignKey("agent_model_state.id"),
@@ -98,20 +188,19 @@ class AgentState(BaseEntity):
     agent_model_state = db.relationship("AgentModelState",
                                         backref=db.backref("agent_states", lazy=False,
                                                            cascade="all, delete-orphan"))
-    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"),
-                              nullable=False)
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
     agent_type = db.relationship("AgentType")
-    agent_unique_id = db.Column(db.String(120), nullable=False)
+    agent_unique_id = db.Column(db.String(100), nullable=False)
     model_time_created = db.Column(db.Interval(), nullable=False)
     agent_id = db.Column(db.Integer, nullable=True)
-    active = db.Column(db.String(120), nullable=True)
+    active = db.Column(db.String(100), nullable=True)
     age = db.Column(db.Float, nullable=True)
     amount = db.Column(db.Integer, nullable=True)
     lifetime = db.Column(db.Integer, nullable=True)
-    connections = db.Column(db.String(1000), nullable=True)
-    buffer = db.Column(db.String(1000), nullable=True)
-    deprive = db.Column(db.String(1000), nullable=True)
-    attributes = db.Column(db.String(1000), nullable=False)
+    connections = db.Column(db.String(2048), nullable=True)
+    buffer = db.Column(db.String(2048), nullable=True)
+    deprive = db.Column(db.String(2048), nullable=True)
+    attributes = db.Column(db.String(2048), nullable=False)
 
 
 class AgentStateAttribute(BaseAttribute):
@@ -123,6 +212,105 @@ class AgentStateAttribute(BaseAttribute):
                                                      cascade="all, delete-orphan"))
 
 
+class StepRecord(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user = db.relationship("User")
+    step_num = db.Column(db.Integer, nullable=False)
+    start_time = db.Column(db.Integer, nullable=False)
+    game_id = db.Column(db.String(100), nullable=False)
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
+    agent_type = db.relationship("AgentType", foreign_keys=[agent_type_id])
+    agent_id = db.Column(db.String(100), nullable=False)
+    direction = db.Column(db.String(100), nullable=False)
+    currency = db.Column(db.String(100), nullable=False)
+    value = db.Column(db.Float, nullable=False)
+    unit = db.Column(db.String(100), nullable=False)
+    storage_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
+    storage_type = db.relationship("AgentType", foreign_keys=[storage_type_id])
+    storage_id = db.Column(db.Integer, nullable=False)
+    storage_agent_id = db.Column(db.String(100), nullable=False)
+
+    def get_data(self):
+        return {'user_id': self.user_id,
+                'username': self.user.username,
+                "step_num": self.step_num,
+                'start_time': self.start_time,
+                'game_id': self.game_id,
+                "agent_type": self.agent_type.name,
+                "agent_id": self.agent_id,
+                "direction": self.direction,
+                "currency": self.currency,
+                "value": self.value,
+                "unit": self.unit,
+                "storage_type": self.storage_type.name,
+                "storage_id": self.storage_id,
+                "storage_agent_id": self.storage_agent_id}
+
+
+class ModelRecord(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user = db.relationship("User")
+    start_time = db.Column(db.Integer, nullable=False)
+    game_id = db.Column(db.String(100), nullable=False)
+    step_num = db.Column(db.Integer, nullable=False)
+    hours_per_step = db.Column(db.Float, nullable=False)
+    is_terminated = db.Column(db.String(100), nullable=False)
+    time = db.Column(db.Float, nullable=False)
+    termination_reason = db.Column(db.String(100), nullable=True)
+
+    def get_data(self):
+        return {'user_id': self.user_id,
+                'username': self.user.username,
+                'start_time': self.start_time,
+                'game_id': self.game_id,
+                "step_num": self.step_num,
+                "hours_per_step": self.hours_per_step,
+                "is_terminated": self.is_terminated,
+                "time": self.time,
+                "termination_reason": self.termination_reason}
+
+
+class AgentTypeCountRecord(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False)
+    model_record = db.relationship("ModelRecord",
+                                   backref=db.backref("agent_type_counters", lazy=False,
+                                                    cascade="all, delete-orphan"))
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
+    agent_type = db.relationship("AgentType")
+    agent_counter = db.Column(db.Integer, nullable=False)
+
+    def get_data(self):
+        return {"agent_type": self.agent_type.name,
+                "agent_counter": self.agent_counter}
+
+
+class StorageCapacityRecord(BaseEntity):
+    id = db.Column(db.Integer, primary_key=True)
+    model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False)
+    model_record = db.relationship("ModelRecord",
+                                   backref=db.backref("storage_capacities", lazy=False,
+                                                      cascade="all, delete-orphan"))
+    agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
+    agent_type = db.relationship("AgentType")
+    agent_id = db.Column(db.String(100), nullable=False)
+    storage_id = db.Column(db.Integer, nullable=False)
+    currency = db.Column(db.String(100), nullable=False)
+    value = db.Column(db.Float, nullable=False)
+    units = db.Column(db.String(100), nullable=False)
+    capacity = db.Column(db.Float, nullable=False)
+
+    def get_data(self):
+        return {"agent_type": self.agent_type.name,
+                "agent_id": self.agent_id,
+                "currency": self.currency,
+                "value": self.value,
+                "units": self.units,
+                "capacity": self.capacity}
+
+
 class AgentModelState(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     step_num = db.Column(db.Integer, nullable=False)
@@ -131,13 +319,11 @@ class AgentModelState(BaseEntity):
     model_time = db.Column(db.Interval, nullable=False)
     seed = db.Column(db.BigInteger, nullable=False)
     random_state = db.Column(db.PickleType, nullable=False)
-    termination = db.Column(db.String(300), nullable=False)
-    priorities = db.Column(db.String(300), nullable=False)
-    location = db.Column(db.String(300), nullable=False)
+    termination = db.Column(db.String(2048), nullable=False)
+    priorities = db.Column(db.String(2048), nullable=False)
+    location = db.Column(db.String(2048), nullable=False)
     minutes_per_step = db.Column(db.Integer, nullable=False)
-    config = db.Column(db.String(300), nullable=False)
-    logging = db.Column(db.String(300), nullable=False)
-    logs = db.Column(db.String(1000), nullable=False)
+    config = db.Column(db.String(2048), nullable=False)
 
 
 class AgentModelSnapshot(BaseEntity):
