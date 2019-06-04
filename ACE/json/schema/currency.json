@@ -1,0 +1,256 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"title" : "Data",
+	"type" : "object",
+	"properties":{
+		"input" : {
+			"type" : "array",
+			"title" : "Input",
+			"items" : {
+				"type" : "object",
+				"options" :{"collapsed" : true},
+				"headerTemplate" : "{{self.type}}",
+				"properties" : {
+					"type" : {
+						"type" : "string",
+						"propertyOrder" : 1
+					},
+					"value" : {
+						"type" : "number"
+					},
+					"flow_rate" : {
+						"type" : "object",
+						"title" : "Flow Rate",
+						"properties" : {
+							"unit" : {
+								"type" : "string",
+								"title" : "Unit",
+								"enum" : [
+									"kg", "L", "J", "kWh"
+								]
+							},
+							"time" : {
+								"type" : "string",
+								"title" : "Time",
+								"enum" : [
+									"second", "minute", "hour", "day", "week", "month", "year"
+								]
+							}
+						}
+					},
+					"requires" : {
+						"type" : "array",
+						"title" : "Requires",
+						"items" : {
+							"type" : "string"
+						}
+					},
+					"required" : {
+						"type" : "boolean",
+						"title" : "Required"
+					},
+					"deprive" : {
+						"type" : "object",
+						"title" : "Deprive",
+						"properties" : {
+							"value" : {
+								"type" : "number",
+								"title" : "Value"
+							},
+							"unit" : {
+								"type" : "string",
+								"title" : "Unit",
+								"enum" : [
+									"second", "minute", "hour", "day", "week", "month", "year"
+								]
+							}
+						}
+					},
+					"criteria" : {
+						"type" : "object",
+						"title" : "Criteria",
+						"properties" : {
+							"name" : {
+								"type" : "string",
+								"title" : "Name"
+							},
+							"limit" : {
+								"type" : "string",
+								"title" : "Limit",
+								"enum" : [
+									">", "<"
+								]
+							},
+							"value" : {
+								"type" : "number",
+								"title" : "Value"
+							},
+							"buffer" : {
+								"type" : "number",
+								"title" : "Buffer"
+							}	
+						}
+					},
+					"growth" : {
+						"type" : "object",
+						"title" : "Growth Function",
+						"properties" : {
+							"lifetime" : {
+								"type" : "object",
+								"title" : "Lifetime",
+								"properties" : {
+									"type" : {
+										"type" : "string",
+										"enum" : [
+											"norm", "linear", "logarithmic", "sigmoid"
+										]
+									}
+								}
+							},
+							"daily" : {
+								"type" : "object",
+								"title" : "Lifetime",
+								"properties" : {
+									"type" : {
+										"type" : "string",
+										"enum" : [
+											"norm", "linear", "logarithmic", "sigmoid"
+										]
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"output" : {
+			"type" : "array",
+			"title" : "Output",
+			"items" : {
+				"type" : "object",
+				"options" :{"collapsed" : true},
+				"headerTemplate" : "{{self.type}}",
+				"properties" : {
+					"type" : {
+						"type" : "string",
+						"propertyOrder" : 1
+					},
+					"value" : {
+						"type" : "number"
+					},
+					"flow_rate" : {
+						"type" : "object",
+						"title" : "Flow Rate",
+						"properties" : {
+							"unit" : {
+								"type" : "string",
+								"title" : "Unit",
+								"enum" : [
+									"kg", "L", "J", "kWh"
+								]
+							},
+							"time" : {
+								"type" : "string",
+								"title" : "Time",
+								"enum" : [
+									"second", "minute", "hour", "day", "week", "month", "year"
+								]
+							}
+						}
+					},
+					"requires" : {
+						"type" : "array",
+						"title" : "Requires",
+						"items" : {
+							"type" : "string"
+						}
+					},
+					"required" : {
+						"type" : "boolean",
+						"title" : "Required"
+					},
+					"criteria" : {
+						"type" : "object",
+						"title" : "Criteria",
+						"properties" : {
+							"name" : {
+								"type" : "string",
+								"title" : "Name"
+							},
+							"limit" : {
+								"type" : "string",
+								"title" : "Limit",
+								"enum" : [
+									">", "<"
+								]
+							},
+							"value" : {
+								"type" : "number",
+								"title" : "Value"
+							},
+							"buffer" : {
+								"type" : "number",
+								"title" : "Buffer"
+							}	
+						}
+					},
+					"growth" : {
+						"type" : "object",
+						"title" : "Growth Function",
+						"properties" : {
+							"lifetime" : {
+								"type" : "object",
+								"title" : "Lifetime",
+								"properties" : {
+									"type" : {
+										"type" : "string",
+										"enum" : [
+											"norm", "linear", "logarithmic", "sigmoid"
+										]
+									}
+								}
+							},
+							"daily" : {
+								"type" : "object",
+								"title" : "Lifetime",
+								"properties" : {
+									"type" : {
+										"type" : "string",
+										"enum" : [
+											"norm", "linear", "logarithmic", "sigmoid"
+										]
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"characteristics" : {
+			"type" : "array",
+			"title" : "Characteristics",
+			"items" : {
+				"type" : "object",
+				"options" :{"collapsed" : true},
+				"headerTemplate" : "{{self.type}}",
+				"properties" : {
+					"type" : {
+						"type" : "string"
+					},
+					"value" : {
+						"type" : "number"
+					},
+					"unit" : {
+						"type" : "string",
+						"title" : "Unit",
+						"enum" : [
+							"kg", "L", "J", "kWh", "m^3"
+						]
+					}
+				}
+			}	
+		}
+	}	
+}

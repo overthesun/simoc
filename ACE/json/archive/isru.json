@@ -1,0 +1,30 @@
+{
+	"surveyor":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"extractor":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"transporter":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	},
+	"processor":{
+		"data":{
+			"input":[],
+			"output":[], 
+			"characteristics" : []
+		}
+	}
+}

@@ -1,7 +1,6 @@
 import datetime
 import importlib
 
-from simoc_server.exceptions import ServerError
 
 class NotLoaded(object):
 
@@ -17,16 +16,16 @@ class NotLoaded(object):
     def __set__(self):
         raise ValueError("Object is not yet loaded from database.")
 
-def load_db_attributes_into_dict(attributes, target_values=None, target_descriptions=None,
-        load_later=[]):
-    if target_values is None:
-        target = {}
 
+def load_db_attributes_into_dict(attributes, target_values=None, target_details=None, load_later=[]):
     for attribute in attributes:
-        # get type of attribute
         attribute_name = attribute.name
-        details = attribute.details
-        if attribute.value_type == type(None).__name__:
+        details = attribute.attribute_details
+        if len(details) > 0:
+            details = details[0].get_data()
+        else:
+            details = None
+        if attribute.value_type is None:
             value = None
         else:
             try:
@@ -46,13 +45,14 @@ def load_db_attributes_into_dict(attributes, target_values=None, target_descript
                 value = NotLoaded(value_str)
 
         target_values[attribute_name] = value
-        target_descriptions[attribute_name] = details
+        target_details[attribute_name] = details
 
-    return target_values, target_descriptions
+    return target_values, target_details
 
 
 def extend_dict(dict_a, dict_b, in_place=False):
     return dict(dict_a, **dict_b)
+
 
 def subdict_from_list(d, l):
     """Return a subset of d from a list of keys, l
@@ -87,6 +87,7 @@ def timedelta_to_days(time_d):
     """
     return time_d / datetime.timedelta(days=1)
 
+
 def timedelta_to_hours(time_d):
     """Get total days from timedelta
 
@@ -101,6 +102,7 @@ def timedelta_to_hours(time_d):
         total days represented by the timedelta object
     """
     return time_d / datetime.timedelta(hours=1)
+
 
 def timedelta_to_minutes(time_d):
     """Get total minutes from timedelta
@@ -117,6 +119,7 @@ def timedelta_to_minutes(time_d):
     """
     return time_d / datetime.timedelta(minutes=1)
 
+
 def timedelta_to_seconds(time_d):
     """Get total seconds from timedelta
 
@@ -131,6 +134,7 @@ def timedelta_to_seconds(time_d):
         total seconds represented by the timedelta object
     """
     return time_d.total_seconds()
+
 
 def timedelta_hour_of_day(time_d):
     """Get the hour component of a timedelta object based on a
@@ -151,7 +155,6 @@ def timedelta_hour_of_day(time_d):
     return time_d.seconds/float(datetime.timedelta(hours=1).total_seconds())
 
 
-
 def sum_attributes(objects, attribute_name):
     """Sum all attributes in an iterable containing objects
 
@@ -169,6 +172,7 @@ def sum_attributes(objects, attribute_name):
     """
     return sum([getattr(x, attribute_name) for x in objects])
 
+
 def avg_attributes(objects, attribute_name):
     """Take an average all attributes in an iterable containing objects
 
@@ -185,3 +189,14 @@ def avg_attributes(objects, attribute_name):
         The average of all of the attributes
     """
     return sum_attributes(objects, attribute_name)/float(len(objects))
+
+
+def location_to_day_length_minutes(location):
+    if location == "moon":
+        return ((27 * 24 + 7) * 60) + 43
+    elif location == "earth":
+        return 24 * 60
+    elif location == "mars":
+        return (24 * 60) + 39
+    else:
+        raise Exception("Unknown location: {}".format(location))

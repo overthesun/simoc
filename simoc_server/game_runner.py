@@ -2,13 +2,18 @@ import datetime
 import threading
 import time
 import traceback
+from uuid import uuid4
 
 from simoc_server import app, db
 from simoc_server.agent_model import (AgentModel,
                                       AgentModelInitializationParams,
                                       BaseLineAgentInitializerRecipe)
 from simoc_server.database import SavedGame
-from simoc_server.database.db_model import User
+from simoc_server.database.db_model import (AgentTypeCountRecord,
+                                            ModelRecord,
+                                            StepRecord,
+                                            StorageCapacityRecord,
+                                            User)
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
 
@@ -27,13 +32,6 @@ class GameRunner(object):
         was last accessed
     last_saved_step : int
         The last step number that was saved.
-    step_buffer : dict
-        A dictionary containing step data, as a dict itself, indexed by
-        the step number it was generated from.  These are precalculated
-        steps, generated in a worker thread.
-    step_buffer_size : int
-        The number of steps to precalculate after each requested step and
-        store in the step buffer.
     step_thread : Thread
         Internal worker thread used to precalculate steps and store in
         the step buffer.
@@ -41,12 +39,14 @@ class GameRunner(object):
         The user the game belongs to
     """
 
-    def __init__(self, agent_model, user, last_saved_step, step_buffer_size=10):
-        self.agent_model = agent_model
+    def __init__(self, agent_model, user, last_saved_step):
+        self.game_id = str(uuid4().hex[:8])
+        self.start_time = int(time.time())
         self.user = user
-        self.step_buffer_size = step_buffer_size
+        self.agent_model = agent_model
+        self.agent_model.user_id = self.user.id
         self.step_thread = None
-        self.step_buffer = {}
+        self.last_accessed = None
         self.last_saved_step = last_saved_step
         self.reset_last_accessed()
 
@@ -58,7 +58,7 @@ class GameRunner(object):
         float
             Seconds since this game runner was last accessed.  'Accessed' is
             defined as requesting a step or pinging the server to explicitly keep the
-            sessin alive, this can be used during a game pause for instance.  Used to
+            session alive, this can be used during a game pause for instance.  Used to
             check for timeout.
         """
         return time.time() - self.last_accessed
@@ -74,7 +74,7 @@ class GameRunner(object):
         return self.last_saved_step == self.agent_model.step_num
 
     @classmethod
-    def load_from_state(cls, user, agent_model_state, step_buffer_size=10):
+    def load_from_state(cls, user, agent_model_state):
         """Loads a game runner for AgentModelState.
 
         Parameters
@@ -83,8 +83,6 @@ class GameRunner(object):
             User to associate the GameRunner with.
         agent_model_state : simoc_server.database.db_model.AgentModelState
             Agent model state to load the game runner from.
-        step_buffer_size : int, optional
-            Maximum number of steps to precalculate after each request.
 
         Returns
         -------
@@ -92,11 +90,10 @@ class GameRunner(object):
             loaded GameRunner instance
         """
         agent_model = AgentModel.load_from_db(agent_model_state)
-        return GameRunner(agent_model, user, agent_model.step_num,
-                          step_buffer_size=step_buffer_size)
+        return GameRunner(agent_model, user, agent_model.step_num)
 
     @classmethod
-    def load_from_saved_game(cls, user, saved_game, step_buffer_size=10):
+    def load_from_saved_game(cls, user, saved_game):
         """Loads a game runner from a SavedGame
 
         Parameters
@@ -105,8 +102,6 @@ class GameRunner(object):
             User to associate the GameRunner with.
         saved_game : simoc_server.database.db_model.SavedGame
             Saved game to load the game runner from.
-        step_buffer_size : int, optional
-            Maximum number of steps to precalculate after each request.
 
         Returns
         -------
@@ -124,10 +119,10 @@ class GameRunner(object):
         if saved_game_user != user:
             raise Unauthorized("Attempted to load game belonging to another"
                                "user.")
-        return GameRunner.load_from_state(user, agent_model_state, step_buffer_size)
+        return GameRunner.load_from_state(user, agent_model_state)
 
     @classmethod
-    def from_new_game(cls, user, game_runner_init_params, step_buffer_size=10):
+    def from_new_game(cls, user, game_runner_init_params):
         """Creates a new game runner.
 
         Parameters
@@ -136,8 +131,6 @@ class GameRunner(object):
             User to associate the GameRunner with.
         game_runner_init_params : GameRunnerInitializationParams
             Initialization parameters to be used when loading the model.
-        step_buffer_size : int, optional
-            Maximum number of steps to precalculate after each request.
 
         Returns
         -------
@@ -146,7 +139,7 @@ class GameRunner(object):
         """
         agent_model = AgentModel.create_new(game_runner_init_params.model_init_params,
                                             game_runner_init_params.agent_init_recipe)
-        return GameRunner(agent_model, user, None, step_buffer_size=step_buffer_size)
+        return GameRunner(agent_model, user, None)
 
     def save_game(self, save_name):
         """Saves the game using the provided name and commits session to the
@@ -171,30 +164,6 @@ class GameRunner(object):
         self.last_saved_step = self.agent_model.step_num
         return saved_game
 
-    def get_step(self, step_num=None):
-        """Get the step number requested.
-
-        Parameters
-        ----------
-        step_num : int, optional
-            The step number to get, must be greater than the current step number
-            of the model.  If None, returns the next step.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the internal state of the agent model
-            at the requested step.
-        """
-        if (step_num is None):
-            if len(self.step_buffer) > 0:
-                step_num = min(self.step_buffer.keys()) + 1
-            else:
-                step_num = self.agent_model.step_num + 1
-        self._step_to(step_num, False)
-        self.reset_last_accessed()
-        return self._get_step_from_buffer(step_num)
-
     def ping(self):
         """Reset's the last accessed time.  Useful if the game is paused.
         """
@@ -206,74 +175,52 @@ class GameRunner(object):
         """
         self.last_accessed = time.time()
 
-    def _get_step_from_buffer(self, step_num):
-        """Get the requested step from buffer then begin precalculating next
-        steps and repopulating the internal buffer.
-
-        Parameters
-        ----------
-        step_num : int
-            The requested step number.
-
-        Returns
-        -------
-        dict
-            the internal state of the model at the requested step.
-
-        Raises
-        ------
-        Exception
-            If the requested step is not found in the step buffer.
-        """
-        step_num = min(step_num, max(self.step_buffer.keys()))
-
-        pruned_buffer = {}
-        for n, step in self.step_buffer.items():
-            if step_num <= n:
-                pruned_buffer[n] = step
-
-        if step_num not in self.step_buffer.keys():
-            all_step_nums = self.step_buffer.keys()
-            min_step = min(all_step_nums) if len(all_step_nums) > 0 else None
-            max_step = max(all_step_nums) if len(all_step_nums) > 0 else None
-            raise Exception("Error step requested is out of range"
-                            "of buffer - min: {0} max: {1}".format(min_step, max_step))
-        step = self.step_buffer[step_num]
-        self.step_buffer = pruned_buffer
-
-        if len(self.step_buffer) < self.step_buffer_size:
-            self._step_to(step_num + self.step_buffer_size, True)
-
-        return step
-
-    def _step_to(self, step_num, threaded):
+    def step_to(self, step_num, buffer_size):
         """Run the agent model to the requested step.
 
         Parameters
         ----------
         step_num : int
             Step number to run the model to.
-        threaded : bool
-            Whether or not to run the model in a seperate thread.  If true
-            and a thread already exists, first join then start a new thread.
+        buffer_size : int
+            Size of the buffer used to batch the database updates
         """
+        def _save_records(model_records, agent_type_counts, storage_capacities, step_records):
+            for record in model_records + agent_type_counts + storage_capacities + step_records:
+                record['start_time'] = self.start_time
+                record['game_id'] = self.game_id
+            db.session.execute(ModelRecord.__table__.insert(), model_records,)
+            db.session.execute(AgentTypeCountRecord.__table__.insert(), agent_type_counts,)
+            db.session.execute(StorageCapacityRecord.__table__.insert(), storage_capacities,)
+            db.session.execute(StepRecord.__table__.insert(), step_records,)
+            db.session.commit()
 
-        # join to previous thread to prevent
-        # more than 1 thread attempting to calculate steps
-        if self.step_thread is not None and self.step_thread.isAlive():
-            self.step_thread.join()
-
-        def step_loop(agent_model, step_num, step_buffer):
-            while self.agent_model.step_num < step_num and not self.agent_model['is_terminated']:
+        def step_loop(agent_model):
+            model_records_buffer = []
+            agent_type_counts_buffer = []
+            storage_capacities_buffer = []
+            while agent_model.step_num <= step_num and not agent_model.is_terminated:
                 agent_model.step()
-                step_buffer[self.agent_model.step_num] = self.agent_model.get_model_stats()
+                model_record, agent_type_counts, storage_capacities = agent_model.get_step_logs()
+                model_records_buffer.append(model_record)
+                agent_type_counts_buffer += agent_type_counts
+                storage_capacities_buffer += storage_capacities
+                if agent_model.step_num % buffer_size == 0:
+                    _save_records(model_records_buffer,
+                                  agent_type_counts_buffer,
+                                  storage_capacities_buffer,
+                                  agent_model.step_records_buffer)
+                    model_records_buffer = []
+                    agent_type_counts_buffer = []
+                    storage_capacities_buffer = []
+                    agent_model.step_records_buffer = []
+            _save_records(model_records_buffer,
+                          agent_type_counts_buffer,
+                          storage_capacities_buffer,
+                          agent_model.step_records_buffer)
 
-        if threaded:
-            self.step_thread = threading.Thread(target=step_loop,
-                                                args=(self.agent_model, step_num, self.step_buffer))
-            self.step_thread.run()
-        else:
-            step_loop(self.agent_model, step_num, self.step_buffer)
+        step_loop(self.agent_model)
+        self.reset_last_accessed()
 
 
 class GameRunnerInitializationParams(object):
@@ -285,18 +232,16 @@ class GameRunnerInitializationParams(object):
             .set_starting_model_time(datetime.timedelta())
         if 'termination' in config:
             self.model_init_params.set_termination(config['termination'])
-        else:
-            self.model_init_params.set_termination(None)
         if 'logging' in config:
             self.model_init_params.set_logging(config['logging'])
-        else:
-            self.model_init_params.set_logging(None)
+        if 'minutes_per_step' in config:
+            self.model_init_params.set_minutes_per_step(config['minutes_per_step'])
         if 'priorities' in config:
             self.model_init_params.set_priorities(config['priorities'])
-        else:
-            self.model_init_params.set_priorities(None)
+        if 'location' in config:
+            self.model_init_params.set_location(config['location'])
         self.model_init_params.set_config(config)
-        if (config['single_agent'] == 1):
+        if config['single_agent'] == 1:
             self.model_init_params.set_single_agent(1)
         self.agent_init_recipe = BaseLineAgentInitializerRecipe(config)
 
@@ -321,7 +266,7 @@ class GameRunnerManager(object):
 
     """
 
-    DEFAULT_TIMEOUT_INTERVAL = 120  # seconds
+    DEFAULT_TIMEOUT_INTERVAL = 300  # seconds
     DEFAULT_CLEANUP_MAX_INTERVAL = 10  # seconds
 
     def __init__(self, timeout_interval=None,
@@ -470,22 +415,137 @@ class GameRunnerManager(object):
         except KeyError:
             return None
 
-    def get_step(self, user, step_num=None):
-        """Get the step number requested for the given user.
+    @staticmethod
+    def parse_step_data(step_data,filters=["agent_type_counters","storage_capacities"]):
+        reduced_output = step_data.get_data()
+
+        agent_logs = StepRecord.query \
+            .filter_by(user=step_data.user) \
+            .filter_by(game_id=step_data.game_id) \
+            .filter_by(step_num=step_data.step_num) \
+            .all()
+
+        response = {}
+        response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters]
+        response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities]
+        response['agent_logs'] = [i.get_data() for i in agent_logs]
+
+        for filter in filters:
+            if not filter in response:
+                print ("WARNING: No parse_filters option",filter,"in game_runner.parse_step_data.")
+            else:
+                reduced_output[filter] = response[filter]
+        
+        return reduced_output
+
+    def get_last_steps(self, user, game_id, num_last_steps=1):
+        """Get the the last N steps for the given user and the game.
 
         Parameters
         ----------
         user : simoc_server.database.db_model.User
             The user requesting the step.
+        game_id : str
+            A string Id of the game to retrieve the step from; Generated by the GameRunner object.
+        num_last_steps : int
+            The number of the last steps to get.
+
+        Returns
+        -------
+        list
+            A list containing the internal states of the agent model
+            at the requested steps.
+
+        """
+        steps = ModelRecord.query \
+            .filter_by(user_id=user.id) \
+            .filter_by(game_id=game_id) \
+            .order_by(ModelRecord.step_num.desc()) \
+            .limit(num_last_steps) \
+            .all()
+        if len(steps) > 0:
+            return [self.parse_step_data(step_data) for step_data in steps]
+        else:
+            return []
+
+    def get_steps(self, user, game_id, start_step_num=0, stop_step_num=0):
+        """Get the step range requested for the given user and the game.
+
+        Parameters
+        ----------
+        user : simoc_server.database.db_model.User
+            The user requesting the step.
+        game_id : str
+            A string Id of the game to retrieve the step from; Generated by the GameRunner object.
+        start_step_num : int
+            The starting step number of the range.
+        stop_step_num : int
+            The final step number of the range.
+
+        Returns
+        -------
+        list
+            A list containing the internal states of the agent model
+            at the requested steps.
+
+        """
+        steps = ModelRecord.query \
+            .filter_by(user_id=user.id) \
+            .filter_by(game_id=game_id) \
+            .filter(ModelRecord.step_num >= start_step_num) \
+            .filter(ModelRecord.step_num <= stop_step_num) \
+            .all()
+        if len(steps) > 0:
+            return [self.parse_step_data(step_data) for step_data in steps]
+        else:
+            return []
+
+    def get_step(self, user, game_id, step_num=None,parse_filters=["agent_type_counters","storage_capacities"]):
+        """Get the step number requested for the given user and the game.
+
+        Accessed from front end using route get_step() in views.py
+
+        Parameters
+        ----------
+        user : simoc_server.database.db_model.User
+            The user requesting the step.
+        game_id : str
+            A string Id of the game to retrieve the step from; Generated by the GameRunner object.
         step_num : int, optional
-            The step number to get, must be greater than the current step number
-            of the model.  If None, returns the next step.
+            The step number to get. If None, returns the last step.
 
         Returns
         -------
         dict
             A dictionary containing the internal state of the agent model
             at the requested step.
+        """
+        step_data = ModelRecord.query \
+            .filter_by(user_id=user.id) \
+            .filter_by(game_id=game_id)
+        if step_num is None:
+            step_data = step_data \
+                .order_by(ModelRecord.step_num.desc()) \
+                .limit(1)
+        else:
+            step_data = step_data.filter_by(step_num=step_num)
+        step_data = step_data.first()
+        if step_data is None:
+            return {}
+        else:
+            return self.parse_step_data(step_data,parse_filters)
+
+    def get_step_to(self, user, step_num=None, buffer_size=10):
+        """Run the agent model to the requested step.
+
+        Parameters
+        ----------
+        user : simoc_server.database.db_model.User
+            The user requesting the step.
+        step_num : int
+            Step number to run the model to.
+        buffer_size : int
+            Size of the buffer used to batch the database updates.
 
         Raises
         ------
@@ -495,8 +555,7 @@ class GameRunnerManager(object):
         game_runner = self.get_game_runner(user)
         if game_runner is None:
             raise GameNotFoundException()
-
-        return game_runner.get_step(step_num)
+        game_runner.step_to(step_num, buffer_size)
 
     def ping(self, user):
         """Updates time when game runner was last accessed for the given
@@ -531,7 +590,8 @@ class GameRunnerManager(object):
 
         self.game_runners[user.id] = game_runner
 
-    def _autosave_name(self):
+    @staticmethod
+    def _autosave_name():
         """Generates an autosave name using the format "Autosave <current_utc_datetime>"
 
         Returns
@@ -549,7 +609,7 @@ class GameRunnerManager(object):
         """
         marked_for_cleanup = []
         for user_id, game_runner in self.game_runners.items():
-            if (game_runner.seconds_since_last_accessed > self.timeout_interval):
+            if game_runner.seconds_since_last_accessed > self.timeout_interval:
                 marked_for_cleanup.append(user_id)
 
         for user_id in marked_for_cleanup:
@@ -561,7 +621,7 @@ class GameRunnerManager(object):
                 app.logger.error("Session for user '{}' removed before it could be cleaned up."
                                  .format(user_id))
             except Exception as e:
-                app.logger.error("Unknown exception occured in game manager cleanup.")
+                app.logger.error("Unknown exception occurred in game manager cleanup.")
                 traceback.print_exc()
 
     def get_next_timeout(self):

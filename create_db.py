@@ -4,7 +4,7 @@ import os
 import simoc_server
 from simoc_server import app
 from simoc_server.database import *
-from simoc_server.database.seed_data import seed_agents, seed_model
+from simoc_server.database.seed_data import seed_agents
 
 
 def confirm(message):
@@ -17,7 +17,6 @@ def confirm(message):
 def create(agent_conf):
     db.create_all()
     seed_agents.seed(agent_conf)
-    seed_model.seed()
 
 
 if __name__ == "__main__":
@@ -37,20 +36,9 @@ if __name__ == "__main__":
                 package_path = os.path.dirname(simoc_server.__file__)
                 db_path = os.path.join(package_path, db_rel_path)
             if os.path.isfile(db_path):
-                #if not confirm("Database already exists, continuing will delete old database"):
-                #    print("Exiting without creating database")
-                #    exit()
-                #else:
                 os.remove(db_path)
         else:
-            #if not confirm("Continuing will delete old database"):
-            #    print("Exiting without creating database")
-            #    exit()
-            #else:
-            db.sessionmaker.close_all()
-            # db.engine.dispose()
-            db.drop_all()
+            raise ValueError('Wrong sqlite URL.')
 
     create(app.config["AGENT_CONFIG"])
 
-    os._exit(0)

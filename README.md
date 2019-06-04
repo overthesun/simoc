@@ -1,10 +1,7 @@
 [![Build Status](https://travis-ci.org/bdmccord/simoc.svg?branch=master)](https://travis-ci.org/bdmccord/simoc)
 
 # SIMOC
-
-## ASU SER-401 Capstone Team 15
-
-SIMOC - A Scalable Model of an Isolated, Off-world Community
+SIMOC - A Scalable, Interactive Model of an Off-world Community
 
 ## Getting Started
 ***Note***: *SIMOC is incompatible with python 2.x, python 3 must be used due to its dependency on the mesa framework.  Depending on the configuration of your system you may need to  replace "python" with python3 where necessary. If using anaconda see [these instructions](https://conda.io/docs/user-guide/tasks/manage-python.html) to set up a python 3 environment.*
