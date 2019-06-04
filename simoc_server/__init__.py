@@ -19,6 +19,9 @@ app.config.from_object(config_obj)
 agent_config = os.environ.get("AGENT_CONFIG", 'agent_desc.json')
 app.config['AGENT_CONFIG'] = agent_config
 
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+app.config['JSON_SORT_KEYS'] = False
+
 db_name = os.environ.get("DB_NAME")
 db_type = os.environ.get("DB_TYPE")
 db_user = os.environ.get("DB_USER")

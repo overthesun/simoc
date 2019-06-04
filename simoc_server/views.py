@@ -1,5 +1,14 @@
 import json
 import math
+
+from flask import after_this_request, request
+from io import StringIO as IO
+import gzip
+import functools 
+
+
+from flask_compress import Compress
+
 from collections import OrderedDict
 
 from flask import request, render_template
@@ -219,7 +228,11 @@ def get_step():
 
         output[int(step_num)] = agent_model_state
 
-    return json.dumps(output)
+    response = json.dumps(output)
+    response = response.encode('utf-8')
+    response = gzip.compress(response)
+    return response
+
 
 
 @app.route("/get_step_to", methods=["GET"])
@@ -227,6 +240,8 @@ def get_step():
 def get_step_to():
     step_num = request.args.get("step_num", type=int)
     game_runner_manager.get_step_to(get_standard_user_obj(), step_num)
+
+    return success("Steps Created")
 
 
 @app.route("/get_batch_steps", methods=["GET"])
