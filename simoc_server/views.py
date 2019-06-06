@@ -197,6 +197,7 @@ def get_step():
 
     input = json.loads(request.data)
 #    input = {"min_step_num": 1, "n_steps": 3, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]},"parse_filters":[]}
+#    input= {"min_step_num": 1, "n_steps": 100, "total_production":["atmo_co2","h2o_wste","enrg_kwh"],"total_consumption":["h2o_wste","enrg_kwh"],"storage_ratios":{"air_storage_1":["atmo_co2"]},"parse_filters":[]}
 #    get_step_to()
 
     if not "min_step_num" in input and not "n_steps" in input:
@@ -215,16 +216,17 @@ def get_step():
     parse_filters=["agent_type_counters","storage_capacities"] if not "parse_filters" in input else input["parse_filters"]
 
     output = {}
+    user = get_standard_user_obj()
     for step_num in range(min_step_num,min_step_num+n_steps):
-        agent_model_state = game_runner_manager.get_step(
-            get_standard_user_obj(), game_id, step_num,parse_filters)
+        agent_model_state,model_record_this_step = game_runner_manager.get_step(
+            user, game_id, step_num,parse_filters)
     
         if "total_production" in input:
-            agent_model_state["total_production"] = calc_step_in_out(step_num,"out",input["total_production"]) 
+            agent_model_state["total_production"] = calc_step_in_out(step_num,"out",input["total_production"],user,game_id) 
         if "total_consumption" in input:
-            agent_model_state["total_consumption"] = calc_step_in_out(step_num,"in",input["total_consumption"])
+            agent_model_state["total_consumption"] = calc_step_in_out(step_num,"in",input["total_consumption"],user,game_id)
         if "storage_ratios" in input:
-            agent_model_state["storage_ratios"] = calc_step_storage_ratios(step_num,input["storage_ratios"])
+            agent_model_state["storage_ratios"] = calc_step_storage_ratios(step_num,input["storage_ratios"],model_record_this_step)
 
         output[int(step_num)] = agent_model_state
 
