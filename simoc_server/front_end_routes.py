@@ -229,16 +229,18 @@ def calc_step_in_out(step_num,direction,currencies,user,game_id):
 
     '''
     output = {}
-
-    step_data = StepRecord.query.filter_by(user_id=user.id).filter_by(game_id=game_id).filter_by(step_num = step_num).filter_by(direction=direction)
-    
     for currency in currencies:
-        this_step_data = step_data.filter_by(currency=currency).all()
-        values = [i.value for i in this_step_data]
-        if len(this_step_data) > 0:
-            output[currency] = {"value":sum(values),"unit":this_step_data[0].unit}
-        else:
-            output[currency] = {}
+        output[currency] = {}
+
+    step_data = StepRecord.query.filter_by(user_id=user.id).filter_by(game_id=game_id).filter_by(step_num = step_num).filter_by(direction=direction).all()
+
+    for step in step_data:
+        if step.currency in currencies:
+            if len(output[step.currency]) == 0:
+                output[step.currency]["value"] = step.value
+                output[step.currency]["unit"] = step.unit
+            else:
+                output[step.currency]["value"] += step.value
 
     return output
 
