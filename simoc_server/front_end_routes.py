@@ -215,7 +215,7 @@ def convert_configuration(game_config):
     return (full_game_config)
 
 
-def calc_step_in_out(step_num,direction,currencies):
+def calc_step_in_out(step_num,direction,currencies,user,game_id):
     ''' 
     Calculate the total production or total consumption of given currencies for a given step.
 
@@ -229,18 +229,23 @@ def calc_step_in_out(step_num,direction,currencies):
 
     '''
     output = {}
-
-    step_data = StepRecord.query.filter_by(step_num = step_num).filter_by(direction=direction)
-    
     for currency in currencies:
-        this_step_data = step_data.filter_by(currency=currency).all()
-        values = [i.value for i in this_step_data]
-        output[currency] = {"value":sum(values),"unit":this_step_data[0].unit}
+        output[currency] = {}
+
+    step_data = StepRecord.query.filter_by(user_id=user.id).filter_by(game_id=game_id).filter_by(step_num = step_num).filter_by(direction=direction).all()
+
+    for step in step_data:
+        if step.currency in currencies:
+            if len(output[step.currency]) == 0:
+                output[step.currency]["value"] = step.value
+                output[step.currency]["unit"] = step.unit
+            else:
+                output[step.currency]["value"] += step.value
 
     return output
 
 
-def calc_step_storage_ratios(step_num,agents):
+def calc_step_storage_ratios(step_num,agents,step_data):
     ''' 
     Calculate the ratio for the requested currencies for the requested <agent_type>_<agent_id> and step_num.
 
@@ -251,9 +256,6 @@ def calc_step_storage_ratios(step_num,agents):
     Output: dictionary of agents, each agent has a dictionary of currency:ratio pairs. e.g. {"air_storage_1": {"atmo_co2": 0.21001018914835098}
     '''
     output = {}
-
-    step_data = ModelRecord.query.filter_by(step_num = step_num).first()
-    
     for agent in agents:
         agent_type = agent[:agent.rfind("_")]
         agent_id = int(agent[agent.rfind("_")+1:])

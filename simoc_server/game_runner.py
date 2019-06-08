@@ -418,6 +418,8 @@ class GameRunnerManager(object):
     @staticmethod
     def parse_step_data(step_data,filters=["agent_type_counters","storage_capacities"]):
         reduced_output = step_data.get_data()
+        if len(filters) == 0:
+            return reduced_output
 
         agent_logs = StepRecord.query \
             .filter_by(user=step_data.user) \
@@ -426,9 +428,9 @@ class GameRunnerManager(object):
             .all()
 
         response = {}
-        response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters]
-        response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities]
-        response['agent_logs'] = [i.get_data() for i in agent_logs]
+        response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters] if "agent_type_counters" in filters else []
+        response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities] if "storage_capacities" in filters else []
+        response['agent_logs'] = [i.get_data() for i in agent_logs] if "agent_logs" in filters else []
 
         for filter in filters:
             if not filter in response:
@@ -531,9 +533,9 @@ class GameRunnerManager(object):
             step_data = step_data.filter_by(step_num=step_num)
         step_data = step_data.first()
         if step_data is None:
-            return {}
+            return {},step_data
         else:
-            return self.parse_step_data(step_data,parse_filters)
+            return self.parse_step_data(step_data,parse_filters),step_data
 
     def get_step_to(self, user, step_num=None, buffer_size=10):
         """Run the agent model to the requested step.
