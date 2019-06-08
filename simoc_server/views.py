@@ -7,7 +7,7 @@ import gzip
 import functools 
 
 
-from flask_compress import Compress
+
 
 from collections import OrderedDict
 
@@ -231,8 +231,8 @@ def get_step():
         output[int(step_num)] = agent_model_state
 
     response = json.dumps(output)
-    response = response.encode('utf-8')
-    response = gzip.compress(response)
+    #response = response.encode('utf-8')
+    #response = gzip.compress(response)
     return response
 
 
