@@ -2,6 +2,7 @@ import datetime
 
 from flask_login import UserMixin
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy import Index
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from simoc_server import db
@@ -216,7 +217,7 @@ class StepRecord(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     user = db.relationship("User")
-    step_num = db.Column(db.Integer, nullable=False)
+    step_num = db.Column(db.Integer, nullable=False, index=True)
     start_time = db.Column(db.Integer, nullable=False)
     game_id = db.Column(db.String(100), nullable=False)
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False)
@@ -230,6 +231,7 @@ class StepRecord(BaseEntity):
     storage_type = db.relationship("AgentType", foreign_keys=[storage_type_id])
     storage_id = db.Column(db.Integer, nullable=False)
     storage_agent_id = db.Column(db.String(100), nullable=False)
+    __table_args__ = (Index('step_user_game_idx', "user_id", "game_id"),)
 
     def get_data(self):
         return {'user_id': self.user_id,
@@ -254,11 +256,12 @@ class ModelRecord(BaseEntity):
     user = db.relationship("User")
     start_time = db.Column(db.Integer, nullable=False)
     game_id = db.Column(db.String(100), nullable=False)
-    step_num = db.Column(db.Integer, nullable=False)
+    step_num = db.Column(db.Integer, nullable=False, index=True)
     hours_per_step = db.Column(db.Float, nullable=False)
     is_terminated = db.Column(db.String(100), nullable=False)
     time = db.Column(db.Float, nullable=False)
     termination_reason = db.Column(db.String(100), nullable=True)
+    __table_args__ = (Index('model_user_game_idx', "user_id", "game_id"),)
 
     def get_data(self):
         return {'user_id': self.user_id,
