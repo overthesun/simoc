@@ -16,7 +16,7 @@ from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from simoc_server import app, db
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, AgentTypeAttributeDetails, SavedGame, User
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, AgentTypeAttributeDetails, SavedGame, User,ModelRecord,StepRecord
 from simoc_server.exceptions import InvalidLogin, BadRequest, BadRegistration, \
     GenericError, NotFound
 from simoc_server.game_runner import (GameRunnerManager, GameRunnerInitializationParams)
@@ -166,9 +166,9 @@ def new_game():
     return game_id
 
 
-@app.route("/get_step", methods=["POST"])
+@app.route("/get_steps", methods=["POST"])
 @login_required
-def get_step():
+def get_steps():
     '''
     Gets the step with the requsted 'step_num', if not specified,
         uses current model step.
@@ -197,13 +197,19 @@ def get_step():
 
     input = json.loads(request.data)
 #    input = {"min_step_num": 1, "n_steps": 3, "total_production":["atmo_co2","h2o_wste"],"total_consumption":["h2o_wste"],"storage_ratios":{"air_storage_1":["atmo_co2"]},"parse_filters":[]}
-#    input= {"min_step_num": 1, "n_steps": 100, "total_production":["atmo_co2","h2o_wste","enrg_kwh"],"total_consumption":["h2o_wste","enrg_kwh"],"storage_ratios":{"air_storage_1":["atmo_co2"]},"parse_filters":[]}
+#    input= {"min_step_num": 1, "n_steps": 1000, "total_production":["atmo_co2","h2o_wste","enrg_kwh"],"total_consumption":["h2o_wste","enrg_kwh"],"storage_ratios":{"air_storage_1":["atmo_co2"]},"parse_filters":[]}
+#    import time
+#    b = time.time()
+#    print ("FIXMESW: CALLING GET STEP TO")
 #    get_step_to()
+#    print ("FIXMESW: get step to time",time.time()-b)
+#    a1 = time.time()
 
     if not "min_step_num" in input and not "n_steps" in input:
         sys.exit("ERROR: min_step_num and n_steps are required as input to views.get_step() route")
     min_step_num = int(input["min_step_num"])
     n_steps = int(input["n_steps"])
+    max_step_num = min_step_num+n_steps-1
 
     #FIXME: this should come from the front end (gets passed to front end in new_game route)
     if not "game_id" in input:
@@ -215,24 +221,46 @@ def get_step():
     #Which of the output from game_runner.parse_step_data to you want returned. 
     parse_filters=["agent_type_counters","storage_capacities"] if not "parse_filters" in input else input["parse_filters"]
 
-    output = {}
     user = get_standard_user_obj()
-    for step_num in range(min_step_num,min_step_num+n_steps):
-        agent_model_state,model_record_this_step = game_runner_manager.get_step(
-            user, game_id, step_num,parse_filters)
+    model_record_steps = ModelRecord.query \
+            .filter_by(user_id=user.id) \
+            .filter_by(game_id=game_id) \
+            .filter(ModelRecord.step_num >= min_step_num) \
+            .filter(ModelRecord.step_num <= max_step_num) \
+
     
-        if "total_production" in input:
-            agent_model_state["total_production"] = calc_step_in_out(step_num,"out",input["total_production"],user,game_id) 
-        if "total_consumption" in input:
-            agent_model_state["total_consumption"] = calc_step_in_out(step_num,"in",input["total_consumption"],user,game_id)
+    step_record_steps = None
+    if len(parse_filters) > 0 or "total_production" in input or "total_consumption" in input:
+        step_record_steps = StepRecord.query.filter_by(user_id=user.id)\
+            .filter_by(game_id=game_id)\
+            .filter(StepRecord.step_num >= min_step_num) \
+            .filter(StepRecord.step_num <= max_step_num) \
+            
+    output = {}
+    for mri,model_record_data in enumerate(model_record_steps):
+        step_num = model_record_data.step_num
+        agent_model_state = game_runner_manager.parse_step_data(model_record_data,parse_filters)
+
+        if "total_production" in input or "total_consumption" in input:
+            step_record = step_record_steps.filter_by(step_num=step_num)
+            if "total_production" in input:
+                agent_model_state["total_production"] = calc_step_in_out(step_num,"out",input["total_production"],step_record) 
+            if "total_consumption" in input:
+                agent_model_state["total_consumption"] = calc_step_in_out(step_num,"in",input["total_consumption"],step_record)
         if "storage_ratios" in input:
-            agent_model_state["storage_ratios"] = calc_step_storage_ratios(step_num,input["storage_ratios"],model_record_this_step)
+            agent_model_state["storage_ratios"] = calc_step_storage_ratios(step_num,input["storage_ratios"],model_record_data)
 
         output[int(step_num)] = agent_model_state
 
+#    print ("FIXMESW: time gr.get_step",t4)
+#    print ("FIXMESW: time tot prod,",t1)
+#    print ("FIXMESW: time tot con,",t2)
+#    print ("FIXMESW: time storage ratios,",t3)
+#    print ("FIXMESW: time game_runner.get_step breakdown,",tg1,tg2,tg3,tg4)
     response = json.dumps(output)
     response = response.encode('utf-8')
     response = gzip.compress(response)
+#    print ("FIXMESW: get_step time",time.time()-a1)
     return response
 
 
