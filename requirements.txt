@@ -1,10 +1,12 @@
 coverage
-Flask
-Flask_CORS
-Flask_Login
-Flask_SQLAlchemy
-Flask-Compress
+flask
+flask_cors
+flask_login
+flask_sqlalchemy
+flask-compress
 flask-mysqldb
+gevent
+gunicorn
 mesa
 msgpack-python
 nose
@@ -18,4 +20,4 @@ scikit-learn
 scipy
 setuptools
 sqlalchemy
-Werkzeug
+werkzeug

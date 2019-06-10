@@ -1,2 +1,3 @@
-python3 create_db.py
-python3 -m simoc_server
+#!/bin/bash
+sh reset_db.sh
+sh run.sh
