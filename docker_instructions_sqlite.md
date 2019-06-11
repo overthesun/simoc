@@ -15,8 +15,7 @@ docker build -t simoc_server_image \
 ## Create and run a `simoc_server` container in background (no logs)
 
 ```
-docker run --name=simoc_server_container -d --cpus=2 \
-           -p 8000:8000 simoc_server_image
+docker run --name=simoc_server_container -d -p 8000:8000 simoc_server_image
 ```
 
 ## Shows running containers
@@ -63,8 +62,7 @@ docker rmi simoc_server_image
 docker build -t simoc_server_image \
              --build-arg DB_TYPE=sqlite \
              --build-arg PORT=8000 . 
-docker run --name=simoc_server_container -d --cpus=2 \
-           -p 8000:8000 simoc_server_image
+docker run --name=simoc_server_container -d -p 8000:8000 simoc_server_image
 ```
 
 Check out [Docker Cheat Sheet](https://github.com/wsargent/docker-cheat-sheet) for more commands.
