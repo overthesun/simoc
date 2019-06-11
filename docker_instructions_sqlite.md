@@ -9,8 +9,7 @@ Navigate to the `simoc` directory and run the following command:
 ```
 docker build -t simoc_server_image \
              --build-arg DB_TYPE=sqlite \
-             --build-arg PORT=8000 \
-             --build-arg WORKERS=5 .
+             --build-arg PORT=8000 .
 ```
 
 ## Create and run a `simoc_server` container in background (no logs)
@@ -63,8 +62,7 @@ docker rm -f simoc_server_container
 docker rmi simoc_server_image
 docker build -t simoc_server_image \
              --build-arg DB_TYPE=sqlite \
-             --build-arg PORT=8000 \
-             --build-arg WORKERS=5 .
+             --build-arg PORT=8000 . 
 docker run --name=simoc_server_container -d --cpus=2 \
            -p 8000:8000 simoc_server_image
 ```
