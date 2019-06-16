@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: simoc-backend
-          image: gcr.io/simoc-243819/simoc:latest
+          image: gcr.io/<PROJECT_ID>/simoc:latest
           imagePullPolicy: Always
           env:
           - name: DB_TYPE
