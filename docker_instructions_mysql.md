@@ -112,12 +112,17 @@ docker restart simoc_server_container
 ## 7. Rebuild and re-deploy a `simoc_server` container on file changes
 
 ```
+export APP_PORT=8000
+export DB_HOST=simoc-db
+export DB_PORT=3306
+export DB_NAME=simoc
+export DB_USER=root
+export DB_PASSWORD=<ENTER_MYSQL_PASSWORD>
+```
+```
 docker kill simoc_server_container
 docker rm -f simoc_server_container
 docker rmi simoc_server_image
-```
-```
-export APP_PORT=8000
 ```
 ```
 docker build -t simoc_server_mysql \
@@ -139,14 +144,12 @@ docker run -d \
 
 ## 8. Reset `MySQL` database
 ```
+export APP_PORT=8000
 export DB_HOST=simoc-db
 export DB_PORT=3306
 export DB_NAME=simoc
 export DB_USER=root
-export DB_PASSWORD=xDoHpDzDg3
-```
-```
-export APP_PORT=8000
+export DB_PASSWORD=<ENTER_MYSQL_PASSWORD>
 ```
 ```
 docker kill $DB_HOST
@@ -171,7 +174,7 @@ docker run -d \
       --name simoc_server_container \
       --net=simoc-net \
       -p $APP_PORT:$APP_PORT \
-      simoc_server_mysq
+      simoc_server_mysql
 ```
 ```
 docker exec -it simoc_server_container python3 create_db.py

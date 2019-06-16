@@ -84,12 +84,12 @@ docker restart simoc_server_container
 ## 7. Rebuild and re-deploy a `simoc_server` container on file changes
 
 ```
+export APP_PORT=8000
+```
+```
 docker kill simoc_server_container
 docker rm -f simoc_server_container
 docker rmi simoc_server_image
-```
-```
-export APP_PORT=8000
 ```
 ```
 docker build -t simoc_server_sqlite \
