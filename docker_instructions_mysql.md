@@ -32,6 +32,9 @@ docker run -d \
 ## 3. Build a `simoc_server` image
 
 ```
+export APP_PORT=8000
+```
+```
 docker build -t simoc_server_mysql \
       --build-arg DB_TYPE=mysql \
       --build-arg DB_HOST=$DB_HOST \
@@ -39,7 +42,7 @@ docker build -t simoc_server_mysql \
       --build-arg DB_NAME=$DB_NAME \
       --build-arg DB_USER=$DB_USER \
       --build-arg DB_PASSWORD=$DB_PASSWORD \
-      --build-arg APP_PORT=8000 .
+      --build-arg APP_PORT=$APP_PORT .
 ```
 
 ## 4. Create and deploy a `simoc_server` container in background 
@@ -48,7 +51,7 @@ docker build -t simoc_server_mysql \
 docker run -d \
       --name simoc_server_container \
       --net=simoc-net \
-      -p 8000:8000 \
+      -p $APP_PORT:$APP_PORT \
       simoc_server_mysql
 ```
 
@@ -114,6 +117,9 @@ docker rm -f simoc_server_container
 docker rmi simoc_server_image
 ```
 ```
+export APP_PORT=8000
+```
+```
 docker build -t simoc_server_mysql \
       --build-arg DB_TYPE=mysql \
       --build-arg DB_HOST=$DB_HOST \
@@ -121,13 +127,13 @@ docker build -t simoc_server_mysql \
       --build-arg DB_NAME=$DB_NAME \
       --build-arg DB_USER=$DB_USER \
       --build-arg DB_PASSWORD=$DB_PASSWORD \
-      --build-arg APP_PORT=8000 .
+      --build-arg APP_PORT=$APP_PORT .
 ```
 ```
 docker run -d \
       --name simoc_server_container \
       --net=simoc-net \
-      -p 8000:8000 \
+      -p $APP_PORT:$APP_PORT \
       simoc_server_mysql
 ```
 
@@ -138,6 +144,9 @@ export DB_PORT=3306
 export DB_NAME=simoc
 export DB_USER=root
 export DB_PASSWORD=xDoHpDzDg3
+```
+```
+export APP_PORT=8000
 ```
 ```
 docker kill $DB_HOST
@@ -161,7 +170,7 @@ docker rm -f simoc_server_container
 docker run -d \
       --name simoc_server_container \
       --net=simoc-net \
-      -p 8000:8000 \
+      -p $APP_PORT:$APP_PORT \
       simoc_server_mysq
 ```
 ```

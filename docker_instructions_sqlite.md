@@ -6,12 +6,13 @@ https://docs.docker.com/install/
 
 ## 2. Build a `simoc_server` image
 
-Navigate to the `simoc` directory and run the following command:
-
+```
+export APP_PORT=8000
+```
 ```
 docker build -t simoc_server_sqlite \
       --build-arg DB_TYPE=sqlite \
-      --build-arg APP_PORT=8000 .
+      --build-arg APP_PORT=$APP_PORT .
 ```
 
 ## 3. Create and deploy a `simoc_server` container in background 
@@ -20,7 +21,7 @@ docker build -t simoc_server_sqlite \
 docker run -d \
       --name simoc_server_container \
       -v "$(pwd)"/sqlite:/simoc/sqlite \
-      -p 8000:8000 \
+      -p $APP_PORT:$APP_PORT \
       simoc_server_sqlite
 ```
 
@@ -88,15 +89,18 @@ docker rm -f simoc_server_container
 docker rmi simoc_server_image
 ```
 ```
+export APP_PORT=8000
+```
+```
 docker build -t simoc_server_sqlite \
       --build-arg DB_TYPE=sqlite \
-      --build-arg APP_PORT=8000 .
+      --build-arg APP_PORT=$APP_PORT .
 ```
 ```
 docker run -d \
       --name simoc_server_container \
       -v "$(pwd)"/sqlite:/simoc/sqlite \
-      -p 8000:8000 \
+      -p $APP_PORT:$APP_PORT \
       simoc_server_sqlite
 ```
 
