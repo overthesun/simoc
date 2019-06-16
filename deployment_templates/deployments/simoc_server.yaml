@@ -1,41 +1,50 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: simoc
+  name: simoc-backend
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: simoc
+        app: simoc-backend
         track: stable
     spec:
       containers:
-        - name: simoc
-          image: gcr.io/<PROJECT_ID>/simoc:latest
+        - name: simoc-backend
+          image: gcr.io/simoc-243819/simoc:latest
           imagePullPolicy: Always
           env:
           - name: DB_TYPE
-            value: "mysql"
-          - name: DB_USER
             valueFrom:
               secretKeyRef:
-                name: simoc-db-credentials
-                key: username
-          - name: DB_PASSWORD
+                name: simoc-db-config
+                key: db_type
+          - name: DB_HOST
             valueFrom:
               secretKeyRef:
-                name: simoc-db-credentials
-                key: password
+                name: simoc-db-config
+                key: db_host
+          - name: DB_PORT
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-config
+                key: db_port
           - name: DB_NAME
             valueFrom:
               secretKeyRef:
-                name: simoc-db-credentials
-                key: username
-          - name: DB_DNS_NAME
-            value: "mysqldb.default.svc.cluster.local"
-          - name: DB_PORT
-            value: "3306"
+                name: simoc-db-config
+                key: db_name
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-config
+                key: db_user
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-config
+                key: db_password
           ports:
             - name: http
               containerPort: 8000

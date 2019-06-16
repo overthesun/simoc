@@ -1,12 +1,12 @@
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: simoc
+  name: simoc-autoscaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: simoc
+    name: simoc-backend
   minReplicas: 1
   maxReplicas: 5
   metrics:
