@@ -21,6 +21,7 @@ docker run -d \
       -p 8000:8000 \
       simoc_server_sqlite
 ```
+Navigate to the following URL in your browser to access a SIMOC application - [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ## Init an `SQLite` database
 
@@ -76,9 +77,13 @@ docker restart simoc_server_container
 docker kill simoc_server_container
 docker rm -f simoc_server_container
 docker rmi simoc_server_image
+```
+```
 docker build -t simoc_server_sqlite \
       --build-arg DB_TYPE=sqlite \
       --build-arg APP_PORT=8000 .
+```
+```
 docker run -d \
       --name simoc_server_container \
       -v "$(pwd)"/sqlite:/simoc/sqlite \
