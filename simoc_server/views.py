@@ -7,7 +7,7 @@ import gzip
 import functools 
 
 
-from flask_compress import Compress
+#from flask_compress import Compress
 
 from collections import OrderedDict
 
@@ -258,8 +258,8 @@ def get_steps():
 #    print ("FIXMESW: time storage ratios,",t3)
 #    print ("FIXMESW: time game_runner.get_step breakdown,",tg1,tg2,tg3,tg4)
     response = json.dumps(output)
-    response = response.encode('utf-8')
-    response = gzip.compress(response)
+    #response = response.encode('utf-8')
+    #response = gzip.compress(response)
 #    print ("FIXMESW: get_step time",time.time()-a1)
     return response
 
