@@ -85,7 +85,7 @@ Show running containers:
 docker ps
 ```
 
-The output should look similar to the following which means that both `MySQL-serveer` and `SIMOC` are up and running:
+The output should look similar to the following which means that both `MySQL-server` and `SIMOC` are up and running:
 ```bash
 CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS                   PORTS                               NAMES
 00726dfff174        simoc_server_mysql   "/bin/bash run.sh"       42 seconds ago      Up 41 seconds            0.0.0.0:8000->8000/tcp              simoc_server_container
