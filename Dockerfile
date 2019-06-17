@@ -10,6 +10,16 @@ ARG DB_NAME
 ARG DB_USER
 ARG DB_PASSWORD
 
+ENV APP_PORT ${APP_PORT}
+ENV DB_TYPE ${DB_TYPE}
+ENV DB_HOST ${DB_HOST}
+ENV DB_PORT ${DB_PORT}
+ENV DB_NAME ${DB_NAME}
+ENV DB_USER ${DB_USER}
+ENV DB_PASSWORD ${DB_PASSWORD}
+
+EXPOSE ${APP_PORT}
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python3-pip \
@@ -23,16 +33,6 @@ RUN python3 -m pip install -r /simoc/requirements.txt
 COPY . /simoc
 
 WORKDIR /simoc
-
-ENV APP_PORT ${APP_PORT}
-ENV DB_TYPE ${DB_TYPE}
-ENV DB_HOST ${DB_HOST}
-ENV DB_PORT ${DB_PORT}
-ENV DB_NAME ${DB_NAME}
-ENV DB_USER ${DB_USER}
-ENV DB_PASSWORD ${DB_PASSWORD}
-
-EXPOSE ${APP_PORT}
 
 ENTRYPOINT [ "/bin/bash" ]
 CMD ["run.sh"]
