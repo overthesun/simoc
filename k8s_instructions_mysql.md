@@ -1,29 +1,29 @@
 # Introduction
-This guide describes the process of deploying SIMOC app to the Google Cloud Platform (GCP) through the following set of steps:
-1. Creating a new GCP project
+This guide describes the process of deploying `SIMOC` web application to the `Google Cloud Platform (GCP)` through the following set of steps:
+1. Creating a new `GCP` project
 2. Setting up the environment
-3. Connecting to the SIMOC GitHub repository
-4. Building a SIMOC docker image
-5. Spinning up a Kubernetes cluster
-6. Deploying SIMOC image to the cluster
-7. Accessing the SIMOC app
+3. Connecting to the `SIMOC` `GitHub` repository
+4. Building a `SIMOC` docker image
+5. Spinning up a `Kubernetes` cluster
+6. Deploying a `SIMOC` image to the cluster
+7. Accessing the `SIMOC` app
 
 The guide covers two basic deployment scenarios:
 * [Using Google Cloud Shell (Ubuntu environment)](#scenario-1)
 * [Deployment from local Linux/macOS](#scenario-2)
 
-# GCP Architecture Diagram
+# `GCP` Architecture Diagram
 ![Architecture Diagram](deployment_templates/images/GCP_architecture_diagram.png)
 
-# Configure a GCP Project
+# Configure a `GCP` Project
 
-### 1. Login to the Cloud Console
+### 1. Login to the `Cloud Console`
 * https://cloud.google.com/
 
-### 2. Make yourself familiar with the Cloud Console
+### 2. Make yourself familiar with the `Cloud Console`
 * https://console.cloud.google.com/getting-started
 
-### 3. Create or select a GCP project
+### 3. Create or select a `GCP` project
 * https://cloud.google.com/resource-manager/docs/creating-managing-projects
 
 ### 4. Make sure that billing is enabled for your project
@@ -39,7 +39,7 @@ The guide covers two basic deployment scenarios:
 
 # Scenario 1
 
-## Deploy SIMOC (`using Google Cloud Shell`)
+## Deploy `SIMOC` (using `Cloud Shell`)
 
 ### Initialize a new Cloud Shell session
 * https://cloud.google.com/shell/docs/quickstart
@@ -218,7 +218,7 @@ Once the cluster is up and running (may need to click a `Refresh` button), the `
 
 # Scenario 2
 
-## Deploy SIMOC (`from local Linux/macOS`)
+## Deploy SIMOC (from local `Linux/macOS`)
 
 Install and initialize `Cloud SDK`:
 * https://cloud.google.com/sdk/

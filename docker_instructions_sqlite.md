@@ -1,10 +1,16 @@
-# Navigate to the `simoc` directory and execute `Steps 1-5 `
+# Setup `SIMOC`
 
-## 1. Follow the official guide to set up `Docker` software
+## 1. Clone `SIMOC` code from `GitHub`
+```bash
+git clone -b abm_database git@github.com:kstaats/simoc.git
+cd simoc/
+```
+
+## 2. Follow the official guide to set up `Docker` software
 
 https://docs.docker.com/install/
 
-## 2. Build `SIMOC` image
+## 3. Build `SIMOC` image
 
 Set up `HTTP` port for the `SIMOC` web application:
 ```bash
@@ -18,7 +24,7 @@ docker build -t simoc_server_sqlite \
       --build-arg APP_PORT=$APP_PORT .
 ```
 
-## 3. Create and deploy `SIMOC` container
+## 4. Create and deploy `SIMOC` container
 
 ```bash
 docker run -d \
@@ -28,18 +34,18 @@ docker run -d \
       simoc_server_sqlite
 ```
 
-## 4. Init `SQLite` database
+## 5. Init `SQLite` database
 
 ```bash
 docker exec -it simoc_server_container python3 create_db.py
 ```
 
-## 5. Access `SIMOC` web application
+## 6. Access `SIMOC` web application
 
 Navigate to the following URL in your browser to access a SIMOC application (change port if needed):<br>
 [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-## 6. Debug deployment
+# Debug Deployment
 
 Check out [Docker Cheat Sheet](https://github.com/wsargent/docker-cheat-sheet) for more commands.
 
@@ -85,7 +91,7 @@ Stop and start a `simoc_server_container` container:
 docker restart simoc_server_container
 ```
 
-## 7. Re-deploy `SIMOC` container on file changes
+# Re-deploy `SIMOC` on file changes
 
 Set up `HTTP` port for the `SIMOC` web application:
 ```bash
@@ -119,7 +125,7 @@ docker run -d \
       simoc_server_sqlite
 ```
 
-## 8. Reset `SQLite` database
+# Reset `SQLite` database
 
 Remove the `SQLite` database file from the `simoc/sqlite` directory:
 ```bash

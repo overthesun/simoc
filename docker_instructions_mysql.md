@@ -1,10 +1,16 @@
-# Navigate to the `simoc` directory and execute `Steps 1-6 `
+# Setup `SIMOC`
 
-## 1. Follow the official guide to set up `Docker` software
+## 1. Clone `SIMOC` code from `GitHub`
+```bash
+git clone -b abm_database git@github.com:kstaats/simoc.git
+cd simoc/
+```
+
+## 2. Follow the official guide to set up `Docker` software
 
 https://docs.docker.com/install/
 
-## 2. Deploy `MySQL` container
+## 3. Deploy `MySQL` container
 
 Create a `Docker` network service:
 ```bash
@@ -32,7 +38,7 @@ docker run -d \
       mysql/mysql-server
 ```
 
-## 3. Build `SIMOC` image
+## 4. Build `SIMOC` image
 
 Set up `HTTP` port for the `SIMOC` web application:
 ```bash
@@ -50,7 +56,7 @@ docker build -t simoc_server_mysql \
       --build-arg APP_PORT=$APP_PORT .
 ```
 
-## 4. Create and deploy `SIMOC` container
+## 5. Create and deploy `SIMOC` container
 
 ```bash
 docker run -d \
@@ -60,17 +66,17 @@ docker run -d \
       simoc_server_mysql
 ```
 
-## 5. Init `MySQL` database
+## 6. Init `MySQL` database
 
 ```bash
 docker exec -it simoc_server_container python3 create_db.py
 ```
 
-## 6. Access `SIMOC` web application
+## 7. Access `SIMOC` web application
 Navigate to the following URL in your browser to access a SIMOC application (change port if needed):<br>
 [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-## 7. Debug deployment
+# Debug Deployment
 Check out [Docker Cheat Sheet](https://github.com/wsargent/docker-cheat-sheet) for more commands.
 
 Show running containers:
@@ -115,7 +121,7 @@ Stop and start a `simoc_server_container` container:
 docker restart simoc_server_container
 ```
 
-## 7. Re-deploy `SIMOC` container on file changes
+# Re-deploy `SIMOC` on file changes
 
 Set up the DB configuration (fill in the password):
 ```bash
@@ -159,7 +165,7 @@ docker run -d \
       simoc_server_mysql
 ```
 
-## 8. Reset `MySQL` database
+# Reset `MySQL` database
 
 Set up DB configuration (fill in the password):
 ```bash
