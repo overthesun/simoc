@@ -97,27 +97,27 @@ git clone -b abm_database git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
-### Build a `simoc_server` image
+### Build `SIMOC` image
 
-#### 1. Configure a `docker` environment
+Configure a `Docker` environment:
 ```bash
 gcloud auth configure-docker
 ```
 
-#### 2. Build a `docker` image
+Build a `simoc_server_mysql` image:
 ```bash
 docker build -t simoc_server_mysql --build-arg APP_PORT=8000 .
 ```
 
-#### 3. Push an image to `Container Registry `
+Push an image to `Container Registry`:
 ```bash
 docker tag simoc_server_mysql gcr.io/$GCP_PROJECT_ID/simoc:latest
 docker push gcr.io/$GCP_PROJECT_ID/simoc:latest
 ```
 
-### Set up a Kubernetes Cluster
+### Set up a `Kubernetes` cluster
 
-#### 1. Create a `k8s` cluster
+Create a `Kubernetes` cluster:
 ```bash
 gcloud container clusters create k0 \
     --preemptible \
@@ -126,21 +126,21 @@ gcloud container clusters create k0 \
     --num-nodes 2 --enable-autoscaling --min-nodes 1 --max-nodes 5
 ```
 
-#### 2. Set up `k8s` environment 
+Set up a `Kubernetes` environment:
 ```bash
 gcloud container clusters get-credentials k0 --zone $GCP_ZONE
 ```
 
 
-### Deploy Kubernetes Cluster
+### Deploy `SIMOC` to `Kubernetes` cluster
 
-#### 1. Deploy and init the `Helm` backend to the cluster
+Deploy and init a `Helm` backend to the cluster:
 ```bash
 kubectl create -f deployment_templates/other/helm-rbac-config.yaml
 helm init --service-account tiller --history-max 200 --upgrade
 ```
 
-#### 2. Install `MySQL` service to the cluster
+Deploy `MySQL` server to the cluster:
 ```bash
 helm repo update
 helm install --name simoc-db \
@@ -152,7 +152,7 @@ helm install --name simoc-db \
     stable/mysql
 ```
 
-#### 3. Save the MySQL credentials to the Cloud Secrets
+Save the `MySQL` credentials to the `Cloud Secrets`:
 ```bash
 export DB_TYPE=mysql
 export DB_HOST="simoc-db-mysql.default.svc.cluster.local"
@@ -172,26 +172,26 @@ kubectl create secret generic simoc-db-config \
     --from-literal=db_password=$DB_PASSWORD
 ```
 
-#### 4. Create static public IP address
+Create static public IP address for `SIMOC`:
 ```bash
 gcloud compute addresses create simoc-static-ip --global
 ```
 
-#### 5. Deploy Nginx Ingress service to the cluster
+Deploy Nginx Ingress service to the cluster:
 ```bash
 helm install --name nginx-ingress stable/nginx-ingress
 ```
 
-#### 6. Access the `Code Editor` from the toolbar by clicking the pencil icon
+Access the `Code Editor` from the toolbar by clicking the pencil icon
 * https://cloud.google.com/shell/docs/features#code_editor
 
-#### 7. Open the `~/simoc/deployment_templates/deployments/simoc_server.yaml` file
-Fill in the `<PROJECT_ID>` value in the `spec/spec/containers/image` section
+Open the `~/simoc/deployment_templates/deployments/simoc_server.yaml` file
+Fill in the `<PROJECT_ID>` value in the `spec/spec/containers/image` section:
 ```bash
 image: gcr.io/<PROJECT_ID>/simoc:latest
 ```
 
-#### 8. Deploy `SIMOC` backend into the cluster
+Deploy `SIMOC` backend into the cluster:
 ```bash
 kubectl create -f deployment_templates/deployments/simoc_server.yaml
 kubectl create -f deployment_templates/autoscalers/simoc_server.yaml
@@ -199,18 +199,18 @@ kubectl create -f deployment_templates/services/simoc_server.yaml
 kubectl create -f deployment_templates/ingresses/simoc_server.yaml
 ```
 
-#### 9. SSH into a SIMOC container and initiate a db reset
+`SSH` into a `SIMOC` container and initiate a database reset:
 ```bash
 kubectl exec "$(kubectl get pods -l app=simoc-backend --output=jsonpath={.items..metadata.name})" \
     -- bash -c "python3 create_db.py"
 ```
 
-If the following error occurs, wait for 1-2 minutes and retry.
+If the following error occurs, wait for 1-2 minutes and retry:
 ```
 error: unable to upgrade connection: container not found ("simoc-backend")
 ```
 
-### Access the SIMOC application
+### Access `SIMOC` web application
 In Cloud Console, navigate to the `Kubernetes Engine -> Services` tab.
 * https://console.cloud.google.com/kubernetes/discovery
 
@@ -220,38 +220,53 @@ Once the cluster is up and running (may need to click a `Refresh` button), the `
 
 ## Deploy SIMOC (`from local Linux/macOS`)
 
-### 1. Install and initialize Cloud SDK
+Install and initialize `Cloud SDK`:
 * https://cloud.google.com/sdk/
 * https://cloud.google.com/sdk/docs/quickstarts
 
-### 2. Install additional SDK components (`k8s client`)
+Install additional SDK components (`k8s client`):
 ```bash
 gcloud components install kubectl
 ```
 
-### 3. Follow the `Cloud Shell` instructions starting from the [Select GCP Project and Zone](#select-gcp-project-and-zone)
+Follow the `Cloud Shell` instructions starting from the [Select GCP Project and Zone](#select-gcp-project-and-zone)
 * Use your favorite text editor and command line terminal to accomplish the steps (instead of Google Cloud Shell and Code Editor)
 * Make sure you specify the right path to the SIMOC source folder (default is `$HOME` folder)
 
 # Rollout Updates
 
 ### Re-deploy `SIMOC` on file changes
+
+Remove an exiting `simoc_server_mysql` image (optional):
+```bash
+docker rmi simoc_server_mysql
+```
+
+Re-build a `simoc_server_mysql` image:
 ```bash
 docker build -t simoc_server_mysql --build-arg APP_PORT=8000 .
 ```
+
+Push a new image to `Container Registry`:
 ```bash
 docker tag simoc_server_mysql gcr.io/$GCP_PROJECT_ID/simoc:latest
 docker push gcr.io/$GCP_PROJECT_ID/simoc:latest
 ```
+
+Re-deploy `SIMOC` backend using a new image:
 ```bash
 kubectl replace --force -f deployment_templates/deployments/simoc_server.yaml
 ```
 
-### Reset and re-deploy a `MySQL` database
+### Reset and re-deploy `MySQL` 
+
+Delete the exiting `MySQL` server deployment and credentials:
 ```bash
 helm del --purge simoc-db
 kubectl delete secret simoc-db-config
 ```
+
+Deploy a new `MySQL` server to the cluster:
 ```bash
 helm repo update
 helm install --name simoc-db \
@@ -262,6 +277,8 @@ helm install --name simoc-db \
     --set resources.limits.memory=512Mi \
     stable/mysql
 ```
+
+Save the new `MySQL` credentials to the `Cloud Secrets`:
 ```bash
 export DB_TYPE=mysql
 export DB_HOST="simoc-db-mysql.default.svc.cluster.local"
@@ -280,9 +297,8 @@ kubectl create secret generic simoc-db-config \
     --from-literal=db_user=$DB_USER \
     --from-literal=db_password=$DB_PASSWORD
 ```
-```bash
-kubectl replace --force -f deployment_templates/deployments/simoc_server.yaml
-```
+
+`SSH` into a `SIMOC` container and initiate a database reset:
 ```bash
 kubectl exec "$(kubectl get pods -l app=simoc-backend --output=jsonpath={.items..metadata.name})" \
     -- bash -c "python3 create_db.py"

@@ -1,23 +1,26 @@
-## Navigate to the `simoc` directory and execute `Steps 1-5 `
+# Navigate to the `simoc` directory and execute `Steps 1-5 `
 
-## 1. Follow the official guide to set up `docker` software
+## 1. Follow the official guide to set up `Docker` software
 
 https://docs.docker.com/install/
 
-## 2. Build a `simoc_server` image
+## 2. Build `SIMOC` image
 
-```
+Set up `HTTP` port for the `SIMOC` web application:
+```bash
 export APP_PORT=8000
 ```
-```
+
+Build a `simoc_server_sqlite` image:
+```bash
 docker build -t simoc_server_sqlite \
       --build-arg DB_TYPE=sqlite \
       --build-arg APP_PORT=$APP_PORT .
 ```
 
-## 3. Create and deploy a `simoc_server` container in background 
+## 3. Create and deploy `SIMOC` container
 
-```
+```bash
 docker run -d \
       --name simoc_server_container \
       -v "$(pwd)"/sqlite:/simoc/sqlite \
@@ -27,76 +30,88 @@ docker run -d \
 
 ## 4. Init `SQLite` database
 
-```
+```bash
 docker exec -it simoc_server_container python3 create_db.py
 ```
 
-## 5. Access `SIMOC` application
+## 5. Access `SIMOC` web application
 
-Navigate to the following URL in your browser to access a SIMOC application - [http://127.0.0.1:8000](http://127.0.0.1:8000)
+Navigate to the following URL in your browser to access a SIMOC application (change port if needed):<br>
+[http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ## 6. Debug deployment
 
 Check out [Docker Cheat Sheet](https://github.com/wsargent/docker-cheat-sheet) for more commands.
 
-### Show running containers
+Show running containers:
 
-```
+```bash
 docker ps
 ```
 
-### Show all containers
+Show all containers:
 
-```
+```bash
 docker ps -a
 ```
 
-### Fetch logs from a `simoc_server` container
+Fetch logs from a `simoc_server_container` container:
 
-```
+```bash
 docker logs --follow simoc_server_container
 ```
 
-### Stop a `simoc_server` container
+Stop a `simoc_server_container` container:
 
-```
+```bash
 docker stop simoc_server_container
 ```
 
-### Kill a `simoc_server` container
+Kill a `simoc_server_container` container:
 
-```
+```bash
 docker kill simoc_server_container
 ```
 
-### Start a `simoc_server` container
+Start a `simoc_server_container` container:
 
-```
+```bash
 docker start simoc_server_container
 ```
 
-### Stop and start a `simoc_server` container
+Stop and start a `simoc_server_container` container:
 
-```
+```bash
 docker restart simoc_server_container
 ```
 
-## 7. Rebuild and re-deploy a `simoc_server` container on file changes
+## 7. Re-deploy `SIMOC` container on file changes
 
-```
+Set up `HTTP` port for the `SIMOC` web application:
+```bash
 export APP_PORT=8000
 ```
-```
+
+Kill and remove a running `simoc_server_container` container (if any):
+```bash
 docker kill simoc_server_container
 docker rm -f simoc_server_container
-docker rmi simoc_server_image
 ```
+
+Remove an exiting `simoc_server_sqlite` image (optional):
+```bash
+docker rmi simoc_server_sqlite
 ```
+
+Re-build a `simoc_server_sqlite` image:
+```bash
 docker build -t simoc_server_sqlite \
       --build-arg DB_TYPE=sqlite \
       --build-arg APP_PORT=$APP_PORT .
 ```
-```
+
+Create and deploy a new `simoc_server_container` container:
+```bash
 docker run -d \
       --name simoc_server_container \
       -v "$(pwd)"/sqlite:/simoc/sqlite \
@@ -104,10 +119,15 @@ docker run -d \
       simoc_server_sqlite
 ```
 
-## 8. Reset an `SQLite` database
+## 8. Reset `SQLite` database
 
-```
+Remove the `SQLite` database file from the `simoc/sqlite` directory:
+```bash
 rm sqlite/db.sqlite
+```
+
+Re-initialize an `SQLite` database:
+```bash
 docker exec -it simoc_server_container python3 create_db.py
 ```
 
