@@ -10,13 +10,19 @@ ARG DB_NAME
 ARG DB_USER
 ARG DB_PASSWORD
 
-RUN apt-get update -y && \
-    apt-get install -y python3-pip python3-dev python3-setuptools python3-mysqldb
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-dev \
+    python3-setuptools \
+    python3-mysqldb
+
+COPY ./requirements.txt /simoc/requirements.txt
+RUN python3 -m pip install -r /simoc/requirements.txt
 
 COPY . /simoc
-WORKDIR /simoc
 
-RUN python3 -m pip install -r requirements.txt
+WORKDIR /simoc
 
 ENV APP_PORT ${APP_PORT}
 ENV DB_TYPE ${DB_TYPE}
