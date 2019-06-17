@@ -76,17 +76,17 @@ chmod 700 get_helm.sh
 
 ### Configure `GitHub` `SSH` access
 
-#### 1. Generate a new `SSH` key (`use empty passphrase`)
+Generate a new `SSH` key (`use empty passphrase`)
 ```bash
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 ```
 
-#### 2. Copy the content of the `id_rsa.pub` file to your clipboard
+Copy the content of the `id_rsa.pub` file to your clipboard
 ```bash
 cat ~/.ssh/id_rsa.pub
 ```
 
-#### 3. Use the following guide starting from the `Step 2` to add the SSH key to your GitHub account
+Use the following guide starting from the `Step 2` to add the SSH key to your GitHub account:
 * https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
 ### Clone the `SIMOC` codebase
