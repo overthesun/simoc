@@ -50,7 +50,7 @@ Check the current configuration:
 ```bash
 gcloud config list
 ```
-Select the `Project` and the `Compute Zone` for the deployment
+Select the `Project` and the `Compute Zone` for the deployment:
 ```bash
 gcloud projects list
 gcloud compute zones list
@@ -60,7 +60,7 @@ export GCP_PROJECT_ID=<PROJECT_ID>
 export GCP_ZONE=<GCP_ZONE>
 ```
 
-Set up `Project` and `Zone` config
+Set up `Project` and `Zone` config:
 ```bash
 gcloud config set project $GCP_PROJECT_ID
 gcloud config set compute/zone $GCP_ZON
@@ -76,12 +76,12 @@ chmod 700 get_helm.sh
 
 ### Configure `GitHub` `SSH` access
 
-Generate a new `SSH` key (`use empty passphrase`)
+Generate a new `SSH` key (`use empty passphrase`):
 ```bash
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 ```
 
-Copy the content of the `id_rsa.pub` file to your clipboard
+Copy the content of the `id_rsa.pub` file to your clipboard:
 ```bash
 cat ~/.ssh/id_rsa.pub
 ```
@@ -89,7 +89,8 @@ cat ~/.ssh/id_rsa.pub
 Use the following guide starting from the `Step 2` to add the SSH key to your GitHub account:
 * https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
-### Clone the `SIMOC` codebase
+### Clone `SIMOC` code from `GitHub`
+
 ```bash
 cd ~/
 git clone -b abm_database git@github.com:kstaats/simoc.git
@@ -133,7 +134,7 @@ gcloud container clusters get-credentials k0 --zone $GCP_ZONE
 
 ### Deploy `SIMOC` to `Kubernetes` cluster
 
-Deploy and init a `Helm` backend to the cluster:
+Deploy `Helm` backend to the cluster:
 ```bash
 kubectl create -f deployment_templates/other/helm-rbac-config.yaml
 helm init --service-account tiller --history-max 200 --upgrade
@@ -210,7 +211,7 @@ error: unable to upgrade connection: container not found ("simoc-backend")
 ```
 
 ### Access `SIMOC` web application
-In `Cloud Console`, navigate to the `Kubernetes Engine -> Services` tab.
+In `Cloud Console`, navigate to the `Kubernetes Engine -> Services` tab:
 * https://console.cloud.google.com/kubernetes/discovery
 
 Once the cluster is up and running (may need to click a `Refresh` button), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app.

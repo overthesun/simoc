@@ -8,7 +8,7 @@ cd simoc/
 
 ## 2. Follow the official guide to set up `Docker` software
 
-https://docs.docker.com/install/
+- https://docs.docker.com/install/
 
 ## 3. Deploy `MySQL` container
 
@@ -17,7 +17,7 @@ Create a `Docker` network service:
 docker network create simoc-net
 ```
 
-Set up the DB configuration (fill in the password):
+Set up the DB configuration (fill in the `DB_PASSWORD`):
 ```bash
 export DB_HOST=simoc-db
 export DB_PORT=3306
@@ -66,15 +66,15 @@ docker run -d \
       simoc_server_mysql
 ```
 
-## 6. Init `MySQL` database
+## 6. Initialize `MySQL` database
 
 ```bash
 docker exec -it simoc_server_container python3 create_db.py
 ```
 
 ## 7. Access `SIMOC` web application
-Navigate to the following URL in your browser to access a SIMOC application (change port if needed):<br>
-[http://127.0.0.1:8000](http://127.0.0.1:8000)
+Navigate to the following `URL` in your browser to access a `SIMOC` application (change `PORT` if needed):
+- [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 # Debug Deployment
 Check out [Docker Cheat Sheet](https://github.com/wsargent/docker-cheat-sheet) for more commands.
@@ -167,7 +167,7 @@ docker run -d \
 
 # Reset `MySQL` database
 
-Set up DB configuration (fill in the password):
+Set up DB configuration (fill in the `DB_PASSWORD`):
 ```bash
 export APP_PORT=8000
 export DB_HOST=simoc-db
@@ -210,7 +210,7 @@ docker run -d \
       simoc_server_mysql
 ```
 
-Init `MySQL` database:
+Re-initialize `MySQL` database:
 ```bash
 docker exec -it simoc_server_container python3 create_db.py
 ```

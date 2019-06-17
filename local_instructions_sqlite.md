@@ -8,9 +8,9 @@ cd simoc/
 
 ## 2. Follow the official guide to install `Python 3.6+` 
 
-https://www.python.org/downloads/
+- https://www.python.org/downloads/
 
-## 3. Set up `Python3` virtual environment
+## 3. Set up `Python 3` virtual environment
 ```bash
 python3 -m venv simoc-env
 source simoc-env/bin/activate
@@ -36,8 +36,8 @@ sh run.sh
 ```
 
 ## 6. Access `SIMOC` web application
-Navigate to the following URL in your browser to access a SIMOC application (change port if needed):<br>
-[http://127.0.0.1:8000](http://127.0.0.1:8000)
+Navigate to the following `URL` in your browser to access a `SIMOC` application (change `PORT` if needed):
+- [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 # Reset `SQLite` database
 
