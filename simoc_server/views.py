@@ -1,13 +1,5 @@
 import json
-import math
-
-from flask import after_this_request, request
-from io import StringIO as IO
-import gzip
-import functools 
-
-
-#from flask_compress import Compress
+import sys
 
 from collections import OrderedDict
 
@@ -16,12 +8,14 @@ from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from simoc_server import app, db
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, AgentTypeAttributeDetails, SavedGame, User,ModelRecord,StepRecord
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User, \
+    ModelRecord, StepRecord
 from simoc_server.exceptions import InvalidLogin, BadRequest, BadRegistration, \
     GenericError, NotFound
 from simoc_server.game_runner import (GameRunnerManager, GameRunnerInitializationParams)
-from simoc_server.serialize import serialize_response, data_format_name
-from simoc_server.front_end_routes import convert_configuration,calc_step_in_out, calc_step_storage_ratios
+from simoc_server.serialize import serialize_response
+from simoc_server.front_end_routes import convert_configuration,calc_step_in_out, \
+    calc_step_storage_ratios
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -92,7 +86,7 @@ def register():
     userinfo = json.loads(request.data.decode('utf-8'))
     username = userinfo["username"]
     password = userinfo["password"]
-    if (User.query.filter_by(username=username).first()):
+    if User.query.filter_by(username=username).first():
         raise BadRegistration("User already exists")
     user = User(username=username)
     user.set_password(password)
@@ -205,50 +199,59 @@ def get_steps():
 #    print ("FIXMESW: get step to time",time.time()-b)
 #    a1 = time.time()
 
-    if not "min_step_num" in input and not "n_steps" in input:
+    if "min_step_num" not in input and "n_steps" not in input:
         sys.exit("ERROR: min_step_num and n_steps are required as input to views.get_step() route")
     min_step_num = int(input["min_step_num"])
     n_steps = int(input["n_steps"])
     max_step_num = min_step_num+n_steps-1
 
-    #FIXME: this should come from the front end (gets passed to front end in new_game route)
-    if not "game_id" in input:
+    # FIXME: this should come from the front end (gets passed to front end in new_game route)
+    if "game_id" not in input:
         game_runner = game_runner_manager.get_game_runner(get_standard_user_obj())
         game_id = game_runner.game_id
     else:
         game_id = input["game_id"]
 
-    #Which of the output from game_runner.parse_step_data to you want returned. 
-    parse_filters=["agent_type_counters","storage_capacities"] if not "parse_filters" in input else input["parse_filters"]
+    # Which of the output from game_runner.parse_step_data to you want returned.
+    parse_filters = ["agent_type_counters", "storage_capacities"] if "parse_filters" not in input \
+        else input["parse_filters"]
 
     user = get_standard_user_obj()
     model_record_steps = ModelRecord.query \
-            .filter_by(user_id=user.id) \
-            .filter_by(game_id=game_id) \
-            .filter(ModelRecord.step_num >= min_step_num) \
-            .filter(ModelRecord.step_num <= max_step_num) \
+        .filter_by(user_id=user.id) \
+        .filter_by(game_id=game_id) \
+        .filter(ModelRecord.step_num >= min_step_num) \
+        .filter(ModelRecord.step_num <= max_step_num)
 
-    
     step_record_steps = None
     if len(parse_filters) > 0 or "total_production" in input or "total_consumption" in input:
-        step_record_steps = StepRecord.query.filter_by(user_id=user.id)\
-            .filter_by(game_id=game_id)\
+        step_record_steps = StepRecord.query \
+            .filter_by(user_id=user.id) \
+            .filter_by(game_id=game_id) \
             .filter(StepRecord.step_num >= min_step_num) \
-            .filter(StepRecord.step_num <= max_step_num) \
+            .filter(StepRecord.step_num <= max_step_num)
             
     output = {}
-    for mri,model_record_data in enumerate(model_record_steps):
+    for mri, model_record_data in enumerate(model_record_steps):
         step_num = model_record_data.step_num
         agent_model_state = game_runner_manager.parse_step_data(model_record_data,parse_filters)
 
         if "total_production" in input or "total_consumption" in input:
             step_record = step_record_steps.filter_by(step_num=step_num)
             if "total_production" in input:
-                agent_model_state["total_production"] = calc_step_in_out(step_num,"out",input["total_production"],step_record) 
+                agent_model_state["total_production"] = calc_step_in_out(step_num,
+                                                                         "out",
+                                                                         input["total_production"],
+                                                                         step_record)
             if "total_consumption" in input:
-                agent_model_state["total_consumption"] = calc_step_in_out(step_num,"in",input["total_consumption"],step_record)
+                agent_model_state["total_consumption"] = calc_step_in_out(step_num,
+                                                                          "in",
+                                                                          input["total_consumption"],
+                                                                          step_record)
         if "storage_ratios" in input:
-            agent_model_state["storage_ratios"] = calc_step_storage_ratios(step_num,input["storage_ratios"],model_record_data)
+            agent_model_state["storage_ratios"] = calc_step_storage_ratios(step_num,
+                                                                           input["storage_ratios"],
+                                                                           model_record_data)
 
         output[int(step_num)] = agent_model_state
 
@@ -258,8 +261,8 @@ def get_steps():
 #    print ("FIXMESW: time storage ratios,",t3)
 #    print ("FIXMESW: time game_runner.get_step breakdown,",tg1,tg2,tg3,tg4)
     response = json.dumps(output)
-    #response = response.encode('utf-8')
-    #response = gzip.compress(response)
+    # response = response.encode('utf-8')
+    # response = gzip.compress(response)
 #    print ("FIXMESW: get_step time",time.time()-a1)
     return response
 

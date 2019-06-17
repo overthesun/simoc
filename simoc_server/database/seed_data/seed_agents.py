@@ -1,10 +1,14 @@
 import json
+import random
 
 from . import util
 from simoc_server import db
 from simoc_server.agent_model.agents import growth_func
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, AgentTypeAttributeDetails
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, \
+    AgentTypeAttributeDetails, CurrencyType
 from simoc_server.util import location_to_day_length_minutes
+
+_GLOBAL_CURRENCY_LIST = {}
 
 
 def import_agents(agents, agent_class):
@@ -26,6 +30,13 @@ def import_agents(agents, agent_class):
             attr_name = 'char_{}'.format(attr['type'])
             attr_value = attr.get("value", '')
             attr_units = attr.get("unit", '')
+            currency = None
+            if attr['type'].startswith('capacity'):
+                currency = attr['type'].split('_', 1)[1]
+                if currency not in _GLOBAL_CURRENCY_LIST:
+                    _GLOBAL_CURRENCY_LIST[currency] = CurrencyType(name=currency,
+                                                                   id=random.randint(1, 1e7))
+            currency_type = _GLOBAL_CURRENCY_LIST[currency] if currency else None
             agent_type_attribute = AgentTypeAttribute(name=attr_name,
                                                       agent_type=agent_type,
                                                       value=str(attr_value),
@@ -33,12 +44,13 @@ def import_agents(agents, agent_class):
                                                       description=None)
             AgentTypeAttributeDetails(agent_type_attribute=agent_type_attribute,
                                       agent_type=agent_type,
+                                      currency_type=currency_type,
                                       units=attr_units)
-
         for section in ['input', 'output']:
             for attr in agents[name]['data'][section]:
                 prefix = 'in' if section == 'input' else 'out'
-                attr_name = '{}_{}'.format(prefix, attr['type'])
+                currency = attr['type'].lower().strip()
+                attr_name = '{}_{}'.format(prefix, currency)
                 attr_value = attr.get("value", None)
                 is_required = attr.get("required", None)
                 requires = attr.get("requires", None)
@@ -117,8 +129,12 @@ def import_agents(agents, agent_class):
                                                           value=str(attr_value),
                                                           value_type=str(type(attr_value).__name__),
                                                           description=None)
+                if currency not in _GLOBAL_CURRENCY_LIST:
+                    _GLOBAL_CURRENCY_LIST[currency] = CurrencyType(name=currency,
+                                                                   id=random.randint(1, 1e7))
                 attr_details = {'agent_type_attribute':  agent_type_attribute,
                                 'agent_type': agent_type,
+                                'currency_type': _GLOBAL_CURRENCY_LIST[currency],
                                 'flow_unit': flow_unit,
                                 'flow_time': flow_time,
                                 'criteria_name': criteria_name,

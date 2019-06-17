@@ -5,11 +5,14 @@ These functions were originally in views.py.
 
 import json
 import math
+import sys
 
 from flask import request
 
 from simoc_server import app, db
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, StepRecord, ModelRecord, StorageCapacityRecord
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, CurrencyType,\
+    StorageCapacityRecord
+
 
 @app.route("/get_mass", methods=["GET"])
 def get_mass():
@@ -39,6 +42,7 @@ def get_mass():
     value = value * agent_quantity
     total = { "mass" : value}
     return json.dumps(total)
+
 
 @app.route("/get_energy", methods=["GET"])
 def get_energy():
@@ -235,12 +239,12 @@ def calc_step_in_out(step_num,direction,currencies,step_record_data):
     step_data = step_record_data.filter_by(direction=direction).all()
 
     for step in step_data:
-        if step.currency in currencies:
-            if len(output[step.currency]) == 0:
-                output[step.currency]["value"] = step.value
-                output[step.currency]["unit"] = step.unit
+        if step.currency_type.name in currencies:
+            if len(output[step.currency_type.name]) == 0:
+                output[step.currency_type.name]["value"] = step.value
+                output[step.currency_type.name]["unit"] = step.unit
             else:
-                output[step.currency]["value"] += step.value
+                output[step.currency_type.name]["value"] += step.value
 
     return output
 
@@ -280,7 +284,8 @@ def calc_step_storage_ratios(step_num,agents,step_data):
         output[agent] = {}
         #Now, calculate the ratio for specified currencies.
         for currency in agents[agent]:
-            c_step_data = capacities.filter_by(currency=currency).first()
+            currency_type = CurrencyType.query.filter_by(name=currency).first()
+            c_step_data = capacities.filter_by(currency_type_id=currency_type.id).first()
             output[agent][currency] = c_step_data.value/sum
 
     return output

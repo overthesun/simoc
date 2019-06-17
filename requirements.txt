@@ -12,7 +12,6 @@ msgpack-python
 nose
 numpy
 pandas
-psycopg2
 pylint
 pytimeparse
 quantities

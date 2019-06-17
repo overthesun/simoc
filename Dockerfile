@@ -11,8 +11,7 @@ ARG DB_USER
 ARG DB_PASSWORD
 
 RUN apt-get update -y && \
-    apt-get install -y python3-pip python3-dev python3-setuptools python3-mysqldb \
-    libssl-dev libffi-dev libpq-dev
+    apt-get install -y python3-pip python3-dev python3-setuptools python3-mysqldb
 
 COPY . /simoc
 WORKDIR /simoc
