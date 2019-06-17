@@ -1,4 +1,4 @@
-# Setup `SIMOC`
+# Setup `SIMOC`on `Linux/macOS`
 
 ## 1. Clone `SIMOC` code from `GitHub`
 ```bash
