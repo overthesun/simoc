@@ -41,11 +41,11 @@ The guide covers two basic deployment scenarios:
 
 ## Deploy `SIMOC` (using `Cloud Shell`)
 
-### Initialize a new Cloud Shell session
+### Initialize a new `Cloud Shell` session
 * https://cloud.google.com/shell/docs/quickstart
 * https://console.cloud.google.com/cloudshell
 
-### Select GCP Project and Zone
+### Select `GCP` Project and Zone
 Check the current configuration:
 ```bash
 gcloud config list
@@ -67,17 +67,16 @@ gcloud config set compute/zone $GCP_ZON
 ```
 Please note your selection as you will need those values later on in this guide.
 
-### Install Helm client tool (`package manager for k8s`)
+### Install `Helm` client tool (`package manager for k8s`)
 ```bash
 curl -LO https://git.io/get_helm.sh
 chmod 700 get_helm.sh
 ./get_helm.sh
 ```
 
-### Configure GitHub SSH access
-Cloud Build uses personal SSH key to pull the code out of private Github repositories. Your Github account should have access to the private SIMOC repository and your Cloud Shell SSH key should be added to your Github account.
+### Configure `GitHub` `SSH` access
 
-#### 1. Generate a new SSH key (`use empty passphrase`)
+#### 1. Generate a new `SSH` key (`use empty passphrase`)
 ```bash
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 ```
@@ -90,7 +89,7 @@ cat ~/.ssh/id_rsa.pub
 #### 3. Use the following guide starting from the `Step 2` to add the SSH key to your GitHub account
 * https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
-### Clone the SIMOC codebase
+### Clone the `SIMOC` codebase
 ```bash
 cd ~/
 git clone -b abm_database git@github.com:kstaats/simoc.git
@@ -177,15 +176,15 @@ Create static public IP address for `SIMOC`:
 gcloud compute addresses create simoc-static-ip --global
 ```
 
-Deploy Nginx Ingress service to the cluster:
+Deploy `Nginx Ingress` service to the cluster:
 ```bash
 helm install --name nginx-ingress stable/nginx-ingress
 ```
 
-Access the `Code Editor` from the toolbar by clicking the pencil icon
+Access the `Code Editor` from the toolbar by clicking the pencil icon:
 * https://cloud.google.com/shell/docs/features#code_editor
 
-Open the `~/simoc/deployment_templates/deployments/simoc_server.yaml` file
+Open the `~/simoc/deployment_templates/deployments/simoc_server.yaml` file.<br><br>
 Fill in the `<PROJECT_ID>` value in the `spec/spec/containers/image` section:
 ```bash
 image: gcr.io/<PROJECT_ID>/simoc:latest
@@ -211,14 +210,14 @@ error: unable to upgrade connection: container not found ("simoc-backend")
 ```
 
 ### Access `SIMOC` web application
-In Cloud Console, navigate to the `Kubernetes Engine -> Services` tab.
+In `Cloud Console`, navigate to the `Kubernetes Engine -> Services` tab.
 * https://console.cloud.google.com/kubernetes/discovery
 
 Once the cluster is up and running (may need to click a `Refresh` button), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app.
 
 # Scenario 2
 
-## Deploy SIMOC (from local `Linux/macOS`)
+## Deploy `SIMOC` (from local `Linux/macOS`)
 
 Install and initialize `Cloud SDK`:
 * https://cloud.google.com/sdk/
