@@ -1,6 +1,0 @@
-steps:
-- name: 'gcr.io/cloud-builders/kubectl'
-  args: ['set', 'image', 'deployment/simoc', 'simoc=gcr.io/$PROJECT_ID/simoc']
-  env:
-  - 'CLOUDSDK_COMPUTE_ZONE=<GCP_ZONE>'
-  - 'CLOUDSDK_CONTAINER_CLUSTER=k0'
