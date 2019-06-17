@@ -55,6 +55,12 @@ Show running containers:
 docker ps
 ```
 
+The output should look similar to the following which means that `SIMOC` is up and running:
+```bash
+CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS                   PORTS                               NAMES
+00726dfff174        simoc_server_sqlite   "/bin/bash run.sh"       42 seconds ago      Up 41 seconds            0.0.0.0:8000->8000/tcp              simoc_server_container
+```
+
 Show all containers:
 
 ```bash
