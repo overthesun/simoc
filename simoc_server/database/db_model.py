@@ -258,7 +258,6 @@ class StepRecord(BaseEntity):
                 "direction": self.direction,
                 "currency_type": self.currency_type.name,
                 "currency_type_id": self.currency_type.id,
-                "currency": self.currency_type.name,
                 "value": self.value,
                 "unit": self.unit,
                 "storage_type": self.storage_type.name,
@@ -332,7 +331,6 @@ class StorageCapacityRecord(BaseEntity):
                 "agent_id": self.agent_id,
                 "currency_type": self.currency_type.name,
                 "currency_type_id": self.currency_type.id,
-                "currency": self.currency_type.name,
                 "value": self.value,
                 "units": self.units,
                 "capacity": self.capacity}
