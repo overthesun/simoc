@@ -8,7 +8,7 @@ cd simoc/
 
 ## 2. Follow the official guide to set up `Docker` software
 
-https://docs.docker.com/install/
+- https://docs.docker.com/install/
 
 ## 3. Build `SIMOC` image
 
@@ -34,7 +34,7 @@ docker run -d \
       simoc_server_sqlite
 ```
 
-## 5. Init `SQLite` database
+## 5. Initialize `SQLite` database
 
 ```bash
 docker exec -it simoc_server_container python3 create_db.py
@@ -42,8 +42,8 @@ docker exec -it simoc_server_container python3 create_db.py
 
 ## 6. Access `SIMOC` web application
 
-Navigate to the following URL in your browser to access a SIMOC application (change port if needed):<br>
-[http://127.0.0.1:8000](http://127.0.0.1:8000)
+Navigate to the following `URL` in your browser to access a `SIMOC` application (change `PORT` if needed):
+- [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 # Debug Deployment
 
@@ -53,6 +53,12 @@ Show running containers:
 
 ```bash
 docker ps
+```
+
+The output should look similar to the following which means that `SIMOC` is up and running:
+```bash
+CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS                   PORTS                               NAMES
+00726dfff174        simoc_server_sqlite   "/bin/bash run.sh"       42 seconds ago      Up 41 seconds            0.0.0.0:8000->8000/tcp              simoc_server_container
 ```
 
 Show all containers:

@@ -11,7 +11,7 @@ from mesa import Agent
 
 from simoc_server import db
 from simoc_server.agent_model.attribute_meta import AttributeHolder
-from simoc_server.database.db_model import AgentType, AgentState
+from simoc_server.database.db_model import AgentType, AgentState, CurrencyType
 from simoc_server.util import load_db_attributes_into_dict
 from simoc_server.util import timedelta_to_hours
 from simoc_server.agent_model.agents import growth_func
@@ -501,12 +501,13 @@ class GeneralAgent(EnclosedAgent):
                             if deprive_value > 0:
                                 self.deprive[currency] = deprive_value
                         if log:
+                            currency_type = CurrencyType.query.filter_by(name=currency).first()
                             record = {"step_num": self.model.step_num,
                                       "user_id": self.model.user_id,
                                       "agent_type_id": self.agent_type_id,
                                       "agent_id": self.unique_id,
                                       "direction": prefix,
-                                      "currency": currency,
+                                      "currency_type_id": currency_type.id,
                                       "value": step_value.magnitude.tolist() / self.amount,
                                       "unit": str(step_value.units),
                                       "storage_type_id": storage.agent_type_id,

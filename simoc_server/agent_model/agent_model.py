@@ -17,7 +17,7 @@ from simoc_server import db, app
 from simoc_server.agent_model.agents.core import GeneralAgent, StorageAgent
 from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentModelParam, AgentType, AgentModelState, \
-    AgentModelSnapshot, SnapshotBranch
+    AgentModelSnapshot, SnapshotBranch, CurrencyType
 from simoc_server.util import timedelta_to_hours, location_to_day_length_minutes
 
 
@@ -156,11 +156,12 @@ class AgentModel(Model, AttributeHolder):
         storage_capacities = []
         for storage in self.get_storage_capacities():
             for currency in storage['currencies']:
+                currency_type = CurrencyType.query.filter_by(name=currency['name']).first()
                 storage_capacity_record = dict(model_record_id=record_id,
                                                agent_type_id=storage['agent_type_id'],
                                                agent_id=storage['agent_id'],
                                                storage_id=storage['storage_id'],
-                                               currency=currency['name'],
+                                               currency_type_id=currency_type.id,
                                                value=currency['value'],
                                                capacity=currency['capacity'],
                                                units=currency['units'])
