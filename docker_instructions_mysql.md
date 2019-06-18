@@ -40,7 +40,7 @@ docker run -d \
 
 ## 5. Deploy `Redis` container 
 
-Set up `Redis` connection: (fill in the `DB_PASSWORD`):
+Set up `Redis` connection: (fill in the `REDIS_PASSWORD`):
 ```bash
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
@@ -74,6 +74,7 @@ docker build -f celery_worker/Dockerfile \
     --build-arg DB_TYPE=mysql \
     --build-arg REDIS_HOST=$REDIS_HOST \
     --build-arg REDIS_PORT=$REDIS_PORT \
+    --build-arg REDIS_PASSWORD=$REDIS_PASSWORD \
     --build-arg DB_HOST=$DB_HOST \
     --build-arg DB_PORT=$DB_PORT \
     --build-arg DB_NAME=$DB_NAME \
@@ -104,6 +105,7 @@ docker build -t simoc_flask_mysql \
       --build-arg DB_TYPE=mysql \
       --build-arg REDIS_HOST=$REDIS_HOST \
       --build-arg REDIS_PORT=$REDIS_PORT \
+      --build-arg REDIS_PASSWORD=$REDIS_PASSWORD \
       --build-arg DB_HOST=$DB_HOST \
       --build-arg DB_PORT=$DB_PORT \
       --build-arg DB_NAME=$DB_NAME \

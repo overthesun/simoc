@@ -17,7 +17,7 @@ docker network create simoc-net
 
 ## 4. Deploy `Redis` container 
 
-Set up `Redis` connection: (fill in the `DB_PASSWORD`):
+Set up `Redis` connection: (fill in the `REDIS_PASSWORD`):
 ```bash
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
@@ -50,6 +50,7 @@ docker build -f celery_worker/Dockerfile \
     -t simoc_celery_worker \
     --build-arg REDIS_HOST=$REDIS_HOST \
     --build-arg REDIS_PORT=$REDIS_PORT \
+    --build-arg REDIS_PASSWORD=$REDIS_PASSWORD \
     --build-arg CELERY_THREADS=$CELERY_THREADS .
 ```
 
@@ -75,6 +76,7 @@ docker build -t simoc_flask_sqlite \
       --build-arg DB_TYPE=sqlite \
       --build-arg REDIS_HOST=$REDIS_HOST \
       --build-arg REDIS_PORT=$REDIS_PORT \
+      --build-arg REDIS_PASSWORD=$REDIS_PASSWORD \
       --build-arg APP_PORT=$APP_PORT .
 ```
 
