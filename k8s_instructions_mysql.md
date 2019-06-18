@@ -93,7 +93,7 @@ Use the following guide starting from the `Step 2` to add the SSH key to your Gi
 
 ```bash
 cd ~/
-git clone -b abm_database git@github.com:kstaats/simoc.git
+git clone -b celery_integration git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 

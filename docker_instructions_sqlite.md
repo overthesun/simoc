@@ -2,7 +2,7 @@
 
 ## 1. Clone `SIMOC` code from `GitHub`
 ```bash
-git clone -b abm_database git@github.com:kstaats/simoc.git
+git clone -b celery_integration git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
@@ -22,7 +22,7 @@ Set up `Redis` connection: (fill in the `REDIS_PASSWORD`):
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
-Start a `Redis` container
+Start a `Redis` container:
 ```bash
 docker run -d \
     --name=redis \
