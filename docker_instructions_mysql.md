@@ -40,7 +40,7 @@ docker run -d \
 
 ## 5. Deploy `Redis` container 
 
-Set up `Redis` connection: (fill in the `REDIS_PASSWORD`):
+Set up `Redis` password (fill in the `REDIS_PASSWORD`):
 ```bash
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```

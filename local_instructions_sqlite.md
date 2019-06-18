@@ -28,7 +28,7 @@ python3 create_db.py
 
 ## 5. Start `Celery` worker
 
-Set up `Redis` connection: (fill in the `REDIS_PASSWORD`):
+Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
 ```bash
 export REDIS_HOST=localhost
 export REDIS_PORT=6379
