@@ -1,0 +1,71 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: simoc-celery-cluster
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: simoc-celery-cluster
+        track: stable
+    spec:
+      containers:
+        - name: simoc-celery-cluster
+          image: gcr.io/simoc-243819/simoc_celery:latest
+          imagePullPolicy: Always
+          env:
+          - name: CELERY_THREADS
+            value: '2'
+          - name: DB_TYPE
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-config
+                key: db_type
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-config
+                key: db_host
+          - name: DB_PORT
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-config
+                key: db_port
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-config
+                key: db_name
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-config
+                key: db_user
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-config
+                key: db_password
+          - name: REDIS_HOST
+            valueFrom:
+              secretKeyRef:
+                name: redis-config
+                key: redis_host
+          - name: REDIS_PORT
+            valueFrom:
+              secretKeyRef:
+                name: redis-config
+                key: redis_port
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redis-config
+                key: redis_password
+          resources:
+            requests:
+              memory: "500M"
+              cpu: 1.0
+            limits:
+              memory: "1G"
+              cpu: 2.0

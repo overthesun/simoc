@@ -1,20 +1,22 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: simoc-backend
+  name: simoc-flask-server
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: simoc-backend
+        app: simoc-flask-server
         track: stable
     spec:
       containers:
-        - name: simoc-backend
-          image: gcr.io/<PROJECT_ID>/simoc:latest
+        - name: simoc-flask-server
+          image: gcr.io/simoc-243819/simoc_flask:latest
           imagePullPolicy: Always
           env:
+          - name: APP_PORT
+            value: '8000'
           - name: DB_TYPE
             valueFrom:
               secretKeyRef:
@@ -45,6 +47,21 @@ spec:
               secretKeyRef:
                 name: simoc-db-config
                 key: db_password
+          - name: REDIS_HOST
+            valueFrom:
+              secretKeyRef:
+                name: redis-config
+                key: redis_host
+          - name: REDIS_PORT
+            valueFrom:
+              secretKeyRef:
+                name: redis-config
+                key: redis_port
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redis-config
+                key: redis_password
           ports:
             - name: http
               containerPort: 8000

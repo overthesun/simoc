@@ -1,6 +1,8 @@
 import argparse
 import os
 
+os.environ["NO_FLASK"] = "1"
+
 import simoc_server
 from simoc_server import app
 from simoc_server.database import *

@@ -16,6 +16,7 @@ from simoc_server.database.db_model import (AgentTypeCountRecord,
                                             User)
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
+from simoc_server.front_end_routes import parse_step_data
 
 
 class GameRunner(object):
@@ -189,10 +190,14 @@ class GameRunner(object):
             for record in model_records + agent_type_counts + storage_capacities + step_records:
                 record['start_time'] = self.start_time
                 record['game_id'] = self.game_id
-            db.session.execute(ModelRecord.__table__.insert(), model_records,)
-            db.session.execute(AgentTypeCountRecord.__table__.insert(), agent_type_counts,)
-            db.session.execute(StorageCapacityRecord.__table__.insert(), storage_capacities,)
-            db.session.execute(StepRecord.__table__.insert(), step_records,)
+            if len(model_records) > 0:
+                db.session.execute(ModelRecord.__table__.insert(), model_records,)
+            if len(agent_type_counts) > 0:
+                db.session.execute(AgentTypeCountRecord.__table__.insert(), agent_type_counts,)
+            if len(storage_capacities) > 0:
+                db.session.execute(StorageCapacityRecord.__table__.insert(), storage_capacities,)
+            if len(step_records) > 0:
+                db.session.execute(StepRecord.__table__.insert(), step_records,)
             db.session.commit()
 
         def step_loop(agent_model):
@@ -415,31 +420,6 @@ class GameRunnerManager(object):
         except KeyError:
             return None
 
-    @staticmethod
-    def parse_step_data(step_data,filters=["agent_type_counters","storage_capacities"]):
-        reduced_output = step_data.get_data()
-        if len(filters) == 0:
-            return reduced_output
-
-        agent_logs = StepRecord.query \
-            .filter_by(user=step_data.user) \
-            .filter_by(game_id=step_data.game_id) \
-            .filter_by(step_num=step_data.step_num) \
-            .all()
-
-        response = {}
-        response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters] if "agent_type_counters" in filters else []
-        response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities] if "storage_capacities" in filters else []
-        response['agent_logs'] = [i.get_data() for i in agent_logs] if "agent_logs" in filters else []
-
-        for filter in filters:
-            if not filter in response:
-                print ("WARNING: No parse_filters option",filter,"in game_runner.parse_step_data.")
-            else:
-                reduced_output[filter] = response[filter]
-        
-        return reduced_output
-
     def get_last_steps(self, user, game_id, num_last_steps=1):
         """Get the the last N steps for the given user and the game.
 
@@ -466,7 +446,7 @@ class GameRunnerManager(object):
             .limit(num_last_steps) \
             .all()
         if len(steps) > 0:
-            return [self.parse_step_data(step_data) for step_data in steps]
+            return [parse_step_data(step_data) for step_data in steps]
         else:
             return []
 
@@ -498,7 +478,7 @@ class GameRunnerManager(object):
             .filter(ModelRecord.step_num <= stop_step_num) \
             .all()
         if len(steps) > 0:
-            return [self.parse_step_data(step_data) for step_data in steps]
+            return [parse_step_data(step_data) for step_data in steps]
         else:
             return []
 
@@ -535,7 +515,7 @@ class GameRunnerManager(object):
         if step_data is None:
             return {},step_data
         else:
-            return self.parse_step_data(step_data,parse_filters),step_data
+            return parse_step_data(step_data,parse_filters),step_data
 
     def get_step_to(self, user, step_num=None, buffer_size=10):
         """Run the agent model to the requested step.

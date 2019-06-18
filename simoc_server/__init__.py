@@ -3,6 +3,7 @@ import sys
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import redis
 
 sys.path.insert(0, os.path.join("mesa"))
 
@@ -21,6 +22,14 @@ app.config['AGENT_CONFIG'] = agent_config
 
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 app.config['JSON_SORT_KEYS'] = False
+
+no_flask = os.environ.get("NO_FLASK")
+
+redis_host = os.environ.get("REDIS_HOST", 'localhost')
+redis_port = os.environ.get("REDIS_PORT", '6379')
+redis_password = os.environ.get("REDIS_PASSWORD", '')
+
+redis_conn = redis.StrictRedis(host=redis_host, port=int(redis_port), password=redis_password)
 
 db_type = os.environ.get("DB_TYPE")
 db_host = os.environ.get("DB_HOST")
@@ -56,5 +65,8 @@ db = SQLAlchemy(app, session_options={
     "expire_on_commit": False
 })
 
-import simoc_server.views
-import simoc_server.front_end_routes
+if no_flask and int(no_flask) == 1:
+    pass
+else:
+    import simoc_server.views
+    import simoc_server.front_end_routes

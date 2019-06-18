@@ -3,16 +3,16 @@ This guide describes the process of deploying `SIMOC` web application to the `Go
 1. Creating a new `GCP` project
 2. Setting up the environment
 3. Connecting to the `SIMOC` `GitHub` repository
-4. Building a `SIMOC` docker image
+4. Building a `SIMOC` docker images
 5. Spinning up a `Kubernetes` cluster
-6. Deploying a `SIMOC` image to the cluster
-7. Accessing the `SIMOC` app
+6. Deploying a `SIMOC` to the cluster
+7. Accessing the `SIMOC` application
 
 The guide covers two basic deployment scenarios:
 * [Using Google Cloud Shell (Ubuntu environment)](#scenario-1)
 * [Deployment from local Linux/macOS](#scenario-2)
 
-# `GCP` Architecture Diagram
+# Cloud Architecture Diagram (`OUTDATED`)
 ![Architecture Diagram](deployment_templates/images/GCP_architecture_diagram.png)
 
 # Configure a `GCP` Project
@@ -97,27 +97,34 @@ git clone -b abm_database git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
-### Build `SIMOC` image
+### Build `SIMOC` images
 
-Configure a `Docker` environment:
+#### 1. Configure a `Docker` environment
 ```bash
 gcloud auth configure-docker
 ```
 
-Build a `simoc_server_mysql` image:
+#### 2. Build a `simoc_flask_mysql_k8s` image
 ```bash
-docker build -t simoc_server_mysql --build-arg APP_PORT=8000 .
+docker build -t simoc_flask_mysql_k8s .
 ```
 
-Push an image to `Container Registry`:
+#### 3. Build a `simoc_celery_worker_k8s` image
 ```bash
-docker tag simoc_server_mysql gcr.io/$GCP_PROJECT_ID/simoc:latest
-docker push gcr.io/$GCP_PROJECT_ID/simoc:latest
+docker build -f celery_worker/Dockerfile -t simoc_celery_worker_k8s .
+```
+
+#### 4. Push images to `Container Registry`
+```bash
+docker tag simoc_flask_mysql_k8s gcr.io/$GCP_PROJECT_ID/simoc_flask:latest
+docker tag simoc_celery_worker_k8s gcr.io/$GCP_PROJECT_ID/simoc_celery:latest
+docker push gcr.io/$GCP_PROJECT_ID/simoc_flask:latest
+docker push gcr.io/$GCP_PROJECT_ID/simoc_celery:latest
 ```
 
 ### Set up a `Kubernetes` cluster
 
-Create a `Kubernetes` cluster:
+#### 1. Create a `Kubernetes` cluster
 ```bash
 gcloud container clusters create k0 \
     --preemptible \
@@ -126,21 +133,20 @@ gcloud container clusters create k0 \
     --num-nodes 2 --enable-autoscaling --min-nodes 1 --max-nodes 5
 ```
 
-Set up a `Kubernetes` environment:
+#### 2. Set up a `Kubernetes` environment
 ```bash
 gcloud container clusters get-credentials k0 --zone $GCP_ZONE
 ```
 
-
 ### Deploy `SIMOC` to `Kubernetes` cluster
 
-Deploy `Helm` backend to the cluster:
+#### 1. Deploy `Helm` backend to the cluster
 ```bash
 kubectl create -f deployment_templates/other/helm-rbac-config.yaml
 helm init --service-account tiller --history-max 200 --upgrade
 ```
 
-Deploy `MySQL` server to the cluster:
+#### 2. Deploy `MySQL` server to the cluster
 ```bash
 helm repo update
 helm install --name simoc-db \
@@ -152,7 +158,7 @@ helm install --name simoc-db \
     stable/mysql
 ```
 
-Save the `MySQL` credentials to the `Cloud Secrets`:
+#### 3. Save the `MySQL` credentials to the `Cloud Secrets`
 ```bash
 export DB_TYPE=mysql
 export DB_HOST="simoc-db-mysql.default.svc.cluster.local"
@@ -172,42 +178,70 @@ kubectl create secret generic simoc-db-config \
     --from-literal=db_password=$DB_PASSWORD
 ```
 
-Create static public IP address for `SIMOC`:
+#### 4. Deploy `Redis` server to the cluster
+```bash
+helm repo update
+helm install --name redis stable/redis
+```
+
+#### 5. Save the `Redis` credentials to the `Cloud Secrets`
+```bash
+export REDIS_HOST="redis-master.default.svc.cluster.local"
+export REDIS_PORT=6379
+export REDIS_PASSWORD=$(
+    kubectl get secret --namespace default redis -o jsonpath="{.data.redis-password}" | base64 --decode
+    echo
+)
+kubectl create secret generic redis-config \
+    --from-literal=redis_host=$REDIS_HOST\
+    --from-literal=redis_port=$REDIS_PORT \
+    --from-literal=redis_password=$REDIS_PASSWORD
+```
+
+#### 6. Create static public IP address for `SIMOC`
 ```bash
 gcloud compute addresses create simoc-static-ip --global
 ```
 
-Deploy `Nginx Ingress` service to the cluster:
+#### 7. Deploy `Nginx Ingress` service to the cluster
 ```bash
 helm install --name nginx-ingress stable/nginx-ingress
 ```
 
+#### 8. Update `Kubernetes` manifests
 Access the `Code Editor` from the toolbar by clicking the pencil icon:
 * https://cloud.google.com/shell/docs/features#code_editor
 
-Open the `~/simoc/deployment_templates/deployments/simoc_server.yaml` file.<br><br>
+Open the `~/simoc/deployment_templates/deployments/simoc_flask_server.yaml` file.<br>
+
 Fill in the `<PROJECT_ID>` value in the `spec/spec/containers/image` section:
 ```bash
 image: gcr.io/<PROJECT_ID>/simoc:latest
 ```
 
-Deploy `SIMOC` backend into the cluster:
+Repeat the same for the `~/simoc/deployment_templates/deployments/simoc_celery_cluster.yaml` file.<br><br>
+
+#### 9. Deploy `SIMOC` backend into the cluster
 ```bash
-kubectl create -f deployment_templates/deployments/simoc_server.yaml
-kubectl create -f deployment_templates/autoscalers/simoc_server.yaml
-kubectl create -f deployment_templates/services/simoc_server.yaml
-kubectl create -f deployment_templates/ingresses/simoc_server.yaml
+kubectl create -f deployment_templates/deployments/simoc_flask_server.yaml
+kubectl create -f deployment_templates/deployments/simoc_celery_cluster.yaml
+kubectl create -f deployment_templates/autoscalers/simoc_flask_autoscaler.yaml
+kubectl create -f deployment_templates/autoscalers/simoc_celery_autoscaler.yaml
+kubectl create -f deployment_templates/services/simoc_flask_service.yaml
+kubectl create -f deployment_templates/ingresses/simoc_flask_ingress.yaml
 ```
 
-`SSH` into a `SIMOC` container and initiate a database reset:
+#### 10. Initialize `MySQL` database
+Execute a remote command on `simoc-flask-server` container to initiate a database reset:
 ```bash
-kubectl exec "$(kubectl get pods -l app=simoc-backend --output=jsonpath={.items..metadata.name})" \
+kubectl exec \
+    "$(kubectl get pods -l app=simoc-flask-server --output=jsonpath={.items..metadata.name})" \
     -- bash -c "python3 create_db.py"
 ```
 
 If the following error occurs, wait for 1-2 minutes and retry:
 ```
-error: unable to upgrade connection: container not found ("simoc-backend")
+error: unable to upgrade connection: container not found ("simoc-flask-server")
 ```
 
 ### Access `SIMOC` web application
@@ -231,31 +265,39 @@ gcloud components install kubectl
 
 Follow the `Cloud Shell` instructions starting from the [Select GCP Project and Zone](#select-gcp-project-and-zone)
 * Use your favorite text editor and command line terminal to accomplish the steps (instead of Google Cloud Shell and Code Editor)
-* Make sure you specify the right path to the SIMOC source folder (default is `$HOME` folder)
+* Make sure you specify the right path to the `SIMOC` source code folder (default is `$HOME` folder)
 
 # Rollout Updates
 
 ### Re-deploy `SIMOC` on file changes
 
-Remove an exiting `simoc_server_mysql` image (optional):
+#### 1. Remove exiting `simoc_flask_mysql_k8s` and `simoc_celery_worker_k8s` images (optional)
 ```bash
-docker rmi simoc_server_mysql
+docker rmi simoc_flask_mysql_k8s simoc_celery_worker_k8s
 ```
 
-Re-build a `simoc_server_mysql` image:
+#### 2. Re-build a `simoc_flask_mysql_k8s` image
 ```bash
-docker build -t simoc_server_mysql --build-arg APP_PORT=8000 .
+docker build -t simoc_flask_mysql_k8s .
 ```
 
-Push a new image to `Container Registry`:
+#### 3. Re-build a `simoc_celery_worker_k8s` image
 ```bash
-docker tag simoc_server_mysql gcr.io/$GCP_PROJECT_ID/simoc:latest
-docker push gcr.io/$GCP_PROJECT_ID/simoc:latest
+docker build -f celery_worker/Dockerfile -t simoc_celery_worker_k8s .
 ```
 
-Re-deploy `SIMOC` backend using a new image:
+#### 4. Push images to `Container Registry`
 ```bash
-kubectl replace --force -f deployment_templates/deployments/simoc_server.yaml
+docker tag simoc_flask_mysql_k8s gcr.io/$GCP_PROJECT_ID/simoc_flask:latest
+docker tag simoc_celery_worker_k8s gcr.io/$GCP_PROJECT_ID/simoc_celery:latest
+docker push gcr.io/$GCP_PROJECT_ID/simoc_flask:latest
+docker push gcr.io/$GCP_PROJECT_ID/simoc_celery:latest
+```
+
+#### 5. Re-deploy `SIMOC` backend using new images:
+```bash
+kubectl replace --force -f deployment_templates/deployments/simoc_flask_server.yaml
+kubectl replace --force -f deployment_templates/deployments/simoc_celery_cluster.yaml
 ```
 
 ### Reset and re-deploy `MySQL` 
@@ -266,40 +308,5 @@ helm del --purge simoc-db
 kubectl delete secret simoc-db-config
 ```
 
-Deploy a new `MySQL` server to the cluster:
-```bash
-helm repo update
-helm install --name simoc-db \
-    --set mysqlDatabase=simoc \
-    --set resources.requests.cpu=1.0 \
-    --set resources.requests.memory=512Mi \
-    --set resources.limits.cpu=1.0 \
-    --set resources.limits.memory=512Mi \
-    stable/mysql
-```
+Repeat `Steps 2-3 & 10` from the [Deploy `SIMOC` to `Kubernetes` cluster](#deploy-simoc-to-kubernetes-cluster) section.
 
-Save the new `MySQL` credentials to the `Cloud Secrets`:
-```bash
-export DB_TYPE=mysql
-export DB_HOST="simoc-db-mysql.default.svc.cluster.local"
-export DB_PORT=3306
-export DB_NAME=simoc
-export DB_USER=root
-export DB_PASSWORD=$(
-    kubectl get secret --namespace default simoc-db-mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode
-    echo
-)
-kubectl create secret generic simoc-db-config \
-    --from-literal=db_type=$DB_TYPE \
-    --from-literal=db_host=$DB_HOST \
-    --from-literal=db_port=$DB_PORT \
-    --from-literal=db_name=$DB_NAME \
-    --from-literal=db_user=$DB_USER \
-    --from-literal=db_password=$DB_PASSWORD
-```
-
-`SSH` into a `SIMOC` container and initiate a database reset:
-```bash
-kubectl exec "$(kubectl get pods -l app=simoc-backend --output=jsonpath={.items..metadata.name})" \
-    -- bash -c "python3 create_db.py"
-```

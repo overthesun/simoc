@@ -22,10 +22,10 @@ ENV REDIS_HOST ${REDIS_HOST}
 ENV REDIS_PORT ${REDIS_PORT}
 ENV REDIS_PASSWORD ${REDIS_PASSWORD}
 
-ARG APP_PORT
-ENV APP_PORT ${APP_PORT}
+ARG CELERY_THREADS
+ENV CELERY_THREADS ${CELERY_THREADS}
 
-EXPOSE ${APP_PORT}
+ENV NO_FLASK 1
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -34,12 +34,12 @@ RUN apt-get update && \
     python3-setuptools \
     python3-mysqldb
 
-COPY ./requirements.txt /simoc/requirements.txt
-RUN python3 -m pip install -r /simoc/requirements.txt
+COPY ./celery_worker/requirements.txt /simoc/celery_worker/requirements.txt
+RUN python3 -m pip install -r /simoc/celery_worker/requirements.txt
 
 COPY . /simoc
 
 WORKDIR /simoc
 
 ENTRYPOINT [ "/bin/bash" ]
-CMD ["run.sh"]
+CMD ["start_worker.sh"]

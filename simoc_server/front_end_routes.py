@@ -11,19 +11,19 @@ from flask import request
 
 from simoc_server import app, db
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute, CurrencyType,\
-    StorageCapacityRecord
+    StorageCapacityRecord, StepRecord
 
 
 @app.route("/get_mass", methods=["GET"])
 def get_mass():
-    '''
+    """
     Sends front end mass values for config wizard.
     Takes in the request values "agent_name" and "quantity"
 
     Returns
     -------
     json object with total mass
-    '''
+    """
 
     value = 0
     agent_name = request.args.get("agent_name", type=str)
@@ -46,14 +46,14 @@ def get_mass():
 
 @app.route("/get_energy", methods=["GET"])
 def get_energy():
-    '''
+    """
     Sends front end energy values for config wizard.
     Takes in the request values "agent_name" and "quantity"
 
     Returns
     -------
     json object with energy value for agent
-    '''
+    """
 
     agent_name= request.args.get("agent_name", type=str)
     agent_quantity = request.args.get("quantity", type=int)
@@ -220,7 +220,7 @@ def convert_configuration(game_config):
 
 
 def calc_step_in_out(step_num,direction,currencies,step_record_data):
-    ''' 
+    """ 
     Calculate the total production or total consumption of given currencies for a given step.
 
     Called from: route views.get_step()
@@ -231,7 +231,7 @@ def calc_step_in_out(step_num,direction,currencies,step_record_data):
     Output: dictionary of values and units for each currency. e.g. {"atmo_o2":{"value":0.05,"units":"kg"}}
     The unit is selected from the first currency, assuming all currencies with this name have the same units.
 
-    '''
+    """
     output = {}
     for currency in currencies:
         output[currency] = {}
@@ -250,7 +250,7 @@ def calc_step_in_out(step_num,direction,currencies,step_record_data):
 
 
 def calc_step_storage_ratios(step_num,agents,step_data):
-    ''' 
+    """ 
     Calculate the ratio for the requested currencies for the requested <agent_type>_<agent_id> and step_num.
 
     Called from: route views.get_step()
@@ -258,7 +258,7 @@ def calc_step_storage_ratios(step_num,agents,step_data):
     Input: step_num, agents = dictionary of agents for which to calculate ratios. For each agent, give a list of the currencies which should be included in the output. e.g.{"air_storage_1":["atmo_co2"]}
 
     Output: dictionary of agents, each agent has a dictionary of currency:ratio pairs. e.g. {"air_storage_1": {"atmo_co2": 0.21001018914835098}
-    '''
+    """
     capacity_data = StorageCapacityRecord.query.filter_by(model_record=step_data)
 
     output = {}
@@ -290,3 +290,27 @@ def calc_step_storage_ratios(step_num,agents,step_data):
 
     return output
 
+
+def parse_step_data(step_data,filters=["agent_type_counters","storage_capacities"]):
+    reduced_output = step_data.get_data()
+    if len(filters) == 0:
+        return reduced_output
+
+    agent_logs = StepRecord.query \
+        .filter_by(user=step_data.user) \
+        .filter_by(game_id=step_data.game_id) \
+        .filter_by(step_num=step_data.step_num) \
+        .all()
+
+    response = {}
+    response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters] if "agent_type_counters" in filters else []
+    response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities] if "storage_capacities" in filters else []
+    response['agent_logs'] = [i.get_data() for i in agent_logs] if "agent_logs" in filters else []
+
+    for filter in filters:
+        if not filter in response:
+            print ("WARNING: No parse_filters option",filter,"in game_runner.parse_step_data.")
+        else:
+            reduced_output[filter] = response[filter]
+
+    return reduced_output
