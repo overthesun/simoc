@@ -45,7 +45,7 @@ Set up `Redis` connection: (fill in the `REDIS_PASSWORD`):
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
-Start a `Redis` container
+Start a `Redis` container:
 ```bash
 docker run -d \
     --name=redis \

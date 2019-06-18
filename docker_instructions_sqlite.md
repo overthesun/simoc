@@ -33,7 +33,7 @@ docker run -d \
 
 ## 5. Build `Celery Worker` image
 
-Set up `Redis` connection: (fill in the `DB_PASSWORD`):
+Set up `Redis` connection:
 ```bash
 export REDIS_HOST=redis
 export REDIS_PORT=6379
