@@ -5,14 +5,15 @@ import time
 import logging
 from logging.handlers import RotatingFileHandler
 
-from simoc_server import app, db
+from simoc_server import db
 from simoc_server.game_runner import GameRunnerManager, GameRunnerInitializationParams
-from simoc_server.database.db_model import User
+from simoc_server.database.db_model import User, ModelRecord, StepRecord
 from simoc_server.serialize.serializer import JsonSerializer,  set_serializer
 
 
 def run_flask(debug=False, port=8000, run_local=False, threaded=True, use_json=False,
               logger_level=None):
+    from simoc_server import app
     addr = "0.0.0.0" if not run_local else "localhost"
     if debug:
         os.environ['PYTHONPATH'] = os.getcwd()
@@ -23,6 +24,7 @@ def run_flask(debug=False, port=8000, run_local=False, threaded=True, use_json=F
 
 
 def setup_logging(logger_level, debug):
+    from simoc_server import app
     if logger_level is None:
         if debug:
             logger_level = "DEBUG"
@@ -48,16 +50,6 @@ def setup_logging(logger_level, debug):
     wsgi_logger.addHandler(file_handler)
 
 
-def run_sim(game_runner_manager, user, num_steps):
-    states = []
-    for i in range(1, num_steps + 1):
-        agent_model_state = game_runner_manager.get_step(user, i)
-        states.append(agent_model_state)
-        if (i % 100) == 0:
-            print(f'Finished {game_runner.agent_model.step_num} steps.')
-    return states
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="SIMOC server.")
     parser.add_argument("--debug", action="store_true",
@@ -79,6 +71,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_steps", type=int, default=10, help="")
 
     args = parser.parse_args()
+
     if not args.console_mode:
         run_flask(debug=args.debug, port=args.port, run_local=args.run_local,
                   threaded=args.threaded, use_json=args.use_json, logger_level=args.logger_level)
@@ -90,7 +83,7 @@ if __name__ == "__main__":
             else:
                 raise Exception('Invalid username or password.')
         else:
-            print(f"Creating new user '{args.username}'")
+            print(f"Creating new user '{args.username}'.")
             user = User(username=args.username)
             user.set_password(args.password)
             db.session.add(user)
@@ -102,11 +95,30 @@ if __name__ == "__main__":
         game_runner_init_params = GameRunnerInitializationParams(game_config)
         game_runner_manager.new_game(user, game_runner_init_params)
         game_runner = game_runner_manager.get_game_runner(user)
+        game_id = game_runner.game_id
+
         print('Starting simulation.')
-        result = run_sim(game_runner_manager, user, args.num_steps)
+        game_runner_manager.get_step_to(user, args.num_steps)
         print('Simulation complete.')
-        filename = f'{int(time.time())}_result.json'
-        with open(filename, 'w') as f:
-            json.dump(result, f)
-        print(f'The result saved in {filename}.')
+
+        print('Storing Model records.')
+        ts = int(time.time())
+        model_records = ModelRecord.query \
+            .filter_by(user_id=user.id) \
+            .filter_by(game_id=game_id)
+        model_records = [i.get_all_data() for i in model_records]
+        with open(f'{ts}_model_records.json', 'w') as f:
+            json.dump(model_records, f)
+        print(f'The result saved in {ts}_model_records.json.')
+
+        print('Storing Step records.')
+        step_records = StepRecord.query \
+            .filter_by(user_id=user.id) \
+            .filter_by(game_id=game_id)
+        step_records = [i.get_data() for i in step_records]
+        with open(f'{ts}_step_records.json', 'w') as f:
+            json.dump(step_records, f)
+        print(f'The result saved in {ts}_step_records.json.')
+
+        print('All work is done! You can now interrupt this script.')
 

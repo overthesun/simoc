@@ -289,6 +289,19 @@ class ModelRecord(BaseEntity):
                 "time": self.time,
                 "termination_reason": self.termination_reason}
 
+    def get_all_data(self):
+        return {'user_id': self.user_id,
+                'username': self.user.username,
+                'start_time': self.start_time,
+                'game_id': self.game_id,
+                "step_num": self.step_num,
+                "hours_per_step": self.hours_per_step,
+                "is_terminated": self.is_terminated,
+                "time": self.time,
+                "termination_reason": self.termination_reason,
+                "agent_type_counts": [i.get_data() for i in self.agent_type_counters],
+                "storage_capacities": [i.get_data() for i in self.storage_capacities]}
+
 
 class AgentTypeCountRecord(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
