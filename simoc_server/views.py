@@ -1,15 +1,16 @@
 import json
 import sys
+from collections import OrderedDict
 
 from flask import request, render_template
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from simoc_server import app, db, redis_conn
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, User, \
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User, \
     ModelRecord, StepRecord
 from simoc_server.exceptions import InvalidLogin, BadRequest, BadRegistration, \
-    GenericError
+    GenericError,  NotFound
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
     calc_step_storage_ratios, parse_step_data
@@ -133,14 +134,9 @@ def new_game():
                                       'solar_arrays':  {'amount': 1}}}
         game_config = convert_configuration(start_data["game_config"])
     # Send `new_game` for remote execution on Celery
-    print(game_config)
-    print('new_game request received')
     result = tasks.new_game.delay(get_standard_user_obj().username, game_config).get(timeout=60)
-    print('new_game task finished')
     # Save the hostname of the Celery worker that a game was assigned to
     redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
-    print('Mapping updated: {}: {}'.format('worker_mapping:{}'.format(result['game_id']),
-                                           result['worker_hostname']))
     success("New Game Starts")
     return result['game_id']
 
@@ -212,7 +208,7 @@ def get_step_to(game_id):
     queue = worker_direct(worker)
     # Send `get_step_to` for remote execution on Celery
     tasks.get_step_to.apply_async(args=[get_standard_user_obj().username, step_num], queue=queue)
-    return success("Steps Created")
+    return success("Steps Requested")
 
 
 @app.route("/get_agent_types", methods=["GET"])
@@ -257,6 +253,117 @@ def get_agents_by_category():
             filter(AgentType.id == AgentTypeAttribute.agent_type_id).all():
         results.append(agent.AgentType.name)
     return json.dumps(results)
+
+
+@app.route("/save_game", methods=["POST"])
+@login_required
+def save_game(game_id):
+    '''
+    Save the current game for the user.
+
+    Returns
+    -------
+    str :
+        A success message.
+    '''
+    if "save_name" in request.deserialized.keys():
+        save_name = request.deserialized["save_name"]
+    else:
+        save_name = None
+    # Get a direct worker queue
+    worker = redis_conn.get('worker_mapping:{}'.format(game_id))
+    queue = worker_direct(worker)
+    # Send `save_game` for remote execution on Celery
+    tasks.save_game.apply_async(args=[get_standard_user_obj().username, save_name], queue=queue)
+    return success("Save successful.")
+
+
+@app.route("/load_game", methods=["POST"])
+@login_required
+def load_game(game_id):
+    '''
+    Load game with given 'saved_game_id' in session.  Adds
+    GameRunner to game_runner_manager.
+
+    Returns
+    -------
+    str:
+        A success message.
+
+    Raises
+    ------
+    simoc_server.exceptions.BadRequest
+        If 'saved_game_id' is not in the json data on the request.
+
+    simoc_server.exceptions.NotFound
+        If the SavedGame with the requested 'saved_game_id' does not
+        exist in the database
+
+    '''
+
+    saved_game_id = try_get_param("saved_game_id")
+    saved_game = SavedGame.query.get(saved_game_id)
+    if saved_game is None:
+        raise NotFound("Requested game not found in loaded games.")
+    # Get a direct worker queue
+    worker = redis_conn.get('worker_mapping:{}'.format(game_id))
+    queue = worker_direct(worker)
+    # Send `save_game` for remote execution on Celery
+    tasks.load_game.apply_async(args=[get_standard_user_obj().username, saved_game], queue=queue)
+    return success("Game loaded successfully.")
+
+
+@app.route("/get_saved_games", methods=["GET"])
+@login_required
+def get_saved_games():
+    '''
+    Get saved games for current user. All save games fall under the root
+    branch id that they are saved under.
+
+    Returns
+    -------
+    str:
+        json format -
+
+        {
+            <root_branch_id>: [
+                {
+                    "date_created":<date_created:str(db.DateTime)>
+                    "name": "<ave_name:str>,
+                    "save_game_id":<save_game_id:int>
+                },
+                ...
+            ],
+            ...
+        }
+
+
+    '''
+    saved_games = SavedGame.query.filter_by(user=get_standard_user_obj()).all()
+
+    sequences = {}
+    for saved_game in saved_games:
+        snapshot = saved_game.agent_model_snapshot
+        snapshot_branch = snapshot.snapshot_branch
+        root_branch = snapshot_branch.get_root_branch()
+        if root_branch in sequences.keys():
+            sequences[root_branch].append(saved_game)
+        else:
+            sequences[root_branch] = [saved_game]
+
+    sequences = OrderedDict(
+        sorted(sequences.items(), key=lambda x: x[0].date_created))
+
+    response = {}
+    for root_branch, saved_games in sequences.items():
+        response[root_branch.id] = []
+        for saved_game in saved_games:
+            response[root_branch.id].append({
+                "saved_game_id": saved_game.id,
+                "name":          saved_game.name,
+                "date_created":  saved_game.date_created
+            })
+    return serialize_response(response)
 
 
 @login_manager.user_loader

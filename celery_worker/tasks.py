@@ -15,6 +15,18 @@ game_runner_manager = GameRunnerManager()
 
 
 @app.task
+def load_game(username, saved_game):
+    user = User.query.filter_by(username=username).first()
+    game_runner_manager.load_game(user, saved_game)
+
+
+@app.task
+def save_game(username, save_name):
+    user = User.query.filter_by(username=username).first()
+    game_runner_manager.save_game(user, save_name)
+
+
+@app.task
 def new_game(username, game_config):
     user = User.query.filter_by(username=username).first()
     game_runner_init_params = GameRunnerInitializationParams(game_config)
