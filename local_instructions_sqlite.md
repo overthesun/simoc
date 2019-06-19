@@ -26,7 +26,18 @@ python3 -m pip install --upgrade -r requirements.txt
 python3 create_db.py
 ```
 
-## 5. Start `Celery` worker
+## 5. Test `SIMOC` set up
+
+Start `SIMOC` in `console_mode` with a sample `game_config` file (interrupt when finished):
+```bash
+export NO_FLASK=1 && python3 -m simoc_server --console_mode \
+    --username test --password test \
+    --game_config_path sample_game_config.json \
+    --num_steps 100
+```
+For custom scenarios, set up the path to the configuration file via `--game_config_path` argument.
+
+## 6. Start `Celery` worker
 
 Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
 ```bash
@@ -46,7 +57,7 @@ sh start_worker.sh
 ```
 Worker logs will start streaming into the `Terminal` output. 
 
-## 6. Run `SIMOC`
+## 7. Run `SIMOC` wih `UI`
 
 Open up a new `Terminal` window and navigate to the `simoc` folder:
 ```bash
@@ -75,7 +86,7 @@ Start `SIMOC` application:
 sh run.sh
 ```
 
-## 7. Access `SIMOC` web application
+## 8. Access `SIMOC` web application
 Navigate to the following `URL` in your browser to access a `SIMOC` application (change `PORT` if needed):
 - [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
