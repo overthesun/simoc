@@ -1,4 +1,4 @@
-# Setup `SIMOC`on `Linux/macOS`
+# Deploy `SIMOC` to `Docker` on `Linux/macOS` (`SQLite` backend)
 
 ## 1. Clone `SIMOC` code from `GitHub`
 ```bash

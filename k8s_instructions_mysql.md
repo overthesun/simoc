@@ -1,4 +1,6 @@
-# Introduction
+# Deploy `SIMOC` to `Google Kubernetes Engine` (`MySQL` backend)
+
+## Introduction
 This guide describes the process of deploying `SIMOC` web application to the `Google Cloud Platform (GCP)` through the following set of steps:
 1. Creating a new `GCP` project
 2. Setting up the environment
@@ -12,10 +14,10 @@ The guide covers two basic deployment scenarios:
 * [Using Google Cloud Shell (Ubuntu environment)](#scenario-1)
 * [Deployment from local Linux/macOS](#scenario-2)
 
-# Cloud Architecture Diagram (`OUTDATED`)
+## Cloud Architecture Diagram (`OUTDATED`)
 ![Architecture Diagram](deployment_templates/images/GCP_architecture_diagram.png)
 
-# Configure a `GCP` Project
+## Configure a `GCP` Project
 
 ### 1. Login to the `Cloud Console`
 * https://cloud.google.com/
@@ -36,8 +38,6 @@ The guide covers two basic deployment scenarios:
 * Compute Engine API
 * Kubernetes Engine API
 * Google Container Registry API
-
-# Scenario 1
 
 ## Deploy `SIMOC` (using `Cloud Shell`)
 
@@ -250,8 +250,6 @@ In `Cloud Console`, navigate to the `Kubernetes Engine -> Services` tab:
 
 Once the cluster is up and running (may need to click a `Refresh` button), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app.
 
-# Scenario 2
-
 ## Deploy `SIMOC` (from local `Linux/macOS`)
 
 Install and initialize `Cloud SDK`:
@@ -267,7 +265,7 @@ Follow the `Cloud Shell` instructions starting from the [Select GCP Project and 
 * Use your favorite text editor and command line terminal to accomplish the steps (instead of Google Cloud Shell and Code Editor)
 * Make sure you specify the right path to the `SIMOC` source code folder (default is `$HOME` folder)
 
-# Rollout Updates
+## Rollout Updates
 
 ### Re-deploy `SIMOC` on file changes
 
