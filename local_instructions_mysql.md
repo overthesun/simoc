@@ -6,21 +6,24 @@ git clone -b celery_integration git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
-## 2. Follow the official guides to install `Python 3.6`, `Redis` and `MySQL` software
+## 2. Follow the official guides to install `Python 3.6`, `Redis` and `MySQL`
 
 - https://www.python.org/downloads/
 - https://redis.io/download/
 - https://www.mysql.com/downloads/
 
-### Start `Redis` via `Docker` 
-Instead of manually installing `Redis` on a local `OS`, follow the instructions below to deploy it as a `Docker` container.
+### 2.1 Start `Redis` and `MySQL` via `Docker` 
+Instead of manually installing `Redis` and `MySQL` on a local `OS`, follow the instructions below to deploy it as a `Docker` container.
 
-#### Set up `Redis` password (fill in the `REDIS_PASSWORD`)
+#### 2.1.1 Follow the official guide to install `Docker`
+- https://docs.docker.com/install/
+
+#### 2.1.2 Set up `Redis` password (fill in the `REDIS_PASSWORD`)
 ```bash
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
-#### Start a `Redis` container
+#### 2.1.3 Start `Redis` container
 ```bash
 docker run -d \
     --name=redis \
@@ -29,10 +32,7 @@ docker run -d \
     redis redis-server --requirepass $REDIS_PASSWORD
 ```
 
-### Start `MySQL` via `Docker`
-Instead of manually installing `MySQL` on a local `OS`, follow the instructions below to deploy it as a `Docker` container.
-
-#### Set up the DB configuration (fill in the `DB_PASSWORD`):
+#### 2.1.4 Set up `MySQL` configuration (fill in the `DB_PASSWORD`):
 ```bash
 export DB_PORT=3306
 export DB_NAME=simoc
@@ -40,7 +40,7 @@ export DB_USER=root
 export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 ```
 
-#### Start a `MySQL-server` container:
+#### 2.1.5 Start `MySQL-server` container:
 ```bash
 docker run -d \
       --name=simoc-db \
@@ -149,7 +149,7 @@ docker kill simoc-db
 docker rm -f simoc-db
 ```
 
-Repeat the instructions from [Start `MySQL` via `Docker`](#start-mysql-via-docker).
+Repeat the instructions `2.1.4-5` from [Start `MySQL` via `Docker`](#start-mysql-via-docker).
 
 Re-initialize `MySQL` database:
 ```bash

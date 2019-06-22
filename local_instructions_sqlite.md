@@ -11,15 +11,18 @@ cd simoc/
 - https://www.python.org/downloads/
 - https://redis.io/download
 
-### Start `Redis` via `Docker` 
+### 2.1 Start `Redis` via `Docker` 
 Instead of manually installing `Redis` on a local `OS`, follow the instructions below to deploy it as a `Docker` container.
 
-#### Set up `Redis` password (fill in the `REDIS_PASSWORD`)
+#### 2.1.1 Follow the official guide to install `Docker`
+- https://docs.docker.com/install/
+
+#### 2.1.2 Set up `Redis` password (fill in the `REDIS_PASSWORD`)
 ```bash
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
-#### Start a `Redis` container
+#### 2.1.3 Start `Redis` container
 ```bash
 docker run -d \
     --name=redis \
