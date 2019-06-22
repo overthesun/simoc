@@ -6,10 +6,11 @@ git clone -b celery_integration git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
-## 2. Follow the official guides to install `Python 3.6` and `Redis` software
+## 2. Follow the official guides to install `Python 3.6`, `Redis` and `MySQL` software
 
 - https://www.python.org/downloads/
-- https://redis.io/download
+- https://redis.io/download/
+- https://www.mysql.com/downloads/
 
 ### Start `Redis` via `Docker` 
 Instead of installing `Redis` software on a local machine, follow the instruction below to deploying it as a `Docker` container.
@@ -26,6 +27,29 @@ docker run -d \
     --net=simoc-net \
     -p 6379:6379 \
     redis redis-server --requirepass $REDIS_PASSWORD
+```
+
+### Start `MySQL` via `Docker` 
+Instead of installing `MySQL` software on a local machine, follow the instruction below to deploying it as a `Docker` container.
+
+#### Set up the DB configuration (fill in the `DB_PASSWORD`):
+```bash
+export DB_PORT=3306
+export DB_NAME=simoc
+export DB_USER=root
+export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
+```
+
+#### Start a `MySQL-server` container:
+```bash
+docker run -d \
+      --name=simoc-db \
+      --net=simoc-net \
+      -p $DB_PORT:$DB_PORT \
+      -e MYSQL_USER=$DB_USER \
+      -e MYSQL_PASSWORD=$DB_PASSWORD \
+      -e MYSQL_DATABASE=$DB_NAME \
+      mysql/mysql-server
 ```
 
 ## 3. Set up `Python 3` virtual environment
@@ -48,6 +72,15 @@ Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
 export REDIS_HOST=localhost
 export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
+```
+
+Set up the DB configuration (fill in the `DB_PASSWORD`):
+```bash
+export DB_HOST=localhost
+export DB_PORT=3306
+export DB_NAME=simoc
+export DB_USER=root
+export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 ```
 
 Set up number of threads per `Celery Worker`:
@@ -81,6 +114,15 @@ Set up `Redis` connection: (fill in the `REDIS_PASSWORD`):
 export REDIS_HOST=localhost
 export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
+```
+
+Set up the DB configuration (fill in the `DB_PASSWORD`):
+```bash
+export DB_HOST=localhost
+export DB_PORT=3306
+export DB_NAME=simoc
+export DB_USER=root
+export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 ```
 
 Set up `HTTP` port for the `SIMOC` web application:
