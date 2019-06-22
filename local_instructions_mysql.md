@@ -1,4 +1,4 @@
-# Deploy `SIMOC` locally on `Linux/macOS` (`MySQL` backend)
+# Start `SIMOC` locally on `Linux/macOS` (`MySQL` backend)
 
 ## 1. Clone `SIMOC` code from `GitHub`
 ```bash
