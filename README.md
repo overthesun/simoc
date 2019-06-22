@@ -4,11 +4,11 @@
 `SIMOC` - A Scalable, Interactive Model of an Off-world Community
 
 ## Getting Started
-***Note***: `SIMOC` is incompatible with Python 2.x, python 3.6+ must be used instead.
 
-### Setup
+Depending on your use case, infrastructure and environment,
+you can choose out of multiple deployment scenarios supported by `SIMOC`.
 
-Based on your environment, use one of the following guides to set up and run `SIMOC`:
+Please use the corresponding guide based on your set up:
 - [Deploy SIMOC locally on Linux/macOS (SQLite backend)](https://github.com/kstaats/simoc/blob/celery_integration/local_instructions_sqlite.md)
 - [Deploy SIMOC locally on Linux/macOS (MySQL backend)](https://github.com/kstaats/simoc/blob/celery_integration/local_instructions_mysql.md)
 - [Deploy SIMOC to Docker on Linux/macOS (SQLite backend)](https://github.com/kstaats/simoc/blob/celery_integration/docker_instructions_sqlite.md)
