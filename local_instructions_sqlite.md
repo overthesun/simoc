@@ -6,7 +6,7 @@ git clone -b celery_integration git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
-## 2. Follow the official guides to install `Python 3.6` and `Redis` software
+## 2. Follow the official guides to install `Python 3.6` and `Redis` 
 
 - https://www.python.org/downloads/
 - https://redis.io/download
