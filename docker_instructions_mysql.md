@@ -91,7 +91,7 @@ docker run -d \
       simoc_celery_worker
 ```
 
-You can deploy unlimited number of `Celery Worker` containers to process tasks in parallel.
+You can deploy multiple `Celery Worker` containers to process tasks in parallel.
 Make sure you use unique container names for each worker (`--name` argument).
 
 ## 8. Build `Flask Application` image

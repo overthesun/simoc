@@ -44,8 +44,8 @@ sh start_worker.sh
 ```
 Worker logs will start streaming into the `Terminal` output.
 
-You can run unlimited number of `Celery Workers` to process tasks in parallel.
-Make sure you run each worker in a separate `Terminal` sessions and keep sessions alive.
+You can start multiple `Celery Workers` to process tasks in parallel.
+Make sure you run each worker in a separate `Terminal` session and keep all sessions alive.
 
 ## 6. Start `Flask Application` server
 
@@ -95,18 +95,21 @@ python3 create_db.py
 ```
 
 ## Run `SIMOC` in `console_mode`
-Using a sample `game_config` file (interrupt when finished):
+Using a sample `game_config` file :
 ```bash
 export NO_FLASK=1 && python3 -m simoc_server --console_mode \
     --username test --password test \
     --game_config_path sample_game_config.json \
     --num_steps 100
 ```
-For custom scenarios, set up the path to the configuration file via `--game_config_path` argument.
+You should manually interrupt the script when it's finished.
 
-## Kill all running `Celery` workers
+For custom scenarios, modify the configuration file and set up the path to the file via `--game_config_path` argument.
+
+## Kill all running `Celery Workers`
 ```bash
 ps auxww | grep 'celery worker' | awk '{print $2}' | xargs kill -9
 ```
+
 
 
