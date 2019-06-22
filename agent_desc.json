@@ -8,7 +8,7 @@
       "atmo_h2o": 0,
       "atmo_ch4": 0,
       "atmo_cont": 0,
-
+      "biomass_totl": 0,
       "sold_n": 0,
       "sold_p": 0,
       "sold_k": 0,
@@ -683,13 +683,25 @@
             },
             "growth": {
               "daily": {
-                "type": "normal",
-                "center" : 12
+                "type": "norm"
               }
             }
           }
         ],
         "output": [
+          {
+            "type": "biomass_totl",
+            "value": 0.00125,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              }
+            }
+          },
           {
             "type": "atmo_o2",
             "value": 0.0011201294643,
@@ -723,11 +735,6 @@
             "value": "food_cers"
           },
           {
-            "type": "growth_period",
-            "value": 85.0,
-            "unit": "day"
-          },
-          {
             "type": "lifetime",
             "value": 85.0,
             "unit": "days"
@@ -735,21 +742,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 2.56955,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.77095,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0012595833333,
-            "unit": "kg"
           }
         ]
       }
@@ -4701,6 +4693,11 @@
         "input": [],
         "output": [],
         "characteristics": [
+          {
+            "type": "capacity_biomass_totl",
+            "value": 1000,
+            "unit": "kg"
+          },
           {
             "type": "capacity_sold_n",
             "value": 1000,

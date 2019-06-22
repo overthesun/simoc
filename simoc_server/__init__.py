@@ -1,11 +1,9 @@
 import os
-import sys
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import redis
 
-sys.path.insert(0, os.path.join("mesa"))
 
 if os.path.isfile("settings.py"):
     config_obj = os.environ.get("DIAG_CONFIG_MODULE", "settings")
@@ -39,27 +37,20 @@ db_user = os.environ.get("DB_USER")
 db_password = os.environ.get("DB_PASSWORD")
 
 if db_type == 'mysql':
-    SQLALCHEMY_DATABASE_URI = (
-        'mysql+mysqldb://{user}:{password}@{host}:{port}/{database}').format(
-        user=db_user, password=db_password,
-        host=db_host, port=db_port,
-        database=db_name)
+    database_url = f'mysql+mysqldb://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 elif db_type == 'postgres':
-    SQLALCHEMY_DATABASE_URI = (
-        'postgres://{user}:{password}@{host}:{port}/{database}').format(
-        user=db_user, password=db_password,
-        host=db_host, port=db_port,
-        database=db_name)
+    database_url = f'postgres://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 elif db_type == 'sqlite':
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///../sqlite/db.sqlite'
+    database_url = 'sqlite:///../sqlite/db.sqlite'
 else:
     print('Unknown DB_TYPE variable: "{}"'.format(db_type))
     print('Using SQLite by default')
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///../sqlite/db.sqlite'
+    database_url = 'sqlite:///../sqlite/db.sqlite'
     db_type = 'sqlite'
 
+
 app.config['DB_TYPE'] = db_type
-app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
 db = SQLAlchemy(app, session_options={
     "expire_on_commit": False

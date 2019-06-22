@@ -727,7 +727,6 @@ class AgentModelInitializationParams(object):
         return self
 
 
-
 class AgentInitializerRecipe(metaclass=ABCMeta):
     """TODO"""
 

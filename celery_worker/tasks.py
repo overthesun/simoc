@@ -7,6 +7,7 @@ sys.path.append("../")
 
 from simoc_server.database.db_model import User
 from simoc_server.game_runner import GameRunnerManager, GameRunnerInitializationParams
+from simoc_server.exceptions import NotFound
 
 app = Celery('tasks')
 app.config_from_object('celery_worker.celeryconfig')
@@ -14,21 +15,27 @@ app.config_from_object('celery_worker.celeryconfig')
 game_runner_manager = GameRunnerManager()
 
 
+def get_user(username):
+    user = User.query.filter_by(username=username).all()
+    if len(user) != 1:
+        raise NotFound(f'User {username} not found.')
+    else:
+        return user[0]
+
+
 @app.task
 def load_game(username, saved_game):
-    user = User.query.filter_by(username=username).first()
-    game_runner_manager.load_game(user, saved_game)
+    game_runner_manager.load_game(get_user(username), saved_game)
 
 
 @app.task
 def save_game(username, save_name):
-    user = User.query.filter_by(username=username).first()
-    game_runner_manager.save_game(user, save_name)
+    game_runner_manager.save_game(get_user(username), save_name)
 
 
 @app.task
 def new_game(username, game_config):
-    user = User.query.filter_by(username=username).first()
+    user = get_user(username)
     game_runner_init_params = GameRunnerInitializationParams(game_config)
     game_runner_manager.new_game(user, game_runner_init_params)
     game_runner = game_runner_manager.get_game_runner(user)
@@ -37,5 +44,4 @@ def new_game(username, game_config):
 
 @app.task
 def get_step_to(username, num_steps):
-    user = User.query.filter_by(username=username).first()
-    game_runner_manager.get_step_to(user, num_steps)
+    game_runner_manager.get_step_to(get_user(username), num_steps)
