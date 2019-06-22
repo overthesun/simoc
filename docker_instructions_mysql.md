@@ -62,7 +62,7 @@ export REDIS_HOST=redis
 export REDIS_PORT=6379
 ```
 
-Set up number of threads per `Celery` worker:
+Set up number of threads per `Celery Worker`:
 ```bash
 export CELERY_THREADS=2
 ```
@@ -90,6 +90,9 @@ docker run -d \
       --net=simoc-net \
       simoc_celery_worker
 ```
+
+You can deploy unlimited number of `Celery Worker` containers to process tasks in parallel.
+Make sure you use unique container names for each worker (`--name` argument).
 
 ## 8. Build `Flask Application` image
 

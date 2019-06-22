@@ -6,14 +6,12 @@ git clone -b celery_integration git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
-## 2. Follow the official guide to install `Python 3.6` 
+## 2. Follow the official guides to install `Python 3.6` and `Redis` software
 
 - https://www.python.org/downloads/
-
-## 3. Follow the official guide to install and start `Redis`
 - https://redis.io/download
 
-## 4. Set up `Python 3` virtual environment
+## 3. Set up `Python 3` virtual environment
 ```bash
 python3 -m venv simoc-env
 source simoc-env/bin/activate
@@ -26,18 +24,7 @@ python3 -m pip install --upgrade -r requirements.txt
 python3 create_db.py
 ```
 
-## 5. Test `SIMOC` set up
-
-Start `SIMOC` in `console_mode` with a sample `game_config` file (interrupt when finished):
-```bash
-export NO_FLASK=1 && python3 -m simoc_server --console_mode \
-    --username test --password test \
-    --game_config_path sample_game_config.json \
-    --num_steps 100
-```
-For custom scenarios, set up the path to the configuration file via `--game_config_path` argument.
-
-## 6. Start `Celery` worker
+## 5. Start `Celery Worker` process
 
 Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
 ```bash
@@ -46,20 +33,23 @@ export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
-Set up number of threads per `Celery` worker:
+Set up number of threads per `Celery Worker`:
 ```bash
 export CELERY_THREADS=2
 ```
 
-Start a new `Celery` worker process:
+Start a new `Celery Worker` process:
 ```bash
 sh start_worker.sh
 ```
-Worker logs will start streaming into the `Terminal` output. 
+Worker logs will start streaming into the `Terminal` output.
 
-## 7. Run `SIMOC` wih `UI`
+You can run unlimited number of `Celery Workers` to process tasks in parallel.
+Make sure you run each worker in a separate `Terminal` sessions and keep sessions alive.
 
-Open up a new `Terminal` window and navigate to the `simoc` folder:
+## 6. Start `Flask Application` server
+
+Open up a new `Terminal` session and navigate to the `simoc` folder:
 ```bash
 cd /path/to/simoc/folder
 ```
@@ -86,11 +76,13 @@ Start `SIMOC` application:
 sh run.sh
 ```
 
-## 8. Access `SIMOC` web application
+## 7. Access `SIMOC` web application
 Navigate to the following `URL` in your browser to access a `SIMOC` application (change `PORT` if needed):
 - [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-# Reset `SQLite` database
+# Useful commands
+
+## Reset `SQLite` database
 
 Remove the `SQLite` database file from the `simoc/sqlite` directory:
 ```bash
@@ -101,4 +93,20 @@ Re-initialize an `SQLite` database:
 ```bash
 python3 create_db.py
 ```
+
+## Run `SIMOC` in `console_mode`
+Using a sample `game_config` file (interrupt when finished):
+```bash
+export NO_FLASK=1 && python3 -m simoc_server --console_mode \
+    --username test --password test \
+    --game_config_path sample_game_config.json \
+    --num_steps 100
+```
+For custom scenarios, set up the path to the configuration file via `--game_config_path` argument.
+
+## Kill all running `Celery` workers
+```bash
+ps auxww | grep 'celery worker' | awk '{print $2}' | xargs kill -9
+```
+
 
