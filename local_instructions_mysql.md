@@ -1,4 +1,4 @@
-# Deploy `SIMOC` locally on `Linux/macOS` (`SQLite` backend)
+# Deploy `SIMOC` locally on `Linux/macOS` (`MySQL` backend)
 
 ## 1. Clone `SIMOC` code from `GitHub`
 ```bash
@@ -29,7 +29,7 @@ docker run -d \
     redis redis-server --requirepass $REDIS_PASSWORD
 ```
 
-### Start `MySQL` via `Docker` 
+### Start `MySQL` via `Docker`
 Instead of manually installing `MySQL` on a local `OS`, follow the instructions below to deploy it as a `Docker` container.
 
 #### Set up the DB configuration (fill in the `DB_PASSWORD`):
@@ -60,7 +60,7 @@ python3 -m pip install --upgrade pip setuptools
 python3 -m pip install --upgrade -r requirements.txt
 ```
 
-## 4. Initialize `SQLite` database
+## 4. Initialize `MySQL` database
 ```bash
 python3 create_db.py
 ```
@@ -141,14 +141,17 @@ Navigate to the following `URL` in your browser to access a `SIMOC` application 
 
 # Useful commands
 
-## Reset `SQLite` database
+## Reset `MySQL` database
 
-Remove the `SQLite` database file from the `simoc/sqlite` directory:
+Kill and remove a running `MySQL-server` container (if any):
 ```bash
-rm sqlite/db.sqlite
+docker kill simoc-db
+docker rm -f simoc-db
 ```
 
-Re-initialize an `SQLite` database:
+Repeat the instructions from [Start `MySQL` via `Docker`](#start-mysql-via-docker).
+
+Re-initialize `MySQL` database:
 ```bash
 python3 create_db.py
 ```
