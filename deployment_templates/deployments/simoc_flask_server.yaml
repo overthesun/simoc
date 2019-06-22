@@ -17,6 +17,8 @@ spec:
           env:
           - name: APP_PORT
             value: '8000'
+          - name: WSGI_WORKERS
+            value: '2'
           - name: DB_TYPE
             valueFrom:
               secretKeyRef:

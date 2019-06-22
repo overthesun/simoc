@@ -73,6 +73,11 @@ Set up `HTTP` port for the `SIMOC` web application:
 export APP_PORT=8000
 ```
 
+Set up number of threads per `Flask Application` container:
+```bash
+export WSGI_WORKERS=2
+```
+
 Build a `simoc_flask_sqlite` image:
 ```bash
 docker build -t simoc_flask_sqlite \
@@ -80,6 +85,7 @@ docker build -t simoc_flask_sqlite \
       --build-arg REDIS_HOST=$REDIS_HOST \
       --build-arg REDIS_PORT=$REDIS_PORT \
       --build-arg REDIS_PASSWORD=$REDIS_PASSWORD \
+      --build-arg WSGI_WORKERS=$WSGI_WORKERS \
       --build-arg APP_PORT=$APP_PORT .
 ```
 

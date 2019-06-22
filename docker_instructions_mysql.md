@@ -19,6 +19,7 @@ docker network create simoc-net
 
 Set up the DB configuration (fill in the `DB_PASSWORD`):
 ```bash
+export DB_TYPE=mysql
 export DB_HOST=simoc-db
 export DB_PORT=3306
 export DB_NAME=simoc
@@ -75,6 +76,7 @@ docker build -f celery_worker/Dockerfile \
     --build-arg REDIS_HOST=$REDIS_HOST \
     --build-arg REDIS_PORT=$REDIS_PORT \
     --build-arg REDIS_PASSWORD=$REDIS_PASSWORD \
+    --build-arg DB_TYPE=$DB_TYPE \
     --build-arg DB_HOST=$DB_HOST \
     --build-arg DB_PORT=$DB_PORT \
     --build-arg DB_NAME=$DB_NAME \
@@ -101,6 +103,10 @@ Set up `HTTP` port for the `SIMOC` web application:
 export APP_PORT=8000
 ```
 
+Set up number of threads per `Flask Application` container:
+```bash
+export WSGI_WORKERS=2
+```
 
 Build a `simoc_flask_mysql` image:
 ```bash
@@ -109,11 +115,13 @@ docker build -t simoc_flask_mysql \
       --build-arg REDIS_HOST=$REDIS_HOST \
       --build-arg REDIS_PORT=$REDIS_PORT \
       --build-arg REDIS_PASSWORD=$REDIS_PASSWORD \
+      --build-arg DB_TYPE=$DB_TYPE \
       --build-arg DB_HOST=$DB_HOST \
       --build-arg DB_PORT=$DB_PORT \
       --build-arg DB_NAME=$DB_NAME \
       --build-arg DB_USER=$DB_USER \
       --build-arg DB_PASSWORD=$DB_PASSWORD \
+      --build-arg WSGI_WORKERS=$WSGI_WORKERS \
       --build-arg APP_PORT=$APP_PORT .
 ```
 

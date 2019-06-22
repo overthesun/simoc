@@ -48,7 +48,7 @@ python3 create_db.py
 
 Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
 ```bash
-export REDIS_HOST=localhost
+export REDIS_HOST=127.0.0.1
 export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
@@ -81,7 +81,7 @@ source simoc-env/bin/activate
 
 Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
 ```bash
-export REDIS_HOST=localhost
+export REDIS_HOST=127.0.0.1
 export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
@@ -89,6 +89,11 @@ export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 Set up `HTTP` port for the `SIMOC` web application:
 ```bash
 export APP_PORT=8000
+```
+
+Set up number of threads per `Flask Application`:
+```bash
+export WSGI_WORKERS=2
 ```
 
 Start `SIMOC` application:

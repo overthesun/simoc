@@ -62,6 +62,17 @@ python3 -m pip install --upgrade -r requirements.txt
 ```
 
 ## 4. Initialize `MySQL` database
+Set up the DB configuration (fill in the `DB_PASSWORD`):
+```bash
+export DB_TYPE=mysql
+export DB_HOST=127.0.0.1
+export DB_PORT=3306
+export DB_NAME=simoc
+export DB_USER=root
+export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
+```
+
+Run the initialization script:
 ```bash
 python3 create_db.py
 ```
@@ -70,14 +81,15 @@ python3 create_db.py
 
 Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
 ```bash
-export REDIS_HOST=localhost
+export REDIS_HOST=127.0.0.1
 export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
 Set up the DB configuration (fill in the `DB_PASSWORD`):
 ```bash
-export DB_HOST=localhost
+export DB_TYPE=mysql
+export DB_HOST=127.0.0.1
 export DB_PORT=3306
 export DB_NAME=simoc
 export DB_USER=root
@@ -112,14 +124,15 @@ source simoc-env/bin/activate
 
 Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
 ```bash
-export REDIS_HOST=localhost
+export REDIS_HOST=127.0.0.1
 export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
 Set up the DB configuration (fill in the `DB_PASSWORD`):
 ```bash
-export DB_HOST=localhost
+export DB_TYPE=mysql
+export DB_HOST=127.0.0.1
 export DB_PORT=3306
 export DB_NAME=simoc
 export DB_USER=root
@@ -129,6 +142,11 @@ export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 Set up `HTTP` port for the `SIMOC` web application:
 ```bash
 export APP_PORT=8000
+```
+
+Set up number of threads per `Flask Application`:
+```bash
+export WSGI_WORKERS=2
 ```
 
 Start `SIMOC` application:
