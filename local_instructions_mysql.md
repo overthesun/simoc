@@ -13,7 +13,7 @@ cd simoc/
 - https://www.mysql.com/downloads/
 
 ### Start `Redis` via `Docker` 
-Instead of installing `Redis` software on a local machine, follow the instruction below to deploying it as a `Docker` container.
+Instead of manually installing `Redis` on a local `OS`, follow the instructions below to deploying it as a `Docker` container.
 
 #### Set up `Redis` password (fill in the `REDIS_PASSWORD`)
 ```bash
@@ -30,7 +30,7 @@ docker run -d \
 ```
 
 ### Start `MySQL` via `Docker` 
-Instead of installing `MySQL` software on a local machine, follow the instruction below to deploying it as a `Docker` container.
+Instead of manually installing `MySQL` on a local `OS`, follow the instructions below to deploying it as a `Docker` container.
 
 #### Set up the DB configuration (fill in the `DB_PASSWORD`):
 ```bash
