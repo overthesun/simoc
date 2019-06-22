@@ -33,7 +33,7 @@ docker run -d \
     redis redis-server --requirepass $REDIS_PASSWORD
 ```
 
-#### 2.1.4 Set up `MySQL` configuration (fill in the `DB_PASSWORD`):
+#### 2.1.4 Set up `MySQL` configuration (fill in the `DB_PASSWORD`)
 ```bash
 export DB_PORT=3306
 export DB_NAME=simoc
@@ -41,7 +41,7 @@ export DB_USER=root
 export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 ```
 
-#### 2.1.5 Start `MySQL-server` container:
+#### 2.1.5 Start `MySQL-server` container
 ```bash
 docker run -d \
       --name=simoc-db \
