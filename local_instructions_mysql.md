@@ -176,7 +176,24 @@ python3 create_db.py
 ```
 
 ## Run `SIMOC` in `console_mode`
-Using a sample `game_config` file :
+Set up the DB configuration (fill in the `DB_PASSWORD`):
+```bash
+export DB_TYPE=mysql
+export DB_HOST=127.0.0.1
+export DB_PORT=3306
+export DB_NAME=simoc
+export DB_USER=root
+export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
+```
+
+Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
+```bash
+export REDIS_HOST=127.0.0.1
+export REDIS_PORT=6379
+export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
+```
+
+Run a simulation using a sample `game_config` file :
 ```bash
 export NO_FLASK=1 && python3 -m simoc_server --console_mode \
     --username test --password test \
