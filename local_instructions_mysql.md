@@ -150,7 +150,7 @@ docker kill simoc-db
 docker rm -f simoc-db
 ```
 
-Repeat the instructions `2.1.4-5` from [Start `MySQL` via `Docker`](#start-mysql-via-docker).
+Repeat the instructions `2.1.4-5` from [Start `MySQL` via `Docker`](#214-set-up-mysql-configuration-fill-in-the-db_password).
 
 Re-initialize `MySQL` database:
 ```bash
