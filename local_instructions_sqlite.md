@@ -120,14 +120,7 @@ python3 create_db.py
 ```
 
 ## Run `SIMOC` in `console_mode`
-Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
-```bash
-export REDIS_HOST=127.0.0.1
-export REDIS_PORT=6379
-export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
-```
-
-Run a simulation using a sample `game_config` file :
+Using a sample `game_config` file :
 ```bash
 export NO_FLASK=1 && python3 -m simoc_server --console_mode \
     --username test --password test \
