@@ -86,16 +86,6 @@ export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
-Set up the DB configuration (fill in the `DB_PASSWORD`):
-```bash
-export DB_TYPE=mysql
-export DB_HOST=127.0.0.1
-export DB_PORT=3306
-export DB_NAME=simoc
-export DB_USER=root
-export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
-```
-
 Set up number of threads per `Celery Worker`:
 ```bash
 export CELERY_THREADS=2
