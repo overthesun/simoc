@@ -13,7 +13,8 @@ cd simoc/
 - https://www.mysql.com/downloads/
 
 ### 2.1 Start `Redis` and `MySQL` via `Docker` 
-Instead of manually installing `Redis` and `MySQL` on a local `OS`, follow the instructions below to deploy it as a `Docker` container.
+Instead of manually installing `Redis` and `MySQL` on a local `OS`,
+follow the instructions below to deploy them as `Docker` containers.
 
 #### 2.1.1 Follow the official guide to install `Docker`
 - https://docs.docker.com/install/
