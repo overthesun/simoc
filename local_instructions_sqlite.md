@@ -120,7 +120,7 @@ python3 create_db.py
 ```
 
 ## Run `SIMOC` in `console_mode`
-Using a sample `game_config` file :
+Run a simulation using a sample `game_config` file:
 ```bash
 export NO_FLASK=1 && python3 -m simoc_server --console_mode \
     --username test --password test \
