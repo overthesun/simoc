@@ -160,6 +160,16 @@ docker rm -f simoc-db
 
 Repeat the instructions `2.1.4-5` from [Start `MySQL` via `Docker`](#214-set-up-mysql-configuration-fill-in-the-db_password).
 
+Set up the DB configuration (fill in the `DB_PASSWORD`):
+```bash
+export DB_TYPE=mysql
+export DB_HOST=127.0.0.1
+export DB_PORT=3306
+export DB_NAME=simoc
+export DB_USER=root
+export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
+```
+
 Re-initialize `MySQL` database:
 ```bash
 python3 create_db.py
