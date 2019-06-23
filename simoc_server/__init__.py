@@ -48,6 +48,13 @@ else:
     database_url = 'sqlite:///../sqlite/db.sqlite'
     db_type = 'sqlite'
 
+if db_type == 'sqlite':
+    sqlite_dir = './sqlite'
+    if not os.path.exists(sqlite_dir):
+        try:
+            os.makedirs(sqlite_dir)
+        except FileExistsError:
+            pass
 
 app.config['DB_TYPE'] = db_type
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
