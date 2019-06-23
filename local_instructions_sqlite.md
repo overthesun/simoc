@@ -26,7 +26,6 @@ export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```bash
 docker run -d \
     --name=redis \
-    --net=simoc-net \
     -p 6379:6379 \
     redis redis-server --requirepass $REDIS_PASSWORD
 ```

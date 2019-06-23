@@ -28,7 +28,6 @@ export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```bash
 docker run -d \
     --name=redis \
-    --net=simoc-net \
     -p 6379:6379 \
     redis redis-server --requirepass $REDIS_PASSWORD
 ```
@@ -45,7 +44,6 @@ export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 ```bash
 docker run -d \
       --name=simoc-db \
-      --net=simoc-net \
       -p $DB_PORT:$DB_PORT \
       -e MYSQL_USER=$DB_USER \
       -e MYSQL_PASSWORD=$DB_PASSWORD \
