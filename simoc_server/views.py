@@ -145,9 +145,13 @@ def new_game():
 @login_required
 def get_steps(game_id):
     """
-        TBD
+        TBD 
+        Why were the comments removed?
+
     """
     input = json.loads(request.data)
+#    input = {    "min_step_num": 1,     "n_steps": 1,    "total_agent_count":["human_agent"],    "total_agent_mass":["rice","cabbage","strawberries"],    "total_production":["atmo_co2","atmo_o2","h2o_potb","enrg_kwh"],    "total_consumption":["atmo_o2","h2o_potb","enrg_kwh"],    "storage_ratios":{"air_storage_1":["atmo_co2","atmo_o2","atmo_ch4","atmo_n2","atmo_h2","atmo_h2o"]},    "parse_filters":[]} 
+
 
     if "min_step_num" not in input and "n_steps" not in input:
         sys.exit("ERROR: min_step_num and n_steps are required as input to views.get_step() route")
@@ -156,8 +160,7 @@ def get_steps(game_id):
     max_step_num = min_step_num+n_steps-1
 
     # Which of the output from parse_step_data to you want returned.
-    parse_filters = ["agent_type_counters", "storage_capacities"] if "parse_filters" not in input \
-        else input["parse_filters"]
+    parse_filters = [] if "parse_filters" not in input else input["parse_filters"]
 
     user = get_standard_user_obj()
     model_record_steps = ModelRecord.query \
@@ -166,34 +169,38 @@ def get_steps(game_id):
         .filter(ModelRecord.step_num >= min_step_num) \
         .filter(ModelRecord.step_num <= max_step_num)
 
-    step_record_steps = None
-    if len(parse_filters) > 0 or "total_production" in input or "total_consumption" in input:
-        step_record_steps = StepRecord.query \
-            .filter_by(user_id=user.id) \
-            .filter_by(game_id=game_id) \
-            .filter(StepRecord.step_num >= min_step_num) \
-            .filter(StepRecord.step_num <= max_step_num)
+    step_record_steps = StepRecord.query \
+        .filter_by(user_id=user.id) \
+        .filter_by(game_id=game_id) \
+        .filter(StepRecord.step_num >= min_step_num) \
+        .filter(StepRecord.step_num <= max_step_num)
             
     output = {}
     for mri, model_record_data in enumerate(model_record_steps):
         step_num = model_record_data.step_num
-        agent_model_state = parse_step_data(model_record_data,parse_filters)
-        if "total_production" in input or "total_consumption" in input:
-            step_record = step_record_steps.filter_by(step_num=step_num)
-            if "total_production" in input:
-                agent_model_state["total_production"] = calc_step_in_out(step_num,
-                                                                         "out",
-                                                                         input["total_production"],
-                                                                         step_record)
-            if "total_consumption" in input:
-                agent_model_state["total_consumption"] = calc_step_in_out(step_num,
-                                                                          "in",
-                                                                          input["total_consumption"],
-                                                                          step_record)
+        step_record_data = step_record_steps.filter_by(step_num=step_num)
+        agent_model_state = parse_step_data(model_record_data,parse_filters,step_record_data)
+
+        if "total_agent_mass" in input:
+            agent_model_state["total_agent_mass"] = sum_agent_values_in_step(input["total_agent_mass"],step_record_data)
+        if "total_agent_count" in input:
+            agent_model_state["total_agent_count"] = count_agents_in_step(input["total_agent_count"],step_record_data)
+
+        if "total_production" in input:
+            agent_model_state["total_production"] = calc_step_in_out(step_num,
+                                                                     "out",
+                                                                     input["total_production"],
+                                                                     step_record_data)
+        if "total_consumption" in input:
+            agent_model_state["total_consumption"] = calc_step_in_out(step_num,
+                                                                      "in",
+                                                                      input["total_consumption"],
+                                                                      step_record_data)
         if "storage_ratios" in input:
             agent_model_state["storage_ratios"] = calc_step_storage_ratios(step_num,
                                                                            input["storage_ratios"],
                                                                            model_record_data)
+
         output[int(step_num)] = agent_model_state
 
     return json.dumps(output)

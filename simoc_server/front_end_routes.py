@@ -219,14 +219,15 @@ def convert_configuration(game_config):
     return (full_game_config)
 
 
-def calc_step_in_out(step_num,direction,currencies,step_record_data):
+def calc_step_in_out(direction,currencies,step_record_data):
     """ 
     Calculate the total production or total consumption of given currencies for a given step.
 
     Called from: route views.get_step()
 
-    Input: step_num, direction "in" or "out" in=consumption, out=production
+    Input: direction "in" or "out" in=consumption, out=production
     currencies = list of currencies for which to calculate consumption or production. e.g. currencies = ["atmo_o2",""engr_kwh"]
+    step_record_data = StepRecord for this step_num
 
     Output: dictionary of values and units for each currency. e.g. {"atmo_o2":{"value":0.05,"units":"kg"}}
     The unit is selected from the first currency, assuming all currencies with this name have the same units.
@@ -249,17 +250,17 @@ def calc_step_in_out(step_num,direction,currencies,step_record_data):
     return output
 
 
-def calc_step_storage_ratios(step_num,agents,step_data):
+def calc_step_storage_ratios(agents,step_record_data):
     """ 
-    Calculate the ratio for the requested currencies for the requested <agent_type>_<agent_id> and step_num.
+    Calculate the ratio for the requested currencies for the requested <agent_type>_<agent_id>.
 
     Called from: route views.get_step()
 
-    Input: step_num, agents = dictionary of agents for which to calculate ratios. For each agent, give a list of the currencies which should be included in the output. e.g.{"air_storage_1":["atmo_co2"]}
+    Input: agents = dictionary of agents for which to calculate ratios. For each agent, give a list of the currencies which should be included in the output. e.g.{"air_storage_1":["atmo_co2"]}. step_record_data = StepRecord for this step_num.
 
     Output: dictionary of agents, each agent has a dictionary of currency:ratio pairs. e.g. {"air_storage_1": {"atmo_co2": 0.21001018914835098}
     """
-    capacity_data = StorageCapacityRecord.query.filter_by(model_record=step_data)
+    capacity_data = StorageCapacityRecord.query.filter_by(model_record=step_record_data)
 
     output = {}
     for agent in agents:
@@ -291,20 +292,16 @@ def calc_step_storage_ratios(step_num,agents,step_data):
     return output
 
 
-def parse_step_data(step_data,filters=["agent_type_counters","storage_capacities"]):
-    reduced_output = step_data.get_data()
+def parse_step_data(model_record_data,filters,step_record_data):
+    reduced_output = model_record_data.get_data()
     if len(filters) == 0:
         return reduced_output
 
-    agent_logs = StepRecord.query \
-        .filter_by(user=step_data.user) \
-        .filter_by(game_id=step_data.game_id) \
-        .filter_by(step_num=step_data.step_num) \
-        .all()
+    agent_logs = step_record_data.all()
 
     response = {}
-    response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters] if "agent_type_counters" in filters else []
-    response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities] if "storage_capacities" in filters else []
+    response['agent_type_counters'] = [i.get_data() for i in model_record_data.agent_type_counters] if "agent_type_counters" in filters else []
+    response['storage_capacities'] = [i.get_data() for i in model_record_data.storage_capacities] if "storage_capacities" in filters else []
     response['agent_logs'] = [i.get_data() for i in agent_logs] if "agent_logs" in filters else []
 
     for filter in filters:
@@ -314,3 +311,58 @@ def parse_step_data(step_data,filters=["agent_type_counters","storage_capacities
             reduced_output[filter] = response[filter]
 
     return reduced_output
+
+def count_agents_in_step(agent_names,step_record_data):
+    """ 
+    Count the number of agents matching the agent_name for this step
+
+    Called from: route views.get_step()
+
+    Input: agent_names, step_record_data
+
+    Output: dictionary of counts for each agent names {"human_agent":count}
+
+    """
+    output = {}
+
+    for agent_name in agent_names:
+        output[agent_name] = 0
+
+    step_data = step_record_data.all()
+
+    for step in step_data:
+        if step.agent_type.name in agent_names:
+            if len(output[step.agent_type.name]) == 0:
+                output[step.agent_type.name] = 1
+            else:
+                output[step.agent_type.name] += 1
+
+    return output
+
+def sum_agent_values_in_step(agent_names,step_record_data):
+    """ 
+    Sum the values for this agent
+
+    Called from: route views.get_step()
+
+    Input: agent_names, step_record_data
+
+    Output: dictionary of sum of values and units for each agent names {"rice":{"value": value, "unit":unit}}
+
+    """
+
+    output = {}
+    for agent_name in agent_names:
+        output[agent_name] = {}
+
+    step_data = step_record_data.all()
+
+    for step in step_data:
+        if step.agent_type.name in agent_names:
+            if len(output[step.agent_type.name]) == 0:
+                output[step.agent_type.name]["value"] = step.value
+                output[step.agent_type.name]["unit"] = step.unit
+            else:
+                output[step.agent_type.name]["value"] += step.value
+
+    return output
