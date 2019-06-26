@@ -141,7 +141,7 @@ def new_game():
     return result['game_id']
 
 
-@app.route("/get_steps", methods=["POST"])
+@app.route("/get_steps/<game_id>", methods=["POST"])
 @login_required
 def get_steps(game_id):
     """
@@ -206,7 +206,7 @@ def get_steps(game_id):
     return json.dumps(output)
 
 
-@app.route("/get_step_to", methods=["GET"])
+@app.route("/get_step_to/<game_id>", methods=["GET"])
 @login_required
 def get_step_to(game_id):
     step_num = request.args.get("step_num", type=int)
@@ -262,7 +262,7 @@ def get_agents_by_category():
     return json.dumps(results)
 
 
-@app.route("/save_game", methods=["POST"])
+@app.route("/save_game/<game_id>", methods=["POST"])
 @login_required
 def save_game(game_id):
     '''
@@ -285,7 +285,7 @@ def save_game(game_id):
     return success("Save successful.")
 
 
-@app.route("/load_game", methods=["POST"])
+@app.route("/load_game/<game_id>", methods=["POST"])
 @login_required
 def load_game(game_id):
     '''
