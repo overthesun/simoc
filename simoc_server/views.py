@@ -309,7 +309,7 @@ def load_game(game_id):
         exist in the database
 
     '''
-    game_id = try_get_param("saved_game_id")
+    #game_id = try_get_param("saved_game_id")
     saved_game_id = try_get_param("saved_game_id")
     saved_game = SavedGame.query.get(saved_game_id)
     if saved_game is None:
