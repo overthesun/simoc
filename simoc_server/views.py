@@ -264,7 +264,7 @@ def get_agents_by_category():
 
 @app.route("/save_game", methods=["POST"])
 @login_required
-def save_game():
+def save_game(game_id):
     '''
     Save the current game for the user.
 
@@ -273,7 +273,6 @@ def save_game():
     str :
         A success message.
     '''
-    game_id = try_get_param("saved_game_id")
     if "save_name" in request.deserialized.keys():
         save_name = request.deserialized["save_name"]
     else:
@@ -288,8 +287,7 @@ def save_game():
 
 @app.route("/load_game", methods=["POST"])
 @login_required
-#def load_game(game_id):
-def load_game()
+def load_game(game_id):
     '''
     Load game with given 'saved_game_id' in session.  Adds
     GameRunner to game_runner_manager.
@@ -309,7 +307,7 @@ def load_game()
         exist in the database
 
     '''
-    game_id = try_get_param("saved_game_id")
+
     saved_game_id = try_get_param("saved_game_id")
     saved_game = SavedGame.query.get(saved_game_id)
     if saved_game is None:
