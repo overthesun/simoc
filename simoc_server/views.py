@@ -206,7 +206,7 @@ def get_steps(game_id):
     return json.dumps(output)
 
 
-@app.route("/get_step_to/<game_id>", methods=["GET"])
+@app.route("/get_step_to", methods=["GET"])
 @login_required
 def get_step_to(game_id):
     step_num = request.args.get("step_num", type=int)
@@ -262,9 +262,9 @@ def get_agents_by_category():
     return json.dumps(results)
 
 
-@app.route("/save_game/<game_id>", methods=["POST"])
+@app.route("/save_game", methods=["POST"])
 @login_required
-def save_game(game_id):
+def save_game():
     '''
     Save the current game for the user.
 
@@ -273,7 +273,7 @@ def save_game(game_id):
     str :
         A success message.
     '''
-    #game_id = try_get_param("saved_game_id")
+    game_id = try_get_param("saved_game_id")
     if "save_name" in request.deserialized.keys():
         save_name = request.deserialized["save_name"]
     else:
@@ -286,10 +286,10 @@ def save_game(game_id):
     return success("Save successful.")
 
 
-@app.route("/load_game/<game_id>", methods=["POST"])
+@app.route("/load_game", methods=["POST"])
 @login_required
-def load_game(game_id):
-#def load_game()
+#def load_game(game_id):
+def load_game()
     '''
     Load game with given 'saved_game_id' in session.  Adds
     GameRunner to game_runner_manager.
