@@ -1,5 +1,4 @@
 import json
-import sys
 from collections import OrderedDict
 
 from flask import request, render_template
@@ -10,7 +9,7 @@ from simoc_server import app, db, redis_conn
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User, \
     ModelRecord, StepRecord
 from simoc_server.exceptions import InvalidLogin, BadRequest, BadRegistration, \
-    GenericError,  NotFound
+    GenericError, NotFound
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
     calc_step_storage_ratios, parse_step_data
@@ -141,20 +140,21 @@ def new_game():
     return result['game_id']
 
 
-@app.route("/get_steps/<game_id>", methods=["POST"])
+@app.route("/get_steps", methods=["POST"])
 @login_required
-def get_steps(game_id):
+def get_steps():
     """
         TBD 
         Why were the comments removed?
 
     """
     input = json.loads(request.data)
-#    input = {    "min_step_num": 1,     "n_steps": 1,    "total_agent_count":["human_agent"],    "total_agent_mass":["rice","cabbage","strawberries"],    "total_production":["atmo_co2","atmo_o2","h2o_potb","enrg_kwh"],    "total_consumption":["atmo_o2","h2o_potb","enrg_kwh"],    "storage_ratios":{"air_storage_1":["atmo_co2","atmo_o2","atmo_ch4","atmo_n2","atmo_h2","atmo_h2o"]},    "parse_filters":[]} 
-
-
     if "min_step_num" not in input and "n_steps" not in input:
-        sys.exit("ERROR: min_step_num and n_steps are required as input to views.get_step() route")
+        raise ValueError("ERROR: min_step_num and n_steps are required as input to views.get_step()"
+                         "route")
+    game_id = request.args.get("game_id")
+    if game_id is None:
+        raise ValueError("ERROR: game_id is required as input to views.get_step_to() route")
     min_step_num = int(input["min_step_num"])
     n_steps = int(input["n_steps"])
     max_step_num = min_step_num+n_steps-1
@@ -206,9 +206,12 @@ def get_steps(game_id):
     return json.dumps(output)
 
 
-@app.route("/get_step_to/<game_id>", methods=["GET"])
+@app.route("/get_step_to", methods=["GET"])
 @login_required
-def get_step_to(game_id):
+def get_step_to():
+    game_id = request.args.get("game_id")
+    if game_id is None:
+        raise ValueError("ERROR: game_id is required as input to views.get_step_to() route")
     step_num = request.args.get("step_num", type=int)
     # Get a direct worker queue
     worker = redis_conn.get('worker_mapping:{}'.format(game_id))
@@ -262,9 +265,9 @@ def get_agents_by_category():
     return json.dumps(results)
 
 
-@app.route("/save_game/<game_id>", methods=["POST"])
+@app.route("/save_game", methods=["POST"])
 @login_required
-def save_game(game_id):
+def save_game():
     '''
     Save the current game for the user.
 
@@ -277,6 +280,9 @@ def save_game(game_id):
         save_name = request.deserialized["save_name"]
     else:
         save_name = None
+    game_id = request.args.get("game_id")
+    if game_id is None:
+        raise ValueError("ERROR: game_id is required as input to views.get_step_to() route")
     # Get a direct worker queue
     worker = redis_conn.get('worker_mapping:{}'.format(game_id))
     queue = worker_direct(worker)
@@ -285,9 +291,9 @@ def save_game(game_id):
     return success("Save successful.")
 
 
-@app.route("/load_game/<game_id>", methods=["POST"])
+@app.route("/load_game", methods=["POST"])
 @login_required
-def load_game(game_id):
+def load_game():
     '''
     Load game with given 'saved_game_id' in session.  Adds
     GameRunner to game_runner_manager.
