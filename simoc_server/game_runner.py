@@ -246,7 +246,7 @@ class GameRunnerInitializationParams(object):
         if 'location' in config:
             self.model_init_params.set_location(config['location'])
         self.model_init_params.set_config(config)
-        if config['single_agent'] == 1:
+        if 'single_agent' in config and config['single_agent'] == 1:
             self.model_init_params.set_single_agent(1)
         self.agent_init_recipe = BaseLineAgentInitializerRecipe(config)
 

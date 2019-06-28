@@ -12,7 +12,7 @@ from simoc_server.exceptions import InvalidLogin, BadRequest, BadRegistration, \
     GenericError, NotFound
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
-    calc_step_storage_ratios, parse_step_data
+    calc_step_storage_ratios, parse_step_data, count_agents_in_step, sum_agent_values_in_step
 
 from celery_worker import tasks
 from celery.utils import worker_direct
@@ -148,15 +148,15 @@ def get_steps():
         Why were the comments removed?
 
     """
-    input = json.loads(request.data)
+    input = json.loads(request.data.decode('utf-8'))
     if "min_step_num" not in input and "n_steps" not in input:
         raise ValueError("ERROR: min_step_num and n_steps are required as input to views.get_step()"
                          "route")
-    game_id = request.args.get("game_id")
-    if game_id is None:
+    if "game_id" not in input:
         raise ValueError("ERROR: game_id is required as input to views.get_step_to() route")
     min_step_num = int(input["min_step_num"])
     n_steps = int(input["n_steps"])
+    game_id = str(input["game_id"])
     max_step_num = min_step_num+n_steps-1
 
     # Which of the output from parse_step_data to you want returned.
@@ -187,18 +187,15 @@ def get_steps():
             agent_model_state["total_agent_count"] = count_agents_in_step(input["total_agent_count"],step_record_data)
 
         if "total_production" in input:
-            agent_model_state["total_production"] = calc_step_in_out(step_num,
-                                                                     "out",
+            agent_model_state["total_production"] = calc_step_in_out("out",
                                                                      input["total_production"],
                                                                      step_record_data)
         if "total_consumption" in input:
-            agent_model_state["total_consumption"] = calc_step_in_out(step_num,
-                                                                      "in",
+            agent_model_state["total_consumption"] = calc_step_in_out("in",
                                                                       input["total_consumption"],
                                                                       step_record_data)
         if "storage_ratios" in input:
-            agent_model_state["storage_ratios"] = calc_step_storage_ratios(step_num,
-                                                                           input["storage_ratios"],
+            agent_model_state["storage_ratios"] = calc_step_storage_ratios(input["storage_ratios"],
                                                                            model_record_data)
 
         output[int(step_num)] = agent_model_state
@@ -209,12 +206,15 @@ def get_steps():
 @app.route("/get_step_to", methods=["GET"])
 @login_required
 def get_step_to():
-    game_id = request.args.get("game_id")
-    if game_id is None:
+    input = json.loads(request.data.decode('utf-8'))
+    if "game_id" not in input:
         raise ValueError("ERROR: game_id is required as input to views.get_step_to() route")
-    step_num = request.args.get("step_num", type=int)
+    game_id = str(input["game_id"])
+    if "step_num" not in input:
+        raise ValueError("ERROR: step_num is required as input to views.get_step_to() route")
+    step_num = int(input["step_num"])
     # Get a direct worker queue
-    worker = redis_conn.get('worker_mapping:{}'.format(game_id))
+    worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
     queue = worker_direct(worker)
     # Send `get_step_to` for remote execution on Celery
     tasks.get_step_to.apply_async(args=[get_standard_user_obj().username, step_num], queue=queue)
@@ -276,15 +276,16 @@ def save_game():
     str :
         A success message.
     '''
-    if "save_name" in request.deserialized.keys():
-        save_name = request.deserialized["save_name"]
+    input = json.loads(request.data.decode('utf-8'))
+    if "game_id" not in input:
+        raise ValueError("ERROR: game_id is required as input to views.get_step_to() route")
+    if "save_name" in input:
+        save_name = str(input["save_name"])
     else:
         save_name = None
-    game_id = request.args.get("game_id")
-    if game_id is None:
-        raise ValueError("ERROR: game_id is required as input to views.get_step_to() route")
+    game_id = str(input["game_id"])
     # Get a direct worker queue
-    worker = redis_conn.get('worker_mapping:{}'.format(game_id))
+    worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
     queue = worker_direct(worker)
     # Send `save_game` for remote execution on Celery
     tasks.save_game.apply_async(args=[get_standard_user_obj().username, save_name], queue=queue)
@@ -318,12 +319,12 @@ def load_game():
     saved_game = SavedGame.query.get(saved_game_id)
     if saved_game is None:
         raise NotFound("Requested game not found in loaded games.")
-    # Get a direct worker queue
-    worker = redis_conn.get('worker_mapping:{}'.format(game_id))
-    queue = worker_direct(worker)
-    # Send `save_game` for remote execution on Celery
-    tasks.load_game.apply_async(args=[get_standard_user_obj().username, saved_game], queue=queue)
-    return success("Game loaded successfully.")
+    # Send `load_game` for remote execution on Celery
+    result = tasks.load_game.delay(get_standard_user_obj().username, saved_game).get(timeout=60)
+    # Save the hostname of the Celery worker that a game was assigned to
+    redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
+    success("Loaded Game Starts")
+    return result['game_id']
 
 
 @app.route("/get_saved_games", methods=["GET"])

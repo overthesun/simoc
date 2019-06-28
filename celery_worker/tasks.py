@@ -25,7 +25,10 @@ def get_user(username):
 
 @app.task
 def load_game(username, saved_game):
-    game_runner_manager.load_game(get_user(username), saved_game)
+    user = get_user(username)
+    game_runner_manager.load_game(user, saved_game)
+    game_runner = game_runner_manager.get_game_runner(user)
+    return dict(worker_hostname=current_task.request.hostname, game_id=game_runner.game_id)
 
 
 @app.task

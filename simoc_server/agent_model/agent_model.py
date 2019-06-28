@@ -40,7 +40,7 @@ class PrioritizedRandomActivation(RandomActivation):
     def step(self):
         agent_by_class = {}
         for agent in self.agents[:]:
-            agent_class = AgentType.query.get(agent._agent_type_id).agent_class
+            agent_class = AgentType.query.get(agent.agent_type_id).agent_class
             if agent_class not in agent_by_class:
                 agent_by_class[agent_class] = []
             agent_by_class[agent_class].append(agent)
