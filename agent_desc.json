@@ -8,7 +8,7 @@
       "atmo_h2o": 0,
       "atmo_ch4": 0,
       "atmo_cont": 0,
-      "biomass_totl": 0,
+
       "sold_n": 0,
       "sold_p": 0,
       "sold_k": 0,
@@ -143,6 +143,10 @@
           {
             "type": "threshold_atmo_o2",
             "value": 0.08
+          },
+          {
+            "type": "location",
+            "value": "mars"
           }
         ]
       }
@@ -249,6 +253,7 @@
       },
       "description": "Cleans wastewater using microbial degradation, provides nutrients for plants."
     },
+
     "multifiltration_purifier_post_treament": {
       "data": {
         "input": [
@@ -690,19 +695,6 @@
         ],
         "output": [
           {
-            "type": "biomass_totl",
-            "value": 0.00125,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              }
-            }
-          },
-          {
             "type": "atmo_o2",
             "value": 0.0011201294643,
             "flow_rate": {
@@ -712,6 +704,9 @@
             "growth": {
               "lifetime": {
                 "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
               }
             }
           },
@@ -726,6 +721,22 @@
               "name": "age",
               "limit": ">",
               "value": 85
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.001259583,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -838,8 +849,7 @@
             },
             "growth": {
               "daily": {
-                "type": "normal",
-                "center" : 12
+                "type": "norm"
               }
             }
           }
@@ -873,22 +883,28 @@
               "limit": ">",
               "value": 79
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.002083333,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_cers"
-          },
-          {
-            "type": "growth_period",
-            "value": 79,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 22,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -898,21 +914,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 3.95,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 1.58,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0020833333333,
-            "unit": "kg"
           }
         ]
       }
@@ -1009,8 +1010,7 @@
             },
             "growth": {
               "daily": {
-                "type": "norm",
-                "center" : 12
+                "type": "norm"
               }
             }
           }
@@ -1044,17 +1044,28 @@
               "limit": ">",
               "value": 85
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.000280416,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_leaf"
-          },
-          {
-            "type": "growth_period",
-            "value": 85,
-            "unit": "day"
           },
           {
             "type": "lifetime",
@@ -1064,21 +1075,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 0.57205,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.5151,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0002804166667,
-            "unit": "kg"
           }
         ]
       }
@@ -1175,8 +1171,7 @@
             },
             "growth": {
               "daily": {
-                "type": "norm",
-                "center" : 12
+                "type": "norm"
               }
             }
           }
@@ -1210,22 +1205,28 @@
               "limit": ">",
               "value": 45
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.00044875,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_leaf"
-          },
-          {
-            "type": "growth_period",
-            "value": 45,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 16,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -1235,21 +1236,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 0.48465,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.315,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.00044875,
-            "unit": "kg"
           }
         ]
       }
@@ -1346,8 +1332,7 @@
             },
             "growth": {
               "daily": {
-                "type": "norm",
-                "center" : 12
+                "type": "norm"
               }
             }
           }
@@ -1381,22 +1366,28 @@
               "limit": ">",
               "value": 75
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.000478333,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_leaf"
-          },
-          {
-            "type": "growth_period",
-            "value": 75,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 24,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -1406,21 +1397,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 0.861,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.77475,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0004783333333,
-            "unit": "kg"
           }
         ]
       }
@@ -1517,8 +1493,7 @@
             },
             "growth": {
               "daily": {
-                "type": "norm",
-                "center" : 12
+                "type": "norm"
               }
             }
           }
@@ -1552,17 +1527,28 @@
               "limit": ">",
               "value": 28
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.000304166,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_leaf"
-          },
-          {
-            "type": "growth_period",
-            "value": 28,
-            "unit": "day"
           },
           {
             "type": "lifetime",
@@ -1572,21 +1558,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 0.2044,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.18396,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0003041666667,
-            "unit": "kg"
           }
         ]
       }
@@ -1683,8 +1654,7 @@
             },
             "growth": {
               "daily": {
-                "type": "norm",
-                "center" : 12
+                "type": "norm"
               }
             }
           }
@@ -1718,22 +1688,28 @@
               "limit": ">",
               "value": 30
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.000304166,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_leaf"
-          },
-          {
-            "type": "growth_period",
-            "value": 30,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 16,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -1743,21 +1719,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 0.219,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.1971,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0003041666667,
-            "unit": "kg"
           }
         ]
       }
@@ -1854,8 +1815,7 @@
             },
             "growth": {
               "daily": {
-                "type": "norm",
-                "center" : 12
+                "type": "norm"
               }
             }
           }
@@ -1889,22 +1849,28 @@
               "limit": ">",
               "value": 85
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.001041666,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_legu"
-          },
-          {
-            "type": "growth_period",
-            "value": 85,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 18,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -1914,21 +1880,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 2.125,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.85,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0010416666667,
-            "unit": "kg"
           }
         ]
       }
@@ -2059,22 +2010,28 @@
               "limit": ">",
               "value": 104
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.000937916,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_legu"
-          },
-          {
-            "type": "growth_period",
-            "value": 104,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 12,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -2084,21 +2041,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 2.34104,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.58552,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0009379166667,
-            "unit": "kg"
           }
         ]
       }
@@ -2195,8 +2137,7 @@
             },
             "growth": {
               "daily": {
-                "type": "norm",
-                "center" : 12
+                "type": "norm"
               }
             }
           }
@@ -2230,22 +2171,28 @@
               "limit": ">",
               "value": 97
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.00053329,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_legu"
-          },
-          {
-            "type": "growth_period",
-            "value": 97,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 12,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -2255,21 +2202,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 1.2416,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.582,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0005333333333,
-            "unit": "kg"
           }
         ]
       }
@@ -2366,8 +2298,7 @@
             },
             "growth": {
               "daily": {
-                "type": "norm",
-                "center" : 12
+                "type": "norm"
               }
             }
           }
@@ -2401,22 +2332,28 @@
               "limit": ">",
               "value": 85
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.000927083,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_frut"
-          },
-          {
-            "type": "growth_period",
-            "value": 85,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 12,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -2426,21 +2363,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 1.89125,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.66215,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0009270833333,
-            "unit": "kg"
           }
         ]
       }
@@ -2537,8 +2459,7 @@
             },
             "growth": {
               "daily": {
-                "type": "norm",
-                "center" : 12
+                "type": "norm"
               }
             }
           }
@@ -2572,22 +2493,28 @@
               "limit": ">",
               "value": 85
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.000965416,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_frut"
-          },
-          {
-            "type": "growth_period",
-            "value": 85,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 12,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -2597,21 +2524,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 1.96945,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.88655,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0009654166667,
-            "unit": "kg"
           }
         ]
       }
@@ -2705,6 +2617,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -2715,6 +2632,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2729,22 +2654,28 @@
               "limit": ">",
               "value": 85
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.000416666,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_vegi"
-          },
-          {
-            "type": "growth_period",
-            "value": 50,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 24,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -2754,21 +2685,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 0.5,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.45,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0004166666667,
-            "unit": "kg"
           }
         ]
       }
@@ -2862,6 +2778,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -2872,6 +2793,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -2886,22 +2815,28 @@
               "limit": ">",
               "value": 50
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.00046875,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_vegi"
-          },
-          {
-            "type": "growth_period",
-            "value": 50,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 24,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -2911,21 +2846,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 0.5625,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.45,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.00046875,
-            "unit": "kg"
           }
         ]
       }
@@ -3019,6 +2939,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -3029,6 +2954,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3043,22 +2976,28 @@
               "limit": ">",
               "value": 75
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.001117916,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_vegi"
-          },
-          {
-            "type": "growth_period",
-            "value": 75,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 24,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -3068,21 +3007,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 2.01225,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.80475,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0011179166667,
-            "unit": "kg"
           }
         ]
       }
@@ -3168,6 +3092,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -3178,6 +3107,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3192,22 +3129,28 @@
               "limit": ">",
               "value": 85
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.000965416,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_vegi"
-          },
-          {
-            "type": "growth_period",
-            "value": 85,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 24,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -3217,21 +3160,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 1.96945,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.88655,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0009654166667,
-            "unit": "kg"
           }
         ]
       }
@@ -3325,6 +3253,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -3335,6 +3268,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3349,22 +3290,28 @@
               "limit": ">",
               "value": 85
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.0012375,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_vegi"
-          },
-          {
-            "type": "growth_period",
-            "value": 85,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 18,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -3374,21 +3321,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 2.5245,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 1.0098,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0012375,
-            "unit": "kg"
           }
         ]
       }
@@ -3482,6 +3414,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -3492,6 +3429,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3506,22 +3451,28 @@
               "limit": ">",
               "value": 25
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.000458333,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_root"
-          },
-          {
-            "type": "growth_period",
-            "value": 25,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 16,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -3531,21 +3482,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 0.275,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.1375,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0004583333333,
-            "unit": "kg"
           }
         ]
       }
@@ -3639,6 +3575,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -3649,6 +3590,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3663,22 +3612,28 @@
               "limit": ">",
               "value": 38
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.000416666,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_root"
-          },
-          {
-            "type": "growth_period",
-            "value": 38,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 16,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -3688,21 +3643,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 0.38,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.247,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0004166666667,
-            "unit": "kg"
           }
         ]
       }
@@ -3796,6 +3736,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -3806,6 +3751,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3820,22 +3773,28 @@
               "limit": ">",
               "value": 75
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.00062375,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_root"
-          },
-          {
-            "type": "growth_period",
-            "value": 75,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 24,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -3845,21 +3804,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 1.12275,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 0.6735,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.00062375,
-            "unit": "kg"
           }
         ]
       }
@@ -3953,6 +3897,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -3963,6 +3912,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -3977,22 +3934,28 @@
               "limit": ">",
               "value": 85
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.0015625,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_vegi"
-          },
-          {
-            "type": "growth_period",
-            "value": 85,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 12,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -4002,21 +3965,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 3.1875,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 1.275,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.0015625,
-            "unit": "kg"
           }
         ]
       }
@@ -4110,6 +4058,11 @@
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
+            },
+            "growth": {
+              "daily": {
+                "type": "norm"
+              }
             }
           }
         ],
@@ -4120,6 +4073,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
             }
           },
           {
@@ -4134,22 +4095,28 @@
               "limit": ">",
               "value": 132
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.00125375,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_root"
-          },
-          {
-            "type": "growth_period",
-            "value": 132,
-            "unit": "day"
-          },
-          {
-            "type": "daytime_period",
-            "value": 12,
-            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -4159,21 +4126,6 @@
           {
             "type": "reproduce",
             "value": true
-          },
-          {
-            "type": "mass_total",
-            "value": 3.97188,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_edible",
-            "value": 2.7799,
-            "unit": "kg"
-          },
-          {
-            "type": "mass_per_hour",
-            "value": 0.00125375,
-            "unit": "kg"
           }
         ]
       }
@@ -4695,7 +4647,12 @@
         "characteristics": [
           {
             "type": "capacity_biomass_totl",
-            "value": 1000,
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_biomass_edible",
+            "value": 10000,
             "unit": "kg"
           },
           {
