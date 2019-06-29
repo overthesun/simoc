@@ -332,10 +332,7 @@ def count_agents_in_step(agent_names,step_record_data):
 
     for step in step_data:
         if step.agent_type.name in agent_names:
-            if len(output[step.agent_type.name]) == 0:
-                output[step.agent_type.name] = 1
-            else:
-                output[step.agent_type.name] += 1
+            output[step.agent_type.name] += 1
 
     return output
 
