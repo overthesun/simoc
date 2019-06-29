@@ -5,7 +5,7 @@ from celery import current_task
 
 sys.path.append("../")
 
-from simoc_server.database.db_model import User
+from simoc_server.database.db_model import User, SavedGame
 from simoc_server.game_runner import GameRunnerManager, GameRunnerInitializationParams
 from simoc_server.exceptions import NotFound
 
@@ -24,11 +24,16 @@ def get_user(username):
 
 
 @app.task
-def load_game(username, saved_game):
+def load_game(username, saved_game_id):
+    saved_game = SavedGame.query.get(saved_game_id)
+    if saved_game is None:
+        raise NotFound(f'Saved game with Id {saved_game_id} not found.')
     user = get_user(username)
     game_runner_manager.load_game(user, saved_game)
     game_runner = game_runner_manager.get_game_runner(user)
-    return dict(worker_hostname=current_task.request.hostname, game_id=game_runner.game_id)
+    return dict(worker_hostname=current_task.request.hostname,
+                game_id=game_runner.game_id,
+                last_step_num=game_runner.agent_model.step_num)
 
 
 @app.task

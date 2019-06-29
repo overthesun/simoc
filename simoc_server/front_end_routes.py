@@ -92,7 +92,7 @@ def convert_configuration(game_config):
     of concerns. If it is removed, the data from the front end needs to be changed into a format based on an object similar to the one created here or in the new game view."""
 
     #Anything in this list will be copied as is from the input to the full_game_config. If it's not in the input it will be ignored
-    labels_to_direct_copy = ["logging","priorities","minutes_per_step","location"]
+    labels_to_direct_copy = ["priorities","minutes_per_step","location"]
     #If a game_config element should be assigned as an agent with connections: power_storage only, add it to the list below (unless you want to rename the agent, then it will need it's own code)
     #Note, this assumes power_storage is the only connection for this agent. Do not add agents which have other connections. Only agents which are present in the input game_config will be assigned
     agents_to_assign_power_storage = ["habitat","greenhouse"]

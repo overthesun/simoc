@@ -71,7 +71,6 @@ class AgentModel(Model, AttributeHolder):
           grid_width: int,
           is_terminated: int,
           location: int,
-          logging: int,
           minutes_per_step: int,
           storage_ratios: Dict,
           priorities: int,
@@ -102,7 +101,6 @@ class AgentModel(Model, AttributeHolder):
         self.random_state = init_params.random_state
         self.termination = init_params.termination
         self.termination_reason = None
-        self.logging = init_params.logging
         self.single_agent = init_params.single_agent
         self.priorities = init_params.priorities
         self.location = init_params.location
@@ -249,7 +247,6 @@ class AgentModel(Model, AttributeHolder):
         termination = json.loads(agent_model_state.termination)
         priorities = json.loads(agent_model_state.priorities)
         config = json.loads(agent_model_state.config)
-        logging = json.loads(agent_model_state.logging)
         init_params = AgentModelInitializationParams()
         (init_params.set_grid_width(grid_width)
          .set_grid_height(grid_height)
@@ -262,8 +259,7 @@ class AgentModel(Model, AttributeHolder):
          .set_priorities(priorities)
          .set_minutes_per_step(minutes_per_step)
          .set_location(location)
-         .set_config(config)
-         .set_logging(logging))
+         .set_config(config))
         model = AgentModel(init_params)
         agents = {}
         for agent_state in agent_model_state.agent_states:
@@ -513,7 +509,6 @@ class AgentModelInitializationParams(object):
           single_agent: TODO
           minutes_per_step: TODO
           termination: TODO
-          logging: TODO
           priorities: TODO
           location: TODO
           config: TODO
@@ -525,7 +520,6 @@ class AgentModelInitializationParams(object):
     single_agent = 0
     minutes_per_step = 60
     termination = []
-    logging = {}
     priorities = []
     location = 'mars'
     config = {}
@@ -654,20 +648,6 @@ class AgentModelInitializationParams(object):
           TODO
         """
         self.termination = termination
-        return self
-
-    def set_logging(self, logging):
-        """TODO
-
-        TODO
-
-        Args:
-            logging: TODO
-
-        Returns:
-          TODO
-        """
-        self.logging = logging
         return self
 
     def set_priorities(self, priorities):

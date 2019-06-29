@@ -44,3 +44,6 @@ if __name__ == "__main__":
 
     create(app.config["AGENT_CONFIG"])
 
+    print(f"The '{app.config['DB_TYPE']}' database at '{app.config['SQLALCHEMY_DATABASE_URI']}' was"
+          f" successfully populated with '{app.config['AGENT_CONFIG']}' config file.")
+

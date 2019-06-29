@@ -237,8 +237,6 @@ class GameRunnerInitializationParams(object):
             .set_starting_model_time(datetime.timedelta())
         if 'termination' in config:
             self.model_init_params.set_termination(config['termination'])
-        if 'logging' in config:
-            self.model_init_params.set_logging(config['logging'])
         if 'minutes_per_step' in config:
             self.model_init_params.set_minutes_per_step(config['minutes_per_step'])
         if 'priorities' in config:

@@ -8,8 +8,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from simoc_server import app, db, redis_conn
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User, \
     ModelRecord, StepRecord
-from simoc_server.exceptions import InvalidLogin, BadRequest, BadRegistration, \
-    GenericError, NotFound
+from simoc_server.exceptions import InvalidLogin, BadRequest, BadRegistration
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
     calc_step_storage_ratios, parse_step_data, count_agents_in_step, sum_agent_values_in_step
@@ -51,7 +50,7 @@ def login():
     user = User.query.filter_by(username=username).first()
     if user and user.validate_password(password):
         login_user(user)
-        return success("Logged In.")
+        return success("Logged in.")
     raise InvalidLogin("Bad username or password.")
 
 
@@ -95,7 +94,7 @@ def logout():
     str: A success message.
     """
     logout_user()
-    return success("Logged Out.")
+    return success("Logged out.")
 
 
 @app.route("/new_game", methods=["POST"])
@@ -120,23 +119,15 @@ def new_game():
                                       'greenhouse':    'greenhouse_small',
                                       'habitat':       'crew_habitat_small',
                                       'human_agent':   {'amount': 1},
-                                      'logging':       {'columns': ['agent_id',
-                                                                    'agent_type',
-                                                                    'value',
-                                                                    'unit'],
-                                                        'filters': [('currency', ['enrg_kwh']),
-                                                                    ('direction', ['in'])]},
                                       'plants':        [{'amount': 1, 'species': 'rice'}],
                                       'power_storage': {'amount': 1},
-                                      'priorities':    ['inhabitants', 'eclss', 'plants',
-                                                        'storage'],
                                       'solar_arrays':  {'amount': 1}}}
         game_config = convert_configuration(start_data["game_config"])
     # Send `new_game` for remote execution on Celery
     result = tasks.new_game.delay(get_standard_user_obj().username, game_config).get(timeout=60)
     # Save the hostname of the Celery worker that a game was assigned to
     redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
-    success("New Game Starts")
+    app.logger.info("Success: New game starts.")
     return result['game_id']
 
 
@@ -144,9 +135,34 @@ def new_game():
 @login_required
 def get_steps():
     """
-        TBD 
-        Why were the comments removed?
+    Gets the step with the requested 'step_num', if not specified, uses current model step.
+    total_production, total_consumption and model_stats are not calculated by default. They must be
+    requested as per the examples below. By default, "agent_type_counters" and "storage_capacities"
+    are included in the output, but "agent_logs" is not. If you want to change what is included, of
+    these three, specify "parse_filters":[] in the input. An empty list will mean none of the three
+    are included in the output.
+    The following options are always returned, but if wanted could have option to filter out in
+    future: {'user_id': 1, 'username': 'sinead', 'start_time': 1559046239, 'game_id': '7b966b7a',
+             'step_num': 3, 'hours_per_step': 1.0, 'is_terminated': 'False', 'time': 10800.0,
+             'termination_reason': None}
+    Input:
+       JSON specifying step_num, and the info you want included in the step_data returned
 
+    Example 1:
+    {"min_step_num": 1, "n_steps": 5, "total_production":["atmo_co2","h2o_wste"],
+     "total_consumption":["h2o_wste"], "storage_ratios":{"air_storage_1":["atmo_co2"]}}
+    Added to output for example 1:
+    {1: {...,'total_production': {'atmo_co2': {'value': 0.128, 'unit': '1.0 kg'},
+    'h2o_wste': {'value': 0.13418926977687629, 'unit': '1.0 kg'}},
+    'total_consumption': {'h2o_wste': {'value': 1.5, 'unit': '1.0 kg'}},
+    2:{...},...,5:{...},"storage_ratios": {"air_storage_1": {"atmo_co2": 0.00038879091443387717}}}
+
+    Prints a success message.
+
+    Returns
+    -------
+    str:
+        json format -
     """
     input = json.loads(request.data.decode('utf-8'))
     if "min_step_num" not in input and "n_steps" not in input:
@@ -180,12 +196,12 @@ def get_steps():
         step_num = model_record_data.step_num
         step_record_data = step_record_steps.filter_by(step_num=step_num)
         agent_model_state = parse_step_data(model_record_data,parse_filters,step_record_data)
-
         if "total_agent_mass" in input:
-            agent_model_state["total_agent_mass"] = sum_agent_values_in_step(input["total_agent_mass"],step_record_data)
+            agent_model_state["total_agent_mass"] = sum_agent_values_in_step(input["total_agent_mass"],
+                                                                             step_record_data)
         if "total_agent_count" in input:
-            agent_model_state["total_agent_count"] = count_agents_in_step(input["total_agent_count"],step_record_data)
-
+            agent_model_state["total_agent_count"] = count_agents_in_step(input["total_agent_count"],
+                                                                          step_record_data)
         if "total_production" in input:
             agent_model_state["total_production"] = calc_step_in_out("out",
                                                                      input["total_production"],
@@ -197,15 +213,22 @@ def get_steps():
         if "storage_ratios" in input:
             agent_model_state["storage_ratios"] = calc_step_storage_ratios(input["storage_ratios"],
                                                                            model_record_data)
-
         output[int(step_num)] = agent_model_state
 
+    app.logger.info("Success: Step data retrieved.")
     return json.dumps(output)
 
 
 @app.route("/get_step_to", methods=["POST"])
 @login_required
 def get_step_to():
+    """
+    Schedules "step_num"  calculations on Celery cluster for the requested "game_id".
+
+    Returns
+    -------
+    str: A success message.
+    """
     input = json.loads(request.data.decode('utf-8'))
     if "game_id" not in input:
         raise ValueError("ERROR: game_id is required as input to views.get_step_to() route")
@@ -218,7 +241,7 @@ def get_step_to():
     queue = worker_direct(worker)
     # Send `get_step_to` for remote execution on Celery
     tasks.get_step_to.apply_async(args=[get_standard_user_obj().username, step_num], queue=queue)
-    return success("Steps Requested")
+    return success("Steps requested.")
 
 
 @app.route("/get_agent_types", methods=["GET"])
@@ -268,14 +291,13 @@ def get_agents_by_category():
 @app.route("/save_game", methods=["POST"])
 @login_required
 def save_game():
-    '''
+    """
     Save the current game for the user.
 
     Returns
     -------
-    str :
-        A success message.
-    '''
+    str: A success message.
+    """
     input = json.loads(request.data.decode('utf-8'))
     if "game_id" not in input:
         raise ValueError("ERROR: game_id is required as input to views.get_step_to() route")
@@ -295,42 +317,39 @@ def save_game():
 @app.route("/load_game", methods=["POST"])
 @login_required
 def load_game():
-    '''
-    Load game with given 'saved_game_id' in session.  Adds
-    GameRunner to game_runner_manager.
+    """
+    Load the game with the given 'saved_game_id' on Celery Cluster.
+
+    Prints a success message.
 
     Returns
     -------
     str:
-        A success message.
+        JSON-formatted string:
+        {"game_id": "str, Game Id value", "last_step_num": "int, the last calculated step num"}
 
     Raises
     ------
-    simoc_server.exceptions.BadRequest
-        If 'saved_game_id' is not in the json data on the request.
-
     simoc_server.exceptions.NotFound
-        If the SavedGame with the requested 'saved_game_id' does not
-        exist in the database
-
-    '''
-
-    saved_game_id = try_get_param("saved_game_id")
-    saved_game = SavedGame.query.get(saved_game_id)
-    if saved_game is None:
-        raise NotFound("Requested game not found in loaded games.")
+        If the SavedGame with the requested 'saved_game_id' does not exist in the database
+    """
+    input = json.loads(request.data.decode('utf-8'))
+    if "saved_game_id" not in input:
+        raise ValueError("ERROR: saved_game_id is required as input to views.load_game() route")
+    saved_game_id = input["saved_game_id"]
     # Send `load_game` for remote execution on Celery
-    result = tasks.load_game.delay(get_standard_user_obj().username, saved_game).get(timeout=60)
+    result = tasks.load_game.delay(get_standard_user_obj().username, saved_game_id).get(timeout=60)
     # Save the hostname of the Celery worker that a game was assigned to
     redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
-    success("Loaded Game Starts")
-    return result['game_id']
+    app.logger.info("Success: Loaded game starts")
+    output = {"game_id": result['game_id'], "last_step_num": result['last_step_num']}
+    return json.dumps(output)
 
 
 @app.route("/get_saved_games", methods=["GET"])
 @login_required
 def get_saved_games():
-    '''
+    """
     Get saved games for current user. All save games fall under the root
     branch id that they are saved under.
 
@@ -350,9 +369,7 @@ def get_saved_games():
             ],
             ...
         }
-
-
-    '''
+    """
     saved_games = SavedGame.query.filter_by(user=get_standard_user_obj()).all()
 
     sequences = {}
@@ -375,7 +392,7 @@ def get_saved_games():
             response[root_branch.id].append({
                 "saved_game_id": saved_game.id,
                 "name":          saved_game.name,
-                "date_created":  saved_game.date_created
+                "date_created":  saved_game.date_created.strftime("%m/%d/%Y, %H:%M:%S")
             })
     return serialize_response(response)
 
@@ -419,59 +436,6 @@ def success(message, status_code=200):
         })
     response.status_code = status_code
     return response
-
-
-@app.errorhandler(GenericError)
-def handle_error(error):
-    """Handles GenericError type exceptions
-
-    Parameters
-    ----------
-    error : GenericError
-        Error thrown
-
-    Returns
-    -------
-    Serialized Response
-        The response to send to the client
-    """
-    if error.status_code >= 500:
-        app.logger.error(error.message)
-    response = serialize_response(error.to_dict())
-    response.status_code = error.status_code
-    return response
-
-
-def try_get_param(name):
-    """Attempts to retrieve named value from
-    request parameters
-
-    Parameters
-    ----------
-    name : str
-        The name of the parameter to retrieve
-
-    Returns
-    -------
-    Type of param
-        The value of the param to retreive.
-
-    Raises
-    ------
-    BadRequest
-        If the named param is not found in the request or
-        if there is no params in the request.
-    """
-    try:
-        return request.deserialized[name]
-    except TypeError as e:
-        if request.deserialized is None:
-            raise BadRequest("No params on request or params are malformed, "
-                             "'{}' is a required param.".format(name))
-        else:
-            raise e
-    except KeyError:
-        raise BadRequest("'{}' not found in request parameters.".format(name))
 
 
 def get_standard_user_obj():
