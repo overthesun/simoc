@@ -203,7 +203,7 @@ def get_steps():
     return json.dumps(output)
 
 
-@app.route("/get_step_to", methods=["GET"])
+@app.route("/get_step_to", methods=["POST"])
 @login_required
 def get_step_to():
     input = json.loads(request.data.decode('utf-8'))
