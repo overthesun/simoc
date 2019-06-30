@@ -16,51 +16,54 @@ spec:
           imagePullPolicy: Always
           env:
           - name: CELERY_THREADS
-            value: '2'
+            valueFrom:
+              configMapKeyRef:
+                name: celery-config
+                key: celery_threads
           - name: DB_TYPE
             valueFrom:
-              secretKeyRef:
+              configMapKeyRef:
                 name: simoc-db-config
                 key: db_type
           - name: DB_HOST
             valueFrom:
-              secretKeyRef:
+              configMapKeyRef:
                 name: simoc-db-config
                 key: db_host
           - name: DB_PORT
             valueFrom:
-              secretKeyRef:
+              configMapKeyRef:
                 name: simoc-db-config
                 key: db_port
           - name: DB_NAME
             valueFrom:
-              secretKeyRef:
+              configMapKeyRef:
                 name: simoc-db-config
                 key: db_name
           - name: DB_USER
             valueFrom:
               secretKeyRef:
-                name: simoc-db-config
+                name: simoc-db-creds
                 key: db_user
           - name: DB_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: simoc-db-config
+                name: simoc-db-creds
                 key: db_password
           - name: REDIS_HOST
             valueFrom:
-              secretKeyRef:
+              configMapKeyRef:
                 name: redis-config
                 key: redis_host
           - name: REDIS_PORT
             valueFrom:
-              secretKeyRef:
+              configMapKeyRef:
                 name: redis-config
                 key: redis_port
           - name: REDIS_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: redis-config
+                name: redis-creds
                 key: redis_password
           resources:
             requests:

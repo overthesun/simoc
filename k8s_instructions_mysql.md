@@ -46,6 +46,13 @@ The guide covers two basic deployment scenarios:
 * https://console.cloud.google.com/cloudshell
 
 ### Select `GCP` Project and Zone
+
+Make sure you logged in and retrieved the application credentials:
+```bash
+gcloud auth login
+gcloud auth application-default login
+```
+
 Check the current configuration:
 ```bash
 gcloud config list
@@ -63,7 +70,7 @@ export GCP_ZONE=<GCP_ZONE>
 Set up `Project` and `Zone` config:
 ```bash
 gcloud config set project $GCP_PROJECT_ID
-gcloud config set compute/zone $GCP_ZON
+gcloud config set compute/zone $GCP_ZONE
 ```
 Please note your selection as you will need those values later on in this guide.
 
@@ -160,20 +167,12 @@ helm install --name simoc-db \
 
 #### 3. Save the `MySQL` credentials to the `Cloud Secrets`
 ```bash
-export DB_TYPE=mysql
-export DB_HOST="simoc-db-mysql.default.svc.cluster.local"
-export DB_PORT=3306
-export DB_NAME=simoc
 export DB_USER=root
 export DB_PASSWORD=$(
     kubectl get secret --namespace default simoc-db-mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode
     echo
 )
-kubectl create secret generic simoc-db-config \
-    --from-literal=db_type=$DB_TYPE \
-    --from-literal=db_host=$DB_HOST \
-    --from-literal=db_port=$DB_PORT \
-    --from-literal=db_name=$DB_NAME \
+kubectl create secret generic simoc-db-creds \
     --from-literal=db_user=$DB_USER \
     --from-literal=db_password=$DB_PASSWORD
 ```
@@ -186,15 +185,11 @@ helm install --name redis stable/redis
 
 #### 5. Save the `Redis` credentials to the `Cloud Secrets`
 ```bash
-export REDIS_HOST="redis-master.default.svc.cluster.local"
-export REDIS_PORT=6379
 export REDIS_PASSWORD=$(
     kubectl get secret --namespace default redis -o jsonpath="{.data.redis-password}" | base64 --decode
     echo
 )
-kubectl create secret generic redis-config \
-    --from-literal=redis_host=$REDIS_HOST\
-    --from-literal=redis_port=$REDIS_PORT \
+kubectl create secret generic redis-creds \
     --from-literal=redis_password=$REDIS_PASSWORD
 ```
 
@@ -223,6 +218,10 @@ Repeat the same for the `~/simoc/deployment_templates/deployments/simoc_celery_c
 
 #### 9. Deploy `SIMOC` backend into the cluster
 ```bash
+kubectl create -f deployment_templates/deployments/flask_server_environment.yaml
+kubectl create -f deployment_templates/deployments/celery_cluster_environment.yaml
+kubectl create -f deployment_templates/deployments/redis_environment.yaml
+kubectl create -f deployment_templates/deployments/simoc_db_environment.yaml
 kubectl create -f deployment_templates/deployments/simoc_flask_server.yaml
 kubectl create -f deployment_templates/deployments/simoc_celery_cluster.yaml
 kubectl create -f deployment_templates/autoscalers/simoc_flask_autoscaler.yaml
@@ -303,7 +302,7 @@ kubectl replace --force -f deployment_templates/deployments/simoc_celery_cluster
 Delete the exiting `MySQL` server deployment and credentials:
 ```bash
 helm del --purge simoc-db
-kubectl delete secret simoc-db-config
+kubectl delete secret simoc-db-creds
 ```
 
 Repeat `Steps 2-3 & 10` from the [Deploy `SIMOC` to `Kubernetes` cluster](#deploy-simoc-to-kubernetes-cluster) section.
