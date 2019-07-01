@@ -118,7 +118,7 @@ Re-initialize an `SQLite` database:
 python3 create_db.py
 ```
 
-## Run `SIMOC` in `console_mode`
+## Run `SIMOC` in `console_mode` (`JSON` export)
 Run a simulation using a sample `game_config` file:
 ```bash
 export NO_FLASK=1 && python3 -m simoc_server --console_mode \
@@ -127,6 +127,8 @@ export NO_FLASK=1 && python3 -m simoc_server --console_mode \
     --num_steps 100
 ```
 You should manually interrupt the script when it's finished.
+
+When the simulation is finished, hhe result data will be stored in `*_model_records.json` and `*_step_records.json` files.
 
 For custom scenarios, modify the configuration file and set up the path to the file via `--game_config_path` argument.
 

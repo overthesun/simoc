@@ -173,7 +173,7 @@ Re-initialize `MySQL` database:
 python3 create_db.py
 ```
 
-## Run `SIMOC` in `console_mode`
+## Run `SIMOC` in `console_mode` (`JSON` export)
 Set up the DB configuration (fill in the `DB_PASSWORD`):
 ```bash
 export DB_TYPE=mysql
@@ -192,6 +192,8 @@ export NO_FLASK=1 && python3 -m simoc_server --console_mode \
     --num_steps 100
 ```
 You should manually interrupt the script when it's finished.
+
+When the simulation is finished, hhe result data will be stored in `*_model_records.json` and `*_step_records.json` files.
 
 For custom scenarios, modify the configuration file and set up the path to the file via `--game_config_path` argument.
 
