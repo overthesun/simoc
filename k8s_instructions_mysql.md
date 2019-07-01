@@ -167,13 +167,11 @@ helm install --name simoc-db \
 
 #### 3. Save the `MySQL` credentials to the `Cloud Secrets`
 ```bash
-export DB_USER=root
 export DB_PASSWORD=$(
     kubectl get secret --namespace default simoc-db-mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode
     echo
 )
 kubectl create secret generic simoc-db-creds \
-    --from-literal=db_user=$DB_USER \
     --from-literal=db_password=$DB_PASSWORD
 ```
 

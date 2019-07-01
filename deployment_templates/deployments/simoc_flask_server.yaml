@@ -48,7 +48,7 @@ spec:
           - name: DB_USER
             valueFrom:
               secretKeyRef:
-                name: simoc-db-creds
+                name: simoc-db-config
                 key: db_user
           - name: DB_PASSWORD
             valueFrom:

@@ -8,3 +8,4 @@ data:
   db_host: 'simoc-db-mysql.default.svc.cluster.local'
   db_port: '3306'
   db_name: 'simoc'
+  db_user: 'root'
