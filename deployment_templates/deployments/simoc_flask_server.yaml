@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: simoc-flask-server
-          image: gcr.io/simoc-243819/simoc_flask:latest
+          image: gcr.io/<PROJECT_ID>/simoc_flask:latest
           imagePullPolicy: Always
           env:
           - name: APP_PORT

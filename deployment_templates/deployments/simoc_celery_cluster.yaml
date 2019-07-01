@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: simoc-celery-cluster
-          image: gcr.io/simoc-243819/simoc_celery:latest
+          image: gcr.io/<PROJECT_ID>/simoc_celery:latest
           imagePullPolicy: Always
           env:
           - name: CELERY_THREADS
