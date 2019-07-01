@@ -193,7 +193,7 @@ export NO_FLASK=1 && python3 -m simoc_server --console_mode \
 ```
 You should manually interrupt the script when it's finished.
 
-When the simulation is finished, hhe result data will be stored in `*_model_records.json` and `*_step_records.json` files.
+The result data will be stored in `*_model_records.json` and `*_step_records.json` files.
 
 For custom scenarios, modify the configuration file and set up the path to the file via `--game_config_path` argument.
 
