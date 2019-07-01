@@ -15,7 +15,7 @@ The guide covers two basic deployment scenarios:
 * [Deployment from local Linux/macOS](#scenario-2)
 
 ## Cloud Architecture Diagram (`OUTDATED`)
-![Architecture Diagram](deployment_templates/images/GCP_architecture_diagram.png)
+![Architecture Diagram](k8s/images/GCP_architecture_diagram.png)
 
 ## Configure a `GCP` Project
 
@@ -149,7 +149,7 @@ gcloud container clusters get-credentials k0 --zone $GCP_ZONE
 
 #### 1. Deploy `Helm` backend to the cluster
 ```bash
-kubectl create -f deployment_templates/other/helm-rbac-config.yaml
+kubectl create -f k8s/other/helm-rbac-config.yaml
 helm init --service-account tiller --history-max 200 --upgrade
 ```
 
@@ -205,27 +205,27 @@ helm install --name nginx-ingress stable/nginx-ingress
 Access the `Code Editor` from the toolbar by clicking the pencil icon:
 * https://cloud.google.com/shell/docs/features#code_editor
 
-Open the `~/simoc/deployment_templates/deployments/simoc_flask_server.yaml` file.<br>
+Open the `~/simoc/k8s/deployments/simoc_flask_server.yaml` file.<br>
 
 Fill in the `<PROJECT_ID>` value in the `spec/spec/containers/image` section:
 ```bash
 image: gcr.io/<PROJECT_ID>/simoc:latest
 ```
 
-Repeat the same for the `~/simoc/deployment_templates/deployments/simoc_celery_cluster.yaml` file.<br><br>
+Repeat the same for the `~/simoc/k8s/deployments/simoc_celery_cluster.yaml` file.<br><br>
 
 #### 9. Deploy `SIMOC` backend into the cluster
 ```bash
-kubectl create -f deployment_templates/deployments/flask_server_environment.yaml
-kubectl create -f deployment_templates/deployments/celery_cluster_environment.yaml
-kubectl create -f deployment_templates/deployments/redis_environment.yaml
-kubectl create -f deployment_templates/deployments/simoc_db_environment.yaml
-kubectl create -f deployment_templates/deployments/simoc_flask_server.yaml
-kubectl create -f deployment_templates/deployments/simoc_celery_cluster.yaml
-kubectl create -f deployment_templates/autoscalers/simoc_flask_autoscaler.yaml
-kubectl create -f deployment_templates/autoscalers/simoc_celery_autoscaler.yaml
-kubectl create -f deployment_templates/services/simoc_flask_service.yaml
-kubectl create -f deployment_templates/ingresses/simoc_flask_ingress.yaml
+kubectl create -f k8s/deployments/flask_server_environment.yaml
+kubectl create -f k8s/deployments/celery_cluster_environment.yaml
+kubectl create -f k8s/deployments/redis_environment.yaml
+kubectl create -f k8s/deployments/simoc_db_environment.yaml
+kubectl create -f k8s/deployments/simoc_flask_server.yaml
+kubectl create -f k8s/deployments/simoc_celery_cluster.yaml
+kubectl create -f k8s/autoscalers/simoc_flask_autoscaler.yaml
+kubectl create -f k8s/autoscalers/simoc_celery_autoscaler.yaml
+kubectl create -f k8s/services/simoc_flask_service.yaml
+kubectl create -f k8s/ingresses/simoc_flask_ingress.yaml
 ```
 
 #### 10. Initialize `MySQL` database
@@ -291,8 +291,8 @@ docker push gcr.io/$GCP_PROJECT_ID/simoc_celery:latest
 
 #### 5. Re-deploy `SIMOC` backend using new images:
 ```bash
-kubectl replace --force -f deployment_templates/deployments/simoc_flask_server.yaml
-kubectl replace --force -f deployment_templates/deployments/simoc_celery_cluster.yaml
+kubectl replace --force -f k8s/deployments/simoc_flask_server.yaml
+kubectl replace --force -f k8s/deployments/simoc_celery_cluster.yaml
 ```
 
 ### Reset and re-deploy `MySQL` 
