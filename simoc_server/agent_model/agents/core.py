@@ -500,7 +500,7 @@ class GeneralAgent(EnclosedAgent):
                                   "agent_id": self.unique_id,
                                   "direction": prefix,
                                   "currency_type_id": currency_type.id,
-                                  "value": step_value.magnitude.tolist() / self.amount,
+                                  "value": step_value.magnitude.tolist(),
                                   "unit": str(step_value.units),
                                   "storage_type_id": storage.agent_type_id,
                                   "storage_agent_id": storage.unique_id,
