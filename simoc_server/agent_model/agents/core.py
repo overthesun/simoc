@@ -455,58 +455,57 @@ class GeneralAgent(EnclosedAgent):
                             continue
                 deprive_value = deprive_value or 0.0
                 step_value = self.get_step_value(attr) / num_of_storages
-                if step_value > 0:
-                    for storage in self.selected_storage[prefix][currency]:
-                        storage_cap = storage['char_capacity_' + currency]
-                        attr_name = 'char_capacity_' + currency
-                        storage_unit = storage.attr_details[attr_name]['units']
-                        storage_value = pq.Quantity(storage[currency], storage_unit)
-                        step_value.units = storage_unit
-                        if prefix == 'out':
-                            new_storage_value = storage_value + step_value
-                        elif prefix == 'in':
-                            new_storage_value = storage_value - step_value
-                        else:
-                            raise Exception('Unknown flow type. Neither Input nor Output.')
-                        new_storage_value = new_storage_value.magnitude.tolist()
-                        if new_storage_value < 0 <= storage_value:
-                            if deprive_value > 0:
-                                if deprive_unit == 'min':
-                                    delta_per_step = hours_per_step * 60
-                                elif deprive_unit == 'hour':
-                                    delta_per_step = hours_per_step
-                                elif deprive_unit == 'day':
-                                    delta_per_step = hours_per_step / int(self.model.day_length_hours)
-                                else:
-                                    raise Exception('Unknown agent deprive_unit value.')
-                                self.deprive[currency] -= delta_per_step
-                                if self.deprive[currency] < 0:
-                                    self.kill('There is no enough {} for {}. Killing the agent'.format(
-                                        currency, self.agent_type))
-                            if is_required == 'True':
-                                return
+                for storage in self.selected_storage[prefix][currency]:
+                    storage_cap = storage['char_capacity_' + currency]
+                    attr_name = 'char_capacity_' + currency
+                    storage_unit = storage.attr_details[attr_name]['units']
+                    storage_value = pq.Quantity(storage[currency], storage_unit)
+                    step_value.units = storage_unit
+                    if prefix == 'out':
+                        new_storage_value = storage_value + step_value
+                    elif prefix == 'in':
+                        new_storage_value = storage_value - step_value
+                    else:
+                        raise Exception('Unknown flow type. Neither Input nor Output.')
+                    new_storage_value = new_storage_value.magnitude.tolist()
+                    if new_storage_value < 0 <= storage_value:
+                        if deprive_value > 0:
+                            if deprive_unit == 'min':
+                                delta_per_step = hours_per_step * 60
+                            elif deprive_unit == 'hour':
+                                delta_per_step = hours_per_step
+                            elif deprive_unit == 'day':
+                                delta_per_step = hours_per_step / int(self.model.day_length_hours)
                             else:
-                                storage[currency] = 0
+                                raise Exception('Unknown agent deprive_unit value.')
+                            self.deprive[currency] -= delta_per_step
+                            if self.deprive[currency] < 0:
+                                self.kill('There is no enough {} for {}. Killing the agent'.format(
+                                    currency, self.agent_type))
+                        if is_required == 'True':
+                            return
                         else:
-                            storage[currency] = min(new_storage_value, storage_cap)
-                            if prefix == 'in':
-                                influx.append(currency)
-                            if deprive_value > 0:
-                                self.deprive[currency] = deprive_value
-                        currency_type = CurrencyType.query.filter_by(name=currency).first()
-                        record = {"step_num": self.model.step_num,
-                                  "user_id": self.model.user_id,
-                                  "agent_type_id": self.agent_type_id,
-                                  "agent_id": self.unique_id,
-                                  "direction": prefix,
-                                  "currency_type_id": currency_type.id,
-                                  "value": step_value.magnitude.tolist(),
-                                  "unit": str(step_value.units),
-                                  "storage_type_id": storage.agent_type_id,
-                                  "storage_agent_id": storage.unique_id,
-                                  "storage_id": storage.id}
-                        for i in range(self.amount):
-                            self.model.step_records_buffer.append(record)
+                            storage[currency] = 0
+                    else:
+                        storage[currency] = min(new_storage_value, storage_cap)
+                        if prefix == 'in':
+                            influx.append(currency)
+                        if deprive_value > 0:
+                            self.deprive[currency] = deprive_value
+                    currency_type = CurrencyType.query.filter_by(name=currency).first()
+                    record = {"step_num": self.model.step_num,
+                              "user_id": self.model.user_id,
+                              "agent_type_id": self.agent_type_id,
+                              "agent_id": self.unique_id,
+                              "direction": prefix,
+                              "currency_type_id": currency_type.id,
+                              "value": step_value.magnitude.tolist(),
+                              "unit": str(step_value.units),
+                              "storage_type_id": storage.agent_type_id,
+                              "storage_agent_id": storage.unique_id,
+                              "storage_id": storage.id}
+                    for i in range(self.amount):
+                        self.model.step_records_buffer.append(record)
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model

@@ -122,12 +122,12 @@ def convert_configuration(game_config):
     },
         "storages":               {
             "air_storage":      [
-                {"id":       1, "atmo_h2o": 10, "atmo_o2": 2100, "atmo_co2": 3.5, "atmo_n2": 7886,
-                 "atmo_ch4": 0.009531,
-                 "atmo_h2":  0.005295}],
-            "water_storage":    [{"id": 1, "h2o_potb": 5000, "h2o_tret": 1000},
-                                 {"id": 2, "h2o_potb": 4000, "h2o_wste": 100, "h2o_urin": 100}],
-            "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
+                {"id":       1, "atmo_h2o": 1000, "atmo_o2": 1000, "atmo_co2": 1000, "atmo_n2": 1000,
+                 "atmo_ch4": 1000,
+                 "atmo_h2":  1000}],
+            "water_storage":    [{"id": 1, "h2o_potb": 1000, "h2o_tret": 1000},
+                                 {"id": 2, "h2o_potb": 1000, "h2o_wste": 1000, "h2o_urin": 1000}],
+            "nutrient_storage": [{"id": 1, "sold_n": 1000, "sold_p": 1000, "sold_k": 1000}],
             "power_storage":    [],
             "food_storage":     []},
         "termination":            [
@@ -177,7 +177,7 @@ def convert_configuration(game_config):
     for y in range(1, int(power_storage_amount) + 1):
         power_connections.append(y)
         full_game_config["storages"]["power_storage"].append(
-            {"id": y, "enrg_kwh": 0})
+            {"id": y, "enrg_kwh": 1000})
 
 
     #Here, agents from agents_to_assign_power_storage are assigned with only a power_storage connection.
