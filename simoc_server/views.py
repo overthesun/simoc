@@ -198,6 +198,8 @@ def get_steps():
         agent_model_state = parse_step_data(model_record_data,parse_filters,step_record_data)
         if "total_agent_mass" in input:
             agent_model_state["total_agent_mass"] = sum_agent_values_in_step(input["total_agent_mass"],
+                                                                             'biomass_totl',
+                                                                             'out',
                                                                              step_record_data)
         if "total_agent_count" in input:
             agent_model_state["total_agent_count"] = count_agents_in_step(input["total_agent_count"],

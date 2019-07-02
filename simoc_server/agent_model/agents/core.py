@@ -290,8 +290,6 @@ class GeneralAgent(EnclosedAgent):
                 max_threshold *= self.model.day_length_hours
                 scale = lifetime_growth_scale or None
                 steepness = lifetime_growth_steepness or None
-                if steepness:
-                    steepness /= self.model.day_length_hours
                 invert = bool(lifetime_growth_invert)
                 noise = bool(lifetime_growth_noise)
                 kwargs = {'agent_value': agent_value,
@@ -318,8 +316,6 @@ class GeneralAgent(EnclosedAgent):
                 max_threshold *= self.model.day_length_hours
                 scale = daily_growth_scale or None
                 steepness = daily_growth_steepness or None
-                if steepness:
-                    steepness /= self.model.day_length_hours
                 invert = bool(daily_growth_invert)
                 noise = bool(daily_growth_noise)
                 for i in range(0, num_values, day_length):
@@ -444,7 +440,6 @@ class GeneralAgent(EnclosedAgent):
         influx = []
         for prefix in ['in', 'out']:
             for currency in self.selected_storage[prefix]:
-                log = False
                 attr = '{}_{}'.format(prefix, currency)
                 num_of_storages = len(self.selected_storage[prefix][currency])
                 if num_of_storages == 0:
@@ -491,30 +486,27 @@ class GeneralAgent(EnclosedAgent):
                             if is_required == 'True':
                                 return
                             else:
-                                log = True
                                 storage[currency] = 0
                         else:
-                            log = True
                             storage[currency] = min(new_storage_value, storage_cap)
                             if prefix == 'in':
                                 influx.append(currency)
                             if deprive_value > 0:
                                 self.deprive[currency] = deprive_value
-                        if log:
-                            currency_type = CurrencyType.query.filter_by(name=currency).first()
-                            record = {"step_num": self.model.step_num,
-                                      "user_id": self.model.user_id,
-                                      "agent_type_id": self.agent_type_id,
-                                      "agent_id": self.unique_id,
-                                      "direction": prefix,
-                                      "currency_type_id": currency_type.id,
-                                      "value": step_value.magnitude.tolist() / self.amount,
-                                      "unit": str(step_value.units),
-                                      "storage_type_id": storage.agent_type_id,
-                                      "storage_agent_id": storage.unique_id,
-                                      "storage_id": storage.id}
-                            for i in range(self.amount):
-                                self.model.step_records_buffer.append(record)
+                        currency_type = CurrencyType.query.filter_by(name=currency).first()
+                        record = {"step_num": self.model.step_num,
+                                  "user_id": self.model.user_id,
+                                  "agent_type_id": self.agent_type_id,
+                                  "agent_id": self.unique_id,
+                                  "direction": prefix,
+                                  "currency_type_id": currency_type.id,
+                                  "value": step_value.magnitude.tolist() / self.amount,
+                                  "unit": str(step_value.units),
+                                  "storage_type_id": storage.agent_type_id,
+                                  "storage_agent_id": storage.unique_id,
+                                  "storage_id": storage.id}
+                        for i in range(self.amount):
+                            self.model.step_records_buffer.append(record)
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model

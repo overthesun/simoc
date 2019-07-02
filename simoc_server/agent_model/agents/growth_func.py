@@ -98,7 +98,7 @@ def get_sigmoid_curve(num_values, min_value, max_value, steepness, center=None, 
     assert min_value is not None
     assert max_value is not None
     assert steepness is not None
-    center = center or num_values / 2
+    center = center or num_values // 2
     x = np.linspace(0, num_values, num_values)
     y = ((max_value - min_value) / (1. + np.exp(-steepness * (x - center)))) + min_value
     y = MinMaxScaler((min_value, max_value)).fit_transform(y.reshape(-1, 1))
@@ -122,10 +122,10 @@ def optimize_sigmoid_curve_mean(mean_value, num_values, center, min_value,
         steepness, max_value = args
         y = _get_sigmoid_curve(steepness=steepness, max_value=max_value)
         rmse = np.sqrt(np.abs(mean_value - np.mean(y)) ** 2)
-        return rmse / mean_value + mean_value / max_value
+        return (rmse / mean_value) + (steepness / num_values)
 
     x0 = np.array([num_values / 2, mean_value])
-    res = minimize(_loss, x0, bounds=Bounds([1e-10, 1e-10], [1e10, 1e10]), options={'disp': False})
+    res = minimize(_loss, x0, bounds=Bounds([1e-2, 1e-10], [num_values / 2, 1e10]), options={'disp': False})
     return {'steepness': res.x[0], 'max_value': res.x[1]}
 
 

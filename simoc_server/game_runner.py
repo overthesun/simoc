@@ -223,6 +223,7 @@ class GameRunner(object):
                           agent_type_counts_buffer,
                           storage_capacities_buffer,
                           agent_model.step_records_buffer)
+            agent_model.step_records_buffer = []
 
         step_loop(self.agent_model)
         self.reset_last_accessed()

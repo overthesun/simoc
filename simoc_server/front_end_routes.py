@@ -330,13 +330,17 @@ def count_agents_in_step(agent_names,step_record_data):
 
     step_data = step_record_data.all()
 
+    agent_ids = set()
     for step in step_data:
         if step.agent_type.name in agent_names:
-            output[step.agent_type.name] += 1
+            if step.agent_id not in agent_ids:
+                agent_ids.add(step.agent_id)
+                output[step.agent_type.name] += 1
 
     return output
 
-def sum_agent_values_in_step(agent_names,step_record_data):
+
+def sum_agent_values_in_step(agent_names, currency_type_name, direction, step_record_data):
     """ 
     Sum the values for this agent
 
@@ -352,7 +356,11 @@ def sum_agent_values_in_step(agent_names,step_record_data):
     for agent_name in agent_names:
         output[agent_name] = {}
 
-    step_data = step_record_data.all()
+    currency_type = CurrencyType.query.filter_by(name=currency_type_name).first()
+    step_data = step_record_data \
+        .filter_by(currency_type=currency_type) \
+        .filter_by(direction=direction) \
+        .all()
 
     for step in step_data:
         if step.agent_type.name in agent_names:
