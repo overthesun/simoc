@@ -147,7 +147,7 @@ def convert_configuration(game_config):
             full_game_config[labeldc] = game_config[labeldc]
 
     #Assign termination values
-    if (game_config["duration"]):
+    if ("duration" in game_config):
         duration = {
             "condition": "time",
             "value":     game_config["duration"]["value"],
@@ -182,14 +182,14 @@ def convert_configuration(game_config):
 
     #Here, agents from agents_to_assign_power_storage are assigned with only a power_storage connection.
     for labelps in agents_to_assign_power_storage:
-        if (game_config[labelps]):
+        if (labelps in game_config):
             amount = 1 if not "amount" in game_config[labelps] else game_config[labelps]["amount"]
             full_game_config["agents"][game_config[labelps]] = [
                 {"connections": {"power_storage": [1]}, "amount": amount}]
 
 
     #If you must rename it, it needs its own if statement.
-    if (game_config["solar_arrays"]):
+    if ("solar_arrays" in game_config):
         full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {
             "power_storage": [1]}, "amount":                                 game_config[
                                                                                  "solar_arrays"][
