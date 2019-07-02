@@ -65,7 +65,7 @@ def optimize_bell_curve_mean(mean_value, num_values, center, min_value, invert,
         rmse = np.sqrt(
             (np.abs(mean_value - np.mean(y)) +
              np.abs(y[0] - min_value)
-             + np.abs(y[-1] - min_value)) ** 2)
+             + np.abs(y[-1] - min_value)) ** 2) + scale / mean_value
         return rmse
 
     x0 = np.array([num_values / 2, mean_value])
