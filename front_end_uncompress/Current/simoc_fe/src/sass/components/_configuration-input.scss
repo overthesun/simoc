@@ -1,0 +1,69 @@
+.form-wrapper{
+    width:100%;
+    height:100%;
+}
+
+.input-wrapper{
+    width:100%;
+    height:auto;
+    min-height:96px;    
+    display:grid;
+    grid-template-rows: auto minmax(16px,auto) 36px;
+    grid-row-gap: 12px;
+    position:relative;
+
+    &:not(:last-of-type){
+        margin-bottom: 32px;
+    }
+}
+
+.input-title{
+    font-size:24px;
+    font-weight: 600;
+    color: lightgreen;
+    text-decoration: underline;
+
+    &:hover{
+        cursor:pointer;
+    }
+}
+
+.input-description{
+    font-size: 16px;
+    font-weight: 400px;
+    color:#eee;
+}
+
+
+.input-field-text{
+    height: 36px;
+    margin-bottom: 24px;
+    outline:none;
+    padding: 8px 8px;
+    width: 256px;
+    border-radius: 8px;
+    border:none;
+    box-sizing: border-box;
+    font-weight: 600;
+}
+
+.input-field-number{
+    height: 36px;
+    outline:none;
+    padding: 8px 8px;
+    width: 96px;
+    border-radius: 8px;
+    border:none;
+    box-sizing: border-box;
+    font-weight: 600;       
+}
+
+.input-field-select{
+    height: 36px;
+    padding: 8px 8px;
+    width: fit-content;
+    border-radius:8px;
+    border:none;
+    box-sizing:border-box;
+    font-weight: 600; 
+}

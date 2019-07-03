@@ -1,0 +1,87 @@
+@import '../../sass/mediaqueries';
+@import "../../sass/divider";
+
+.session-wrapper--form{
+    background-color: rgba(#1e1e1e,.75);
+}
+
+    .logo{
+        width: 64px; 
+        height: auto;
+    }
+
+    .title-wrapper{
+        margin: 0px 16px;        
+        font-weight: 200;
+        font-size: 1.25rem;
+    }
+
+    .title--italic{
+        font-weight: 600;
+        font-style:italic;
+        font-size: 2rem;
+    }
+
+    .footer,.navigation-wrapper{
+       
+        display:flex;
+        align-items:center;
+    }
+
+    .navigation-wrapper{
+        width: 11rem;
+        border: 2px solid #eee;
+        padding: 4px 8px;
+        border-radius: 12px;
+
+        &--left{
+            margin-right: auto;
+            justify-content: flex-start;
+        }
+    
+        &--right{
+            margin-left: auto;
+            justify-content: flex-end;
+        }
+
+        @include for-touchscreen-only{
+            &:focus{
+                color: #eee;
+                background-color: #0099cc;
+            }
+        }
+    
+        @include for-pointer-only{
+            &:hover{
+                color: #eee; 
+                //background-color: #0092cc;
+                animation: hover-pulse 1s cubic-bezier(0,0,.02,.93) forwards;
+            }
+        }
+    }
+
+    .footer{
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .navigation-icon{
+        font-size: 2.5rem;
+    }
+
+    .navigation-title{
+        margin: 0px 16px;
+        font-size: 1.25rem;
+        font-weight: 200;
+        font-style:italic;
+    }
+
+    @keyframes hover-pulse{
+        100%{
+            background-color: rgba(#999,.2); 
+        }
+    
+        0%{
+            background-color: rgba(#999,1);
+        }
+    }

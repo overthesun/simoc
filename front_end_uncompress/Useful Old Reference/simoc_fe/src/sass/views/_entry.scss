@@ -1,0 +1,16 @@
+@import "../sass/mediaqueries";
+
+.entry-wrapper{
+    width:600px;
+    height: 100%;   
+    min-height: 100vh;
+    font-family: 'open sans'; //Needs to be changed for a theme
+    margin: 0 auto;  
+    padding: 0px 32px;
+    box-sizing: border-box;
+    background: rgba(#1e1e1e,.75);
+    border-right: 1px solid #4c4c4c;
+    border-left: 1px solid #4c4c4c;
+    position: relative;
+}
+

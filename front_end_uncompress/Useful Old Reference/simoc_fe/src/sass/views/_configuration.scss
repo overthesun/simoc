@@ -1,0 +1,23 @@
+@import "../sass/mediaqueries";
+
+.configuration-wrapper{
+    width: 100vw;
+    max-width: 1024px;
+    height: 100%;
+    min-height: 100vh;
+    font-family: 'open sans';
+    margin: 0 auto;
+    box-sizing: border-box;
+    border-right: 1px solid #4c4c4c;
+    border-left: 1px solid #4c4c4c;
+    //display:grid;
+    //grid-template-columns: 1fr 1fr;
+    //grid-template-areas: "form wiki";
+    display: flex;
+    justify-content: center;
+    align-items:center;
+
+    @include for-desktop-up{
+        width: 1024px;
+    }
+}

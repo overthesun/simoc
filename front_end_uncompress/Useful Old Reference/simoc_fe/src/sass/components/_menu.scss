@@ -1,0 +1,99 @@
+@import '../../sass/mediaqueries';
+@import "../../sass/divider";
+
+.content-wrapper{ 
+    margin: 0 auto;
+    width: 600px;
+    height: 100%;
+    padding: 16px 0px 16px 0px;
+}
+
+.header,.main,.footer,.footer-divider--solid,.footer-links-wrapper{
+    width: 100%;
+}
+
+.content-wrapper,.header,.main,.footer,.footer-links-wrapper{
+    display:flex;
+}
+
+.content-wrapper,.header,.main,.footer,.footer-links-wrapper{
+    align-items: center;
+}
+
+.content-wrapper,.header,.main,.footer{
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.header-message{
+    font-size: 1.5rem;
+    font-weight: 200;
+    margin-bottom: 32px;
+    text-decoration: underline;
+}
+
+.footer{
+    margin-top: auto;
+    justify-content:center;
+}
+
+.footer-links-wrapper{
+    justify-content: space-around;
+}
+
+.footer-link{
+    color: #636363;
+    text-decoration: underline;
+}
+
+.footer-divider--solid{
+    @include horizontal-centered-line;
+    margin: 24px 0px;
+}
+
+.menu-btn{
+    border-radius: 12px;
+    padding: 12px 0px;
+    width: 23rem;
+    font-size: 1.125rem;
+    //background-color: #eee;
+    background-color:transparent;
+    border: 2px solid #eee;
+    color: #eee;
+    
+    @include for-touchscreen-only{
+        &:focus{
+            color: #eee;
+            background-color: #0099cc;
+        }
+    }
+
+    @include for-pointer-only{
+        &:hover{
+            //background-color: #0092cc;
+            animation: hover-pulse 1s cubic-bezier(0,0,.02,.93) forwards;
+        }
+    }
+
+    &:focus{
+        outline:none;
+    }
+}
+
+.menu-btn--main{
+    margin: 8px 0px;
+}
+
+.menu-btn--logout{
+    color:#f42929;
+}
+
+@keyframes hover-pulse{
+    100%{
+        background-color: rgba(#999,.2); 
+    }
+
+    0%{
+        background-color: rgba(#999,1);
+    }
+}

@@ -1,0 +1,17 @@
+@import '../sass/mediaqueries';
+@import "../sass/divider";
+
+.menu-wrapper{
+    width: 100vw;
+    min-width: 100vw;
+    height:512px;
+    font-family:'open sans';
+    margin: auto 0;
+    box-sizing: border-box;
+    background: rgba(#1e1e1e,.75);
+    border-top: 1px solid #4c4c4c;
+    border-bottom: 1px solid #4c4c4c;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}

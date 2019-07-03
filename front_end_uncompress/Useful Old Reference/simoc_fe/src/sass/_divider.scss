@@ -1,0 +1,54 @@
+@mixin horizontal-centered-line-word{
+    overflow:hidden;
+    text-align:center;
+
+    &:before,&:after{
+        background-color: #a3a3a3;;
+        content:"";
+        display:inline-block;
+        height: 1px;
+        position: relative;
+        vertical-align:middle;
+        width:50%;
+    }
+
+    &:before{
+        right: .5rem;
+        margin-left: -50%;
+    }
+
+    &:after{
+        left: .5rem;
+        margin-right: -50%;
+    }
+}
+
+@mixin horizontal-centered-line{
+    
+    overflow:hidden;
+    text-align:center;
+
+    &:before{
+        background-color: #a3a3a3;
+        content:"";
+        display:inline-block;
+        height: 1px;
+        position: relative;
+        vertical-align: middle;
+        width: 100%;
+    }
+}
+
+@mixin vertical-centered-line{
+    overflow:hidden;
+    text-align:center;
+
+    &:before{
+        background-color: #a3a3a3;
+        content:"";
+        display:inline-block;
+        height: 100%;
+        position: relative;
+        width: 1px;
+    }
+}

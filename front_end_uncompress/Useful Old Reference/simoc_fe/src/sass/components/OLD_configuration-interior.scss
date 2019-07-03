@@ -1,0 +1,115 @@
+@import "../sass/mediaqueries";
+
+.interior-wrapper,.header,.main,.footer{
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.header{
+    margin-bottom: 24px;
+
+    @include for-desktop-up{
+        margin-bottom: 48px;
+    }
+}
+
+.header{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.header-message-wrapper{
+    margin: 0px 16px;
+    font-weight: 200;
+}
+
+.header-title--italic{
+    font-style:italic;
+}
+
+.menu--icon{
+    margin-left: auto;
+    font-size: 2.5rem;
+}
+
+.interior-wrapper{
+    height: 100%;
+    min-height: 100%;
+    padding: 16px 0px 16px 0px;
+}
+
+.interior-wrapper{
+    display:flex;
+    flex-direction: column;
+}
+
+.logo{
+    width: 48px;
+    height: 48px;
+}
+
+.footer{
+    margin-top: auto;
+}
+
+.footer-wrapper{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    grid-row-gap: 18px; 
+    grid-template-areas:'previous-title next-title' 'previous-btn next-btn';
+
+    *{
+        margin: 0 auto;
+    }
+}
+
+.button-title{
+    &--previous{
+        grid-area:previous-title;
+    }
+
+    &--next{
+        grid-area:next-title;
+    }
+}
+
+.btn-navigation{
+    border-radius: 12px;
+    padding: 12px 0px;
+    width: 15rem;
+    font-size: 1.125rem;
+    background-color: #eee;
+    border:none;
+
+    @include for-touchscreen-only{
+        &:focus{
+            color: #eee;
+            background-color: #0099cc;
+        }
+    }
+
+    @include for-pointer-only{
+        &:hover{
+            color: #eee; 
+            background-color: #0092cc;
+        }
+    }
+
+    &:focus{
+        outline:none;
+    }
+
+    &--previous{
+        grid-area: previous-btn;
+    }
+
+    &--next{
+        grid-area: next-btn;
+    }
+
+    &--cancel:hover{
+        background-color: red;
+    }
+}

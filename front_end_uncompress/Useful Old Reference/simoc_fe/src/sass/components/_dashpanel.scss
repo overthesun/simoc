@@ -1,0 +1,40 @@
+.panel{    
+    background: rgba(#1e1e1e,.85);
+    border: 1px solid #4c4c4c;
+    height: 100%;
+    flex: 1 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    box-sizing: border-box;
+    margin: 0px 8px;
+
+    display: grid;
+    grid-template-rows: 18px 1fr 1fr 1fr;
+    grid-row-gap: 16px;
+    grid-template-areas: "title" "panel" "panel" "panel"
+}
+
+.title{
+    grid-area: title;
+}
+
+.interior,.title{
+    height: 100%;
+    width: 100%;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    &:after{
+        content:"";
+
+        width: 100%;
+        border-bottom: 1px solid #4c4c4c;
+        position: absolute;
+        left:0;
+        top: 100%;
+        margin-top: 8px;
+    }
+}
