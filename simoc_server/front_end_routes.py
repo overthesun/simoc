@@ -201,7 +201,7 @@ def convert_configuration(game_config):
             y[0]["amount"] = game_config[x]["amount"]
 
     #Plants are treated separately because its a list of items which must be assigned as agents
-    if (game_config["plants"]):
+    if "plants" in game_config:
         for plant in game_config["plants"]:
             full_game_config["agents"][plant["species"]] = [
                 {"connections": {"air_storage": [1], "water_storage": [
@@ -216,7 +216,7 @@ def convert_configuration(game_config):
         if "food_storage" in y[0]["connections"]:
             y[0]["connections"]["food_storage"] = food_connections
 
-    return (full_game_config)
+    return full_game_config
 
 
 def calc_step_in_out(direction,currencies,step_record_data):
