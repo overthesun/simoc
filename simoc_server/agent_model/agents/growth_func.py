@@ -10,7 +10,7 @@ from scipy.optimize import Bounds
 np.seterr(over='ignore')
 
 
-def get_bell_curve(num_values, min_value, max_value, scale, center=None, invert=False,
+def get_bell_curve(num_values, min_value, max_value, scale=0.1, center=None, invert=False,
                    noise=False, noise_factor=10.0, clip=False, **kwargs):
     """TODO
 
@@ -36,11 +36,10 @@ def get_bell_curve(num_values, min_value, max_value, scale, center=None, invert=
     assert min_value is not None
     assert max_value is not None
     assert scale is not None
-    center = center or num_values / 2
-    x = np.linspace(0, num_values, num_values)
-    y = norm.pdf(x, center, scale)
-    y = MinMaxScaler((min_value, max_value)).fit_transform(y.reshape(-1, 1))
-    y = y.reshape(num_values)
+    center = center or num_values // 2
+    x0 = np.linspace(0, 1, num_values)
+    y = norm.pdf(x0, x0[center], scale)
+    y = MinMaxScaler((min_value, max_value)).fit_transform(y.reshape(-1, 1)).reshape(num_values)
     if invert:
         y = -1 * y
         y = y + max_value + min_value
@@ -59,23 +58,20 @@ def optimize_bell_curve_mean(mean_value, num_values, center, min_value, invert,
                                         min_value=min_value, invert=invert, noise=noise,
                                         noise_factor=noise_factor)
 
-    def _loss(args):
-        scale, max_value = args[0], args[1]
-        y = _get_bell_curve(scale=scale, max_value=max_value)
+    def _loss(max_value):
+        y = _get_bell_curve(max_value=max_value)
         rmse = np.sqrt(
             (np.abs(mean_value - np.mean(y)) +
              np.abs(y[0] - min_value)
-             # + np.abs(y[-1] - min_value)) ** 2) + scale / mean_value
              + np.abs(y[-1] - min_value)) ** 2)
         return rmse
 
-    x0 = np.array([num_values / 2, mean_value])
-    res = minimize(_loss, x0, bounds=Bounds([1e-10, min_value+1e-10], [1e10, 1e10]), options={'disp': False})
-    return {'scale': res.x[0], 'max_value': res.x[1]}
+    res = minimize(_loss, mean_value, bounds=[[1e-8, 1e8]], options={'disp': False})
+    return {'max_value': res.x[0]}
 
 
-def get_sigmoid_curve(num_values, min_value, max_value, steepness, center=None, noise=False,
-                      noise_factor=10.0, clip=False, **kwargs):
+def get_sigmoid_curve(num_values, min_value, max_value, steepness=1.0, center=None, noise=False,
+                      noise_factor=10.0, width=10, clip=False, **kwargs):
     """TODO
 
     TODO
@@ -88,6 +84,7 @@ def get_sigmoid_curve(num_values, min_value, max_value, steepness, center=None, 
       steepness: float, TODO
       noise: bool, TODO
       noise_factor: float, TODO
+      width: int, TODO
       clip: bool, TODO
       kwargs: Dict, unused arguments.
 
@@ -100,10 +97,9 @@ def get_sigmoid_curve(num_values, min_value, max_value, steepness, center=None, 
     assert max_value is not None
     assert steepness is not None
     center = center or num_values // 2
-    x = np.linspace(0, num_values, num_values)
-    y = ((max_value - min_value) / (1. + np.exp(-steepness * (x - center)))) + min_value
-    y = MinMaxScaler((min_value, max_value)).fit_transform(y.reshape(-1, 1))
-    y = y.reshape(num_values)
+    x0 = np.linspace(-width, width, num_values)
+    y = 1 / (1. + np.exp(-steepness * (x0 - x0[center])))
+    y = MinMaxScaler((min_value, max_value)).fit_transform(y.reshape(-1, 1)).reshape(num_values)
     if noise:
         noise = np.random.normal(0, y.std() / noise_factor, num_values)
         y += noise

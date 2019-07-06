@@ -168,7 +168,7 @@ def import_agents(agents, agent_class):
                                 'lifetime_growth_steepness': lifetime_growth_steepness}
                 AgentTypeAttributeDetails(**attr_details)
     util.add_all(agent_data)
-    calculate_growth_coef()
+    # calculate_growth_coef()
 
 
 def seed(config_file):
