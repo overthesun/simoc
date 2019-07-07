@@ -288,21 +288,21 @@ class GeneralAgent(EnclosedAgent):
                 min_threshold *= self.model.day_length_hours
                 max_threshold = lifetime_growth_max_threshold or 0.0
                 max_threshold *= self.model.day_length_hours
-                scale = lifetime_growth_scale or None
-                steepness = lifetime_growth_steepness or None
                 invert = bool(lifetime_growth_invert)
                 noise = bool(lifetime_growth_noise)
                 kwargs = {'agent_value': agent_value,
                           'num_values': num_values,
                           'growth_type': lifetime_growth_type,
                           'min_value': start_value,
-                          'min_threshold': min_threshold,
-                          'max_threshold': max_threshold,
+                          'min_threshold': int(min_threshold),
+                          'max_threshold': int(max_threshold),
                           'center': center,
                           'noise': noise,
-                          'invert': invert,
-                          'steepness': steepness,
-                          'scale': scale}
+                          'invert': invert}
+                if lifetime_growth_scale:
+                    kwargs['scale'] = lifetime_growth_scale
+                if lifetime_growth_steepness:
+                    kwargs['steepness'] = lifetime_growth_steepness
                 self.step_values[attr] = growth_func.get_growth_values(**kwargs)
             else:
                 self.step_values[attr] = np.ones(num_values) * agent_value
@@ -314,8 +314,6 @@ class GeneralAgent(EnclosedAgent):
                 min_threshold *= self.model.day_length_hours
                 max_threshold = daily_growth_max_threshold or 0.0
                 max_threshold *= self.model.day_length_hours
-                scale = daily_growth_scale or None
-                steepness = daily_growth_steepness or None
                 invert = bool(daily_growth_invert)
                 noise = bool(daily_growth_noise)
                 for i in range(0, num_values, day_length):
@@ -335,13 +333,15 @@ class GeneralAgent(EnclosedAgent):
                               'num_values': day_length,
                               'growth_type': daily_growth_type,
                               'min_value': start_value,
-                              'min_threshold': min_threshold,
-                              'max_threshold': max_threshold,
+                              'min_threshold': int(min_threshold),
+                              'max_threshold': int(max_threshold),
                               'center': center,
                               'noise': noise,
-                              'invert': invert,
-                              'steepness': steepness,
-                              'scale': scale}
+                              'invert': invert}
+                    if daily_growth_scale:
+                        kwargs['scale'] = daily_growth_scale
+                    if daily_growth_steepness:
+                        kwargs['steepness'] = daily_growth_steepness
                     if start_value == agent_value:
                         self.step_values[attr][i:i+day_length] = np.ones(day_length) * agent_value
                     else:
