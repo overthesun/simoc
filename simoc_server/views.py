@@ -1,5 +1,6 @@
 import json
 from collections import OrderedDict
+import time
 
 from flask import request, render_template
 from flask_cors import CORS
@@ -183,19 +184,26 @@ def get_steps():
         .filter_by(user_id=user.id) \
         .filter_by(game_id=game_id) \
         .filter(ModelRecord.step_num >= min_step_num) \
-        .filter(ModelRecord.step_num <= max_step_num)
+        .filter(ModelRecord.step_num <= max_step_num).all()
 
     step_record_steps = StepRecord.query \
         .filter_by(user_id=user.id) \
         .filter_by(game_id=game_id) \
         .filter(StepRecord.step_num >= min_step_num) \
-        .filter(StepRecord.step_num <= max_step_num)
-            
+        .filter(StepRecord.step_num <= max_step_num).all()
+
+    step_record_dict = dict()
+    for record in step_record_steps:
+        if record.step_num not in step_record_dict:
+            step_record_dict[record.step_num] = [record]
+        else:
+            step_record_dict[record.step_num].append(record)
+
     output = {}
     for mri, model_record_data in enumerate(model_record_steps):
         step_num = model_record_data.step_num
-        step_record_data = step_record_steps.filter_by(step_num=step_num)
-        agent_model_state = parse_step_data(model_record_data,parse_filters,step_record_data)
+        step_record_data = step_record_dict[step_num] if step_num in step_record_dict else []
+        agent_model_state = parse_step_data(model_record_data, parse_filters, step_record_data)
         if "total_agent_mass" in input:
             agent_model_state["total_agent_mass"] = sum_agent_values_in_step(input["total_agent_mass"],
                                                                              'biomass_totl',

@@ -113,7 +113,12 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         agent_state = AgentState(**args)
         db.session.add(agent_state)
         if commit:
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+            finally:
+                db.session.close()
 
     def destroy(self):
         """Destroys the agent and removes it from the model"""

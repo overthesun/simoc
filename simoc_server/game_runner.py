@@ -161,7 +161,12 @@ class GameRunner(object):
         saved_game = SavedGame(
             user=self.user, agent_model_snapshot=agent_model_snapshot, name=save_name)
         db.session.add(saved_game)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
         self.last_saved_step = self.agent_model.step_num
         return saved_game
 
@@ -198,7 +203,12 @@ class GameRunner(object):
                 db.session.execute(StorageCapacityRecord.__table__.insert(), storage_capacities,)
             if len(step_records) > 0:
                 db.session.execute(StepRecord.__table__.insert(), step_records,)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+            finally:
+                db.session.close()
 
         def step_loop(agent_model):
             model_records_buffer = []

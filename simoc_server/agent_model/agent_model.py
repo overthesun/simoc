@@ -135,9 +135,9 @@ class AgentModel(Model, AttributeHolder):
         Called from:
             game_runner.py GameRunner.step_to.step_loop
 
-        Returns:
+        Returns
         """
-        record_id = random.randint(1, 1e7)
+        record_id = random.randint(1, 1e8)
         model_record = dict(id=record_id,
                             step_num=self.step_num,
                             user_id=self.user_id,
@@ -377,7 +377,12 @@ class AgentModel(Model, AttributeHolder):
             for agent in self.scheduler.agents:
                 agent.snapshot(agent_model_state, commit=False)
             if commit:
-                db.session.commit()
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                finally:
+                    db.session.close()
             return snapshot
         except StaleDataError:
             app.logger.warning("WARNING: StaleDataError during snapshot, probably a simultaneous"

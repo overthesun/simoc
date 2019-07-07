@@ -10,8 +10,7 @@ import sys
 from flask import request
 
 from simoc_server import app, db
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, CurrencyType,\
-    StorageCapacityRecord, StepRecord
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, StorageCapacityRecord
 
 
 @app.route("/get_mass", methods=["GET"])
@@ -219,7 +218,7 @@ def convert_configuration(game_config):
     return full_game_config
 
 
-def calc_step_in_out(direction,currencies,step_record_data):
+def calc_step_in_out(direction, currencies, step_record_data):
     """ 
     Calculate the total production or total consumption of given currencies for a given step.
 
@@ -237,10 +236,9 @@ def calc_step_in_out(direction,currencies,step_record_data):
     for currency in currencies:
         output[currency] = {}
 
-    step_data = step_record_data.filter_by(direction=direction).all()
-
-    for step in step_data:
-        if step.currency_type.name in currencies:
+    for step in step_record_data:
+        if step.direction == direction \
+                and step.currency_type.name in currencies:
             if len(output[step.currency_type.name]) == 0:
                 output[step.currency_type.name]["value"] = step.value
                 output[step.currency_type.name]["unit"] = step.unit
@@ -250,7 +248,7 @@ def calc_step_in_out(direction,currencies,step_record_data):
     return output
 
 
-def calc_step_storage_ratios(agents,step_record_data):
+def calc_step_storage_ratios(agents, model_record_data):
     """ 
     Calculate the ratio for the requested currencies for the requested <agent_type>_<agent_id>.
 
@@ -260,59 +258,54 @@ def calc_step_storage_ratios(agents,step_record_data):
 
     Output: dictionary of agents, each agent has a dictionary of currency:ratio pairs. e.g. {"air_storage_1": {"atmo_co2": 0.21001018914835098}
     """
-    capacity_data = StorageCapacityRecord.query.filter_by(model_record=step_record_data)
+    capacity_data = StorageCapacityRecord.query.filter_by(model_record=model_record_data).all()
 
     output = {}
     for agent in agents:
         agent_type = agent[:agent.rfind("_")]
         agent_id = int(agent[agent.rfind("_")+1:])
+        capacities = [r for r in capacity_data
+                      if r.agent_type.name == agent_type and r.storage_id == agent_id]
 
-        agent_type = AgentType.query.filter_by(name=agent_type).first()
-        
-        capacities = capacity_data.filter_by(agent_type=agent_type).filter_by(storage_id=agent_id)
-
-        #First, get sum of all currencies
+        # First, get sum of all currencies
         sum = 0
         unit = ""
-        for cap in capacities.all():
+        # for cap in capacities.all():
+        for cap in capacities:
             sum += cap.value
             if unit == "":
                 unit = cap.units
             else:
                 if not cap.units == unit:
-                    sys.exit("ERROR in front_end_routes.calc_step_storage_ratios(). Currencies do not have same units.",unit,cap.unit)
+                    sys.exit("ERROR in front_end_routes.calc_step_storage_ratios()."
+                             "Currencies do not have same units.", unit, cap. unit)
 
         output[agent] = {}
-        #Now, calculate the ratio for specified currencies.
+        # Now, calculate the ratio for specified currencies.
         for currency in agents[agent]:
-            currency_type = CurrencyType.query.filter_by(name=currency).first()
-            c_step_data = capacities.filter_by(currency_type_id=currency_type.id).first()
-            output[agent][currency] = c_step_data.value/sum
+            c_step_data = [r for r in capacities if r.currency_type.name == currency][0]
+            output[agent][currency] = c_step_data.value / sum
 
     return output
 
 
-def parse_step_data(model_record_data,filters,step_record_data):
+def parse_step_data(model_record_data, filters, step_record_data):
     reduced_output = model_record_data.get_data()
     if len(filters) == 0:
         return reduced_output
-
-    agent_logs = step_record_data.all()
-
-    response = {}
-    response['agent_type_counters'] = [i.get_data() for i in model_record_data.agent_type_counters] if "agent_type_counters" in filters else []
-    response['storage_capacities'] = [i.get_data() for i in model_record_data.storage_capacities] if "storage_capacities" in filters else []
-    response['agent_logs'] = [i.get_data() for i in agent_logs] if "agent_logs" in filters else []
-
-    for filter in filters:
-        if not filter in response:
-            print ("WARNING: No parse_filters option",filter,"in game_runner.parse_step_data.")
+    for f in filters:
+        if f == "agent_type_counters":
+            reduced_output[f] = [i.get_data() for i in model_record_data.agent_type_counters]
+        if f == "agent_type_counters":
+            reduced_output[f] = [i.get_data() for i in model_record_data.storage_capacities]
+        if f == "agent_logs":
+            reduced_output[f] = [i.get_data() for i in step_record_data.all()]
         else:
-            reduced_output[filter] = response[filter]
-
+            print(f"WARNING: No parse_filters option {filter} in game_runner.parse_step_data.")
     return reduced_output
 
-def count_agents_in_step(agent_names,step_record_data):
+
+def count_agents_in_step(agent_types, step_record_data):
     """ 
     Count the number of agents matching the agent_name for this step
 
@@ -325,22 +318,20 @@ def count_agents_in_step(agent_names,step_record_data):
     """
     output = {}
 
-    for agent_name in agent_names:
-        output[agent_name] = 0
-
-    step_data = step_record_data.all()
+    for agent_type in agent_types:
+        output[agent_type] = 0
 
     agent_ids = set()
-    for step in step_data:
-        if step.agent_type.name in agent_names:
-            if step.agent_id not in agent_ids:
-                agent_ids.add(step.agent_id)
-                output[step.agent_type.name] += 1
+    for step in step_record_data:
+        if step.agent_type.name in agent_types \
+                and step.agent_id not in agent_ids:
+            agent_ids.add(step.agent_id)
+            output[step.agent_type.name] += 1
 
     return output
 
 
-def sum_agent_values_in_step(agent_names, currency_type_name, direction, step_record_data):
+def sum_agent_values_in_step(agent_types, currency_type_name, direction, step_record_data):
     """ 
     Sum the values for this agent
 
@@ -353,17 +344,13 @@ def sum_agent_values_in_step(agent_names, currency_type_name, direction, step_re
     """
 
     output = {}
-    for agent_name in agent_names:
-        output[agent_name] = {}
+    for agent_type in agent_types:
+        output[agent_type] = {}
 
-    currency_type = CurrencyType.query.filter_by(name=currency_type_name).first()
-    step_data = step_record_data \
-        .filter_by(currency_type=currency_type) \
-        .filter_by(direction=direction) \
-        .all()
-
-    for step in step_data:
-        if step.agent_type.name in agent_names:
+    for step in step_record_data:
+        if step.currency_type.name == currency_type_name \
+                and step.direction == direction \
+                and step.agent_type.name in agent_types:
             if len(output[step.agent_type.name]) == 0:
                 output[step.agent_type.name]["value"] = step.value
                 output[step.agent_type.name]["unit"] = step.unit
