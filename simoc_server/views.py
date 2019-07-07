@@ -1,6 +1,5 @@
 import json
 from collections import OrderedDict
-import time
 
 from flask import request, render_template
 from flask_cors import CORS
