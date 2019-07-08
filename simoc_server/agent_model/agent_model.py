@@ -3,7 +3,7 @@ r"""Describes Agent Model interface and behaviour,
 
 import datetime
 import json
-import random
+import uuid
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
@@ -137,7 +137,7 @@ class AgentModel(Model, AttributeHolder):
 
         Returns
         """
-        record_id = random.randint(1, 1e8)
+        record_id = str(uuid.uuid4())
         model_record = dict(id=record_id,
                             step_num=self.step_num,
                             user_id=self.user_id,

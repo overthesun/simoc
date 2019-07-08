@@ -266,7 +266,7 @@ class StepRecord(BaseEntity):
 
 
 class ModelRecord(BaseEntity):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(50), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship("User")
     start_time = db.Column(db.Integer, nullable=False)
@@ -305,7 +305,7 @@ class ModelRecord(BaseEntity):
 
 class AgentTypeCountRecord(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-    model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False,
+    model_record_id = db.Column(db.String(50), db.ForeignKey("model_record.id"), nullable=False,
                                 index=True)
     model_record = db.relationship("ModelRecord",
                                    backref=db.backref("agent_type_counters", lazy=False,
@@ -322,7 +322,7 @@ class AgentTypeCountRecord(BaseEntity):
 
 class StorageCapacityRecord(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-    model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False,
+    model_record_id = db.Column(db.String(50), db.ForeignKey("model_record.id"), nullable=False,
                                 index=True)
     model_record = db.relationship("ModelRecord",
                                    backref=db.backref("storage_capacities", lazy=False,
