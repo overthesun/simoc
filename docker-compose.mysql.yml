@@ -1,0 +1,51 @@
+version: '3'
+services:
+  simoc-db:
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    image: "mysql/mysql-server"
+  redis:
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    image: "redis"
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile-celery-worker
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      DB_TYPE: ${DB_TYPE}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - simoc-db
+      - redis
+  flask-app:
+    build: .
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      DB_TYPE: ${DB_TYPE}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      WSGI_WORKERS: ${WSGI_WORKERS}
+      APP_PORT: ${APP_PORT}
+    depends_on:
+      - simoc-db
+      - redis

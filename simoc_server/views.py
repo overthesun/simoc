@@ -13,7 +13,9 @@ from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
     calc_step_storage_ratios, parse_step_data, count_agents_in_step, sum_agent_values_in_step
 
+import celery
 from celery_worker import tasks
+from celery_worker.tasks import app as celery_app
 from celery.utils import worker_direct
 
 login_manager = LoginManager()
@@ -226,6 +228,30 @@ def get_steps():
 
     app.logger.info("Success: Step data retrieved.")
     return json.dumps(output)
+
+
+@app.route("/kill_game", methods=["POST"])
+@login_required
+def kill_game():
+    input = json.loads(request.data.decode('utf-8'))
+    if "game_id" not in input:
+        raise ValueError("ERROR: game_id is required as input to views.kill_game() route")
+    game_id = str(input["game_id"])
+    task_id = redis_conn.get('task_mapping:{}'.format(game_id)).decode("utf-8")
+    app.logger.info(f"Success: Get task {task_id}.")
+    celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
+    app.logger.info("Success: Get send kill.")
+    return success("Game killed.")
+
+
+@app.route("/kill_all_games", methods=["POST"])
+@login_required
+def kill_all_games():
+    active_workers = celery_app.control.inspect().active()
+    for worker in active_workers:
+        for task in active_workers[worker]:
+            celery_app.control.revoke(task['id'], terminate=True, signal='SIGKILL')
+    return success("All games killed.")
 
 
 @app.route("/get_step_to", methods=["POST"])

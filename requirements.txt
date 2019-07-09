@@ -7,6 +7,7 @@ gevent
 gunicorn
 mesa
 msgpack-python
+mysql-connector-python
 nose
 numpy
 pytimeparse

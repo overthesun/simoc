@@ -5,11 +5,10 @@ MAINTAINER Iurii Milovanov "duruku@gmail.com"
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python3-pip \
-    python3-setuptools \
-    python3-mysqldb
+    python3-setuptools
 
-COPY ./celery_worker/requirements.txt /simoc/celery_worker/requirements.txt
-RUN python3 -m pip install -r /simoc/celery_worker/requirements.txt
+COPY ./requirements.txt /simoc/requirements.txt
+RUN python3 -m pip install -r /simoc/requirements.txt
 
 COPY . /simoc
 
@@ -22,7 +21,6 @@ ARG DB_PASSWORD
 ARG REDIS_HOST
 ARG REDIS_PORT
 ARG REDIS_PASSWORD
-ARG CELERY_THREADS
 
 ENV DB_TYPE ${DB_TYPE}
 ENV DB_HOST ${DB_HOST}
@@ -33,8 +31,6 @@ ENV DB_PASSWORD ${DB_PASSWORD}
 ENV REDIS_HOST ${REDIS_HOST}
 ENV REDIS_PORT ${REDIS_PORT}
 ENV REDIS_PASSWORD ${REDIS_PASSWORD}
-ENV CELERY_THREADS ${CELERY_THREADS}
-ENV NO_FLASK 1
 
 WORKDIR /simoc
 

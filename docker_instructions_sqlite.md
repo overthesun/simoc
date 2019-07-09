@@ -6,166 +6,116 @@ git clone -b celery_integration git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
-## 2. Follow the official guide to install `Docker`
+## 2. Follow the official guide to set up `Docker` software
 
+Make sure you installed both `Docker Engine` and `Docker Compose` components:
 - https://docs.docker.com/install/
+- https://docs.docker.com/compose/install/
 
-## 3. Create `Docker` network service
-```bash
-docker network create simoc-net
-```
+## 3. Set up the configuration
 
-## 4. Deploy `Redis` container 
-
-Set up `Redis` password (fill in the `REDIS_PASSWORD`):
-```bash
-export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
-```
-
-Start a `Redis` container:
-```bash
-docker run -d \
-    --name=redis \
-    --net=simoc-net \
-    -p 6379:6379 \
-    redis redis-server --requirepass $REDIS_PASSWORD
-```
-
-## 5. Build `Celery Worker` image
-
-Set up `Redis` connection:
+Set up a `Redis` connection details (fill in the `REDIS_PASSWORD` value):
 ```bash
 export REDIS_HOST=redis
 export REDIS_PORT=6379
+export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
-Set up number of threads per `Celery Worker`:
+Set up the number of `Celery Worker` containers to spin up:
 ```bash
-export CELERY_THREADS=2
+export CELERY_WORKERS=2
 ```
 
-Build a `simoc_celery_worker` image:
-```bash
-docker build -f celery_worker/Dockerfile \
-    -t simoc_celery_worker \
-    --build-arg REDIS_HOST=$REDIS_HOST \
-    --build-arg REDIS_PORT=$REDIS_PORT \
-    --build-arg REDIS_PASSWORD=$REDIS_PASSWORD \
-    --build-arg CELERY_THREADS=$CELERY_THREADS .
-```
-
-## 6. Deploy `Celery Worker` container
-```bash
-docker run -d \
-      --name simoc_celery_worker_container \
-      --net=simoc-net \
-      -v "$(pwd)"/sqlite:/simoc/sqlite \
-      simoc_celery_worker
-```
-
-You can deploy multiple `Celery Worker` containers to process tasks in parallel.
-Make sure you use unique container names for each worker (`--name` argument).
-
-## 7. Build `Flask Application` image
-
-Set up `HTTP` port for the `SIMOC` web application:
-```bash
-export APP_PORT=8000
-```
-
-Set up number of threads per `Flask Application` container:
+Set up the number of threads per `Flask Application` container:
 ```bash
 export WSGI_WORKERS=2
 ```
 
-Build a `simoc_flask_sqlite` image:
+Set up the listening `HTTP` port for the `Flask Application`:
 ```bash
-docker build -t simoc_flask_sqlite \
-      --build-arg DB_TYPE=sqlite \
-      --build-arg REDIS_HOST=$REDIS_HOST \
-      --build-arg REDIS_PORT=$REDIS_PORT \
-      --build-arg REDIS_PASSWORD=$REDIS_PASSWORD \
-      --build-arg WSGI_WORKERS=$WSGI_WORKERS \
-      --build-arg APP_PORT=$APP_PORT .
+export APP_PORT=8000
 ```
 
-## 8. Deploy `Flask Application` container
-
+## 4. Build `Docker` images
 ```bash
-docker run -d \
-      --name simoc_flask_container \
-       --net=simoc-net \
-      -v "$(pwd)"/sqlite:/simoc/sqlite \
-      -p $APP_PORT:$APP_PORT \
-      simoc_flask_sqlite
+docker-compose -f docker-compose.sqlite.yml build
 ```
 
-## 9. Initialize `SQLite` database
-
+## 5. Create and start `SIMOC` service
 ```bash
-docker exec -it simoc_flask_container python3 create_db.py
+docker-compose -f docker-compose.sqlite.yml \
+    up -d --scale celery-worker=${CELERY_WORKERS}
 ```
 
+## 6. Initialize `SQLite` database
+```bash
+docker-compose -f docker-compose.sqlite.yml \
+    exec celery-worker python3 create_db.py
+```
 
-## 10. Access `SIMOC` web application
-
+## 7. Access `SIMOC` web application
 Navigate to the following `URL` in your browser to access a `SIMOC` application (change `PORT` if needed):
 - [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 # Debug Deployment
-
 Check out [Docker Cheat Sheet](https://github.com/wsargent/docker-cheat-sheet) for more commands.
 
-Show running containers:
+Show all running `Docker Compose` services:
 
 ```bash
-docker ps
+docker-compose -f docker-compose.sqlite.yml ps
 ```
 
-The output should look similar to the following which means that `SIMOC` is up and running:
+The output should look similar to the following which means that all services are up and running:
 ```bash
-CONTAINER ID        IMAGE                 COMMAND                  CREATED              STATUS              PORTS                    NAMES
-92dbce0e5548        simoc_flask_sqlite    "/bin/bash run.sh"       About a minute ago   Up About a minute   0.0.0.0:8000->8000/tcp   simoc_flask_container
-91c0923f93f6        simoc_celery_worker   "/bin/bash start_wor…"   2 minutes ago        Up 2 minutes                                 simoc_celery_worker_container
-7d92d28881bd        redis                 "docker-entrypoint.s…"   About an hour ago    Up About an hour    0.0.0.0:6379->6379/tcp   redis
+        Name                       Command               State           Ports
+---------------------------------------------------------------------------------------
+simoc_celery-worker_1   /bin/bash start_worker.sh        Up
+simoc_celery-worker_2   /bin/bash start_worker.sh        Up
+simoc_flask-app_1       /bin/bash run.sh                 Up      0.0.0.0:8000->8000/tcp
+simoc_redis_1           docker-entrypoint.sh redis ...   Up      0.0.0.0:6379->6379/tcp
 ```
 
 Show all containers:
-
 ```bash
 docker ps -a
 ```
 
-Fetch logs from a `simoc_flask_container` container:
-
+Fetch logs from all containers:
 ```bash
-docker logs --follow simoc_flask_container
+docker-compose -f docker-compose.sqlite.yml logs -t -f
 ```
 
-Fetch logs from a `simoc_celery_worker_container` container:
-
+Fetch logs from a `celery-worker` containers:
 ```bash
-docker logs --follow simoc_celery_worker_container
+docker-compose -f docker-compose.sqlite.yml \
+    logs -t -f celery-worker
+```
+
+Fetch logs from a `flask-app` container:
+```bash
+docker-compose -f docker-compose.sqlite.yml \
+    logs -t -f flask-app
+```
+
+Stop all `SIMOC` containers:
+```bash
+docker-compose -f docker-compose.sqlite.yml stop
+```
+
+Start all `SIMOC` containers:
+```bash
+docker-compose -f docker-compose.sqlite.yml start
+```
+
+Remove all `SIMOC` containers and images:
+```bash
+docker-compose -f docker-compose.sqlite.yml down --rmi all
 ```
 
 # Re-deploy `SIMOC` on file changes
 
-Kill running `simoc_flask_container` and `simoc_celery_worker_container` containers (if any):
-```bash
-docker kill simoc_flask_container simoc_celery_worker_container
-```
-
-Remove existing `simoc_flask_container` and `simoc_celery_worker_container` containers:
-```bash
-docker rm -f simoc_flask_container simoc_celery_worker_container
-```
-
-Remove existing `simoc_flask_sqlite` and `simoc_celery_worker` images (optional):
-```bash
-docker rmi simoc_flask_sqlite simoc_celery_worker
-```
-
-Repeat `Steps 5-8` to re-build and re-deploy the `SIMOC` application.
+Repeat `Steps 3-5` to re-build and re-deploy the `SIMOC` service.
 
 # Reset `SQLite` database
 
@@ -176,6 +126,6 @@ rm sqlite/db.sqlite
 
 Re-initialize an `SQLite` database:
 ```bash
-docker exec -it simoc_flask_container python3 create_db.py
+docker-compose -f docker-compose.sqlite.yml \
+    exec celery-worker python3 create_db.py
 ```
-

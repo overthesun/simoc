@@ -12,10 +12,13 @@ cd simoc/
 - https://redis.io/download
 
 ### 2.1 Start `Redis` via `Docker` 
-Instead of manually installing `Redis` on a local `OS`, follow the instructions below to deploy it as a `Docker` container.
+Instead of manually installing `Redis` on a host `OS`, follow the instructions below to deploy it as a `Docker` container.
 
-#### 2.1.1 Follow the official guide to install `Docker`
+#### 2.1.1 Follow the official guide to set up `Docker` software
+
+Make sure you installed both `Docker Engine` and `Docker Compose` components:
 - https://docs.docker.com/install/
+- https://docs.docker.com/compose/install/
 
 #### 2.1.2 Set up `Redis` password (fill in the `REDIS_PASSWORD`)
 ```bash
@@ -45,16 +48,11 @@ python3 create_db.py
 
 ## 5. Start `Celery Worker` process
 
-Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
+Set up a `Redis` connection details (fill in the `REDIS_PASSWORD` value):
 ```bash
 export REDIS_HOST=127.0.0.1
 export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
-```
-
-Set up number of threads per `Celery Worker`:
-```bash
-export CELERY_THREADS=2
 ```
 
 Start a new `Celery Worker` process:
@@ -78,21 +76,21 @@ Activate `Python` virtual environment:
 source simoc-env/bin/activate
 ```
 
-Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
+Set up a `Redis` connection details (fill in the `REDIS_PASSWORD` value):
 ```bash
 export REDIS_HOST=127.0.0.1
 export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
-Set up `HTTP` port for the `SIMOC` web application:
-```bash
-export APP_PORT=8000
-```
-
-Set up number of threads per `Flask Application`:
+Set up the number of threads per `Flask Application` container:
 ```bash
 export WSGI_WORKERS=2
+```
+
+Set up the listening `HTTP` port for the `Flask Application`:
+```bash
+export APP_PORT=8000
 ```
 
 Start `SIMOC` application:

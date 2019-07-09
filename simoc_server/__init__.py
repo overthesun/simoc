@@ -42,7 +42,7 @@ db_user = os.environ.get('DB_USER')
 db_password = os.environ.get('DB_PASSWORD')
 
 if db_type == 'mysql':
-    database_url = f'mysql+mysqldb://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
+    database_url = f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 elif db_type == 'postgres':
     database_url = f'postgres://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 elif db_type == 'sqlite':

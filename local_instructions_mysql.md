@@ -13,13 +13,16 @@ cd simoc/
 - https://www.mysql.com/downloads/
 
 ### 2.1 Start `Redis` and `MySQL` via `Docker` 
-Instead of manually installing `Redis` and `MySQL` on a local `OS`,
+Instead of manually installing `Redis` and `MySQL` on a host `OS`,
 follow the instructions below to deploy them as `Docker` containers.
 
-#### 2.1.1 Follow the official guide to install `Docker`
-- https://docs.docker.com/install/
+#### 2.1.1 Follow the official guide to set up `Docker` software
 
-#### 2.1.2 Set up `Redis` password (fill in the `REDIS_PASSWORD`)
+Make sure you installed both `Docker Engine` and `Docker Compose` components:
+- https://docs.docker.com/install/
+- https://docs.docker.com/compose/install/
+
+#### 2.1.2 Set up a `Redis` connection details (fill in the `REDIS_PASSWORD` value):
 ```bash
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
@@ -32,7 +35,7 @@ docker run -d \
     redis redis-server --requirepass $REDIS_PASSWORD
 ```
 
-#### 2.1.4 Set up `MySQL` configuration (fill in the `DB_PASSWORD`)
+#### 2.1.4 Set up the `MySQL` configuration (fill in the `DB_PASSWORD` value):
 ```bash
 export DB_PORT=3306
 export DB_NAME=simoc
@@ -40,7 +43,7 @@ export DB_USER=root
 export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 ```
 
-#### 2.1.5 Start `MySQL-server` container
+#### 2.1.5 Start `MySQL` container
 ```bash
 docker run -d \
       --name=simoc-db \
@@ -60,7 +63,7 @@ python3 -m pip install --upgrade -r requirements.txt
 ```
 
 ## 4. Initialize `MySQL` database
-Set up the DB configuration (fill in the `DB_PASSWORD`):
+Set up the `MySQL` configuration (fill in the `DB_PASSWORD` value):
 ```bash
 export DB_TYPE=mysql
 export DB_HOST=127.0.0.1
@@ -84,11 +87,6 @@ export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
-Set up number of threads per `Celery Worker`:
-```bash
-export CELERY_THREADS=2
-```
-
 Start a new `Celery Worker` process:
 ```bash
 sh start_worker.sh
@@ -110,14 +108,14 @@ Activate `Python` virtual environment:
 source simoc-env/bin/activate
 ```
 
-Set up `Redis` connection (fill in the `REDIS_PASSWORD`):
+Set up a `Redis` connection details (fill in the `REDIS_PASSWORD` value):
 ```bash
 export REDIS_HOST=127.0.0.1
 export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
-Set up the DB configuration (fill in the `DB_PASSWORD`):
+Set up the `MySQL` configuration (fill in the `DB_PASSWORD` value):
 ```bash
 export DB_TYPE=mysql
 export DB_HOST=127.0.0.1
@@ -127,12 +125,12 @@ export DB_USER=root
 export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 ```
 
-Set up `HTTP` port for the `SIMOC` web application:
+Set up the listening `HTTP` port for the `Flask Application`:
 ```bash
 export APP_PORT=8000
 ```
 
-Set up number of threads per `Flask Application`:
+Set up the number of threads per `Flask Application` container:
 ```bash
 export WSGI_WORKERS=2
 ```
