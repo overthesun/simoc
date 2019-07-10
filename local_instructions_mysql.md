@@ -33,7 +33,7 @@ docker run -d \
     redis redis-server --requirepass $REDIS_PASSWORD
 ```
 
-#### 2.1.4 Set up the `MySQL` configuration (fill in the `DB_PASSWORD` value):
+#### 2.1.4 Set up the `MySQL` configuration (fill in the `DB_PASSWORD` value)
 ```bash
 export DB_PORT=3306
 export DB_NAME=simoc
@@ -144,7 +144,7 @@ Navigate to the following `URL` in your browser to access a `SIMOC` application 
 
 # Useful commands
 
-## Reset `MySQL` database
+## Reset `MySQL` database (`Docker`)
 
 Kill and remove a running `MySQL-server` container (if any):
 ```bash
@@ -152,7 +152,7 @@ docker kill simoc-db
 docker rm -f simoc-db
 ```
 
-Repeat the instructions `2.1.4-5` from [Start `MySQL` via `Docker`](#214-set-up-mysql-configuration-fill-in-the-db_password).
+Repeat the instructions `2.1.4-5` from [Start `Redis` and `MySQL` via `Docker`](#214-set-up-the-mysql-configuration-fill-in-the-db_password-value).
 
 Set up the DB configuration (fill in the `DB_PASSWORD`):
 ```bash
