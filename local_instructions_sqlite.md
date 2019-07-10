@@ -16,9 +16,7 @@ Instead of manually installing `Redis` on a host `OS`, follow the instructions b
 
 #### 2.1.1 Follow the official guide to set up `Docker` software
 
-Make sure you installed both `Docker Engine` and `Docker Compose` components:
 - https://docs.docker.com/install/
-- https://docs.docker.com/compose/install/
 
 #### 2.1.2 Set up `Redis` password (fill in the `REDIS_PASSWORD`)
 ```bash
