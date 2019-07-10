@@ -13,7 +13,6 @@ from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
     calc_step_storage_ratios, parse_step_data, count_agents_in_step, sum_agent_values_in_step
 
-import celery
 from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
 from celery.utils import worker_direct
@@ -238,10 +237,8 @@ def kill_game():
         raise ValueError("ERROR: game_id is required as input to views.kill_game() route")
     game_id = str(input["game_id"])
     task_id = redis_conn.get('task_mapping:{}'.format(game_id)).decode("utf-8")
-    app.logger.info(f"Success: Get task {task_id}.")
     celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
-    app.logger.info("Success: Get send kill.")
-    return success("Game killed.")
+    return success(f"Game {game_id} killed.")
 
 
 @app.route("/kill_all_games", methods=["POST"])
