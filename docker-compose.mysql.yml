@@ -27,6 +27,8 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - .:/simoc
     depends_on:
       - simoc-db
       - redis
@@ -46,6 +48,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       WSGI_WORKERS: ${WSGI_WORKERS}
       APP_PORT: ${APP_PORT}
+    volumes:
+      - .:/simoc
     depends_on:
       - simoc-db
       - redis
