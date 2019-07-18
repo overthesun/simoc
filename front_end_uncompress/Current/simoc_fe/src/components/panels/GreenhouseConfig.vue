@@ -6,14 +6,14 @@
 
 <script>
 import {mapState,mapGetters,mapMutations,mapActions} from 'vuex'
-import {GreenhouseConfig} from '../../components/graphs'
+import {GreenhouseDoughnut} from '../../components/graphs'
 
 export default {
     props:{
         canvasNumber:0,
     },
     components:{
-       'GreenhouseConfig':GreenhouseConfig,
+       'GreenhouseDoughnut':GreenhouseDoughnut,
     },
 }
 </script>
