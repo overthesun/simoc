@@ -1,7 +1,7 @@
 <!-- no longer used SEE GreenhouseDoughnut -->
 
 <template>
-    <canvas id="canvas" style='height: 100%; width: 100%;' height='auto' width='auto'></canvas>
+    <canvas :id="id"  style='height: 100%; width: 100%;' height='auto' width='auto'></canvas>
 </template>
 <script>
 import Chart from 'chart.js';
@@ -9,6 +9,9 @@ import axios from 'axios'
 import "chartjs-plugin-annotation";
 import {mapState,mapGetters} from 'vuex' 
 export default {
+    props:{
+        id:String,
+    },
     data(){
         return{
             greenhouseSize:{

@@ -7,7 +7,7 @@ See chart.js documentation for more details.
 -->
 
 <template>
-    <canvas id="canvas" style='height: 100%; width: 100%;' height='auto' width='auto'></canvas>
+    <canvas :id="id" style='height: 100%; width: 100%;' height='auto' width='auto'></canvas>
 </template>
 
 <script>
@@ -17,6 +17,9 @@ import "chartjs-plugin-annotation";
 import {mapState,mapGetters} from 'vuex' 
 import {StringFormatter} from '../../javascript/stringFormatter'
 export default {
+    props:{
+        id:String,
+    },
     data(){
         return{
             //Greenhouse volumes. These should be retrieved from the database in the future to populate.
