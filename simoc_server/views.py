@@ -273,6 +273,23 @@ def get_step_to():
     return status("Steps requested.")
 
 
+@app.route("/get_num_steps", methods=["POST"])
+@login_required
+def get_num_steps():
+    input = json.loads(request.data.decode('utf-8'))
+    if "game_id" not in input:
+        raise Exception("game_id is required as input to views.get_step_to() route.")
+    game_id = str(input["game_id"])
+    user = get_standard_user_obj()
+    last_record = ModelRecord.query \
+        .filter_by(user_id=user.id) \
+        .filter_by(game_id=game_id) \
+        .order_by(ModelRecord.step_num.desc()) \
+        .limit(1).first()
+    step_num = last_record.step_num if last_record else 0
+    return status("Total step number retrieved.", step_num=step_num)
+
+
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
     args, results = {}, []
