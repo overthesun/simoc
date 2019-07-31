@@ -10,8 +10,6 @@ RUN apt-get update && \
 COPY ./requirements.txt /simoc/requirements.txt
 RUN python3 -m pip install -r /simoc/requirements.txt
 
-COPY . /simoc
-
 ARG DB_TYPE
 ARG DB_HOST
 ARG DB_PORT
