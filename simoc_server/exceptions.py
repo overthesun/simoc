@@ -9,6 +9,11 @@ class GenericError(Exception):
             self.status_code =  status_code
         self.message = message
 
+    def __repr__(self):
+        name = self.__class__.__name__
+        return f'{name}({self.message!r}, {self.status_code})'
+    __str__ = __repr__
+
     def to_dict(self):
         return {
             "error_type":self.__class__.__name__,

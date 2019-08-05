@@ -9,7 +9,7 @@ from werkzeug.exceptions import HTTPException
 from simoc_server import app, db, redis_conn
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User, \
     ModelRecord, StepRecord
-from simoc_server.exceptions import BadRequest
+from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
     calc_step_storage_ratios, parse_step_data, count_agents_in_step, sum_agent_values_in_step
@@ -53,7 +53,7 @@ def login():
     if user and user.validate_password(password):
         login_user(user)
         return status("Logged in.")
-    raise Exception("Bad username or password.")
+    raise InvalidLogin("Invalid username or password.")
 
 
 @app.route("/register", methods=["POST"])
@@ -69,13 +69,13 @@ def register():
     """
     input = json.loads(request.data.decode('utf-8'))
     if "username" not in input:
-        raise Exception("username is required as input to views.register() route.")
+        raise BadRegistration("Username is required.")
     if "password" not in input:
-        raise Exception("password is required as input to views.register() route.")
+        raise BadRegistration("Password is required.")
     username = input["username"]
     password = input["password"]
     if User.query.filter_by(username=username).first():
-        raise Exception("User already exists.")
+        raise BadRegistration("User already exists.")
     user = User(username=username)
     user.set_password(password)
     db.session.add(user)
@@ -113,7 +113,7 @@ def new_game():
     try:
         game_config = convert_configuration(json.loads(request.data)["game_config"])
     except BadRequest as e:
-        raise Exception(f"Cannot retrieve game config. Reason: {e}")
+        raise BadRequest(f"Cannot retrieve game config. Reason: {e}")
     # Send `new_game` for remote execution on Celery
     result = tasks.new_game.delay(get_standard_user_obj().username, game_config).get(timeout=60)
     # Save the hostname of the Celery worker that a game was assigned to
@@ -161,9 +161,9 @@ def get_steps():
     """
     input = json.loads(request.data.decode('utf-8'))
     if "min_step_num" not in input and "n_steps" not in input:
-        raise Exception("min_step_num and n_steps are required as input to views.get_step() route.")
+        raise BadRequest("min_step_num and n_steps are required.")
     if "game_id" not in input:
-        raise Exception("game_id is required as input to views.get_step() route.")
+        raise BadRequest("game_id is required.")
     min_step_num = int(input["min_step_num"])
     n_steps = int(input["n_steps"])
     game_id = str(input["game_id"])
@@ -231,7 +231,7 @@ def get_steps():
 def kill_game():
     input = json.loads(request.data.decode('utf-8'))
     if "game_id" not in input:
-        raise Exception("game_id is required as input to views.kill_game() route.")
+        raise BadRequest("game_id is required.")
     game_id = str(input["game_id"])
     task_id = redis_conn.get('task_mapping:{}'.format(game_id)).decode("utf-8")
     celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
@@ -260,9 +260,9 @@ def get_step_to():
     """
     input = json.loads(request.data.decode('utf-8'))
     if "game_id" not in input:
-        raise Exception("game_id is required as input to views.get_step_to() route.")
+        raise BadRequest("game_id is required.")
     if "step_num" not in input:
-        raise Exception("step_num is required as input to views.get_step_to() route.")
+        raise BadRequest("step_num is required.")
     game_id = str(input["game_id"])
     step_num = int(input["step_num"])
     # Get a direct worker queue
@@ -278,7 +278,7 @@ def get_step_to():
 def get_num_steps():
     input = json.loads(request.data.decode('utf-8'))
     if "game_id" not in input:
-        raise Exception("game_id is required as input to views.get_step_to() route.")
+        raise BadRequest("game_id is required.")
     game_id = str(input["game_id"])
     user = get_standard_user_obj()
     last_record = ModelRecord.query \
@@ -346,7 +346,7 @@ def save_game():
     """
     input = json.loads(request.data.decode('utf-8'))
     if "game_id" not in input:
-        raise Exception("game_id is required as input to views.save_game() route.")
+        raise BadRequest("game_id is required.")
     if "save_name" in input:
         save_name = str(input["save_name"])
     else:
@@ -381,7 +381,7 @@ def load_game():
     """
     input = json.loads(request.data.decode('utf-8'))
     if "saved_game_id" not in input:
-        raise Exception("saved_game_id is required as input to views.load_game() route.")
+        raise BadRequest("saved_game_id is required.")
     saved_game_id = input["saved_game_id"]
     # Send `load_game` for remote execution on Celery
     result = tasks.load_game.delay(get_standard_user_obj().username, saved_game_id).get(timeout=60)
@@ -493,12 +493,17 @@ def status(message, status_code=200, **kwargs):
     return response
 
 
-@app.errorhandler(Exception)
+@app.errorhandler(GenericError)
 def handle_error(e):
-    code = 500
-    if isinstance(e, HTTPException):
-        code = e.code
-    return serialize_response({'error': str(e)}), code
+    app.logger.error(f"ERROR: handling error {e}")
+    status_code = e.status_code
+    return serialize_response(e.to_dict()), status_code
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    app.logger.error(f"ERROR: handling exception {e}")
+    status_code = getattr(e, 'code', 500)
+    return serialize_response({'error': str(e)}), status_code
 
 
 def get_standard_user_obj():
