@@ -1,6 +1,8 @@
 import argparse
 import os
 
+os.environ["NO_FLASK"] = "1"
+
 import simoc_server
 from simoc_server import app
 from simoc_server.database import *
@@ -41,4 +43,7 @@ if __name__ == "__main__":
             raise ValueError('Wrong sqlite URL.')
 
     create(app.config["AGENT_CONFIG"])
+
+    print(f"The '{app.config['DB_TYPE']}' database at '{app.config['SQLALCHEMY_DATABASE_URI']}' was"
+          f" successfully populated with '{app.config['AGENT_CONFIG']}' config file.")
 

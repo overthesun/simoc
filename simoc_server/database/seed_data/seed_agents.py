@@ -1,10 +1,14 @@
 import json
+import random
 
 from . import util
 from simoc_server import db
 from simoc_server.agent_model.agents import growth_func
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, AgentTypeAttributeDetails
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, \
+    AgentTypeAttributeDetails, CurrencyType
 from simoc_server.util import location_to_day_length_minutes
+
+_GLOBAL_CURRENCY_LIST = {}
 
 
 def import_agents(agents, agent_class):
@@ -26,6 +30,13 @@ def import_agents(agents, agent_class):
             attr_name = 'char_{}'.format(attr['type'])
             attr_value = attr.get("value", '')
             attr_units = attr.get("unit", '')
+            currency = None
+            if attr['type'].startswith('capacity'):
+                currency = attr['type'].split('_', 1)[1]
+                if currency not in _GLOBAL_CURRENCY_LIST:
+                    _GLOBAL_CURRENCY_LIST[currency] = CurrencyType(name=currency,
+                                                                   id=random.randint(1, 1e7))
+            currency_type = _GLOBAL_CURRENCY_LIST[currency] if currency else None
             agent_type_attribute = AgentTypeAttribute(name=attr_name,
                                                       agent_type=agent_type,
                                                       value=str(attr_value),
@@ -33,12 +44,13 @@ def import_agents(agents, agent_class):
                                                       description=None)
             AgentTypeAttributeDetails(agent_type_attribute=agent_type_attribute,
                                       agent_type=agent_type,
+                                      currency_type=currency_type,
                                       units=attr_units)
-
         for section in ['input', 'output']:
             for attr in agents[name]['data'][section]:
                 prefix = 'in' if section == 'input' else 'out'
-                attr_name = '{}_{}'.format(prefix, attr['type'])
+                currency = attr['type'].lower().strip()
+                attr_name = '{}_{}'.format(prefix, currency)
                 attr_value = attr.get("value", None)
                 is_required = attr.get("required", None)
                 requires = attr.get("requires", None)
@@ -117,8 +129,12 @@ def import_agents(agents, agent_class):
                                                           value=str(attr_value),
                                                           value_type=str(type(attr_value).__name__),
                                                           description=None)
+                if currency not in _GLOBAL_CURRENCY_LIST:
+                    _GLOBAL_CURRENCY_LIST[currency] = CurrencyType(name=currency,
+                                                                   id=random.randint(1, 1e7))
                 attr_details = {'agent_type_attribute':  agent_type_attribute,
                                 'agent_type': agent_type,
+                                'currency_type': _GLOBAL_CURRENCY_LIST[currency],
                                 'flow_unit': flow_unit,
                                 'flow_time': flow_time,
                                 'criteria_name': criteria_name,
@@ -152,7 +168,7 @@ def import_agents(agents, agent_class):
                                 'lifetime_growth_steepness': lifetime_growth_steepness}
                 AgentTypeAttributeDetails(**attr_details)
     util.add_all(agent_data)
-    calculate_growth_coef()
+    # calculate_growth_coef()
 
 
 def seed(config_file):
@@ -195,7 +211,7 @@ def calculate_growth_coef():
                 day_length_minutes = location_to_day_length_minutes(location)
                 day_length_hours = day_length_minutes / 60
                 num_values = int(lifetime * day_length_hours + 1)
-                center = attr_details['lifetime_growth_center']
+                center = attr_details['lifetime_growth_center'] or num_values // 2
                 min_value = attr_details['lifetime_growth_min_value'] or 0
                 invert = attr_details['lifetime_growth_invert']
                 res = growth_func.optimize_bell_curve_mean(mean_value=mean_value,
@@ -213,7 +229,7 @@ def calculate_growth_coef():
                 day_length_minutes = location_to_day_length_minutes(location)
                 day_length_hours = day_length_minutes / 60
                 num_values = int(lifetime * day_length_hours + 1)
-                center = attr_details['lifetime_growth_center']
+                center = attr_details['lifetime_growth_center'] or num_values // 2
                 min_value = attr_details['lifetime_growth_min_value'] or 0
                 res = growth_func.optimize_sigmoid_curve_mean(mean_value=mean_value,
                                                               num_values=num_values,
@@ -229,7 +245,7 @@ def calculate_growth_coef():
                 day_length_minutes = location_to_day_length_minutes(location)
                 day_length_hours = day_length_minutes / 60
                 day_length = int(day_length_hours)
-                center = attr_details['daily_growth_center']
+                center = attr_details['daily_growth_center'] or day_length // 2
                 min_value = attr_details['daily_growth_min_value'] or 0
                 invert = attr_details['daily_growth_invert']
                 res = growth_func.optimize_bell_curve_mean(mean_value=mean_value,
@@ -246,7 +262,7 @@ def calculate_growth_coef():
                 day_length_minutes = location_to_day_length_minutes(location)
                 day_length_hours = day_length_minutes / 60
                 day_length = int(day_length_hours)
-                center = attr_details['daily_growth_center']
+                center = attr_details['daily_growth_center'] or day_length // 2
                 min_value = attr_details['daily_growth_min_rate'] or 0
                 res = growth_func.optimize_sigmoid_curve_mean(mean_value=mean_value,
                                                               num_values=day_length,

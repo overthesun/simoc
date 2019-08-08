@@ -160,7 +160,12 @@ class GameRunner(object):
         saved_game = SavedGame(
             user=self.user, agent_model_snapshot=agent_model_snapshot, name=save_name)
         db.session.add(saved_game)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
         self.last_saved_step = self.agent_model.step_num
         return saved_game
 
@@ -189,11 +194,20 @@ class GameRunner(object):
             for record in model_records + agent_type_counts + storage_capacities + step_records:
                 record['start_time'] = self.start_time
                 record['game_id'] = self.game_id
-            db.session.execute(ModelRecord.__table__.insert(), model_records,)
-            db.session.execute(AgentTypeCountRecord.__table__.insert(), agent_type_counts,)
-            db.session.execute(StorageCapacityRecord.__table__.insert(), storage_capacities,)
-            db.session.execute(StepRecord.__table__.insert(), step_records,)
-            db.session.commit()
+            if len(model_records) > 0:
+                db.session.execute(ModelRecord.__table__.insert(), model_records,)
+            if len(agent_type_counts) > 0:
+                db.session.execute(AgentTypeCountRecord.__table__.insert(), agent_type_counts,)
+            if len(storage_capacities) > 0:
+                db.session.execute(StorageCapacityRecord.__table__.insert(), storage_capacities,)
+            if len(step_records) > 0:
+                db.session.execute(StepRecord.__table__.insert(), step_records,)
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+            finally:
+                db.session.close()
 
         def step_loop(agent_model):
             model_records_buffer = []
@@ -218,6 +232,7 @@ class GameRunner(object):
                           agent_type_counts_buffer,
                           storage_capacities_buffer,
                           agent_model.step_records_buffer)
+            agent_model.step_records_buffer = []
 
         step_loop(self.agent_model)
         self.reset_last_accessed()
@@ -232,8 +247,6 @@ class GameRunnerInitializationParams(object):
             .set_starting_model_time(datetime.timedelta())
         if 'termination' in config:
             self.model_init_params.set_termination(config['termination'])
-        if 'logging' in config:
-            self.model_init_params.set_logging(config['logging'])
         if 'minutes_per_step' in config:
             self.model_init_params.set_minutes_per_step(config['minutes_per_step'])
         if 'priorities' in config:
@@ -241,7 +254,7 @@ class GameRunnerInitializationParams(object):
         if 'location' in config:
             self.model_init_params.set_location(config['location'])
         self.model_init_params.set_config(config)
-        if config['single_agent'] == 1:
+        if 'single_agent' in config and config['single_agent'] == 1:
             self.model_init_params.set_single_agent(1)
         self.agent_init_recipe = BaseLineAgentInitializerRecipe(config)
 
@@ -310,8 +323,7 @@ class GameRunnerManager(object):
             self.save_all(allow_repeat_save=False)
 
         handler_partial = register_exit_handler(close)
-        self.cleanup_thread = threading.Timer(
-            self.cleanup_max_interval, cleanup_at_interval)
+        self.cleanup_thread = threading.Timer(self.cleanup_max_interval, cleanup_at_interval)
         self.cleanup_thread.start()
         self._handler_partial = handler_partial
 
@@ -414,128 +426,6 @@ class GameRunnerManager(object):
                 return self.game_runners[user_id]
         except KeyError:
             return None
-
-    @staticmethod
-    def parse_step_data(step_data,filters=["agent_type_counters","storage_capacities"]):
-        reduced_output = step_data.get_data()
-        if len(filters) == 0:
-            return reduced_output
-
-        agent_logs = StepRecord.query \
-            .filter_by(user=step_data.user) \
-            .filter_by(game_id=step_data.game_id) \
-            .filter_by(step_num=step_data.step_num) \
-            .all()
-
-        response = {}
-        response['agent_type_counters'] = [i.get_data() for i in step_data.agent_type_counters] if "agent_type_counters" in filters else []
-        response['storage_capacities'] = [i.get_data() for i in step_data.storage_capacities] if "storage_capacities" in filters else []
-        response['agent_logs'] = [i.get_data() for i in agent_logs] if "agent_logs" in filters else []
-
-        for filter in filters:
-            if not filter in response:
-                print ("WARNING: No parse_filters option",filter,"in game_runner.parse_step_data.")
-            else:
-                reduced_output[filter] = response[filter]
-        
-        return reduced_output
-
-    def get_last_steps(self, user, game_id, num_last_steps=1):
-        """Get the the last N steps for the given user and the game.
-
-        Parameters
-        ----------
-        user : simoc_server.database.db_model.User
-            The user requesting the step.
-        game_id : str
-            A string Id of the game to retrieve the step from; Generated by the GameRunner object.
-        num_last_steps : int
-            The number of the last steps to get.
-
-        Returns
-        -------
-        list
-            A list containing the internal states of the agent model
-            at the requested steps.
-
-        """
-        steps = ModelRecord.query \
-            .filter_by(user_id=user.id) \
-            .filter_by(game_id=game_id) \
-            .order_by(ModelRecord.step_num.desc()) \
-            .limit(num_last_steps) \
-            .all()
-        if len(steps) > 0:
-            return [self.parse_step_data(step_data) for step_data in steps]
-        else:
-            return []
-
-    def get_steps(self, user, game_id, start_step_num=0, stop_step_num=0):
-        """Get the step range requested for the given user and the game.
-
-        Parameters
-        ----------
-        user : simoc_server.database.db_model.User
-            The user requesting the step.
-        game_id : str
-            A string Id of the game to retrieve the step from; Generated by the GameRunner object.
-        start_step_num : int
-            The starting step number of the range.
-        stop_step_num : int
-            The final step number of the range.
-
-        Returns
-        -------
-        list
-            A list containing the internal states of the agent model
-            at the requested steps.
-
-        """
-        steps = ModelRecord.query \
-            .filter_by(user_id=user.id) \
-            .filter_by(game_id=game_id) \
-            .filter(ModelRecord.step_num >= start_step_num) \
-            .filter(ModelRecord.step_num <= stop_step_num) \
-            .all()
-        if len(steps) > 0:
-            return [self.parse_step_data(step_data) for step_data in steps]
-        else:
-            return []
-
-    def get_step(self, user, game_id, step_num=None,parse_filters=["agent_type_counters","storage_capacities"]):
-        """Get the step number requested for the given user and the game.
-
-        Accessed from front end using route get_step() in views.py
-
-        Parameters
-        ----------
-        user : simoc_server.database.db_model.User
-            The user requesting the step.
-        game_id : str
-            A string Id of the game to retrieve the step from; Generated by the GameRunner object.
-        step_num : int, optional
-            The step number to get. If None, returns the last step.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the internal state of the agent model
-            at the requested step.
-        """
-        step_data = ModelRecord.query \
-            .filter_by(user_id=user.id) \
-            .filter_by(game_id=game_id)
-        if step_num is None:
-            step_data = step_data \
-                .order_by(ModelRecord.step_num.desc()) \
-                .limit(1)
-        else:
-            step_data = step_data.filter_by(step_num=step_num)
-        step_data = step_data.first()
-        if step_data is None:
-            return {},step_data
-        else:
-            return self.parse_step_data(step_data,parse_filters),step_data
 
     def get_step_to(self, user, step_num=None, buffer_size=10):
         """Run the agent model to the requested step.

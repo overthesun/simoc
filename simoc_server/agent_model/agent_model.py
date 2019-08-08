@@ -3,7 +3,7 @@ r"""Describes Agent Model interface and behaviour,
 
 import datetime
 import json
-import random
+import uuid
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
@@ -17,7 +17,7 @@ from simoc_server import db, app
 from simoc_server.agent_model.agents.core import GeneralAgent, StorageAgent
 from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentModelParam, AgentType, AgentModelState, \
-    AgentModelSnapshot, SnapshotBranch
+    AgentModelSnapshot, SnapshotBranch, CurrencyType
 from simoc_server.util import timedelta_to_hours, location_to_day_length_minutes
 
 
@@ -40,7 +40,7 @@ class PrioritizedRandomActivation(RandomActivation):
     def step(self):
         agent_by_class = {}
         for agent in self.agents[:]:
-            agent_class = AgentType.query.get(agent._agent_type_id).agent_class
+            agent_class = AgentType.query.get(agent.agent_type_id).agent_class
             if agent_class not in agent_by_class:
                 agent_by_class[agent_class] = []
             agent_by_class[agent_class].append(agent)
@@ -71,7 +71,6 @@ class AgentModel(Model, AttributeHolder):
           grid_width: int,
           is_terminated: int,
           location: int,
-          logging: int,
           minutes_per_step: int,
           storage_ratios: Dict,
           priorities: int,
@@ -102,7 +101,6 @@ class AgentModel(Model, AttributeHolder):
         self.random_state = init_params.random_state
         self.termination = init_params.termination
         self.termination_reason = None
-        self.logging = init_params.logging
         self.single_agent = init_params.single_agent
         self.priorities = init_params.priorities
         self.location = init_params.location
@@ -137,9 +135,9 @@ class AgentModel(Model, AttributeHolder):
         Called from:
             game_runner.py GameRunner.step_to.step_loop
 
-        Returns:
+        Returns
         """
-        record_id = random.randint(1, 1e7)
+        record_id = str(uuid.uuid4())
         model_record = dict(id=record_id,
                             step_num=self.step_num,
                             user_id=self.user_id,
@@ -156,11 +154,12 @@ class AgentModel(Model, AttributeHolder):
         storage_capacities = []
         for storage in self.get_storage_capacities():
             for currency in storage['currencies']:
+                currency_type = CurrencyType.query.filter_by(name=currency['name']).first()
                 storage_capacity_record = dict(model_record_id=record_id,
                                                agent_type_id=storage['agent_type_id'],
                                                agent_id=storage['agent_id'],
                                                storage_id=storage['storage_id'],
-                                               currency=currency['name'],
+                                               currency_type_id=currency_type.id,
                                                value=currency['value'],
                                                capacity=currency['capacity'],
                                                units=currency['units'])
@@ -248,7 +247,6 @@ class AgentModel(Model, AttributeHolder):
         termination = json.loads(agent_model_state.termination)
         priorities = json.loads(agent_model_state.priorities)
         config = json.loads(agent_model_state.config)
-        logging = json.loads(agent_model_state.logging)
         init_params = AgentModelInitializationParams()
         (init_params.set_grid_width(grid_width)
          .set_grid_height(grid_height)
@@ -261,8 +259,7 @@ class AgentModel(Model, AttributeHolder):
          .set_priorities(priorities)
          .set_minutes_per_step(minutes_per_step)
          .set_location(location)
-         .set_config(config)
-         .set_logging(logging))
+         .set_config(config))
         model = AgentModel(init_params)
         agents = {}
         for agent_state in agent_model_state.agent_states:
@@ -380,7 +377,12 @@ class AgentModel(Model, AttributeHolder):
             for agent in self.scheduler.agents:
                 agent.snapshot(agent_model_state, commit=False)
             if commit:
-                db.session.commit()
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                finally:
+                    db.session.close()
             return snapshot
         except StaleDataError:
             app.logger.warning("WARNING: StaleDataError during snapshot, probably a simultaneous"
@@ -512,7 +514,6 @@ class AgentModelInitializationParams(object):
           single_agent: TODO
           minutes_per_step: TODO
           termination: TODO
-          logging: TODO
           priorities: TODO
           location: TODO
           config: TODO
@@ -524,7 +525,6 @@ class AgentModelInitializationParams(object):
     single_agent = 0
     minutes_per_step = 60
     termination = []
-    logging = {}
     priorities = []
     location = 'mars'
     config = {}
@@ -655,20 +655,6 @@ class AgentModelInitializationParams(object):
         self.termination = termination
         return self
 
-    def set_logging(self, logging):
-        """TODO
-
-        TODO
-
-        Args:
-            logging: TODO
-
-        Returns:
-          TODO
-        """
-        self.logging = logging
-        return self
-
     def set_priorities(self, priorities):
         """TODO
 
@@ -724,7 +710,6 @@ class AgentModelInitializationParams(object):
         """
         self.config = config
         return self
-
 
 
 class AgentInitializerRecipe(metaclass=ABCMeta):

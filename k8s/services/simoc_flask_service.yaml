@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: simoc-flask-svc
+spec:
+  type: NodePort
+  selector:
+    app: simoc-flask-server
+    track: stable
+  ports:
+    - name: flask-http
+      port: 8000
+      protocol: TCP

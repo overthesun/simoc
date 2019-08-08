@@ -11,7 +11,7 @@ from mesa import Agent
 
 from simoc_server import db
 from simoc_server.agent_model.attribute_meta import AttributeHolder
-from simoc_server.database.db_model import AgentType, AgentState
+from simoc_server.database.db_model import AgentType, AgentState, CurrencyType
 from simoc_server.util import load_db_attributes_into_dict
 from simoc_server.util import timedelta_to_hours
 from simoc_server.agent_model.agents import growth_func
@@ -113,7 +113,12 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         agent_state = AgentState(**args)
         db.session.add(agent_state)
         if commit:
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+            finally:
+                db.session.close()
 
     def destroy(self):
         """Destroys the agent and removes it from the model"""
@@ -288,23 +293,21 @@ class GeneralAgent(EnclosedAgent):
                 min_threshold *= self.model.day_length_hours
                 max_threshold = lifetime_growth_max_threshold or 0.0
                 max_threshold *= self.model.day_length_hours
-                scale = lifetime_growth_scale or None
-                steepness = lifetime_growth_steepness or None
-                if steepness:
-                    steepness /= self.model.day_length_hours
                 invert = bool(lifetime_growth_invert)
                 noise = bool(lifetime_growth_noise)
                 kwargs = {'agent_value': agent_value,
                           'num_values': num_values,
                           'growth_type': lifetime_growth_type,
                           'min_value': start_value,
-                          'min_threshold': min_threshold,
-                          'max_threshold': max_threshold,
+                          'min_threshold': int(min_threshold),
+                          'max_threshold': int(max_threshold),
                           'center': center,
                           'noise': noise,
-                          'invert': invert,
-                          'steepness': steepness,
-                          'scale': scale}
+                          'invert': invert}
+                if lifetime_growth_scale:
+                    kwargs['scale'] = lifetime_growth_scale
+                if lifetime_growth_steepness:
+                    kwargs['steepness'] = lifetime_growth_steepness
                 self.step_values[attr] = growth_func.get_growth_values(**kwargs)
             else:
                 self.step_values[attr] = np.ones(num_values) * agent_value
@@ -316,10 +319,6 @@ class GeneralAgent(EnclosedAgent):
                 min_threshold *= self.model.day_length_hours
                 max_threshold = daily_growth_max_threshold or 0.0
                 max_threshold *= self.model.day_length_hours
-                scale = daily_growth_scale or None
-                steepness = daily_growth_steepness or None
-                if steepness:
-                    steepness /= self.model.day_length_hours
                 invert = bool(daily_growth_invert)
                 noise = bool(daily_growth_noise)
                 for i in range(0, num_values, day_length):
@@ -339,13 +338,15 @@ class GeneralAgent(EnclosedAgent):
                               'num_values': day_length,
                               'growth_type': daily_growth_type,
                               'min_value': start_value,
-                              'min_threshold': min_threshold,
-                              'max_threshold': max_threshold,
+                              'min_threshold': int(min_threshold),
+                              'max_threshold': int(max_threshold),
                               'center': center,
                               'noise': noise,
-                              'invert': invert,
-                              'steepness': steepness,
-                              'scale': scale}
+                              'invert': invert}
+                    if daily_growth_scale:
+                        kwargs['scale'] = daily_growth_scale
+                    if daily_growth_steepness:
+                        kwargs['steepness'] = daily_growth_steepness
                     if start_value == agent_value:
                         self.step_values[attr][i:i+day_length] = np.ones(day_length) * agent_value
                     else:
@@ -444,7 +445,6 @@ class GeneralAgent(EnclosedAgent):
         influx = []
         for prefix in ['in', 'out']:
             for currency in self.selected_storage[prefix]:
-                log = False
                 attr = '{}_{}'.format(prefix, currency)
                 num_of_storages = len(self.selected_storage[prefix][currency])
                 if num_of_storages == 0:
@@ -460,60 +460,57 @@ class GeneralAgent(EnclosedAgent):
                             continue
                 deprive_value = deprive_value or 0.0
                 step_value = self.get_step_value(attr) / num_of_storages
-                if step_value > 0:
-                    for storage in self.selected_storage[prefix][currency]:
-                        storage_cap = storage['char_capacity_' + currency]
-                        attr_name = 'char_capacity_' + currency
-                        storage_unit = storage.attr_details[attr_name]['units']
-                        storage_value = pq.Quantity(storage[currency], storage_unit)
-                        step_value.units = storage_unit
-                        if prefix == 'out':
-                            new_storage_value = storage_value + step_value
-                        elif prefix == 'in':
-                            new_storage_value = storage_value - step_value
-                        else:
-                            raise Exception('Unknown flow type. Neither Input nor Output.')
-                        new_storage_value = new_storage_value.magnitude.tolist()
-                        if new_storage_value < 0 <= storage_value:
-                            if deprive_value > 0:
-                                if deprive_unit == 'min':
-                                    delta_per_step = hours_per_step * 60
-                                elif deprive_unit == 'hour':
-                                    delta_per_step = hours_per_step
-                                elif deprive_unit == 'day':
-                                    delta_per_step = hours_per_step / int(self.model.day_length_hours)
-                                else:
-                                    raise Exception('Unknown agent deprive_unit value.')
-                                self.deprive[currency] -= delta_per_step
-                                if self.deprive[currency] < 0:
-                                    self.kill('There is no enough {} for {}. Killing the agent'.format(
-                                        currency, self.agent_type))
-                            if is_required == 'True':
-                                return
+                for storage in self.selected_storage[prefix][currency]:
+                    storage_cap = storage['char_capacity_' + currency]
+                    attr_name = 'char_capacity_' + currency
+                    storage_unit = storage.attr_details[attr_name]['units']
+                    storage_value = pq.Quantity(storage[currency], storage_unit)
+                    step_value.units = storage_unit
+                    if prefix == 'out':
+                        new_storage_value = storage_value + step_value
+                    elif prefix == 'in':
+                        new_storage_value = storage_value - step_value
+                    else:
+                        raise Exception('Unknown flow type. Neither Input nor Output.')
+                    new_storage_value = new_storage_value.magnitude.tolist()
+                    if new_storage_value < 0 <= storage_value:
+                        if deprive_value > 0:
+                            if deprive_unit == 'min':
+                                delta_per_step = hours_per_step * 60
+                            elif deprive_unit == 'hour':
+                                delta_per_step = hours_per_step
+                            elif deprive_unit == 'day':
+                                delta_per_step = hours_per_step / int(self.model.day_length_hours)
                             else:
-                                log = True
-                                storage[currency] = 0
+                                raise Exception('Unknown agent deprive_unit value.')
+                            self.deprive[currency] -= delta_per_step
+                            if self.deprive[currency] < 0:
+                                self.kill('There is no enough {} for {}. Killing the agent'.format(
+                                    currency, self.agent_type))
+                        if is_required == 'True':
+                            return
                         else:
-                            log = True
-                            storage[currency] = min(new_storage_value, storage_cap)
-                            if prefix == 'in':
-                                influx.append(currency)
-                            if deprive_value > 0:
-                                self.deprive[currency] = deprive_value
-                        if log:
-                            record = {"step_num": self.model.step_num,
-                                      "user_id": self.model.user_id,
-                                      "agent_type_id": self.agent_type_id,
-                                      "agent_id": self.unique_id,
-                                      "direction": prefix,
-                                      "currency": currency,
-                                      "value": step_value.magnitude.tolist() / self.amount,
-                                      "unit": str(step_value.units),
-                                      "storage_type_id": storage.agent_type_id,
-                                      "storage_agent_id": storage.unique_id,
-                                      "storage_id": storage.id}
-                            for i in range(self.amount):
-                                self.model.step_records_buffer.append(record)
+                            storage[currency] = 0
+                    else:
+                        storage[currency] = min(new_storage_value, storage_cap)
+                        if prefix == 'in':
+                            influx.append(currency)
+                        if deprive_value > 0:
+                            self.deprive[currency] = deprive_value
+                    currency_type = CurrencyType.query.filter_by(name=currency).first()
+                    record = {"step_num": self.model.step_num,
+                              "user_id": self.model.user_id,
+                              "agent_type_id": self.agent_type_id,
+                              "agent_id": self.unique_id,
+                              "direction": prefix,
+                              "currency_type_id": currency_type.id,
+                              "value": step_value.magnitude.tolist(),
+                              "unit": str(step_value.units),
+                              "storage_type_id": storage.agent_type_id,
+                              "storage_agent_id": storage.unique_id,
+                              "storage_id": storage.id}
+                    for i in range(self.amount):
+                        self.model.step_records_buffer.append(record)
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model

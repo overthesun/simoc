@@ -1,41 +1,16 @@
 [![Build Status](https://travis-ci.org/bdmccord/simoc.svg?branch=master)](https://travis-ci.org/bdmccord/simoc)
 
 # SIMOC
-SIMOC - A Scalable, Interactive Model of an Off-world Community
+`SIMOC` - A Scalable, Interactive Model of an Off-world Community
 
 ## Getting Started
-***Note***: *SIMOC is incompatible with python 2.x, python 3 must be used due to its dependency on the mesa framework.  Depending on the configuration of your system you may need to  replace "python" with python3 where necessary. If using anaconda see [these instructions](https://conda.io/docs/user-guide/tasks/manage-python.html) to set up a python 3 environment.*
 
-### Setup
+Depending on your use case, infrastructure and environment,
+you can choose out of multiple deployment scenarios supported by `SIMOC`.
 
-#### Clone Repository
-`git clone --recursive https://github.com/kstaats/simoc.git`
-
-#### Install dependencies:
-
-`pip install -r requirements.txt`
-
-#### Create Database
-
-`python create_db.py`
-
-### Running Server
-
-#### Normal Run
-
-`python -m simoc_server`
-
-#### Debug Mode
-`python -m simoc_server --debug`
-
-#### Specify Port
-`python -m simoc_server --port 9000`
-
-#### Run Locally
-`python -m simoc_server --run_local`
-
-#### Run using JSON Serialization For API Testing
-`python -m simoc_server --use_json`
-
-### Testing
-`python run_tests.py`
+Please use the corresponding guide based on your set up:
+- [Start SIMOC locally on Linux/macOS (SQLite backend)](https://github.com/kstaats/simoc/blob/celery_integration/local_instructions_sqlite.md)
+- [Start SIMOC locally on Linux/macOS (MySQL backend)](https://github.com/kstaats/simoc/blob/celery_integration/local_instructions_mysql.md)
+- [Deploy SIMOC via Docker on Linux/macOS (SQLite backend)](https://github.com/kstaats/simoc/blob/celery_integration/docker_instructions_sqlite.md)
+- [Deploy SIMOC via Docker on Linux/macOS (MySQL backend)](https://github.com/kstaats/simoc/blob/celery_integration/docker_instructions_mysql.md)
+- [Deploy SIMOC to Google Kubernetes Engine (MySQL backend)](https://github.com/kstaats/simoc/blob/celery_integration/k8s_instructions_mysql.md)

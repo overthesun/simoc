@@ -1,0 +1,82 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: simoc-flask-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: simoc-flask-server
+        track: stable
+    spec:
+      containers:
+        - name: simoc-flask-server
+          image: gcr.io/<PROJECT_ID>/simoc_flask:latest
+          imagePullPolicy: Always
+          env:
+          - name: APP_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: flask-config
+                key: app_port
+          - name: WSGI_WORKERS
+            valueFrom:
+              configMapKeyRef:
+                name: flask-config
+                key: wsgi_workers
+          - name: DB_TYPE
+            valueFrom:
+              configMapKeyRef:
+                name: simoc-db-config
+                key: db_type
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: simoc-db-config
+                key: db_host
+          - name: DB_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: simoc-db-config
+                key: db_port
+          - name: DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: simoc-db-config
+                key: db_name
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-config
+                key: db_user
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: simoc-db-creds
+                key: db_password
+          - name: REDIS_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: redis-config
+                key: redis_host
+          - name: REDIS_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: redis-config
+                key: redis_port
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redis-creds
+                key: redis_password
+          ports:
+            - name: http
+              containerPort: 8000
+          resources:
+            requests:
+              memory: "500M"
+              cpu: 1.0
+            limits:
+              memory: "1G"
+              cpu: 2.0
