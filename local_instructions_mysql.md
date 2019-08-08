@@ -2,7 +2,7 @@
 
 ## 1. Clone `SIMOC` code from `GitHub`
 ```bash
-git clone -b celery_integration git@github.com:kstaats/simoc.git
+git clone git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
@@ -12,7 +12,7 @@ cd simoc/
 - https://redis.io/download/
 - https://www.mysql.com/downloads/
 
-### 2.1 Start `Redis` and `MySQL` via `Docker` 
+### 2.1 Start `Redis` and `MySQL` via `Docker`
 Instead of manually installing `Redis` and `MySQL` on a host `OS`,
 follow the instructions below to deploy them as `Docker` containers.
 

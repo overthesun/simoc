@@ -2,16 +2,16 @@
 
 ## 1. Clone `SIMOC` code from `GitHub`
 ```bash
-git clone -b celery_integration git@github.com:kstaats/simoc.git
+git clone git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
-## 2. Follow the official guides to install `Python 3.6` and `Redis` 
+## 2. Follow the official guides to install `Python 3.6` and `Redis`
 
 - https://www.python.org/downloads/
 - https://redis.io/download
 
-### 2.1 Start `Redis` via `Docker` 
+### 2.1 Start `Redis` via `Docker`
 Instead of manually installing `Redis` on a host `OS`, follow the instructions below to deploy it as a `Docker` container.
 
 #### 2.1.1 Follow the official guide to set up `Docker` software

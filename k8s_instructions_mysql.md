@@ -100,7 +100,7 @@ Use the following guide starting from the `Step 2` to add the SSH key to your Gi
 
 ```bash
 cd ~/
-git clone -b celery_integration git@github.com:kstaats/simoc.git
+git clone git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
@@ -295,7 +295,7 @@ kubectl replace --force -f k8s/deployments/simoc_flask_server.yaml
 kubectl replace --force -f k8s/deployments/simoc_celery_cluster.yaml
 ```
 
-### Reset and re-deploy `MySQL` 
+### Reset and re-deploy `MySQL`
 
 Delete the exiting `MySQL` server deployment and credentials:
 ```bash

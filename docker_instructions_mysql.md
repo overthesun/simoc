@@ -2,7 +2,7 @@
 
 ## 1. Clone `SIMOC` code from `GitHub`
 ```bash
-git clone -b celery_integration git@github.com:kstaats/simoc.git
+git clone git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
