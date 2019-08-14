@@ -195,7 +195,11 @@ def get_steps():
     output = {}
     for mri, model_record_data in enumerate(model_record_steps):
         step_num = model_record_data.step_num
-        step_record_data = step_record_dict[step_num] if step_num in step_record_dict else []
+        if step_num in step_record_dict:
+            step_record_data = step_record_dict[step_num]
+        else:
+            #see issue #81. sometimes the modelrecord exists for a step but the steprecord doesn't.
+            continue
         agent_model_state = parse_step_data(model_record_data, parse_filters, step_record_data)
         if "total_agent_mass" in input:
             agent_model_state["total_agent_mass"] = sum_agent_values_in_step(input["total_agent_mass"],
