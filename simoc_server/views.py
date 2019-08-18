@@ -1,4 +1,5 @@
 import json
+import traceback
 from collections import OrderedDict
 
 from flask import request, render_template
@@ -505,6 +506,7 @@ def handle_error(e):
 
 @app.errorhandler(Exception)
 def handle_exception(e):
+    traceback.print_exc()  # print error stack
     app.logger.error(f"ERROR: handling exception {e}")
     status_code = getattr(e, 'code', 500)
     return serialize_response({'error': str(e)}), status_code
