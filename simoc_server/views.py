@@ -5,7 +5,6 @@ from collections import OrderedDict
 from flask import request, render_template
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from werkzeug.exceptions import HTTPException
 
 from simoc_server import app, db, redis_conn
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User, \
@@ -120,10 +119,6 @@ def new_game():
     # Save the hostname of the Celery worker that a game was assigned to
     redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
 
-    # OLD RESPONSE FORMAT
-    # return result['game_id']
-
-    # NEW RESPONSE FORMAT
     return status("New game starts.", game_id=result['game_id'])
 
 
@@ -223,11 +218,6 @@ def get_steps():
                                                                            model_record_data)
         output[int(step_num)] = agent_model_state
 
-    # OLD RESPONSE FORMAT
-    # app.logger.info("Success: Step data retrieved.")
-    # return json.dumps(output)
-
-    # NEW RESPONSE FORMAT
     return status("Step data retrieved.", step_data=output)
 
 
@@ -395,11 +385,6 @@ def load_game():
     output = {"game_id": result['game_id'],
               "last_step_num": result['last_step_num']}
 
-    # OLD RESPONSE FORMAT
-    # app.logger.info("Success: Loaded game starts")
-    # return json.dumps(output)
-
-    # NEW RESPONSE FORMAT
     return status("Loaded game starts.", **output)
 
 
