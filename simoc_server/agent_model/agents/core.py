@@ -245,7 +245,7 @@ class GeneralAgent(EnclosedAgent):
                     self.selected_storage[prefix][currency].append(storage)
 
     def _calculate_step_values(self):
-        num_values = int((self.lifetime or 1) * self.model.day_length_hours) + 1
+        num_values = int((self.lifetime or 1) * self.model.day_length_hours)
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
         self.step_values = {}
@@ -407,7 +407,7 @@ class GeneralAgent(EnclosedAgent):
                     self.buffer[cr_id] = cr_buffer
         step_num = int(self.age * self.model.day_length_hours)
         if step_num >= self.step_values[attr].shape[0]:
-            step_num = int(step_num % self.model.day_length_hours)
+            step_num = step_num % int(self.model.day_length_hours)
         agent_value = self.step_values[attr][step_num]
         return pq.Quantity(agent_value, agent_unit)
 
