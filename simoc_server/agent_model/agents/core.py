@@ -498,18 +498,18 @@ class GeneralAgent(EnclosedAgent):
                         if deprive_value > 0:
                             self.deprive[currency] = deprive_value
                     currency_type = CurrencyType.query.filter_by(name=currency).first()
-                    record = {"step_num": self.model.step_num,
-                              "user_id": self.model.user_id,
-                              "agent_type_id": self.agent_type_id,
-                              "agent_id": self.unique_id,
-                              "direction": prefix,
-                              "currency_type_id": currency_type.id,
-                              "value": step_value.magnitude.tolist(),
-                              "unit": str(step_value.units),
-                              "storage_type_id": storage.agent_type_id,
-                              "storage_agent_id": storage.unique_id,
-                              "storage_id": storage.id}
                     for i in range(self.amount):
+                        record = {"step_num": self.model.step_num,
+                                  "user_id": self.model.user_id,
+                                  "agent_type_id": self.agent_type_id,
+                                  "agent_id": f'{self.unique_id}_{i}',
+                                  "direction": prefix,
+                                  "currency_type_id": currency_type.id,
+                                  "value": step_value.magnitude.tolist(),
+                                  "unit": str(step_value.units),
+                                  "storage_type_id": storage.agent_type_id,
+                                  "storage_agent_id": storage.unique_id,
+                                  "storage_id": storage.id}
                         self.model.step_records_buffer.append(record)
 
     def kill(self, reason):
