@@ -120,13 +120,13 @@ def convert_configuration(game_config):
         # "particulate_removal_TCCS" : [{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}]
     },
         "storages":               {
-            "air_storage":      [
-                {"id":       1, "atmo_h2o": 1000, "atmo_o2": 1000, "atmo_co2": 1000, "atmo_n2": 1000,
-                 "atmo_ch4": 1000,
-                 "atmo_h2":  1000}],
-            "water_storage":    [{"id": 1, "h2o_potb": 1000, "h2o_tret": 1000},
-                                 {"id": 2, "h2o_potb": 1000, "h2o_wste": 1000, "h2o_urin": 1000}],
-            "nutrient_storage": [{"id": 1, "sold_n": 1000, "sold_p": 1000, "sold_k": 1000}],
+            "air_storage": [
+                {"id": 1, "atmo_h2o": 10, "atmo_o2": 2100, "atmo_co2": 3.5, "atmo_n2": 7886,
+                 "atmo_ch4": 0.009531,
+                 "atmo_h2": 0.005295}],
+            "water_storage": [{"id": 1, "h2o_potb": 5000, "h2o_tret": 1000},
+                              {"id": 2, "h2o_potb": 4000, "h2o_wste": 100, "h2o_urin": 100}],
+            "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
             "power_storage":    [],
             "food_storage":     []},
         "termination":            [
@@ -339,7 +339,7 @@ def sum_agent_values_in_step(agent_types, currency_type_name, direction, step_re
 
     Input: agent_names, step_record_data
 
-    Output: dictionary of sum of values and units for each agent names {"rice":{"value": value, "unit":unit}}
+    Output: dictionary of sum of values and units for each agent names {"rice":{"value": value, "unit": unit}}
 
     """
 
