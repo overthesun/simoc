@@ -499,7 +499,7 @@ class GeneralAgent(EnclosedAgent):
                             self.deprive[currency] = deprive_value
                     currency_type = CurrencyType.query.filter_by(name=currency).first()
                     for i in range(self.amount):
-                        record = {"step_num": self.model.step_num,
+                        record = {"step_num": self.model.step_num + 1,
                                   "user_id": self.model.user_id,
                                   "agent_type_id": self.agent_type_id,
                                   "agent_id": f'{self.unique_id}_{i}',
