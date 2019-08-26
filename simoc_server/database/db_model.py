@@ -228,30 +228,29 @@ class StepRecord(BaseEntity):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship("User")
     step_num = db.Column(db.Integer, nullable=False, index=True)
-    start_time = db.Column(db.Integer, nullable=False)
-    game_id = db.Column(db.String(100), nullable=False)
+    game_id = db.Column(db.Integer, nullable=False)
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False,
                               index=True)
     agent_type = db.relationship("AgentType", foreign_keys=[agent_type_id])
-    agent_id = db.Column(db.String(100), nullable=False)
-    direction = db.Column(db.String(100), nullable=False, index=True)
+    agent_id = db.Column(db.Integer, nullable=False)
+    agent_amount = db.Column(db.Integer, nullable=False)
+    direction = db.Column(db.String(10), nullable=False, index=True)
     currency_type_id = db.Column(db.Integer, db.ForeignKey("currency_type.id"), nullable=False,
                                  index=True)
     currency_type = db.relationship("CurrencyType")
     value = db.Column(db.Float, nullable=False)
-    unit = db.Column(db.String(100), nullable=False)
+    unit = db.Column(db.String(10), nullable=False)
     storage_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False,
                                 index=True)
     storage_type = db.relationship("AgentType", foreign_keys=[storage_type_id])
     storage_id = db.Column(db.Integer, nullable=False)
-    storage_agent_id = db.Column(db.String(100), nullable=False)
+    storage_agent_id = db.Column(db.Integer, nullable=False)
     __table_args__ = (Index('step_user_game_idx', "user_id", "game_id"),)
 
     def get_data(self):
         return {'user_id': self.user_id,
                 'username': self.user.username,
                 "step_num": self.step_num,
-                'start_time': self.start_time,
                 'game_id': self.game_id,
                 "agent_type": self.agent_type.name,
                 "agent_id": self.agent_id,
@@ -266,14 +265,14 @@ class StepRecord(BaseEntity):
 
 
 class ModelRecord(BaseEntity):
-    id = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship("User")
     start_time = db.Column(db.Integer, nullable=False)
-    game_id = db.Column(db.String(100), nullable=False)
+    game_id = db.Column(db.Integer, nullable=False)
     step_num = db.Column(db.Integer, nullable=False, index=True)
     hours_per_step = db.Column(db.Float, nullable=False)
-    is_terminated = db.Column(db.String(100), nullable=False)
+    is_terminated = db.Column(db.String(10), nullable=False)
     time = db.Column(db.Float, nullable=False)
     termination_reason = db.Column(db.String(100), nullable=True)
     __table_args__ = (Index('model_user_game_idx', "user_id", "game_id"),)
@@ -305,7 +304,7 @@ class ModelRecord(BaseEntity):
 
 class AgentTypeCountRecord(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-    model_record_id = db.Column(db.String(50), db.ForeignKey("model_record.id"), nullable=False,
+    model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False,
                                 index=True)
     model_record = db.relationship("ModelRecord",
                                    backref=db.backref("agent_type_counters", lazy=False,
@@ -322,7 +321,7 @@ class AgentTypeCountRecord(BaseEntity):
 
 class StorageCapacityRecord(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
-    model_record_id = db.Column(db.String(50), db.ForeignKey("model_record.id"), nullable=False,
+    model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False,
                                 index=True)
     model_record = db.relationship("ModelRecord",
                                    backref=db.backref("storage_capacities", lazy=False,
@@ -330,13 +329,13 @@ class StorageCapacityRecord(BaseEntity):
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False,
                               index=True)
     agent_type = db.relationship("AgentType")
-    agent_id = db.Column(db.String(100), nullable=False)
+    agent_id = db.Column(db.Integer, nullable=False)
     storage_id = db.Column(db.Integer, nullable=False, index=True)
     currency_type_id = db.Column(db.Integer, db.ForeignKey("currency_type.id"), nullable=True,
                                  index=True)
     currency_type = db.relationship("CurrencyType")
     value = db.Column(db.Float, nullable=False)
-    units = db.Column(db.String(100), nullable=False)
+    units = db.Column(db.String(10), nullable=False)
     capacity = db.Column(db.Float, nullable=False)
 
     def get_data(self):

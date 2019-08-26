@@ -2,7 +2,7 @@ import datetime
 import threading
 import time
 import traceback
-from uuid import uuid4
+import numpy as np
 
 from simoc_server import app, db
 from simoc_server.agent_model import (AgentModel,
@@ -40,7 +40,7 @@ class GameRunner(object):
     """
 
     def __init__(self, agent_model, user, last_saved_step):
-        self.game_id = str(uuid4().hex[:8])
+        self.game_id = int(np.random.randint(2 ** 24, dtype='int64'))
         self.start_time = int(time.time())
         self.user = user
         self.agent_model = agent_model

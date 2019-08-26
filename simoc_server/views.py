@@ -204,7 +204,7 @@ def get_steps():
                                                                              step_record_data)
         if "total_agent_count" in input:
             agent_model_state["total_agent_count"] = count_agents_in_step(input["total_agent_count"],
-                                                                          step_record_data)
+                                                                          model_record_data)
         if "total_production" in input:
             agent_model_state["total_production"] = calc_step_in_out("out",
                                                                      input["total_production"],

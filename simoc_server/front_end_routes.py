@@ -10,7 +10,8 @@ import sys
 from flask import request
 
 from simoc_server import app, db
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, StorageCapacityRecord
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, StorageCapacityRecord,\
+    AgentTypeCountRecord
 
 
 @app.route("/get_mass", methods=["GET"])
@@ -305,7 +306,7 @@ def parse_step_data(model_record_data, filters, step_record_data):
     return reduced_output
 
 
-def count_agents_in_step(agent_types, step_record_data):
+def count_agents_in_step(agent_types, model_record_data):
     """ 
     Count the number of agents matching the agent_name for this step
 
@@ -317,16 +318,13 @@ def count_agents_in_step(agent_types, step_record_data):
 
     """
     output = {}
-
     for agent_type in agent_types:
         output[agent_type] = 0
 
-    agent_ids = set()
-    for step in step_record_data:
-        if step.agent_type.name in agent_types \
-                and step.agent_id not in agent_ids:
-            agent_ids.add(step.agent_id)
-            output[step.agent_type.name] += 1
+    agent_counters = AgentTypeCountRecord.query.filter_by(model_record=model_record_data).all()
+    for record in agent_counters:
+        if record.agent_type.name in output:
+            output[record.agent_type.name] += record.agent_counter
 
     return output
 
