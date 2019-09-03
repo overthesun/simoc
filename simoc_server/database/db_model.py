@@ -335,7 +335,7 @@ class StorageCapacityRecord(BaseEntity):
                                  index=True)
     currency_type = db.relationship("CurrencyType")
     value = db.Column(db.Float, nullable=False)
-    units = db.Column(db.String(10), nullable=False)
+    unit = db.Column(db.String(10), nullable=False)
     capacity = db.Column(db.Float, nullable=False)
 
     def get_data(self):
@@ -344,7 +344,7 @@ class StorageCapacityRecord(BaseEntity):
                 "currency_type": self.currency_type.name,
                 "currency_type_id": self.currency_type.id,
                 "value": self.value,
-                "units": self.units,
+                "unit": self.unit,
                 "capacity": self.capacity}
 
 

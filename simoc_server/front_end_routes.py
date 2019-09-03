@@ -272,11 +272,11 @@ def calc_step_storage_ratios(agents, model_record_data):
         for cap in capacities:
             sum += cap.value
             if unit == "":
-                unit = cap.units
+                unit = cap.unit
             else:
-                if not cap.units == unit:
+                if not cap.unit == unit:
                     sys.exit("ERROR in front_end_routes.calc_step_storage_ratios()."
-                             "Currencies do not have same units.", unit, cap. unit)
+                             "Currencies do not have same units.", unit, cap.unit)
 
         output[agent] = {}
         # Now, calculate the ratio for specified currencies.
@@ -348,5 +348,27 @@ def sum_agent_values_in_step(agent_types, currency_type_name, direction, step_re
                 and step.direction == direction and agent_type in output):
             output[agent_type]["value"] += step.value
             output[agent_type]["unit"] = step.unit
+
+    return output
+
+
+def calc_step_storage_capacities(agents, model_record_data):
+
+    output = {}
+    for agent_id in agents:
+        output[agent_id] = {currency: {'value': 0, 'unit': ''}
+                            for currency in agents[agent_id]}
+
+    storage_capacities = StorageCapacityRecord.query \
+        .filter_by(model_record=model_record_data).all()
+
+    for record in storage_capacities:
+        agent_type = record.agent_type.name
+        storage_id = record.storage_id
+        agent_id = f'{agent_type}_{storage_id}'
+        currency = record.currency_type.name
+        if agent_id in output and currency in output[agent_id]:
+            output[agent_id][currency]['value'] = record.value
+            output[agent_id][currency]['unit'] = record.unit
 
     return output

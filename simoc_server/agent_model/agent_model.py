@@ -161,7 +161,7 @@ class AgentModel(Model, AttributeHolder):
                                                currency_type_id=currency_type.id,
                                                value=currency['value'],
                                                capacity=currency['capacity'],
-                                               units=currency['units'])
+                                               unit=currency['units'])
                 storage_capacities.append(storage_capacity_record)
         return model_record, agent_type_counts, storage_capacities
 

@@ -12,7 +12,8 @@ from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedG
 from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
-    calc_step_storage_ratios, parse_step_data, count_agents_in_step, sum_agent_values_in_step
+    calc_step_storage_ratios, parse_step_data, count_agents_in_step, sum_agent_values_in_step, \
+    calc_step_storage_capacities
 
 from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
@@ -216,6 +217,9 @@ def get_steps():
         if "storage_ratios" in input:
             agent_model_state["storage_ratios"] = calc_step_storage_ratios(input["storage_ratios"],
                                                                            model_record_data)
+        if "storage_capacities" in input:
+            agent_model_state["storage_capacities"] = calc_step_storage_capacities(input["storage_capacities"],
+                                                                                   model_record_data)
         output[int(step_num)] = agent_model_state
 
     return status("Step data retrieved.", step_data=output)
