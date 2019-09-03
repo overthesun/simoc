@@ -40,7 +40,7 @@ class GameRunner(object):
     """
 
     def __init__(self, agent_model, user, last_saved_step):
-        self.game_id = int(np.random.randint(2 ** 24, dtype='int64'))
+        self.game_id = int(np.random.randint(2 ** 32, dtype='int64'))
         self.start_time = int(time.time())
         self.user = user
         self.agent_model = agent_model

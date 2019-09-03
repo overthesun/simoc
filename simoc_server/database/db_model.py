@@ -3,6 +3,8 @@ import datetime
 from flask_login import UserMixin
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import Index
+from sqlalchemy.types import BigInteger
+from sqlalchemy.dialects import sqlite
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from simoc_server import db
@@ -224,15 +226,15 @@ class AgentStateAttribute(BaseAttribute):
 
 
 class StepRecord(BaseEntity):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(BigInteger().with_variant(sqlite.INTEGER, "sqlite"), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship("User")
     step_num = db.Column(db.Integer, nullable=False, index=True)
-    game_id = db.Column(db.Integer, nullable=False)
+    game_id = db.Column(db.BigInteger, nullable=False, index=True)
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False,
                               index=True)
     agent_type = db.relationship("AgentType", foreign_keys=[agent_type_id])
-    agent_id = db.Column(db.Integer, nullable=False)
+    agent_id = db.Column(db.BigInteger, nullable=False)
     agent_amount = db.Column(db.Integer, nullable=False)
     direction = db.Column(db.String(10), nullable=False, index=True)
     currency_type_id = db.Column(db.Integer, db.ForeignKey("currency_type.id"), nullable=False,
@@ -244,7 +246,7 @@ class StepRecord(BaseEntity):
                                 index=True)
     storage_type = db.relationship("AgentType", foreign_keys=[storage_type_id])
     storage_id = db.Column(db.Integer, nullable=False)
-    storage_agent_id = db.Column(db.Integer, nullable=False)
+    storage_agent_id = db.Column(db.BigInteger, nullable=False)
     __table_args__ = (Index('step_user_game_idx', "user_id", "game_id"),)
 
     def get_data(self):
@@ -265,11 +267,11 @@ class StepRecord(BaseEntity):
 
 
 class ModelRecord(BaseEntity):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.BigInteger, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship("User")
     start_time = db.Column(db.Integer, nullable=False)
-    game_id = db.Column(db.Integer, nullable=False)
+    game_id = db.Column(db.BigInteger, nullable=False, index=True)
     step_num = db.Column(db.Integer, nullable=False, index=True)
     hours_per_step = db.Column(db.Float, nullable=False)
     is_terminated = db.Column(db.String(10), nullable=False)
@@ -303,8 +305,8 @@ class ModelRecord(BaseEntity):
 
 
 class AgentTypeCountRecord(BaseEntity):
-    id = db.Column(db.Integer, primary_key=True)
-    model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False,
+    id = db.Column(BigInteger().with_variant(sqlite.INTEGER, "sqlite"), primary_key=True)
+    model_record_id = db.Column(db.BigInteger, db.ForeignKey("model_record.id"), nullable=False,
                                 index=True)
     model_record = db.relationship("ModelRecord",
                                    backref=db.backref("agent_type_counters", lazy=False,
@@ -320,8 +322,8 @@ class AgentTypeCountRecord(BaseEntity):
 
 
 class StorageCapacityRecord(BaseEntity):
-    id = db.Column(db.Integer, primary_key=True)
-    model_record_id = db.Column(db.Integer, db.ForeignKey("model_record.id"), nullable=False,
+    id = db.Column(BigInteger().with_variant(sqlite.INTEGER, "sqlite"), primary_key=True)
+    model_record_id = db.Column(db.BigInteger, db.ForeignKey("model_record.id"), nullable=False,
                                 index=True)
     model_record = db.relationship("ModelRecord",
                                    backref=db.backref("storage_capacities", lazy=False,
@@ -329,8 +331,8 @@ class StorageCapacityRecord(BaseEntity):
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False,
                               index=True)
     agent_type = db.relationship("AgentType")
-    agent_id = db.Column(db.Integer, nullable=False)
-    storage_id = db.Column(db.Integer, nullable=False, index=True)
+    agent_id = db.Column(db.BigInteger, nullable=False)
+    storage_id = db.Column(db.BigInteger, nullable=False, index=True)
     currency_type_id = db.Column(db.Integer, db.ForeignKey("currency_type.id"), nullable=True,
                                  index=True)
     currency_type = db.relationship("CurrencyType")
