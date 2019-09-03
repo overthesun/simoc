@@ -235,16 +235,13 @@ def calc_step_in_out(direction, currencies, step_record_data):
     """
     output = {}
     for currency in currencies:
-        output[currency] = {}
+        output[currency] = {'value': 0, 'unit': ''}
 
     for step in step_record_data:
-        if step.direction == direction \
-                and step.currency_type.name in currencies:
-            if len(output[step.currency_type.name]) == 0:
-                output[step.currency_type.name]["value"] = step.value
-                output[step.currency_type.name]["unit"] = step.unit
-            else:
-                output[step.currency_type.name]["value"] += step.value
+        currency = step.currency_type.name
+        if step.direction == direction and currency in output:
+            output[currency]["value"] += step.value
+            output[currency]["unit"] = step.unit
 
     return output
 
@@ -343,16 +340,13 @@ def sum_agent_values_in_step(agent_types, currency_type_name, direction, step_re
 
     output = {}
     for agent_type in agent_types:
-        output[agent_type] = {}
+        output[agent_type] = {'value': 0, 'unit': ''}
 
     for step in step_record_data:
-        if step.currency_type.name == currency_type_name \
-                and step.direction == direction \
-                and step.agent_type.name in agent_types:
-            if len(output[step.agent_type.name]) == 0:
-                output[step.agent_type.name]["value"] = step.value
-                output[step.agent_type.name]["unit"] = step.unit
-            else:
-                output[step.agent_type.name]["value"] += step.value
+        agent_type = step.agent_type.name
+        if (step.currency_type.name == currency_type_name
+                and step.direction == direction and agent_type in output):
+            output[agent_type]["value"] += step.value
+            output[agent_type]["unit"] = step.unit
 
     return output
