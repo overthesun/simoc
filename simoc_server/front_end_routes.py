@@ -91,7 +91,7 @@ def convert_configuration(game_config):
     labels_to_direct_copy = ["priorities","minutes_per_step","location"]
     #If a game_config element should be assigned as an agent with connections: power_storage only, add it to the list below (unless you want to rename the agent, then it will need it's own code)
     #Note, this assumes power_storage is the only connection for this agent. Do not add agents which have other connections. Only agents which are present in the input game_config will be assigned
-    agents_to_assign_power_storage = ["habitat","greenhouse","solar_pv_array_mars"]
+    agents_to_assign_power_storage = ["habitat","greenhouse"]
 
     #Any agents with power_storage or food_storage will be assined power_storage = power_connections (defined later) etc. 
     #Agents initialised here must have all connections named here
@@ -178,10 +178,14 @@ def convert_configuration(game_config):
 
     #Here, agents from agents_to_assign_power_storage are assigned with only a power_storage connection.
     for labelps in agents_to_assign_power_storage:
-        if (labelps in game_config):
+        if labelps in game_config:
             amount = 1 if not "amount" in game_config[labelps] else game_config[labelps]["amount"]
             full_game_config["agents"][game_config[labelps]] = [
                 {"connections": {"power_storage": [1]}, "amount": amount}]
+
+    #game_config["solar_pv_array_mars"] is a dict, not a label like the labelps assigned above. So it needs it's own function
+    if "solar_pv_array_mars" in game_config:
+        full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {"power_storage": [1]}, "amount": game_config["solar_pv_array_mars"]["amount"]}]
 
 
     #If the front_end specifies an amount for this agent, overwrite any default values with the specified value
