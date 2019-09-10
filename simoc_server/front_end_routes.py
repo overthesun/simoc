@@ -60,8 +60,6 @@ def get_energy():
     attribute_name = "in_enrg_kwh"
     value_type = "energy_input"
     total = {}
-    if not agent_quantity:
-        agent_quantity = 1
     if agent_name == "eclss":
         total_eclss = 0
         for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "in_enrg_kwh").filter(AgentType.agent_class == "eclss").all():
