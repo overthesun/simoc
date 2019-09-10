@@ -28,8 +28,6 @@ def get_mass():
     value = 0
     agent_name = request.args.get("agent_name", type=str)
     agent_quantity = request.args.get("quantity", type=int)
-    if not agent_quantity:
-        agent_quantity = 1
     if agent_name == "eclss":
         total = 0
         for agent in db.session.query(AgentType, AgentTypeAttribute).filter(AgentType.id == AgentTypeAttribute.agent_type_id).filter(AgentTypeAttribute.name == "char_mass").filter(AgentType.agent_class == "eclss").all():
