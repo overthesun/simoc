@@ -85,7 +85,7 @@
               "time": "hour"
             },
             "deprive": {
-              "value": 504,
+              "value": 480,
               "unit": "hour"
             }
           }
@@ -117,7 +117,7 @@
           },
           {
             "type": "h2o_urin",
-            "value": 0.0625,
+            "value": 0.063,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -141,8 +141,12 @@
             "unit": "m^3"
           },
           {
-            "type": "threshold_atmo_o2",
+            "type": "char_threshold_lower_atmo_o2",
             "value": 0.08
+          },
+          {
+            "type": "char_threshold_upper_atmo_co2",
+            "value": 0.025
           },
           {
             "type": "location",
@@ -682,6 +686,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.2300870147,
+            "required" : true,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1004,6 +1009,7 @@
           {
             "type": "sold_p",
             "value": 0.0000003632356,
+            "required" : true,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
