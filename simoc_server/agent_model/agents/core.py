@@ -149,6 +149,7 @@ class EnclosedAgent(BaseAgent):
         super(EnclosedAgent, self).__init__(*args, **kwargs)
         if 'char_lifetime' in self.attrs:
             self.lifetime = self.attrs['char_lifetime']
+            self.lifetime_units = self.attr_details['char_lifetime']['units']
         else:
             self.lifetime = 0
         if 'char_reproduce' in self.attrs:
@@ -161,12 +162,21 @@ class EnclosedAgent(BaseAgent):
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
         self.age += hours_per_step / self.model.day_length_hours
-        if 0 < self.lifetime <= self.age:
-            if self.reproduce:
-                self.age = 0
-                return
-            self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
-                    self.agent_type))
+        if self.lifetime > 0:
+            if self.lifetime_units == 'day':
+                lifetime = int(self.lifetime)
+            elif self.lifetime_units == 'hour':
+                lifetime = int(self.lifetime / self.model.day_length_hours)
+            elif self.lifetime_units == 'min':
+                lifetime = int((self.lifetime / 60) / self.model.day_length_hours)
+            else:
+                raise Exception('Unknown agent lifetime units.')
+            if self.age >= lifetime:
+                if self.reproduce:
+                    self.age = 0
+                    return
+                self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
+                        self.agent_type))
 
     def age(self):
         """Return the age of the agent."""
@@ -244,7 +254,17 @@ class GeneralAgent(EnclosedAgent):
                     self.selected_storage[prefix][currency].append(storage)
 
     def _calculate_step_values(self):
-        num_values = int((self.lifetime or 1) * self.model.day_length_hours)
+        if self.lifetime > 0:
+            if self.lifetime_units == 'day':
+                num_values = int(self.lifetime * self.model.day_length_hours)
+            elif self.lifetime_units == 'hour':
+                num_values = int(self.lifetime)
+            elif self.lifetime_units == 'min':
+                num_values = int(self.lifetime / 60)
+            else:
+                num_values = int(self.model.day_length_hours)
+        else:
+            num_values = int(self.model.day_length_hours)
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
         self.step_values = {}

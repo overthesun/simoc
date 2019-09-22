@@ -128,7 +128,7 @@
           {
             "type": "lifetime",
             "value": 525600.0,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "mass",
@@ -758,7 +758,7 @@
           {
             "type": "lifetime",
             "value": 2040,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -925,7 +925,7 @@
           {
             "type": "lifetime",
             "value": 1896,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -1092,7 +1092,7 @@
           {
             "type": "lifetime",
             "value": 2400.0,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -1259,7 +1259,7 @@
           {
             "type": "lifetime",
             "value": 1080,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -1426,7 +1426,7 @@
           {
             "type": "lifetime",
             "value": 1800,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -1593,7 +1593,7 @@
           {
             "type": "lifetime",
             "value": 672,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -1760,7 +1760,7 @@
           {
             "type": "lifetime",
             "value": 720,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -1927,7 +1927,7 @@
           {
             "type": "lifetime",
             "value": 2040,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -2094,7 +2094,7 @@
           {
             "type": "lifetime",
             "value": 2496,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -2261,7 +2261,7 @@
           {
             "type": "lifetime",
             "value": 2328,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -2428,7 +2428,7 @@
           {
             "type": "lifetime",
             "value": 2040,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -2595,7 +2595,7 @@
           {
             "type": "lifetime",
             "value": 2040,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -2762,7 +2762,7 @@
           {
             "type": "lifetime",
             "value": 2040,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -2929,7 +2929,7 @@
           {
             "type": "lifetime",
             "value": 1200,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -3096,7 +3096,7 @@
           {
             "type": "lifetime",
             "value": 1800,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -3255,7 +3255,7 @@
           {
             "type": "lifetime",
             "value": 2040,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -3422,7 +3422,7 @@
           {
             "type": "lifetime",
             "value": 2040,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -3589,7 +3589,7 @@
           {
             "type": "lifetime",
             "value": 600,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -3756,7 +3756,7 @@
           {
             "type": "lifetime",
             "value": 912,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -3923,7 +3923,7 @@
           {
             "type": "lifetime",
             "value": 1800,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -4090,7 +4090,7 @@
           {
             "type": "lifetime",
             "value": 2040,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
@@ -4257,7 +4257,7 @@
           {
             "type": "lifetime",
             "value": 3168,
-            "unit": "hours"
+            "unit": "hour"
           },
           {
             "type": "reproduce",
