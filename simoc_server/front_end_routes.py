@@ -1,6 +1,10 @@
 """
-These functions enable the front end to send information to where it's needed.
+These functions perform calculations or assignments which 
+are to be passed back to the front end, but none of the functions 
+are called directly from the front end. 
 These functions were originally in views.py. 
+The front end routes which call the functions here are in views.py
+Note: the name of this script is misleading and should be changed
 """
 
 import json
