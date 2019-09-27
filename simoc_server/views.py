@@ -190,7 +190,7 @@ def get_steps():
             step_record_dict[record.step_num].append(record)
 
     output = {}
-    for mri, model_record_data in enumerate(model_record_steps):
+    for model_record_data in model_record_steps:
         step_num = model_record_data.step_num
         if step_num in step_record_dict:
             step_record_data = step_record_dict[step_num]

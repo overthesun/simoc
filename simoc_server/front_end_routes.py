@@ -244,7 +244,7 @@ def calc_step_in_out(direction, currencies, step_record_data):
 
 
 def calc_step_storage_ratios(agents, model_record_data):
-    """ 
+    """
     Calculate the ratio for the requested currencies for the requested <agent_type>_<agent_id>.
 
     Called from: route views.get_step()
@@ -259,27 +259,28 @@ def calc_step_storage_ratios(agents, model_record_data):
     for agent in agents:
         agent_type = agent[:agent.rfind("_")]
         agent_id = int(agent[agent.rfind("_")+1:])
-        capacities = [r for r in capacity_data
-                      if r.agent_type.name == agent_type and r.storage_id == agent_id]
+        agent_capacities = [record for record in capacity_data
+                            if record.agent_type.name == agent_type
+                            and record.storage_id == agent_id]
 
         # First, get sum of all currencies
-        sum = 0
+        total_value = 0
         unit = ""
-        # for cap in capacities.all():
-        for cap in capacities:
-            sum += cap.value
+        for record in agent_capacities:
+            total_value += record.value
             if unit == "":
-                unit = cap.unit
+                unit = record.unit
             else:
-                if not cap.unit == unit:
+                if not record.unit == unit:
                     sys.exit("ERROR in front_end_routes.calc_step_storage_ratios()."
-                             "Currencies do not have same units.", unit, cap.unit)
+                             "Currencies do not have same units.", unit, record.unit)
 
         output[agent] = {}
         # Now, calculate the ratio for specified currencies.
         for currency in agents[agent]:
-            c_step_data = [r for r in capacities if r.currency_type.name == currency][0]
-            output[agent][currency] = c_step_data.value / sum
+            c_step_data = [record for record in agent_capacities
+                           if record.currency_type.name == currency][0]
+            output[agent][currency] = c_step_data.value / total_value
 
     return output
 
@@ -349,23 +350,22 @@ def sum_agent_values_in_step(agent_types, currency_type_name, direction, step_re
     return output
 
 
-def calc_step_storage_capacities(agents, model_record_data):
-
+def calc_step_storage_capacities(agent_types, model_record_data):
     output = {}
-    for agent_id in agents:
-        output[agent_id] = {currency: {'value': 0, 'unit': ''}
-                            for currency in agents[agent_id]}
-
     storage_capacities = StorageCapacityRecord.query \
         .filter_by(model_record=model_record_data).all()
-
     for record in storage_capacities:
         agent_type = record.agent_type.name
         storage_id = record.storage_id
-        agent_id = f'{agent_type}_{storage_id}'
         currency = record.currency_type.name
-        if agent_id in output and currency in output[agent_id]:
-            output[agent_id][currency]['value'] = record.value
-            output[agent_id][currency]['unit'] = record.unit
-
+        if (len(agent_types) == 0 or
+           (agent_type in agent_types and
+            (currency in agent_types[agent_type] or
+             len(agent_types[agent_type]) == 0))):
+            if agent_type not in output:
+                output[agent_type] = {}
+            if storage_id not in output[agent_type]:
+                output[agent_type][storage_id] = {}
+            output[agent_type][storage_id][currency] = {'value': record.value,
+                                                        'unit': record.unit}
     return output
