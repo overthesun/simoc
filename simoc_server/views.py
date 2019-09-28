@@ -8,7 +8,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 
 from simoc_server import app, db, redis_conn
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User, \
-    ModelRecord, StepRecord
+    ModelRecord, StepRecord, StorageCapacityRecord, AgentTypeCountRecord
 from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
@@ -119,6 +119,7 @@ def new_game():
     result = tasks.new_game.delay(get_standard_user_obj().username, game_config).get(timeout=60)
     # Save the hostname of the Celery worker that a game was assigned to
     redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
+    redis_conn.set('user_mapping:{}'.format(get_standard_user_obj().id), result['game_id'])
 
     return status("New game starts.", game_id=result['game_id'])
 
@@ -223,6 +224,60 @@ def get_steps():
         output[int(step_num)] = agent_model_state
 
     return status("Step data retrieved.", step_data=output)
+
+
+@app.route("/get_db_dump", methods=["POST"])
+@login_required
+def get_db_dump():
+    input = json.loads(request.data.decode('utf-8'))
+    if "min_step_num" not in input and "n_steps" not in input:
+        raise BadRequest("min_step_num and n_steps are required.")
+    if "game_id" not in input:
+        raise BadRequest("game_id is required.")
+    min_step_num = int(input["min_step_num"])
+    n_steps = int(input["n_steps"])
+    game_id = str(input["game_id"])
+    max_step_num = min_step_num+n_steps-1
+
+    user = get_standard_user_obj()
+
+    model_record_steps = ModelRecord.query \
+        .filter_by(user_id=user.id) \
+        .filter_by(game_id=game_id) \
+        .filter(ModelRecord.step_num >= min_step_num) \
+        .filter(ModelRecord.step_num <= max_step_num).all()
+    step_record_steps = StepRecord.query \
+        .filter_by(user_id=user.id) \
+        .filter_by(game_id=game_id) \
+        .filter(StepRecord.step_num >= min_step_num) \
+        .filter(StepRecord.step_num <= max_step_num).all()
+
+    output = dict()
+    output['model_record_steps'] = [i.get_data() for i in model_record_steps]
+    output['step_record_steps'] = [i.get_data() for i in step_record_steps]
+
+    output['storage_capacities'], output['agent_counters'] = {}, {}
+    for model_record in model_record_steps:
+        step_num = int(model_record.step_num)
+        storage_capacities = StorageCapacityRecord.query \
+            .filter_by(model_record=model_record).all()
+        agent_counters = AgentTypeCountRecord.query \
+            .filter_by(model_record=model_record).all()
+        output['storage_capacities'][step_num] = [i.get_data() for i in
+                                                  storage_capacities]
+        output['agent_counters'][step_num] = [i.get_data() for i in
+                                              agent_counters]
+    return output
+
+
+@app.route("/get_last_game_id", methods=["POST"])
+@login_required
+def get_last_game_id():
+    user = get_standard_user_obj()
+    game_id = redis_conn.get(f'user_mapping:{user.id}')
+    game_id = game_id.decode("utf-8") if game_id else game_id
+    return status(f'Last game ID for user "{user.username}" retrieved.',
+                  game_id=game_id)
 
 
 @app.route("/kill_game", methods=["POST"])

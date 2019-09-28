@@ -256,6 +256,7 @@ class StepRecord(BaseEntity):
                 'game_id': self.game_id,
                 "agent_type": self.agent_type.name,
                 "agent_id": self.agent_id,
+                "agent_amount": self.agent_amount,
                 "direction": self.direction,
                 "currency_type": self.currency_type.name,
                 "currency_type_id": self.currency_type.id,
