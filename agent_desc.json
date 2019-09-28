@@ -14,7 +14,6 @@
       "sold_k": 0,
       "sold_wast": 0,
 
-      "food_totl": 0,
       "food_stor": 0,
       "food_edbl": 0,
       "food_ined": 0,
@@ -26,7 +25,6 @@
       "food_root": 0,
       "food_othr": 0,
 
-      "h2o_totl": 0,
       "h2o_tret": 0,
       "h2o_potb": 0,
       "h2o_urin": 0,
@@ -4737,11 +4735,6 @@
         "input": [],
         "output": [],
         "characteristics": [
-          {
-            "type": "capacity_h2o_totl",
-            "value": 4000,
-            "unit": "kg"
-          },
           {
             "type": "capacity_h2o_potb",
             "value": 4000,
