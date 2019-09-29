@@ -230,7 +230,7 @@ class StepRecord(BaseEntity):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship("User")
     step_num = db.Column(db.Integer, nullable=False, index=True)
-    game_id = db.Column(db.BigInteger, nullable=False, index=True)
+    game_id = db.Column(BigInteger().with_variant(sqlite.INTEGER, "sqlite"), nullable=False, index=True)
     agent_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False,
                               index=True)
     agent_type = db.relationship("AgentType", foreign_keys=[agent_type_id])
@@ -268,11 +268,11 @@ class StepRecord(BaseEntity):
 
 
 class ModelRecord(BaseEntity):
-    id = db.Column(db.BigInteger, primary_key=True)
+    id = db.Column(BigInteger().with_variant(sqlite.INTEGER, "sqlite"), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     user = db.relationship("User")
     start_time = db.Column(db.Integer, nullable=False)
-    game_id = db.Column(db.BigInteger, nullable=False, index=True)
+    game_id = db.Column(BigInteger().with_variant(sqlite.INTEGER, "sqlite"), nullable=False, index=True)
     step_num = db.Column(db.Integer, nullable=False, index=True)
     hours_per_step = db.Column(db.Float, nullable=False)
     is_terminated = db.Column(db.String(10), nullable=False)

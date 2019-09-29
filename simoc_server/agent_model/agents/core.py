@@ -2,6 +2,7 @@ r"""Describes Core Agent Types.
 """
 
 import json
+import random
 from abc import ABCMeta
 
 import numpy as np
@@ -49,7 +50,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         self.model_time_created = kwargs.pop("model_time_created", self.model.time)
         self.unique_id = kwargs.pop("unique_id", None)
         if not self.unique_id:
-            self.unique_id = int(np.random.randint(2 ** 32, dtype='int64'))
+            self.unique_id = random.getrandbits(63)
 
         self._load_agent_type_attributes()
         AttributeHolder.__init__(self)

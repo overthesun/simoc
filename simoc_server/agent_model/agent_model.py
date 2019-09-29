@@ -3,6 +3,7 @@ r"""Describes Agent Model interface and behaviour,
 
 import datetime
 import json
+import random
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
@@ -114,7 +115,7 @@ class AgentModel(Model, AttributeHolder):
         self.day_length_hours = self.day_length_minutes / 60
         self.daytime = int(self.time.total_seconds() / 60) % self.day_length_minutes
         if self.seed is None:
-            self.seed = int(np.random.randint(2 ** 32, dtype='int64'))
+            self.seed = random.getrandbits(32)
         if self.random_state is None:
             self.random_state = np.random.RandomState(self.seed)
         if self.priorities:
@@ -136,7 +137,7 @@ class AgentModel(Model, AttributeHolder):
 
         Returns
         """
-        record_id = int(np.random.randint(2 ** 32, dtype='int64'))
+        record_id = random.getrandbits(63)
         model_record = dict(id=record_id,
                             step_num=self.step_num,
                             user_id=self.user_id,
