@@ -4497,7 +4497,7 @@
         "output": [
           {
             "type": "enrg_kwh",
-            "value": 5.3,
+            "value": 0.354,
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
