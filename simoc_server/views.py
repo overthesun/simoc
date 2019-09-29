@@ -121,7 +121,7 @@ def new_game():
     redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
     redis_conn.set('user_mapping:{}'.format(get_standard_user_obj().id), result['game_id'])
 
-    return status("New game starts.", game_id=hex(result['game_id']))
+    return status("New game starts.", game_id=format(result['game_id'], 'X'))
 
 
 @app.route("/get_steps", methods=["POST"])
@@ -277,7 +277,7 @@ def get_last_game_id():
     game_id = redis_conn.get(f'user_mapping:{user.id}')
     game_id = game_id.decode("utf-8") if game_id else game_id
     return status(f'Last game ID for user "{user.username}" retrieved.',
-                  game_id=hex(game_id))
+                  game_id=format(game_id, 'X'))
 
 
 @app.route("/kill_game", methods=["POST"])
