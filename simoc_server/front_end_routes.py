@@ -101,22 +101,22 @@ def convert_configuration(game_config):
     #Agents initialised here must have all connections named here
     full_game_config = {"agents": {
         "human_agent":                            [
-            {"connections": {"air_storage": [1], "water_storage": [1, 2], "food_storage": [1]}}],
+            {"connections": {"air_storage": [1], "water_storage": [1], "food_storage": [1]}}],
         "solid_waste_aerobic_bioreactor":         [
             {"connections": {"air_storage":   [1], "power_storage": [1],
-                             "water_storage": [1, 2], "nutrient_storage": [1]},
+                             "water_storage": [1], "nutrient_storage": [1]},
              "amount":      1}],
         "multifiltration_purifier_post_treament": [
-            {"connections": {"water_storage": [1, 2], "power_storage": [1]}, "amount": 1}],
+            {"connections": {"water_storage": [1], "power_storage": [1]}, "amount": 1}],
         "oxygen_generation_SFWE":                 [
-            {"connections": {"air_storage": [1], "power_storage": [1], "water_storage": [1, 2]},
+            {"connections": {"air_storage": [1], "power_storage": [1], "water_storage": [1]},
              "amount":      1}],
         "urine_recycling_processor_VCD":          [
-            {"connections": {"power_storage": [1], "water_storage": [1, 2]}, "amount": 1}],
+            {"connections": {"power_storage": [1], "water_storage": [1]}, "amount": 1}],
         "co2_removal_SAWD":                       [
             {"connections": {"air_storage": [1], "power_storage": [1]}, "amount": 1}],
         "co2_reduction_sabatier":                 [
-            {"connections": {"air_storage": [1], "power_storage": [1], "water_storage": [1, 2]},
+            {"connections": {"air_storage": [1], "power_storage": [1], "water_storage": [1]},
              "amount":      1}]
         # "particulate_removal_TCCS" : [{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}]
     },
@@ -125,8 +125,7 @@ def convert_configuration(game_config):
                 {"id": 1, "atmo_h2o": 10, "atmo_o2": 2100, "atmo_co2": 3.5, "atmo_n2": 7886,
                  "atmo_ch4": 0.009531,
                  "atmo_h2": 0.005295}],
-            "water_storage": [{"id": 1, "h2o_potb": 5000, "h2o_tret": 1000},
-                              {"id": 2, "h2o_potb": 4000, "h2o_wste": 100, "h2o_urin": 100}],
+            "water_storage": [{"id": 1, "h2o_potb": 9000, "h2o_tret": 1000, "h2o_wste": 0, "h2o_urin": 0}],
             "nutrient_storage": [{"id": 1, "sold_n": 100, "sold_p": 100, "sold_k": 100}],
             "power_storage":    [],
             "food_storage":     []},
@@ -201,8 +200,9 @@ def convert_configuration(game_config):
     if "plants" in game_config:
         for plant in game_config["plants"]:
             full_game_config["agents"][plant["species"]] = [
-                {"connections": {"air_storage": [1], "water_storage": [
-                    1, 2], "nutrient_storage":  [1], "power_storage": [], "food_storage": [1]},
+                {"connections": {"air_storage": [1], "water_storage": [1],
+                                 "nutrient_storage":  [1], "power_storage": [],
+                                 "food_storage": [1]},
                  "amount":      plant["amount"]}]
 
 
