@@ -121,7 +121,7 @@ def new_game():
     redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
     redis_conn.set('user_mapping:{}'.format(get_standard_user_obj().id), result['game_id'])
 
-    return status("New game starts.", game_id=result['game_id'])
+    return status("New game starts.", game_id=hex(result['game_id']))
 
 
 @app.route("/get_steps", methods=["POST"])
@@ -164,7 +164,7 @@ def get_steps():
         raise BadRequest("game_id is required.")
     min_step_num = int(input["min_step_num"])
     n_steps = int(input["n_steps"])
-    game_id = str(input["game_id"])
+    game_id = int(input["game_id"], 16)
     max_step_num = min_step_num+n_steps-1
 
     # Which of the output from parse_step_data to you want returned.
@@ -236,7 +236,7 @@ def get_db_dump():
         raise BadRequest("game_id is required.")
     min_step_num = int(input["min_step_num"])
     n_steps = int(input["n_steps"])
-    game_id = str(input["game_id"])
+    game_id = int(input["game_id"], 16)
     max_step_num = min_step_num+n_steps-1
 
     user = get_standard_user_obj()
@@ -277,7 +277,7 @@ def get_last_game_id():
     game_id = redis_conn.get(f'user_mapping:{user.id}')
     game_id = game_id.decode("utf-8") if game_id else game_id
     return status(f'Last game ID for user "{user.username}" retrieved.',
-                  game_id=game_id)
+                  game_id=hex(game_id))
 
 
 @app.route("/kill_game", methods=["POST"])
@@ -286,7 +286,7 @@ def kill_game():
     input = json.loads(request.data.decode('utf-8'))
     if "game_id" not in input:
         raise BadRequest("game_id is required.")
-    game_id = str(input["game_id"])
+    game_id = int(input["game_id"], 16)
     task_id = redis_conn.get('task_mapping:{}'.format(game_id)).decode("utf-8")
     celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
     return status(f"Game {game_id} killed.")
@@ -317,7 +317,7 @@ def get_step_to():
         raise BadRequest("game_id is required.")
     if "step_num" not in input:
         raise BadRequest("step_num is required.")
-    game_id = str(input["game_id"])
+    game_id = int(input["game_id"], 16)
     step_num = int(input["step_num"])
     # Get a direct worker queue
     worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
@@ -333,7 +333,7 @@ def get_num_steps():
     input = json.loads(request.data.decode('utf-8'))
     if "game_id" not in input:
         raise BadRequest("game_id is required.")
-    game_id = str(input["game_id"])
+    game_id = int(input["game_id"], 16)
     user = get_standard_user_obj()
     last_record = ModelRecord.query \
         .filter_by(user_id=user.id) \
@@ -405,7 +405,7 @@ def save_game():
         save_name = str(input["save_name"])
     else:
         save_name = None
-    game_id = str(input["game_id"])
+    game_id = int(input["game_id"], 16)
     # Get a direct worker queue
     worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
     queue = worker_direct(worker)
