@@ -12,7 +12,7 @@
       "sold_n": 0,
       "sold_p": 0,
       "sold_k": 0,
-      "sold_wast": 0,
+      "sold_wste": 0,
 
       "food_stor": 0,
       "food_edbl": 0,
@@ -4800,7 +4800,7 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_sold_wast",
+            "type": "capacity_sold_wste",
             "value": 1000,
             "unit": "kg"
           },
