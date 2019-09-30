@@ -451,12 +451,12 @@ class GeneralAgent(EnclosedAgent):
                     if currency in self.selected_storage[prefix]:
                         for storage in self.selected_storage[prefix][currency]:
                             agent_id = '{}_{}'.format(storage.agent_type, storage.id)
-                            if threshold_type == 'lower' and self.model.model_stats[agent_id][
+                            if threshold_type == 'lower' and self.model.storage_ratios[agent_id][
                                 currency + '_ratio'] < threshold_value:
                                 self.kill('Threshold {} met for {}. Killing the agent'.format(
                                     currency, self.agent_type))
                                 return
-                            if threshold_type == 'upper' and self.model.model_stats[agent_id][
+                            if threshold_type == 'upper' and self.model.storage_ratios[agent_id][
                                 currency + '_ratio'] > threshold_value:
                                 self.kill('Threshold {} met for {}. Killing the agent'.format(
                                     currency, self.agent_type))
