@@ -83,22 +83,30 @@ def get_energy():
 
 
 def convert_configuration(game_config):
-    """This method converts the json configuration from a post into
-    a more complete configuration with connections"""
+    """This method converts the json configuration from a post into a more complete configuration
+    with connections.
 
-    """THOMAS: This was created to allow the front end to send over a simplified version without connections. Connections are actually set up to connect to everything
-    automatically, so this could use a re-haul. It also has some atmosphere values that are hard coded here that should be defined either in the agent library
-    or sent from the front end. If this route is kept, most of the functionality should be moved into a separate object to help declutter and keep a solid separation
-    of concerns. If it is removed, the data from the front end needs to be changed into a format based on an object similar to the one created here or in the new game view."""
+    THOMAS: This was created to allow the front end to send over a simplified version without
+    connections. Connections are actually set up to connect to everything automatically, so this
+    could use a re-haul. It also has some atmosphere values that are hard coded here that should be
+    defined either in the agent library or sent from the front end. If this route is kept, most of
+    the functionality should be moved into a separate object to help declutter and keep a solid
+    separation of concerns. If it is removed, the data from the front end needs to be changed into a
+    format based on an object similar to the one created here or in the new game view."""
 
-    #Anything in this list will be copied as is from the input to the full_game_config. If it's not in the input it will be ignored
+    # Anything in this list will be copied as is from the input to the full_game_config. If it's not
+    # in the input it will be ignored
     labels_to_direct_copy = ["priorities","minutes_per_step","location"]
-    #If a game_config element should be assigned as an agent with connections: power_storage only, add it to the list below (unless you want to rename the agent, then it will need it's own code)
-    #Note, this assumes power_storage is the only connection for this agent. Do not add agents which have other connections. Only agents which are present in the input game_config will be assigned
+
+    # If a game_config element should be assigned as an agent with connections: power_storage only,
+    # add it to the list below (unless you want to rename the agent, then it will need it's own
+    # code) Note, this assumes power_storage is the only connection for this agent. Do not add
+    # agents which have other connections. Only agents which are present in the input game_config
+    # will be assigned
     agents_to_assign_power_storage = ["habitat","greenhouse"]
 
-    #Any agents with power_storage or food_storage will be assined power_storage = power_connections (defined later) etc. 
-    #Agents initialised here must have all connections named here
+    # Any agents with power_storage or food_storage will be assined power_storage = power
+    # connections (defined later) etc. Agents initialised here must have all connections named here.
     full_game_config = {"agents": {
         "human_agent":                            [
             {"connections": {"air_storage": [1], "water_storage": [1], "food_storage": [1]}}],
@@ -118,7 +126,6 @@ def convert_configuration(game_config):
         "co2_reduction_sabatier":                 [
             {"connections": {"air_storage": [1], "power_storage": [1], "water_storage": [1]},
              "amount":      1}]
-        # "particulate_removal_TCCS" : [{"connections":{"air_storage": [1],"power_storage": [1]},"amount":1}]
     },
         "storages":               {
             "air_storage": [
@@ -131,21 +138,22 @@ def convert_configuration(game_config):
             "food_storage":     []},
         "termination":            [
             {"condition": "evacuation"}]}
+
     food_storage_capacity = int(
         db.session.query(
             AgentType, AgentTypeAttribute).filter(
             AgentType.id == AgentTypeAttribute.agent_type_id).filter(
             AgentTypeAttribute.name == "char_capacity_food_edbl").first().AgentTypeAttribute.value)
     food_storage_amount = math.ceil(
-        (game_config["food_storage"]["amount"]) / (int(food_storage_capacity)))
+        (game_config["food_storage"]["amount"] or 0) / (int(food_storage_capacity)))
 
-
-    #This is where labels from labels_to_direct_copy are copied directly from game_config to full_game_config
+    # This is where labels from labels_to_direct_copy are copied directly from game_config to full
+    # game_config
     for labeldc in labels_to_direct_copy:
         if labeldc in game_config:
             full_game_config[labeldc] = game_config[labeldc]
 
-    #Assign termination values
+    # Assign termination values
     if ("duration" in game_config):
         duration = {
             "condition": "time",
@@ -153,19 +161,22 @@ def convert_configuration(game_config):
             "unit":      game_config["duration"]["type"]}
         full_game_config["termination"].append(duration)
 
-    #is it a single agent
-    full_game_config["single_agent"] = 1 if ('single_agent' in game_config and game_config["single_agent"] == 1) else 0
+    # Is it a single agent
+    full_game_config["single_agent"] = 1 if ('single_agent' in game_config
+                                             and game_config["single_agent"] == 1) else 0
 
-    #The rest of this function is for reformatting agents.
-    #food_connections and power_connections will be assigned to all agents with food_storage or power_storage respecitively, at the end of this function.
+    # The rest of this function is for reformatting agents. Food_connections and power_connections
+    # will be assigned to all agents with food_storage or power_storage respecitively, at the end of
+    # this function.
 
-    #Determine the food and power connections to be assigned to all agents with food and power storage later
-    power_storage_amount = game_config["power_storage"]["amount"]
+    # Determine the food and power connections to be assigned to all agents with food and power
+    # storage later
+    power_storage_amount = game_config["power_storage"]["amount"] or 0
     food_connections, power_connections = [], []
-    food_left = game_config["food_storage"]["amount"]
+    food_left = game_config["food_storage"]["amount"] or 0
     for x in range(1, int(food_storage_amount) + 1):
         food_connections.append(x)
-        if (food_left > food_storage_capacity):
+        if food_left > food_storage_capacity:
             full_game_config["storages"]["food_storage"].append(
                 {"id": x, "food_edbl": food_storage_capacity})
             food_left -= food_storage_capacity
@@ -173,27 +184,33 @@ def convert_configuration(game_config):
             full_game_config["storages"]["food_storage"].append(
                 {"id": x, "food_edbl": food_left})
 
-    for y in range(1, int(power_storage_amount) + 1):
+    power_storage_capacity = db.session.query(AgentType, AgentTypeAttribute) \
+        .filter(AgentType.id == AgentTypeAttribute.agent_type_id)\
+        .filter(AgentTypeAttribute.name == "char_capacity_enrg_kwh")\
+        .first().AgentTypeAttribute.value
+    for y in range(1, int(power_storage_amount or 0) + 1):
         power_connections.append(y)
         full_game_config["storages"]["power_storage"].append(
-            {"id": y, "enrg_kwh": 1000})
+            {"id": y, "enrg_kwh": int(power_storage_capacity)})
 
 
-    #Here, agents from agents_to_assign_power_storage are assigned with only a power_storage connection.
+    # Here, agents from agents_to_assign_power_storage are assigned with only a power_storage
+    # connection.
     for labelps in agents_to_assign_power_storage:
         if labelps in game_config:
-            amount = 1 if not "amount" in game_config[labelps] else game_config[labelps]["amount"]
+            amount = 1 if "amount" not in game_config[labelps] else (game_config[labelps]["amount"] or 0)
             full_game_config["agents"][game_config[labelps]] = [
                 {"connections": {"power_storage": [1]}, "amount": amount}]
 
-    #game_config["solar_pv_array_mars"] is a dict, not a label like the labelps assigned above. So it needs it's own function
+    #game_config["solar_pv_array_mars"] is a dict, not a label like the labelps assigned above.
+    # So it needs it's own function
     if "solar_pv_array_mars" in game_config:
-        full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {"power_storage": [1]}, "amount": game_config["solar_pv_array_mars"]["amount"]}]
+        full_game_config["agents"]["solar_pv_array_mars"] = [{"connections": {"power_storage": [1]}, "amount": game_config["solar_pv_array_mars"]["amount"] or 0}]
 
 
     #If the front_end specifies an amount for this agent, overwrite any default values with the specified value
     for x, y in full_game_config["agents"].items():
-        if x in game_config and "amount" in game_config[x]:
+        if x in game_config and "amount" in game_config[x] and game_config[x]['amount']:
             y[0]["amount"] = game_config[x]["amount"]
 
     #Plants are treated separately because its a list of items which must be assigned as agents
@@ -203,7 +220,7 @@ def convert_configuration(game_config):
                 {"connections": {"air_storage": [1], "water_storage": [1],
                                  "nutrient_storage":  [1], "power_storage": [],
                                  "food_storage": [1]},
-                 "amount":      plant["amount"]}]
+                 "amount":      plant["amount"] or 0}]
 
 
     #Here, power connections and food connections are assigned to all agents with power_storage or food_storage specified. 
@@ -368,4 +385,16 @@ def calc_step_storage_capacities(agent_types, model_record_data):
                 output[agent_type][storage_id] = {}
             output[agent_type][storage_id][currency] = {'value': record.value,
                                                         'unit': record.unit}
+    return output
+
+
+def get_growth_rates(agent_types, currency_type_name, direction, step_record_data):
+    output = {}
+    for agent_type in agent_types:
+        output[agent_type] = 0
+    for step in step_record_data:
+        agent_type = step.agent_type.name
+        if agent_type in output and step.currency_type.name == currency_type_name \
+                and step.direction == direction and step.growth > output[agent_type]:
+            output[agent_type] = step.growth
     return output

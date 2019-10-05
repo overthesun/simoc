@@ -13,7 +13,7 @@ from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadR
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
     calc_step_storage_ratios, parse_step_data, count_agents_in_step, sum_agent_values_in_step, \
-    calc_step_storage_capacities
+    calc_step_storage_capacities, get_growth_rates
 
 from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
@@ -199,11 +199,11 @@ def get_steps():
             #see issue #81. sometimes the modelrecord exists for a step but the steprecord doesn't.
             continue
         agent_model_state = parse_step_data(model_record_data, parse_filters, step_record_data)
-        if "total_agent_mass" in input:
-            agent_model_state["total_agent_mass"] = sum_agent_values_in_step(input["total_agent_mass"],
-                                                                             'biomass_totl',
-                                                                             'out',
-                                                                             step_record_data)
+        if "agent_growth" in input:
+            agent_model_state["agent_growth"] = get_growth_rates(input["agent_growth"],
+                                                                 'biomass_totl',
+                                                                 'out',
+                                                                 step_record_data)
         if "total_agent_count" in input:
             agent_model_state["total_agent_count"] = count_agents_in_step(input["total_agent_count"],
                                                                           model_record_data)

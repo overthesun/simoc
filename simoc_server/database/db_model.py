@@ -241,6 +241,7 @@ class StepRecord(BaseEntity):
                                  index=True)
     currency_type = db.relationship("CurrencyType")
     value = db.Column(db.Float, nullable=False)
+    growth = db.Column(db.Float, nullable=False)
     unit = db.Column(db.String(10), nullable=False)
     storage_type_id = db.Column(db.Integer, db.ForeignKey("agent_type.id"), nullable=False,
                                 index=True)
@@ -261,6 +262,7 @@ class StepRecord(BaseEntity):
                 "currency_type": self.currency_type.name,
                 "currency_type_id": self.currency_type.id,
                 "value": self.value,
+                "growth": self.max_value,
                 "unit": self.unit,
                 "storage_type": self.storage_type.name,
                 "storage_id": self.storage_id,

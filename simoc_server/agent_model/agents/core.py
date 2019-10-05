@@ -162,19 +162,21 @@ class EnclosedAgent(BaseAgent):
         """TODO"""
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
-        self.age += hours_per_step / self.model.day_length_hours
+        self.age += hours_per_step
         if self.lifetime > 0:
             if self.lifetime_units == 'day':
-                lifetime = int(self.lifetime)
+                lifetime = int(self.lifetime) * self.model.day_length_hours
             elif self.lifetime_units == 'hour':
-                lifetime = int(self.lifetime / self.model.day_length_hours)
+                lifetime = int(self.lifetime)
             elif self.lifetime_units == 'min':
-                lifetime = int((self.lifetime / 60) / self.model.day_length_hours)
+                lifetime = int(self.lifetime / 60)
             else:
                 raise Exception('Unknown agent lifetime units.')
             if self.age >= lifetime:
                 if self.reproduce:
                     self.age = 0
+                    for attr in self.current_growth:
+                        self.current_growth[attr] = 0
                     return
                 self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
                         self.agent_type))
@@ -269,6 +271,8 @@ class GeneralAgent(EnclosedAgent):
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
         self.step_values = {}
+        self.total_growth = {}
+        self.current_growth = {}
         for attr in self.attrs:
             prefix, currency = attr.split('_', 1)
             if prefix not in ['in', 'out']:
@@ -372,6 +376,9 @@ class GeneralAgent(EnclosedAgent):
                     else:
                         self.step_values[attr][i:i+day_length] = growth_func.get_growth_values(**kwargs)
 
+            self.total_growth[attr] = np.sum(self.step_values[attr])
+            self.current_growth[attr] = 0
+
     def get_step_value(self, attr):
         """TODO
 
@@ -425,7 +432,7 @@ class GeneralAgent(EnclosedAgent):
                         return pq.Quantity(0.0, agent_unit)
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
-        step_num = int(self.age * self.model.day_length_hours)
+        step_num = int(self.age)
         if step_num >= self.step_values[attr].shape[0]:
             step_num = step_num % int(self.model.day_length_hours)
         agent_value = self.step_values[attr][step_num]
@@ -523,6 +530,8 @@ class GeneralAgent(EnclosedAgent):
                             break
                     if value > 0:
                         currency_type = CurrencyType.query.filter_by(name=currency).first()
+                        self.current_growth[attr] += (value / agent_amount)
+                        growth = self.current_growth[attr] / self.total_growth[attr]
                         record = {"step_num": self.model.step_num + 1,
                                   "user_id": self.model.user_id,
                                   "agent_type_id": self.agent_type_id,
@@ -531,6 +540,7 @@ class GeneralAgent(EnclosedAgent):
                                   "agent_amount": agent_amount,
                                   "currency_type_id": currency_type.id,
                                   "value": value,
+                                  "growth": growth,
                                   "unit": str(step_value.units),
                                   "storage_type_id": storage.agent_type_id,
                                   "storage_agent_id": storage.unique_id,
