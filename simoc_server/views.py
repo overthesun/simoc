@@ -201,8 +201,6 @@ def get_steps():
         agent_model_state = parse_step_data(model_record_data, parse_filters, step_record_data)
         if "agent_growth" in input:
             agent_model_state["agent_growth"] = get_growth_rates(input["agent_growth"],
-                                                                 'biomass_totl',
-                                                                 'out',
                                                                  step_record_data)
         if "total_agent_count" in input:
             agent_model_state["total_agent_count"] = count_agents_in_step(input["total_agent_count"],

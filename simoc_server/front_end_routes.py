@@ -388,13 +388,13 @@ def calc_step_storage_capacities(agent_types, model_record_data):
     return output
 
 
-def get_growth_rates(agent_types, currency_type_name, direction, step_record_data):
+def get_growth_rates(agent_types, step_record_data):
     output = {}
     for agent_type in agent_types:
         output[agent_type] = None
     for step in step_record_data:
         agent_type = step.agent_type.name
-        if agent_type in output and step.currency_type.name == currency_type_name \
-                and step.direction == direction and step.growth > output[agent_type]:
-            output[agent_type] = step.growth
+        if agent_type in output and step.growth:
+            if not output[agent_type] or step.growth > output[agent_type]:
+                output[agent_type] = step.growth
     return output

@@ -893,9 +893,9 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "age",
+              "name": "growth_rate",
               "limit": ">",
-              "value": 1896
+              "value": 1
             }
           },
           {
@@ -919,6 +919,10 @@
           {
             "type": "category",
             "value": "food_cers"
+          },
+          {
+            "type": "growth_criteria",
+            "value": "out_biomass_totl"
           },
           {
             "type": "lifetime",
@@ -1060,9 +1064,9 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "age",
+              "name": "growth_rate",
               "limit": ">",
-              "value": 2400
+              "value": 1
             }
           },
           {
@@ -1091,6 +1095,10 @@
             "type": "lifetime",
             "value": 2400.0,
             "unit": "hour"
+          },
+          {
+            "type": "growth_criteria",
+            "value": "out_biomass_totl"
           },
           {
             "type": "reproduce",
@@ -1561,9 +1569,9 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "age",
+              "name": "growth_rate",
               "limit": ">",
-              "value": 672
+              "value": 1
             }
           },
           {
@@ -1592,6 +1600,10 @@
             "type": "lifetime",
             "value": 672,
             "unit": "hour"
+          },
+          {
+            "type": "growth_criteria",
+            "value": "out_biomass_totl"
           },
           {
             "type": "reproduce",
@@ -2396,9 +2408,9 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "age",
+              "name": "growth_rate",
               "limit": ">",
-              "value": 2040
+              "value": 1
             }
           },
           {
@@ -2427,6 +2439,10 @@
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
+          },
+          {
+            "type": "growth_criteria",
+            "value": "out_biomass_totl"
           },
           {
             "type": "reproduce",
@@ -3557,9 +3573,9 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "age",
+              "name": "growth_rate",
               "limit": ">",
-              "value": 600
+              "value": 1
             }
           },
           {
@@ -3583,6 +3599,10 @@
           {
             "type": "category",
             "value": "food_root"
+          },
+          {
+            "type": "growth_criteria",
+            "value": "out_biomass_totl"
           },
           {
             "type": "lifetime",
@@ -3724,9 +3744,9 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "age",
+              "name": "growth_rate",
               "limit": ">",
-              "value": 912
+              "value": 1
             }
           },
           {
@@ -3755,6 +3775,10 @@
             "type": "lifetime",
             "value": 912,
             "unit": "hour"
+          },
+          {
+            "type": "growth_criteria",
+            "value": "out_biomass_totl"
           },
           {
             "type": "reproduce",

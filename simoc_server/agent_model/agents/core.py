@@ -149,37 +149,46 @@ class EnclosedAgent(BaseAgent):
         self.age = kwargs.pop("age", 0)
         super(EnclosedAgent, self).__init__(*args, **kwargs)
         if 'char_lifetime' in self.attrs:
-            self.lifetime = self.attrs['char_lifetime']
+            lifetime = self.attrs['char_lifetime']
             self.lifetime_units = self.attr_details['char_lifetime']['units']
+            if self.lifetime_units == 'day':
+                self.lifetime = int(lifetime) * self.model.day_length_hours
+            elif self.lifetime_units == 'hour':
+                self.lifetime = int(lifetime)
+            elif self.lifetime_units == 'min':
+                self.lifetime = int(lifetime / 60)
+            else:
+                raise Exception('Unknown agent lifetime units.')
         else:
             self.lifetime = 0
         if 'char_reproduce' in self.attrs:
             self.reproduce = self.attrs['char_reproduce']
         else:
             self.reproduce = 0
+        self.growth_criteria = self.attrs.get('char_growth_criteria', None)
+        self.total_growth = 0
+        self.current_growth = 0
+        self.growth_rate = 0
+        self.grown = False
+        self.step_num = 0
 
     def step(self):
         """TODO"""
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
         self.age += hours_per_step
-        if self.lifetime > 0:
-            if self.lifetime_units == 'day':
-                lifetime = int(self.lifetime) * self.model.day_length_hours
-            elif self.lifetime_units == 'hour':
-                lifetime = int(self.lifetime)
-            elif self.lifetime_units == 'min':
-                lifetime = int(self.lifetime / 60)
-            else:
-                raise Exception('Unknown agent lifetime units.')
-            if self.age >= lifetime:
-                if self.reproduce:
-                    self.age = 0
-                    for attr in self.current_growth:
-                        self.current_growth[attr] = 0
-                    return
-                self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
-                        self.agent_type))
+        if not self.growth_criteria:
+            self.step_num = int(self.age)
+        if self.grown:
+            if self.reproduce:
+                self.age = 0
+                self.current_growth = 0
+                self.growth_rate = 0
+                self.step_num = 0
+                self.grown = False
+                return
+            self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
+                self.agent_type))
 
     def age(self):
         """Return the age of the agent."""
@@ -271,8 +280,6 @@ class GeneralAgent(EnclosedAgent):
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
         self.step_values = {}
-        self.total_growth = {}
-        self.current_growth = {}
         for attr in self.attrs:
             prefix, currency = attr.split('_', 1)
             if prefix not in ['in', 'out']:
@@ -376,8 +383,8 @@ class GeneralAgent(EnclosedAgent):
                     else:
                         self.step_values[attr][i:i+day_length] = growth_func.get_growth_values(**kwargs)
 
-            self.total_growth[attr] = np.sum(self.step_values[attr])
-            self.current_growth[attr] = 0
+            if attr == self.growth_criteria:
+                self.total_growth = np.sum(self.step_values[attr])
 
     def get_step_value(self, attr):
         """TODO
@@ -409,7 +416,7 @@ class GeneralAgent(EnclosedAgent):
                             source += self.model.storage_ratios[storage_id][cr_name]
             cr_id = '{}_{}_{}'.format(prefix, currency, cr_name)
             if cr_limit == '>':
-                if source <= cr_value:
+                if source < cr_value:
                     if self.buffer.get(cr_id, 0) > 0:
                         self.buffer[cr_id] -= 1
                     else:
@@ -417,7 +424,7 @@ class GeneralAgent(EnclosedAgent):
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
             elif cr_limit == '<':
-                if source >= cr_value:
+                if source > cr_value:
                     if self.buffer.get(cr_id, 0) > 0:
                         self.buffer[cr_id] -= 1
                     else:
@@ -432,7 +439,7 @@ class GeneralAgent(EnclosedAgent):
                         return pq.Quantity(0.0, agent_unit)
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
-        step_num = int(self.age)
+        step_num = int(self.step_num)
         if step_num >= self.step_values[attr].shape[0]:
             step_num = step_num % int(self.model.day_length_hours)
         agent_value = self.step_values[attr][step_num]
@@ -446,7 +453,6 @@ class GeneralAgent(EnclosedAgent):
         Raises:
         Exception: TODO
         """
-        super().step()
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
         for attr in self.attrs:
@@ -527,11 +533,17 @@ class GeneralAgent(EnclosedAgent):
                                                              self.deprive[currency] + deprive_value)
                             agent_amount = i
                             value = float(step_value.magnitude.tolist()) * i
+                            if attr == self.growth_criteria:
+                                self.step_num += hours_per_step
                             break
                     if value > 0:
                         currency_type = CurrencyType.query.filter_by(name=currency).first()
-                        self.current_growth[attr] += (value / agent_amount)
-                        growth = self.current_growth[attr] / self.total_growth[attr]
+                        if attr == self.growth_criteria:
+                            self.current_growth += (value / agent_amount)
+                            self.growth_rate = self.current_growth / self.total_growth
+                            growth = self.growth_rate
+                        else:
+                            growth = None
                         record = {"step_num": self.model.step_num + 1,
                                   "user_id": self.model.user_id,
                                   "agent_type_id": self.agent_type_id,
@@ -546,6 +558,9 @@ class GeneralAgent(EnclosedAgent):
                                   "storage_agent_id": storage.unique_id,
                                   "storage_id": storage.id}
                         self.model.step_records_buffer.append(record)
+        super().step()
+        if self.growth_rate > 1 or (not self.growth_criteria and self.age >= self.lifetime > 0):
+            self.grown = True
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model
