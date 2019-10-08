@@ -170,7 +170,7 @@ class EnclosedAgent(BaseAgent):
         self.current_growth = 0
         self.growth_rate = 0
         self.grown = False
-        self.step_num = 0
+        self.agent_step_num = 0
 
     def step(self):
         """TODO"""
@@ -178,13 +178,13 @@ class EnclosedAgent(BaseAgent):
         hours_per_step = timedelta_to_hours(timedelta_per_step)
         self.age += hours_per_step
         if not self.growth_criteria:
-            self.step_num = int(self.age)
+            self.agent_step_num = int(self.age)
         if self.grown:
             if self.reproduce:
                 self.age = 0
                 self.current_growth = 0
                 self.growth_rate = 0
-                self.step_num = 0
+                self.agent_step_num = 0
                 self.grown = False
                 return
             self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
@@ -439,7 +439,7 @@ class GeneralAgent(EnclosedAgent):
                         return pq.Quantity(0.0, agent_unit)
                 elif cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
-        step_num = int(self.step_num)
+        step_num = int(self.agent_step_num)
         if step_num >= self.step_values[attr].shape[0]:
             step_num = step_num % int(self.model.day_length_hours)
         agent_value = self.step_values[attr][step_num]
@@ -534,7 +534,7 @@ class GeneralAgent(EnclosedAgent):
                             agent_amount = i
                             value = float(step_value.magnitude.tolist()) * i
                             if attr == self.growth_criteria:
-                                self.step_num += hours_per_step
+                                self.agent_step_num += hours_per_step
                             break
                     if value > 0:
                         currency_type = CurrencyType.query.filter_by(name=currency).first()

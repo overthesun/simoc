@@ -10,7 +10,7 @@ from scipy.optimize import Bounds
 np.seterr(over='ignore')
 
 
-def get_bell_curve(num_values, min_value, max_value, scale=0.1, center=None, invert=False,
+def get_bell_curve(num_values, min_value, max_value, scale=0.2, center=None, invert=False,
                    noise=False, noise_factor=10.0, clip=False, **kwargs):
     """TODO
 
