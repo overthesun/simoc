@@ -403,7 +403,14 @@ class GeneralAgent(EnclosedAgent):
         cr_limit = self.attr_details[attr]['criteria_limit']
         cr_value = self.attr_details[attr]['criteria_value'] or 0.0
         cr_buffer = self.attr_details[attr]['criteria_buffer'] or 0.0
-        if cr_name:
+        weighted = self.attr_details[attr]['weighted']
+        # Only apply weighted actions when grown
+        if self.grown and not weighted:
+            return pq.Quantity(0.0, agent_unit)
+        # Ignore growth_rate criteria when grown and weighted
+        if cr_name == "growth_rate" and self.grown and weighted:
+            pass
+        elif cr_name:
             if cr_name in self:
                 source = self[cr_name]
             else:
@@ -443,6 +450,8 @@ class GeneralAgent(EnclosedAgent):
         if step_num >= self.step_values[attr].shape[0]:
             step_num = step_num % int(self.model.day_length_hours)
         agent_value = self.step_values[attr][step_num]
+        if weighted and weighted in self:
+            agent_value *= self[weighted]
         return pq.Quantity(agent_value, agent_unit)
 
     def step(self):
@@ -453,8 +462,11 @@ class GeneralAgent(EnclosedAgent):
         Raises:
         Exception: TODO
         """
+        super().step()
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
+        if self.age + hours_per_step >= self.lifetime > 0:
+            self.grown = True
         for attr in self.attrs:
             if attr.startswith('char_threshold_'):
                 threshold_value = self.attrs[attr]
@@ -522,7 +534,9 @@ class GeneralAgent(EnclosedAgent):
                                 self.deprive[currency] -= delta_per_step
                                 if self.deprive[currency] < 0:
                                     self.amount -= 1
-                            if is_required:
+                            if self.grown:
+                                break
+                            elif is_required:
                                 return
                         else:
                             storage[currency] = min(new_storage_value, storage_cap)
@@ -558,9 +572,6 @@ class GeneralAgent(EnclosedAgent):
                                   "storage_agent_id": storage.unique_id,
                                   "storage_id": storage.id}
                         self.model.step_records_buffer.append(record)
-        super().step()
-        if self.growth_rate > 1 or (not self.growth_criteria and self.age >= self.lifetime > 0):
-            self.grown = True
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model

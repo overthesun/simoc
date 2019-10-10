@@ -121,6 +121,7 @@ class AgentTypeAttributeDetails(BaseEntity):
     units = db.Column(db.String(100), nullable=True)
     flow_unit = db.Column(db.String(100), nullable=True)
     flow_time = db.Column(db.String(100), nullable=True)
+    weighted = db.Column(db.String(100), nullable=True)
     criteria_name = db.Column(db.String(100), nullable=True)
     criteria_limit = db.Column(db.String(100), nullable=True)
     criteria_value = db.Column(db.Float, nullable=True)
@@ -158,6 +159,7 @@ class AgentTypeAttributeDetails(BaseEntity):
                 'units': self.units,
                 'flow_unit': self.flow_unit,
                 'flow_time': self.flow_time,
+                'weighted': self.weighted,
                 'criteria_name': self.criteria_name,
                 'criteria_limit': self.criteria_limit,
                 'criteria_value': self.criteria_value,

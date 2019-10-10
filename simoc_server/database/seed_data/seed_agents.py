@@ -54,6 +54,7 @@ def import_agents(agents, agent_class):
                 attr_value = attr.get("value", None)
                 is_required = attr.get("required", None)
                 requires = attr.get("requires", None)
+                weighted = attr.get("weighted", None)
                 deprive_unit = None
                 deprive_value = None
                 flow_unit = None
@@ -137,6 +138,7 @@ def import_agents(agents, agent_class):
                                 'currency_type': _GLOBAL_CURRENCY_LIST[currency],
                                 'flow_unit': flow_unit,
                                 'flow_time': flow_time,
+                                'weighted': weighted,
                                 'criteria_name': criteria_name,
                                 'criteria_limit': criteria_limit,
                                 'criteria_value': criteria_value,
