@@ -148,6 +148,8 @@ class EnclosedAgent(BaseAgent):
         """
         self.age = kwargs.pop("age", 0)
         super(EnclosedAgent, self).__init__(*args, **kwargs)
+        self.full_amount = kwargs.pop("amount", 1)
+        self.amount = self.full_amount
         if 'char_lifetime' in self.attrs:
             lifetime = self.attrs['char_lifetime']
             self.lifetime_units = self.attr_details['char_lifetime']['units']
@@ -186,6 +188,7 @@ class EnclosedAgent(BaseAgent):
                 self.growth_rate = 0
                 self.agent_step_num = 0
                 self.grown = False
+                self.amount = self.full_amount
                 return
             self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
                 self.agent_type))
@@ -229,7 +232,6 @@ class GeneralAgent(EnclosedAgent):
           model: Dict, TODO
           amount: Dict, TODO
         """
-        self.amount = kwargs.pop("amount", 1)
         self.connections = kwargs.pop("connections", [])
         self.buffer = kwargs.pop("buffer", {})
         self.deprive = kwargs.pop("deprive", None)
