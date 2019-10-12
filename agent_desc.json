@@ -716,7 +716,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -912,7 +914,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -1108,7 +1112,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -1304,7 +1310,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -1500,7 +1508,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -1696,7 +1706,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -1892,7 +1904,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -2088,7 +2102,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -2284,7 +2300,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -2480,7 +2498,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -2676,7 +2696,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -2872,7 +2894,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -3068,7 +3092,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -3264,7 +3290,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -3460,7 +3488,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -3656,7 +3686,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -3852,7 +3884,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -4048,7 +4082,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -4244,7 +4280,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -4440,7 +4478,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -4636,7 +4676,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -4832,7 +4874,9 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "switch",
+                "min_threshold": 0.25,
+                "max_threshold": 0.75
               }
             },
             "deprive": {
@@ -5150,7 +5194,7 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "clipped"
               }
             }
           }
@@ -5187,7 +5231,7 @@
             },
             "growth": {
               "daily": {
-                "type": "norm"
+                "type": "clipped"
               }
             }
           }

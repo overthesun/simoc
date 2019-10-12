@@ -323,9 +323,9 @@ class GeneralAgent(EnclosedAgent):
                 start_value = lifetime_growth_min_value or 0.0
                 center = lifetime_growth_center or None
                 min_threshold = lifetime_growth_min_threshold or 0.0
-                min_threshold *= self.model.day_length_hours
+                min_threshold *= num_values
                 max_threshold = lifetime_growth_max_threshold or 0.0
-                max_threshold *= self.model.day_length_hours
+                max_threshold *= num_values
                 invert = bool(lifetime_growth_invert)
                 noise = bool(lifetime_growth_noise)
                 kwargs = {'agent_value': agent_value,
@@ -456,7 +456,7 @@ class GeneralAgent(EnclosedAgent):
             agent_value *= self[weighted]
         return pq.Quantity(agent_value, agent_unit)
 
-    def step(self):
+    def step(self, eps=1e-6):
         """TODO
 
         TODO
@@ -552,7 +552,7 @@ class GeneralAgent(EnclosedAgent):
                             if attr == self.growth_criteria:
                                 self.agent_step_num += hours_per_step
                             break
-                    if value > 0:
+                    if value > eps:
                         currency_type = CurrencyType.query.filter_by(name=currency).first()
                         if attr == self.growth_criteria:
                             self.current_growth += (value / agent_amount)

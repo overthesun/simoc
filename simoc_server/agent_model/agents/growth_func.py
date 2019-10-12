@@ -10,7 +10,7 @@ from scipy.optimize import Bounds
 np.seterr(over='ignore')
 
 
-def get_bell_curve(num_values, min_value, max_value, scale=0.2, center=None, invert=False,
+def get_bell_curve(num_values, min_value, max_value, scale=0.1, center=None, invert=False,
                    noise=False, noise_factor=10.0, clip=False, **kwargs):
     """TODO
 
@@ -48,6 +48,46 @@ def get_bell_curve(num_values, min_value, max_value, scale=0.2, center=None, inv
         y += noise
     if clip:
         y = np.clip(y, min_value, max_value)
+    return y
+
+
+def get_clipped_bell_curve(num_values, min_value, max_value, scale=0.1, factor=2, center=None,
+                           invert=False, noise=False, noise_factor=10.0, **kwargs):
+    """TODO
+
+    TODO
+
+    Args:
+      num_values: int, TODO
+      min_value: float, TODO
+      max_value: float, TODO
+      center: float, TODO
+      scale: float, TODO
+      factor: float, TODO
+      invert: bool, TODO
+      noise: bool, TODO
+      noise_factor: float, TODO
+      kwargs: Dict, unused arguments.
+
+    Returns:
+      TODO
+    """
+    del kwargs
+    assert num_values
+    assert min_value is not None
+    assert max_value is not None
+    assert scale is not None
+    center = center or num_values // 2
+    x0 = np.linspace(0, 1, num_values)
+    y = norm.pdf(x0, x0[center], scale)
+    y = MinMaxScaler((min_value, max_value * factor)).fit_transform(y.reshape(-1, 1)).reshape(num_values)
+    y = np.clip(y, min_value, max_value)
+    if invert:
+        y = -1 * y
+        y = y + max_value + min_value
+    if noise:
+        noise = np.random.normal(0, y.std() / noise_factor, num_values)
+        y += noise
     return y
 
 
@@ -250,6 +290,8 @@ def get_growth_values(agent_value, growth_type, **kwargs):
         return get_sigmoid_curve(max_value=agent_value, **kwargs)
     elif growth_type in ['norm', 'normal']:
         return get_bell_curve(max_value=agent_value, **kwargs)
+    elif growth_type in ['clipped', 'clip']:
+        return get_clipped_bell_curve(max_value=agent_value, **kwargs)
     elif growth_type in ['step', 'switch']:
         return get_switch_curve(max_value=agent_value, **kwargs)
     else:
