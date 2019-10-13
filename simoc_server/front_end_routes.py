@@ -245,21 +245,22 @@ def convert_configuration(game_config):
     # If the front_end specifies an amount for this agent, overwrite any default values with the
     # specified value
     for x, y in full_game_config['agents'].items():
-        if x in game_config and isinstance(game_config[x], dict) \
-          and 'amount' in game_config[x] and game_config[x]['amount']:
-            y[0]['amount'] = game_config[x]['amount']
+        if x in game_config and isinstance(game_config[x], dict):
+            y[0]['amount'] = game_config[x].get('amount', 0) or 0
 
     # Plants are treated separately because its a list of items which must be assigned as agents
-    if 'plants' in game_config and isinstance(game_config['plants'], dict):
+    if 'plants' in game_config and isinstance(game_config['plants'], list):
         for plant in game_config['plants']:
-            agent_type = plant.get('species', None)
-            amount = plant.get('amount', 0) or 0
-            full_game_config['agents'][agent_type] = [{'connections': {'air_storage': [1],
-                                                                       'water_storage': [1],
-                                                                       'nutrient_storage': [1],
-                                                                       'power_storage': [],
-                                                                       'food_storage': []},
-                                                       'amount': amount}]
+            if isinstance(plant, dict):
+                amount = plant.get('amount', 0) or 0
+                agent_type = plant.get('species', None)
+                if agent_type:
+                    full_game_config['agents'][agent_type] = [{'connections': {'air_storage': [1],
+                                                                               'water_storage': [1],
+                                                                               'nutrient_storage': [1],
+                                                                               'power_storage': [],
+                                                                               'food_storage': []},
+                                                               'amount': amount}]
 
     # Here, power connections and food connections are assigned to all agents with power_storage or
     # food_storage specified.
