@@ -110,20 +110,22 @@ def convert_configuration(game_config):
     # in the input it will be ignored
     labels_to_direct_copy = ['priorities', 'minutes_per_step', 'location']
 
-    # If a game_config element should be assigned as an agent with connections: power_storage only,
-    # add it to the list below (unless you want to rename the agent, then it will need it's own
-    # code) Note, this assumes power_storage is the only connection for this agent. Do not add
-    # agents which have other connections. Only agents which are present in the input game_config
-    # will be assigned
-    agents_to_assign_power_storage = ['habitat', 'greenhouse']
+    manual_entries = ['habitat', 'greenhouse']
 
-    eclss_amount = game_config['eclss'].get('amount', 0) if 'eclss' in game_config else 0
+    eclss_amount = 0
+    if 'eclss' in game_config and isinstance(game_config['eclss'], dict):
+        eclss_amount = game_config['eclss'].get('amount', 0) or 0
+
+    human_amount = 0
+    if 'human_agent' in game_config and isinstance(game_config['human_agent'], dict):
+        human_amount = game_config['human_agent'].get('amount', 0) or 0
 
     # Any agents with power_storage or food_storage will be assined power_storage = power
     # connections (defined later) etc. Agents initialised here must have all connections named here.
     full_game_config = {'agents': {'human_agent': [{'connections': {'air_storage': [1],
                                                                     'water_storage': [1],
-                                                                    'food_storage': []}}],
+                                                                    'food_storage': []},
+                                                    'amount': human_amount}],
                                    'solid_waste_aerobic_bioreactor': [{'connections': {'air_storage': [1],
                                                                                        'power_storage': [],
                                                                                        'water_storage': [1],
@@ -175,83 +177,83 @@ def convert_configuration(game_config):
             full_game_config[label] = game_config[label]
 
     # Assign termination values
-    if 'duration' in game_config:
+    if 'duration' in game_config and isinstance(game_config['duration'], dict):
         duration = {'condition': 'time',
-                    'value': game_config['duration'].get('value', 0),
+                    'value': game_config['duration'].get('value', 0) or 0,
                     'unit': game_config['duration'].get('type', 'day')}
         full_game_config['termination'].append(duration)
 
     # Is it a single agent
-    full_game_config['single_agent'] = game_config.get('single_agent', 0)
+    full_game_config['single_agent'] = game_config.get('single_agent', 0) or 0
 
     # The rest of this function is for reformatting agents. Food_connections and power_connections
     # will be assigned to all agents with food_storage or power_storage respecitively, at the end of
     # this function.
 
-    # Determine the food and power connections to be assigned to all agents with food and power
-    # storage later
-    food_storage_capacity = int(db.session.query(AgentType, AgentTypeAttribute)
-                                .filter(AgentType.id == AgentTypeAttribute.agent_type_id)
-                                .filter(AgentTypeAttribute.name == 'char_capacity_food_edbl')
-                                .first().AgentTypeAttribute.value)
-    food_amount = game_config['food_storage'].get('amount', 0)
-    food_storage_amount = math.ceil(food_amount / food_storage_capacity)
-
     food_connections = []
-    food_left = food_amount
-    for x in range(1, int(food_storage_amount) + 1):
-        food_connections.append(x)
-        if food_left > food_storage_capacity:
-            full_game_config['storages']['food_storage'] \
-              .append({'id': x,'food_edbl': food_storage_capacity})
-            food_left -= food_storage_capacity
-        else:
-            full_game_config['storages']['food_storage'].append({'id': x, 'food_edbl': food_left})
-
-    power_storage_capacity = int(db.session.query(AgentType, AgentTypeAttribute)
-                                 .filter(AgentType.id == AgentTypeAttribute.agent_type_id)
-                                 .filter(AgentTypeAttribute.name == 'char_capacity_enrg_kwh')
-                                 .first().AgentTypeAttribute.value)
-    power_amount = game_config['power_storage'].get('amount', 0)
-    power_storage_amount = math.ceil(power_amount / power_storage_capacity)
+    if 'food_storage' in game_config and isinstance(game_config['food_storage'], dict):
+        food_storage_capacity = int(db.session.query(AgentType, AgentTypeAttribute)
+                                    .filter(AgentType.id == AgentTypeAttribute.agent_type_id)
+                                    .filter(AgentTypeAttribute.name == 'char_capacity_food_edbl')
+                                    .first().AgentTypeAttribute.value)
+        food_left = game_config['food_storage'].get('amount', 0) or 0
+        food_storage_amount = math.ceil(food_left / food_storage_capacity)
+        for x in range(1, int(food_storage_amount) + 1):
+            food_connections.append(x)
+            if food_left > food_storage_capacity:
+                full_game_config['storages']['food_storage'] \
+                  .append({'id': x,'food_edbl': food_storage_capacity})
+                food_left -= food_storage_capacity
+            else:
+                full_game_config['storages']['food_storage'].append({'id': x,
+                                                                     'food_edbl': food_left})
 
     power_connections = []
-    power_left = power_amount
-    for x in range(1, int(power_storage_amount) + 1):
-        power_connections.append(x)
-        if power_left > power_storage_capacity:
-            full_game_config['storages']['power_storage'] \
-              .append({'id': x,'enrg_kwh': power_storage_capacity})
-            power_left -= power_storage_capacity
-        else:
-            full_game_config['storages']['power_storage'].append({'id': x, 'enrg_kwh': power_left})
+    if 'power_storage' in game_config and isinstance(game_config['power_storage'], dict):
+        power_storage_capacity = int(db.session.query(AgentType, AgentTypeAttribute)
+                                     .filter(AgentType.id == AgentTypeAttribute.agent_type_id)
+                                     .filter(AgentTypeAttribute.name == 'char_capacity_enrg_kwh')
+                                     .first().AgentTypeAttribute.value)
+        power_left = game_config['power_storage'].get('amount', 0) or 0
+        power_storage_amount = math.ceil(power_left / power_storage_capacity)
+        for x in range(1, int(power_storage_amount) + 1):
+            power_connections.append(x)
+            if power_left > power_storage_capacity:
+                full_game_config['storages']['power_storage'] \
+                  .append({'id': x,'enrg_kwh': power_storage_capacity})
+                power_left -= power_storage_capacity
+            else:
+                full_game_config['storages']['power_storage'].append({'id': x,
+                                                                      'enrg_kwh': power_left})
 
-    # Here, agents from agents_to_assign_power_storage are assigned with only a power_storage
-    # connection.
-    for labelps in agents_to_assign_power_storage:
-        if labelps in game_config:
-            full_game_config['agents'][game_config[labelps]] = [{'connections': {'power_storage': []},
-                                                                 'amount': 1}]
+    for label in manual_entries:
+        if label in game_config:
+            full_game_config['agents'][game_config[label]] = [{'connections': {'air_storage': [1],
+                                                                               'water_storage': [1],
+                                                                               'nutrient_storage': [1],
+                                                                               'power_storage': [],
+                                                                               'food_storage': []},
+                                                               'amount': 1}]
 
-    # game_config['solar_pv_array_mars'] is a dict, not a label like the labelps assigned above.
-    # So it needs it's own function
-    pv_mars = 'solar_pv_array_mars'
-    if pv_mars in game_config:
-        amount = game_config[pv_mars].get('amount', 0)
-        full_game_config['agents'][pv_mars] = [{'connections': {'power_storage': []},
-                                                'amount': amount}]
+    pv_arrays = ['solar_pv_array_mars', 'solar_pv_array_moon']
+    for agent_type in pv_arrays:
+        if agent_type in game_config and isinstance(game_config[agent_type], dict):
+            amount = game_config[agent_type].get('amount', 0) or 0
+            full_game_config['agents'][agent_type] = [{'connections': {'power_storage': []},
+                                                       'amount': amount}]
 
     # If the front_end specifies an amount for this agent, overwrite any default values with the
     # specified value
     for x, y in full_game_config['agents'].items():
-        if x in game_config and 'amount' in game_config[x] and game_config[x]['amount']:
+        if x in game_config and isinstance(game_config[x], dict) \
+          and 'amount' in game_config[x] and game_config[x]['amount']:
             y[0]['amount'] = game_config[x]['amount']
 
     # Plants are treated separately because its a list of items which must be assigned as agents
-    if 'plants' in game_config:
+    if 'plants' in game_config and isinstance(game_config['plants'], dict):
         for plant in game_config['plants']:
             agent_type = plant.get('species', None)
-            amount = plant.get('amount', 0)
+            amount = plant.get('amount', 0) or 0
             full_game_config['agents'][agent_type] = [{'connections': {'air_storage': [1],
                                                                        'water_storage': [1],
                                                                        'nutrient_storage': [1],
