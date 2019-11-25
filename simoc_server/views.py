@@ -1,19 +1,27 @@
+# from gevent import monkey
+# monkey.patch_all()
+import eventlet
+eventlet.monkey_patch()
+
+import functools
 import json
 import traceback
 from collections import OrderedDict
 
-from flask import request, render_template
+from flask import copy_current_request_context, render_template, request
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_socketio import emit, disconnect, SocketIO
 
-from simoc_server import app, db, redis_conn
+
+from simoc_server import app, db, redis_conn, broker_url
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User, \
     ModelRecord, StepRecord, StorageCapacityRecord, AgentTypeCountRecord
 from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
-    calc_step_storage_ratios, parse_step_data, count_agents_in_step, sum_agent_values_in_step, \
-    calc_step_storage_capacities, get_growth_rates
+    calc_step_storage_ratios, parse_step_data, count_agents_in_step, calc_step_storage_capacities, \
+    get_growth_rates
 
 from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
@@ -23,6 +31,89 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials="true")
+
+socketio = SocketIO(app, message_queue=broker_url, manage_session=False)
+
+
+def authenticated_only(f):
+    @functools.wraps(f)
+    def wrapped(*args, **kwargs):
+        if not current_user.is_authenticated:
+            disconnect()
+        else:
+            return f(*args, **kwargs)
+    return wrapped
+
+
+def get_steps_background(data, user_id, timeout=2, max_retries=5):
+    if "game_id" not in data:
+        raise BadRequest("game_id is required.")
+    game_id = int(data["game_id"], 16)
+    n_steps = int(data.get("n_steps", 1e6))
+    min_step_num = int(data.get("min_step_num", 0))
+    max_step_num = min_step_num + n_steps
+    parse_filters = [] if "parse_filters" not in data else data["parse_filters"]
+    total_consumption = data.get("total_consumption", None)
+    total_production = data.get("total_production", None)
+    agent_growth = data.get("agent_growth", None)
+    total_agent_count = data.get("total_agent_count", None)
+    storage_ratios = data.get("storage_ratios", None)
+    storage_capacities = data.get("storage_capacities", None)
+    retries_left = max_retries
+    step_count = 0
+    app.logger.info(f"n_steps: {n_steps}")
+    while True:
+        socketio.sleep(timeout)
+        app.logger.info(f"min_step_num: {min_step_num}")
+        app.logger.info(f"max_step_num: {max_step_num}")
+        output = retrieve_steps(game_id, user_id, min_step_num, max_step_num, parse_filters,
+                                storage_capacities, storage_ratios, total_consumption,
+                                total_production, agent_growth, total_agent_count)
+        step_count += len(output)
+        app.logger.info(f"len(output): {len(output)}")
+        app.logger.info(f"step_count: {step_count}")
+        if len(output) == 0:
+            retries_left -= 1
+            app.logger.info(f"retries: {retries_left}")
+        else:
+            socketio.emit('step_data_handler',
+                          {'data': output, 'count': len(output)},
+                          namespace='/simoc')
+            retries_left = max_retries
+            app.logger.info(f"retries: {retries_left}")
+        if step_count >= n_steps or retries_left <= 0:
+            app.logger.info("break")
+            break
+        else:
+            min_step_num = step_count + 1
+
+
+@socketio.on('connect', namespace='/simoc')
+def connect_handler():
+    if current_user.is_anonymous:
+        return False
+    emit('status',
+         {'message': f'User "{current_user.username}" connected'},
+         broadcast=True)
+
+
+@socketio.on('get_steps', namespace='/simoc')
+@authenticated_only
+def get_steps_handler(message):
+    if "data" not in message:
+        raise BadRequest("data is required.")
+    user_id = get_standard_user_obj().id
+    socketio.start_background_task(get_steps_background, message['data'], user_id)
+
+
+@socketio.on('disconnect_request', namespace='/simoc')
+def disconnect_request():
+    @copy_current_request_context
+    def can_disconnect():
+        disconnect()
+    emit('status',
+         {'message': f'User {current_user.username} disconnected'},
+         callback=can_disconnect)
 
 
 @app.route("/")
@@ -157,31 +248,58 @@ def get_steps():
     str:
         json format -
     """
-    input = json.loads(request.data.decode('utf-8'))
-    if "min_step_num" not in input and "n_steps" not in input:
+    data = json.loads(request.data.decode('utf-8'))
+    if "min_step_num" not in data and "n_steps" not in data:
         raise BadRequest("min_step_num and n_steps are required.")
-    if "game_id" not in input:
+    if "game_id" not in data:
         raise BadRequest("game_id is required.")
-    min_step_num = int(input["min_step_num"])
-    n_steps = int(input["n_steps"])
-    game_id = int(input["game_id"], 16)
+    min_step_num = int(data["min_step_num"])
+    n_steps = int(data["n_steps"])
+    game_id = int(data["game_id"], 16)
     max_step_num = min_step_num+n_steps-1
+    parse_filters = [] if "parse_filters" not in data else data["parse_filters"]
+    storage_ratios = data.get("storage_ratios", None)
+    total_consumption = data.get("total_consumption", None)
+    total_production = data.get("total_production", None)
+    agent_growth = data.get("agent_growth", None)
+    storage_capacities = data.get("storage_capacities", None)
+    total_agent_count = data.get("total_agent_count", None)
+    user_id = get_standard_user_obj().id
+    app.logger.info(f"n_steps: {n_steps}")
+    app.logger.info(f"min_step_num: {min_step_num}")
+    app.logger.info(f"max_step_num: {max_step_num}")
+    output = retrieve_steps(game_id, user_id, min_step_num, max_step_num, parse_filters,
+                            storage_capacities, storage_ratios, total_consumption, total_production,
+                            agent_growth, total_agent_count)
+    app.logger.info(f"len(output): {len(output)}")
+    return status("Step data retrieved.", step_data=output)
 
-    # Which of the output from parse_step_data to you want returned.
-    parse_filters = [] if "parse_filters" not in input else input["parse_filters"]
 
-    user = get_standard_user_obj()
+def get_model_records(game_id, user_id, min_step_num, max_step_num):
     model_record_steps = ModelRecord.query \
-        .filter_by(user_id=user.id) \
+        .filter_by(user_id=user_id) \
         .filter_by(game_id=game_id) \
         .filter(ModelRecord.step_num >= min_step_num) \
         .filter(ModelRecord.step_num <= max_step_num).all()
+    app.logger.info(f"len(model_record_steps): {len(model_record_steps)}")
+    return model_record_steps
 
+
+def get_step_records(game_id, user_id, min_step_num, max_step_num):
     step_record_steps = StepRecord.query \
-        .filter_by(user_id=user.id) \
+        .filter_by(user_id=user_id) \
         .filter_by(game_id=game_id) \
         .filter(StepRecord.step_num >= min_step_num) \
         .filter(StepRecord.step_num <= max_step_num).all()
+    app.logger.info(f"len(step_record_steps): {len(step_record_steps)}")
+    return step_record_steps
+
+
+def retrieve_steps(game_id, user_id, min_step_num, max_step_num, parse_filters,
+                   storage_capacities=False, storage_ratios=False, total_consumption=False,
+                   total_production=False, agent_growth=False, total_agent_count=False):
+    model_record_steps = get_model_records(game_id, user_id, min_step_num, max_step_num)
+    step_record_steps = get_step_records(game_id, user_id, min_step_num, max_step_num)
 
     step_record_dict = dict()
     for record in step_record_steps:
@@ -196,32 +314,32 @@ def get_steps():
         if step_num in step_record_dict:
             step_record_data = step_record_dict[step_num]
         else:
-            #see issue #81. sometimes the modelrecord exists for a step but the steprecord doesn't.
             continue
         agent_model_state = parse_step_data(model_record_data, parse_filters, step_record_data)
-        if "agent_growth" in input:
-            agent_model_state["agent_growth"] = get_growth_rates(input["agent_growth"],
-                                                                 step_record_data)
-        if "total_agent_count" in input:
-            agent_model_state["total_agent_count"] = count_agents_in_step(input["total_agent_count"],
+        if agent_growth:
+            agent_model_state["agent_growth"] = get_growth_rates(agent_growth, step_record_data)
+        if total_agent_count:
+            agent_model_state["total_agent_count"] = count_agents_in_step(total_agent_count,
                                                                           model_record_data)
-        if "total_production" in input:
+        if total_production:
             agent_model_state["total_production"] = calc_step_in_out("out",
-                                                                     input["total_production"],
+                                                                     total_production,
                                                                      step_record_data)
-        if "total_consumption" in input:
+        if total_consumption:
             agent_model_state["total_consumption"] = calc_step_in_out("in",
-                                                                      input["total_consumption"],
+                                                                      total_consumption,
                                                                       step_record_data)
-        if "storage_ratios" in input:
-            agent_model_state["storage_ratios"] = calc_step_storage_ratios(input["storage_ratios"],
+        if storage_ratios:
+            agent_model_state["storage_ratios"] = calc_step_storage_ratios(storage_ratios,
                                                                            model_record_data)
-        if "storage_capacities" in input:
-            agent_model_state["storage_capacities"] = calc_step_storage_capacities(input["storage_capacities"],
+        if storage_capacities:
+            agent_model_state["storage_capacities"] = calc_step_storage_capacities(storage_capacities,
                                                                                    model_record_data)
         output[int(step_num)] = agent_model_state
 
-    return status("Step data retrieved.", step_data=output)
+    app.logger.info(f"len(output): {len(output)}")
+
+    return output
 
 
 @app.route("/get_db_dump", methods=["POST"])
@@ -239,16 +357,8 @@ def get_db_dump():
 
     user = get_standard_user_obj()
 
-    model_record_steps = ModelRecord.query \
-        .filter_by(user_id=user.id) \
-        .filter_by(game_id=game_id) \
-        .filter(ModelRecord.step_num >= min_step_num) \
-        .filter(ModelRecord.step_num <= max_step_num).all()
-    step_record_steps = StepRecord.query \
-        .filter_by(user_id=user.id) \
-        .filter_by(game_id=game_id) \
-        .filter(StepRecord.step_num >= min_step_num) \
-        .filter(StepRecord.step_num <= max_step_num).all()
+    model_record_steps = get_model_records(game_id, user, min_step_num, max_step_num)
+    step_record_steps = get_step_records(game_id, user, min_step_num, max_step_num)
 
     output = dict()
     output['model_record_steps'] = [i.get_data() for i in model_record_steps]
@@ -545,6 +655,7 @@ def handle_error(e):
     app.logger.error(f"ERROR: handling error {e}")
     status_code = e.status_code
     return serialize_response(e.to_dict()), status_code
+
 
 @app.errorhandler(Exception)
 def handle_exception(e):

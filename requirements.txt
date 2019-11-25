@@ -3,8 +3,10 @@ celery
 flask
 flask-cors
 flask-login
+flask_socketio
 flask-sqlalchemy
 gevent
+eventlet
 gunicorn
 mesa
 msgpack-python

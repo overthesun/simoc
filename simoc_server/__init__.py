@@ -1,3 +1,5 @@
+import eventlet
+eventlet.monkey_patch()
 import os
 import logging
 
@@ -20,9 +22,8 @@ app.logger.setLevel(gunicorn_logger.level)
 
 app.config.from_object(config_obj)
 
-agent_config = os.environ.get('AGENT_CONFIG', 'agent_desc.json')
-app.config['AGENT_CONFIG'] = agent_config
-
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET', 't0p_s3cr3t!')
+app.config['AGENT_CONFIG'] = os.environ.get('AGENT_CONFIG', 'agent_desc.json')
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 app.config['JSON_SORT_KEYS'] = False
 
@@ -32,7 +33,8 @@ redis_host = os.environ.get('REDIS_HOST', 'localhost')
 redis_port = os.environ.get('REDIS_PORT', '6379')
 redis_password = os.environ.get('REDIS_PASSWORD', '')
 
-redis_conn = redis.StrictRedis(host=redis_host, port=int(redis_port), password=redis_password)
+broker_url = f'redis://:{redis_password}@{redis_host}:{redis_port}'
+redis_conn = redis.StrictRedis.from_url(broker_url)
 
 db_type = os.environ.get('DB_TYPE')
 db_host = os.environ.get('DB_HOST')
