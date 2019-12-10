@@ -1,8 +1,9 @@
 import json
 import traceback
 from collections import OrderedDict
+from pathlib import Path
 
-from flask import request, render_template
+from flask import request, render_template, send_from_directory
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
@@ -29,6 +30,10 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials="true
 def home():
     return render_template('index.html')
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(Path(app.root_path, 'dist'), 'favicon.ico',
+                               mimetype='image/vnd.microsoft.icon')
 
 @app.route("/login", methods=["POST"])
 def login():
