@@ -190,34 +190,31 @@ s
         buffer_size : int
             Size of the buffer used to batch the database updates
         """
-        def _save_records(model_records, agent_type_counts, storage_capacities, step_records):
-            if len(model_records) > 0:
-                user_id = user.id
-                for record in model_records:
-                    game_id = record['game_id']
-                    step_num = record['step_num']
-                    # timestamp = int(time.time())
-                    # r.zadd(f'user_games:{user_id}', {game_id: timestamp})
-                    r.set(f'model_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
-                    r.zadd(f'game_steps:{user_id}:{game_id}', {step_num: step_num})
-            if len(agent_type_counts) > 0:
-                user_id = user.id
-                for record in agent_type_counts:
-                    game_id = record['game_id']
-                    step_num = record['step_num']
-                    r.rpush(f'agent_type_counts:{user_id}:{game_id}:{step_num}', json.dumps(record))
-            if len(storage_capacities) > 0:
-                user_id = user.id
-                for record in storage_capacities:
-                    game_id = record['game_id']
-                    step_num = record['step_num']
-                    r.rpush(f'storage_capacities:{user_id}:{game_id}:{step_num}', json.dumps(record))
-            if len(step_records) > 0:
-                user_id = user.id
-                for record in step_records:
-                    game_id = record['game_id']
-                    step_num = record['step_num']
-                    r.rpush(f'step_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
+        def _save_records(model_records, agent_type_counts, storage_capacities, step_records,
+                          expire=3600):
+            user_id = user.id
+            for record in model_records:
+                game_id = record['game_id']
+                step_num = record['step_num']
+                r.set(f'model_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
+                r.expire(f'model_records:{user_id}:{game_id}:{step_num}', expire)
+                r.zadd(f'game_steps:{user_id}:{game_id}', {step_num: step_num})
+                r.expire(f'game_steps:{user_id}:{game_id}', expire)
+            for record in agent_type_counts:
+                game_id = record['game_id']
+                step_num = record['step_num']
+                r.rpush(f'agent_type_counts:{user_id}:{game_id}:{step_num}', json.dumps(record))
+                r.expire(f'agent_type_counts:{user_id}:{game_id}:{step_num}', expire)
+            for record in storage_capacities:
+                game_id = record['game_id']
+                step_num = record['step_num']
+                r.rpush(f'storage_capacities:{user_id}:{game_id}:{step_num}', json.dumps(record))
+                r.expire(f'storage_capacities:{user_id}:{game_id}:{step_num}', expire)
+            for record in step_records:
+                game_id = record['game_id']
+                step_num = record['step_num']
+                r.rpush(f'step_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
+                r.expire(f'step_records:{user_id}:{game_id}:{step_num}', expire)
 
         def step_loop(agent_model):
             model_records_buffer = []
