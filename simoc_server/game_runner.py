@@ -1,19 +1,16 @@
 import datetime
+import json
 import threading
 import time
 import traceback
 import random
 
-from simoc_server import app, db
+from simoc_server import app, db, redis_conn as r
 from simoc_server.agent_model import (AgentModel,
                                       AgentModelInitializationParams,
                                       BaseLineAgentInitializerRecipe)
 from simoc_server.database import SavedGame
-from simoc_server.database.db_model import (AgentTypeCountRecord,
-                                            ModelRecord,
-                                            StepRecord,
-                                            StorageCapacityRecord,
-                                            User)
+from simoc_server.database.db_model import User
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
 
@@ -45,6 +42,8 @@ class GameRunner(object):
         self.user = user
         self.agent_model = agent_model
         self.agent_model.user_id = self.user.id
+        self.agent_model.game_id = self.game_id
+        self.agent_model.start_time = self.start_time
         self.step_thread = None
         self.last_accessed = None
         self.last_saved_step = last_saved_step
@@ -180,40 +179,51 @@ class GameRunner(object):
         """
         self.last_accessed = time.time()
 
-    def step_to(self, step_num, buffer_size):
+    def step_to(self, max_step_num, user, buffer_size):
         """Run the agent model to the requested step.
-
+s
         Parameters
         ----------
-        step_num : int
+        max_step_num : int
             Step number to run the model to.
+        user: TBA
         buffer_size : int
             Size of the buffer used to batch the database updates
         """
         def _save_records(model_records, agent_type_counts, storage_capacities, step_records):
-            for record in model_records + agent_type_counts + storage_capacities + step_records:
-                record['start_time'] = self.start_time
-                record['game_id'] = self.game_id
             if len(model_records) > 0:
-                db.session.execute(ModelRecord.__table__.insert(), model_records,)
+                user_id = user.id
+                for record in model_records:
+                    game_id = record['game_id']
+                    step_num = record['step_num']
+                    # timestamp = int(time.time())
+                    # r.zadd(f'user_games:{user_id}', {game_id: timestamp})
+                    r.set(f'model_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
+                    r.zadd(f'game_steps:{user_id}:{game_id}', {step_num: step_num})
             if len(agent_type_counts) > 0:
-                db.session.execute(AgentTypeCountRecord.__table__.insert(), agent_type_counts,)
+                user_id = user.id
+                for record in agent_type_counts:
+                    game_id = record['game_id']
+                    step_num = record['step_num']
+                    r.rpush(f'agent_type_counts:{user_id}:{game_id}:{step_num}', json.dumps(record))
             if len(storage_capacities) > 0:
-                db.session.execute(StorageCapacityRecord.__table__.insert(), storage_capacities,)
+                user_id = user.id
+                for record in storage_capacities:
+                    game_id = record['game_id']
+                    step_num = record['step_num']
+                    r.rpush(f'storage_capacities:{user_id}:{game_id}:{step_num}', json.dumps(record))
             if len(step_records) > 0:
-                db.session.execute(StepRecord.__table__.insert(), step_records,)
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-            finally:
-                db.session.close()
+                user_id = user.id
+                for record in step_records:
+                    game_id = record['game_id']
+                    step_num = record['step_num']
+                    r.rpush(f'step_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
 
         def step_loop(agent_model):
             model_records_buffer = []
             agent_type_counts_buffer = []
             storage_capacities_buffer = []
-            while agent_model.step_num <= step_num and not agent_model.is_terminated:
+            while agent_model.step_num <= max_step_num and not agent_model.is_terminated:
                 agent_model.step()
                 model_record, agent_type_counts, storage_capacities = agent_model.get_step_logs()
                 model_records_buffer.append(model_record)
@@ -427,14 +437,14 @@ class GameRunnerManager(object):
         except KeyError:
             return None
 
-    def get_step_to(self, user, step_num=None, buffer_size=10):
+    def get_step_to(self, user, max_step_num=None, buffer_size=10):
         """Run the agent model to the requested step.
 
         Parameters
         ----------
         user : simoc_server.database.db_model.User
             The user requesting the step.
-        step_num : int
+        max_step_num : int
             Step number to run the model to.
         buffer_size : int
             Size of the buffer used to batch the database updates.
@@ -447,7 +457,7 @@ class GameRunnerManager(object):
         game_runner = self.get_game_runner(user)
         if game_runner is None:
             raise GameNotFoundException()
-        game_runner.step_to(step_num, buffer_size)
+        game_runner.step_to(max_step_num, user, buffer_size)
 
     def ping(self, user):
         """Updates time when game runner was last accessed for the given

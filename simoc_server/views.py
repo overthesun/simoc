@@ -1,7 +1,5 @@
-import eventlet
-eventlet.monkey_patch()
-
 import functools
+import itertools
 import json
 import traceback
 from collections import OrderedDict
@@ -13,12 +11,11 @@ from flask_socketio import emit, disconnect, SocketIO
 
 
 from simoc_server import app, db, redis_conn, broker_url
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User, \
-    ModelRecord, StepRecord, StorageCapacityRecord, AgentTypeCountRecord
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User
 from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
-    calc_step_storage_ratios, parse_step_data, count_agents_in_step, calc_step_storage_capacities, \
+    calc_step_storage_ratios, count_agents_in_step, calc_step_storage_capacities, \
     get_growth_rates
 
 from celery_worker import tasks
@@ -50,7 +47,6 @@ def get_steps_background(data, user_id, timeout=2, max_retries=5):
     n_steps = int(data.get("n_steps", 1e6))
     min_step_num = int(data.get("min_step_num", 0))
     max_step_num = min_step_num + n_steps
-    parse_filters = [] if "parse_filters" not in data else data["parse_filters"]
     total_consumption = data.get("total_consumption", None)
     total_production = data.get("total_production", None)
     agent_growth = data.get("agent_growth", None)
@@ -64,7 +60,7 @@ def get_steps_background(data, user_id, timeout=2, max_retries=5):
         socketio.sleep(timeout)
         app.logger.info(f"min_step_num: {min_step_num}")
         app.logger.info(f"max_step_num: {max_step_num}")
-        output = retrieve_steps(game_id, user_id, min_step_num, max_step_num, parse_filters,
+        output = retrieve_steps(game_id, user_id, min_step_num, max_step_num,
                                 storage_capacities, storage_ratios, total_consumption,
                                 total_production, agent_growth, total_agent_count)
         step_count += len(output)
@@ -255,7 +251,6 @@ def get_steps():
     n_steps = int(data["n_steps"])
     game_id = int(data["game_id"], 16)
     max_step_num = min_step_num+n_steps-1
-    parse_filters = [] if "parse_filters" not in data else data["parse_filters"]
     storage_ratios = data.get("storage_ratios", None)
     total_consumption = data.get("total_consumption", None)
     total_production = data.get("total_production", None)
@@ -266,74 +261,65 @@ def get_steps():
     app.logger.info(f"n_steps: {n_steps}")
     app.logger.info(f"min_step_num: {min_step_num}")
     app.logger.info(f"max_step_num: {max_step_num}")
-    output = retrieve_steps(game_id, user_id, min_step_num, max_step_num, parse_filters,
-                            storage_capacities, storage_ratios, total_consumption, total_production,
-                            agent_growth, total_agent_count)
+    output = retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities,
+                            storage_ratios, total_consumption, total_production, agent_growth,
+                            total_agent_count)
     app.logger.info(f"len(output): {len(output)}")
     return status("Step data retrieved.", step_data=output)
 
 
-def get_model_records(game_id, user_id, min_step_num, max_step_num):
-    model_record_steps = ModelRecord.query \
-        .filter_by(user_id=user_id) \
-        .filter_by(game_id=game_id) \
-        .filter(ModelRecord.step_num >= min_step_num) \
-        .filter(ModelRecord.step_num <= max_step_num).all()
-    app.logger.info(f"len(model_record_steps): {len(model_record_steps)}")
-    return model_record_steps
+def get_model_records(game_id, user_id, steps):
+    model_records = [redis_conn.get(f'model_records:{user_id}:{game_id}:{int(step_num)}')
+                     for step_num in steps]
+    model_records = [json.loads(r) for r in model_records]
+    app.logger.info(f"len(model_records): {len(model_records)}")
+    return model_records
 
 
-def get_step_records(game_id, user_id, min_step_num, max_step_num):
-    step_record_steps = StepRecord.query \
-        .filter_by(user_id=user_id) \
-        .filter_by(game_id=game_id) \
-        .filter(StepRecord.step_num >= min_step_num) \
-        .filter(StepRecord.step_num <= max_step_num).all()
-    app.logger.info(f"len(step_record_steps): {len(step_record_steps)}")
-    return step_record_steps
+def get_step_records(game_id, user_id, steps):
+    step_records = [redis_conn.lrange(f'step_records:{user_id}:{game_id}:{int(step_num)}', 0, -1)
+                    for step_num in steps]
+    step_records = list(itertools.chain(*step_records))
+    step_records = [json.loads(r) for r in step_records]
+    app.logger.info(f"len(step_record_steps): {len(step_records)}")
+    return step_records
 
 
-def retrieve_steps(game_id, user_id, min_step_num, max_step_num, parse_filters,
-                   storage_capacities=False, storage_ratios=False, total_consumption=False,
-                   total_production=False, agent_growth=False, total_agent_count=False):
-    model_record_steps = get_model_records(game_id, user_id, min_step_num, max_step_num)
-    step_record_steps = get_step_records(game_id, user_id, min_step_num, max_step_num)
+def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities=False,
+                   storage_ratios=False, total_consumption=False, total_production=False,
+                   agent_growth=False, total_agent_count=False):
+    steps = redis_conn.zrangebyscore(f'game_steps:{user_id}:{game_id}', min_step_num, max_step_num)
+    model_record_steps = get_model_records(game_id, user_id, steps)
+    step_record_steps = get_step_records(game_id, user_id, steps)
 
     step_record_dict = dict()
     for record in step_record_steps:
-        if record.step_num not in step_record_dict:
-            step_record_dict[record.step_num] = [record]
+        step_num = record['step_num']
+        if step_num not in step_record_dict:
+            step_record_dict[step_num] = [record]
         else:
-            step_record_dict[record.step_num].append(record)
+            step_record_dict[step_num].append(record)
 
     output = {}
-    for model_record_data in model_record_steps:
-        step_num = model_record_data.step_num
+    for record in model_record_steps:
+        step_num = record['step_num']
         if step_num in step_record_dict:
             step_record_data = step_record_dict[step_num]
         else:
             continue
-        agent_model_state = parse_step_data(model_record_data, parse_filters, step_record_data)
         if agent_growth:
-            agent_model_state["agent_growth"] = get_growth_rates(agent_growth, step_record_data)
+            record["agent_growth"] = get_growth_rates(agent_growth, step_record_data)
         if total_agent_count:
-            agent_model_state["total_agent_count"] = count_agents_in_step(total_agent_count,
-                                                                          model_record_data)
+            record["total_agent_count"] = count_agents_in_step(total_agent_count, record)
         if total_production:
-            agent_model_state["total_production"] = calc_step_in_out("out",
-                                                                     total_production,
-                                                                     step_record_data)
+            record["total_production"] = calc_step_in_out("out", total_production, step_record_data)
         if total_consumption:
-            agent_model_state["total_consumption"] = calc_step_in_out("in",
-                                                                      total_consumption,
-                                                                      step_record_data)
+            record["total_consumption"] = calc_step_in_out("in", total_consumption, step_record_data)
         if storage_ratios:
-            agent_model_state["storage_ratios"] = calc_step_storage_ratios(storage_ratios,
-                                                                           model_record_data)
+            record["storage_ratios"] = calc_step_storage_ratios(storage_ratios, record)
         if storage_capacities:
-            agent_model_state["storage_capacities"] = calc_step_storage_capacities(storage_capacities,
-                                                                                   model_record_data)
-        output[int(step_num)] = agent_model_state
+            record["storage_capacities"] = calc_step_storage_capacities(storage_capacities, record)
+        output[int(step_num)] = record
 
     app.logger.info(f"len(output): {len(output)}")
 
@@ -352,27 +338,19 @@ def get_db_dump():
     n_steps = int(input["n_steps"])
     game_id = int(input["game_id"], 16)
     max_step_num = min_step_num+n_steps-1
-
-    user = get_standard_user_obj()
-
-    model_record_steps = get_model_records(game_id, user, min_step_num, max_step_num)
-    step_record_steps = get_step_records(game_id, user, min_step_num, max_step_num)
-
-    output = dict()
-    output['model_record_steps'] = [i.get_data() for i in model_record_steps]
-    output['step_record_steps'] = [i.get_data() for i in step_record_steps]
-
-    output['storage_capacities'], output['agent_counters'] = {}, {}
-    for model_record in model_record_steps:
-        step_num = int(model_record.step_num)
-        storage_capacities = StorageCapacityRecord.query \
-            .filter_by(model_record=model_record).all()
-        agent_counters = AgentTypeCountRecord.query \
-            .filter_by(model_record=model_record).all()
-        output['storage_capacities'][step_num] = [i.get_data() for i in
-                                                  storage_capacities]
-        output['agent_counters'][step_num] = [i.get_data() for i in
-                                              agent_counters]
+    user_id = get_standard_user_obj().id
+    steps = redis_conn.zrangebyscore(f'game_steps:{user_id}:{game_id}', min_step_num, max_step_num)
+    output = dict(model_record_steps=get_model_records(game_id, user_id, steps),
+                  step_record_steps=get_step_records(game_id, user_id, steps),
+                  storage_capacities={}, agent_counters={})
+    for model_record in output['model_record_steps']:
+        step_num = model_record['step_num']
+        storage_capacities = redis_conn.lrange(f'storage_capacities:{user_id}:{game_id}:{step_num}',
+                                               0, -1)
+        agent_type_counts = redis_conn.lrange(f'agent_type_counts:{user_id}:{game_id}:{step_num}',
+                                              0, -1)
+        output['storage_capacities'] = [json.loads(r) for r in storage_capacities]
+        output['agent_counters'] = [json.loads(r) for r in agent_type_counts]
     return output
 
 
@@ -440,13 +418,10 @@ def get_num_steps():
     if "game_id" not in input:
         raise BadRequest("game_id is required.")
     game_id = int(input["game_id"], 16)
-    user = get_standard_user_obj()
-    last_record = ModelRecord.query \
-        .filter_by(user_id=user.id) \
-        .filter_by(game_id=game_id) \
-        .order_by(ModelRecord.step_num.desc()) \
-        .limit(1).first()
-    step_num = last_record.step_num if last_record else 0
+    user_id = get_standard_user_obj().id
+    last_record = [int(step_num) for step_num
+                   in redis_conn.zrange(f'game_steps:{user_id}:{game_id}', -1, -1)][-1]
+    step_num = last_record if last_record else 0
     return status("Total step number retrieved.", step_num=step_num)
 
 

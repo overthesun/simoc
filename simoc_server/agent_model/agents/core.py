@@ -561,15 +561,19 @@ class GeneralAgent(EnclosedAgent):
                         else:
                             growth = None
                         record = {"step_num": self.model.step_num + 1,
+                                  'game_id': self.model.game_id,
                                   "user_id": self.model.user_id,
+                                  "agent_type": self.agent_type,
                                   "agent_type_id": self.agent_type_id,
                                   "agent_id": self.unique_id,
                                   "direction": prefix,
                                   "agent_amount": agent_amount,
+                                  "currency_type": currency_type.name,
                                   "currency_type_id": currency_type.id,
                                   "value": value,
                                   "growth": growth,
                                   "unit": str(step_value.units),
+                                  "storage_type": storage.agent_type,
                                   "storage_type_id": storage.agent_type_id,
                                   "storage_agent_id": storage.unique_id,
                                   "storage_id": storage.id}
