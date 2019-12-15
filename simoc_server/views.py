@@ -55,28 +55,20 @@ def get_steps_background(data, user_id, timeout=2, max_retries=5):
     storage_capacities = data.get("storage_capacities", None)
     retries_left = max_retries
     step_count = 0
-    app.logger.info(f"n_steps: {n_steps}")
     while True:
         socketio.sleep(timeout)
-        app.logger.info(f"min_step_num: {min_step_num}")
-        app.logger.info(f"max_step_num: {max_step_num}")
         output = retrieve_steps(game_id, user_id, min_step_num, max_step_num,
                                 storage_capacities, storage_ratios, total_consumption,
                                 total_production, agent_growth, total_agent_count)
         step_count += len(output)
-        app.logger.info(f"len(output): {len(output)}")
-        app.logger.info(f"step_count: {step_count}")
         if len(output) == 0:
             retries_left -= 1
-            app.logger.info(f"retries: {retries_left}")
         else:
             socketio.emit('step_data_handler',
                           {'data': output, 'count': len(output)},
                           namespace='/simoc')
             retries_left = max_retries
-            app.logger.info(f"retries: {retries_left}")
         if step_count >= n_steps or retries_left <= 0:
-            app.logger.info("break")
             break
         else:
             min_step_num = step_count + 1
@@ -205,7 +197,6 @@ def new_game():
     # Save the hostname of the Celery worker that a game was assigned to
     redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
     redis_conn.set('user_mapping:{}'.format(get_standard_user_obj().id), result['game_id'])
-
     return status("New game starts.", game_id=format(result['game_id'], 'X'))
 
 
@@ -258,13 +249,9 @@ def get_steps():
     storage_capacities = data.get("storage_capacities", None)
     total_agent_count = data.get("total_agent_count", None)
     user_id = get_standard_user_obj().id
-    app.logger.info(f"n_steps: {n_steps}")
-    app.logger.info(f"min_step_num: {min_step_num}")
-    app.logger.info(f"max_step_num: {max_step_num}")
     output = retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities,
                             storage_ratios, total_consumption, total_production, agent_growth,
                             total_agent_count)
-    app.logger.info(f"len(output): {len(output)}")
     return status("Step data retrieved.", step_data=output)
 
 
@@ -272,7 +259,6 @@ def get_model_records(game_id, user_id, steps):
     model_records = [redis_conn.get(f'model_records:{user_id}:{game_id}:{int(step_num)}')
                      for step_num in steps]
     model_records = [json.loads(r) for r in model_records]
-    app.logger.info(f"len(model_records): {len(model_records)}")
     return model_records
 
 
@@ -281,7 +267,6 @@ def get_step_records(game_id, user_id, steps):
                     for step_num in steps]
     step_records = list(itertools.chain(*step_records))
     step_records = [json.loads(r) for r in step_records]
-    app.logger.info(f"len(step_record_steps): {len(step_records)}")
     return step_records
 
 
@@ -320,8 +305,6 @@ def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacit
         if storage_capacities:
             record["storage_capacities"] = calc_step_storage_capacities(storage_capacities, record)
         output[int(step_num)] = record
-
-    app.logger.info(f"len(output): {len(output)}")
 
     return output
 
