@@ -270,10 +270,14 @@ def get_step_records(game_id, user_id, steps):
     return step_records
 
 
+def get_steps_list(game_id, user_id, min_step_num, max_step_num):
+    return redis_conn.zrangebyscore(f'game_steps:{user_id}:{game_id}', min_step_num, max_step_num)
+
+
 def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities=False,
                    storage_ratios=False, total_consumption=False, total_production=False,
                    agent_growth=False, total_agent_count=False):
-    steps = redis_conn.zrangebyscore(f'game_steps:{user_id}:{game_id}', min_step_num, max_step_num)
+    steps = get_steps_list(game_id, user_id, min_step_num, max_step_num)
     model_record_steps = get_model_records(game_id, user_id, steps)
     step_record_steps = get_step_records(game_id, user_id, steps)
 
@@ -322,7 +326,7 @@ def get_db_dump():
     game_id = int(input["game_id"], 16)
     max_step_num = min_step_num+n_steps-1
     user_id = get_standard_user_obj().id
-    steps = redis_conn.zrangebyscore(f'game_steps:{user_id}:{game_id}', min_step_num, max_step_num)
+    steps = get_steps_list(game_id, user_id, min_step_num, max_step_num)
     output = dict(model_record_steps=get_model_records(game_id, user_id, steps),
                   step_record_steps=get_step_records(game_id, user_id, steps),
                   storage_capacities={}, agent_counters={})
