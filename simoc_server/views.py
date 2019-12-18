@@ -306,7 +306,7 @@ def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacit
             record["total_consumption"] = calc_step_in_out("in", total_consumption, step_record_data)
         if storage_ratios:
             record["storage_ratios"] = calc_step_storage_ratios(storage_ratios, record)
-        if storage_capacities:
+        if isinstance(storage_capacities, dict):
             record["storage_capacities"] = calc_step_storage_capacities(storage_capacities, record)
         output[int(step_num)] = record
 
