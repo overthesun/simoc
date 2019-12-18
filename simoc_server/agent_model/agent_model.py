@@ -348,13 +348,12 @@ class AgentModel(Model, AttributeHolder):
         """TODO"""
         self.snapshot_branch = SnapshotBranch(parent_branch_id=self.snapshot_branch.id)
 
-    def snapshot(self, commit=True):
+    def snapshot(self):
         """TODO
 
         TODO
 
         Args:
-            commit: TODO
 
         Returns:
           TODO
@@ -387,18 +386,18 @@ class AgentModel(Model, AttributeHolder):
                                                 config=json.dumps(self.config))
             snapshot = AgentModelSnapshot(agent_model_state=agent_model_state,
                                           snapshot_branch=self.snapshot_branch)
-            db.session.add(agent_model_state)
-            db.session.add(snapshot)
-            db.session.add(self.snapshot_branch)
-            for agent in self.scheduler.agents:
-                agent.snapshot(agent_model_state, commit=False)
-            if commit:
-                try:
-                    db.session.commit()
-                except:
-                    db.session.rollback()
-                finally:
-                    db.session.close()
+            try:
+                db.session.add(agent_model_state)
+                db.session.add(snapshot)
+                db.session.add(self.snapshot_branch)
+                for agent in self.scheduler.agents:
+                    agent.snapshot(agent_model_state)
+                db.session.commit()
+            except:
+                app.logger.exception('Failed to save a game.')
+                db.session.rollback()
+            finally:
+                db.session.close()
             return snapshot
         except StaleDataError:
             app.logger.warning("WARNING: StaleDataError during snapshot, probably a simultaneous"

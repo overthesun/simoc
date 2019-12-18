@@ -154,19 +154,20 @@ class GameRunner(object):
         simoc_server.database.db_model.SavedGame
             The saved game entity that was created.
         """
-        self.user = db.session.merge(self.user)
-        agent_model_snapshot = self.agent_model.snapshot(commit=False)
-        saved_game = SavedGame(
-            user=self.user, agent_model_snapshot=agent_model_snapshot, name=save_name)
-        db.session.add(saved_game)
         try:
+            self.user = db.session.merge(self.user)
+            agent_model_snapshot = self.agent_model.snapshot()
+            saved_game = SavedGame(
+                user=self.user, agent_model_snapshot=agent_model_snapshot, name=save_name)
+            db.session.add(saved_game)
             db.session.commit()
+            self.last_saved_step = self.agent_model.step_num
+            return saved_game
         except:
+            app.logger.exception('Failed to save a game.')
             db.session.rollback()
         finally:
             db.session.close()
-        self.last_saved_step = self.agent_model.step_num
-        return saved_game
 
     def ping(self):
         """Reset's the last accessed time.  Useful if the game is paused.
