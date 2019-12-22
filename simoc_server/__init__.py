@@ -9,8 +9,7 @@ import redis
 if os.path.isfile('settings.py'):
     config_obj = os.environ.get('DIAG_CONFIG_MODULE', 'settings')
 else:
-    config_obj = os.environ.get(
-        'DIAG_CONFIG_MODULE', 'simoc_server.default_settings')
+    config_obj = os.environ.get('DIAG_CONFIG_MODULE', 'simoc_server.default_settings')
 
 app = Flask(__name__, static_folder='./dist/static', template_folder='./dist')
 
@@ -20,12 +19,7 @@ app.logger.setLevel(gunicorn_logger.level)
 
 app.config.from_object(config_obj)
 
-app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET', 't0p_s3cr3t!')
 app.config['AGENT_CONFIG'] = os.environ.get('AGENT_CONFIG', 'agent_desc.json')
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
-app.config['JSON_SORT_KEYS'] = False
-
-no_flask = os.environ.get('NO_FLASK')
 
 redis_host = os.environ.get('REDIS_HOST', 'localhost')
 redis_port = os.environ.get('REDIS_PORT', '6379')
@@ -66,6 +60,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
 db = SQLAlchemy(app, session_options={'expire_on_commit': False})
 
+no_flask = os.environ.get('NO_FLASK')
 if no_flask and int(no_flask) == 1:
     pass
 else:

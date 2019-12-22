@@ -367,7 +367,7 @@ class AgentModelState(BaseEntity):
     priorities = db.Column(db.String(2048), nullable=False)
     location = db.Column(db.String(2048), nullable=False)
     minutes_per_step = db.Column(db.Integer, nullable=False)
-    config = db.Column(db.String(2048), nullable=False)
+    config = db.Column(db.Text(10240), nullable=False)
 
 
 class AgentModelSnapshot(BaseEntity):
