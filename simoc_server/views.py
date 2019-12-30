@@ -65,8 +65,7 @@ def get_steps_background(data, user_id, timeout=2, max_retries=5):
             retries_left -= 1
         else:
             socketio.emit('step_data_handler',
-                          {'data': output, 'count': len(output)},
-                          namespace='/simoc')
+                          {'data': output, 'count': len(output)})
             retries_left = max_retries
         if step_count >= n_steps or retries_left <= 0:
             break
@@ -74,7 +73,7 @@ def get_steps_background(data, user_id, timeout=2, max_retries=5):
             min_step_num = step_count + 1
 
 
-@socketio.on('connect', namespace='/simoc')
+@socketio.on('connect')
 def connect_handler():
     if current_user.is_anonymous:
         return False
@@ -83,7 +82,7 @@ def connect_handler():
          broadcast=True)
 
 
-@socketio.on('get_steps', namespace='/simoc')
+@socketio.on('get_steps')
 @authenticated_only
 def get_steps_handler(message):
     if "data" not in message:
@@ -92,7 +91,7 @@ def get_steps_handler(message):
     socketio.start_background_task(get_steps_background, message['data'], user_id)
 
 
-@socketio.on('disconnect_request', namespace='/simoc')
+@socketio.on('disconnect_request')
 def disconnect_request():
     @copy_current_request_context
     def can_disconnect():
