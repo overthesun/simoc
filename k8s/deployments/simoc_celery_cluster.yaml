@@ -1,9 +1,14 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: simoc-celery-cluster
+  labels:
+    app: simoc-celery-cluster
 spec:
-  replicas: 1
+  replicas: 2
+  selector:
+    matchLabels:
+      app: simoc-celery-cluster
   template:
     metadata:
       labels:
@@ -42,7 +47,7 @@ spec:
                 key: db_name
           - name: DB_USER
             valueFrom:
-              secretKeyRef:
+              configMapKeyRef:
                 name: simoc-db-config
                 key: db_user
           - name: DB_PASSWORD

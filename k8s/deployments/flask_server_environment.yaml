@@ -5,4 +5,3 @@ metadata:
   namespace: default
 data:
   app_port: '8000'
-  wsgi_workers: '2'

@@ -1,9 +1,14 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: simoc-flask-server
+  labels:
+    app: simoc-flask-server
 spec:
-  replicas: 1
+  replicas: 2
+  selector:
+    matchLabels:
+      app: simoc-flask-server
   template:
     metadata:
       labels:
@@ -20,11 +25,6 @@ spec:
               configMapKeyRef:
                 name: flask-config
                 key: app_port
-          - name: WSGI_WORKERS
-            valueFrom:
-              configMapKeyRef:
-                name: flask-config
-                key: wsgi_workers
           - name: DB_TYPE
             valueFrom:
               configMapKeyRef:
@@ -47,7 +47,7 @@ spec:
                 key: db_name
           - name: DB_USER
             valueFrom:
-              secretKeyRef:
+              configMapKeyRef:
                 name: simoc-db-config
                 key: db_user
           - name: DB_PASSWORD
