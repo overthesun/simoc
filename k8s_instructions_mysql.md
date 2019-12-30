@@ -240,10 +240,10 @@ error: unable to upgrade connection: container not found ("simoc-flask-server")
 ```
 
 ### Access `SIMOC` web application
-In `Cloud Console`, navigate to the `Kubernetes Engine -> Services` tab:
+In `Cloud Console`, navigate to the `Kubernetes Engine -> Services & Ingress` tab:
 * https://console.cloud.google.com/kubernetes/discovery
 
-Once the cluster is up and running (may need to click a `Refresh` button), the `nginx-ingress-controller` service will list the HTTP/HTTPS Endpoints that you can use to access the app.
+Once the cluster is up and running (may need to click a `Refresh` button), the `simoc-flask-ingress` service will list the HTTP/HTTPS Endpoints that you can use to access the app.
 
 ## Deploy `SIMOC` (from local `Linux/macOS`)
 
