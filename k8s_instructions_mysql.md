@@ -159,7 +159,7 @@ gcloud container clusters get-credentials k0 --zone $GCP_ZONE
 
 #### 2. Deploy `MySQL` server to the cluster
 ```bash
-helm install --name simoc-db \
+helm install simoc-db \
     --set mysqlDatabase=simoc \
     --set resources.requests.cpu=1.0 \
     --set resources.requests.memory=512Mi \
@@ -180,7 +180,7 @@ kubectl create secret generic simoc-db-creds \
 
 #### 4. Deploy `Redis` server to the cluster
 ```bash
-helm install --name redis stable/redis
+helm install redis stable/redis
 ```
 
 #### 5. Save the `Redis` credentials to the `Cloud Secrets`
