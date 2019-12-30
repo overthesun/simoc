@@ -19,6 +19,7 @@ Set up a `Redis` connection details (fill in the `REDIS_PASSWORD` value):
 export REDIS_HOST=redis
 export REDIS_PORT=6379
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
+export REDIS_WORKERS=2
 ```
 
 Set up the `MySQL` configuration (fill in the `DB_PASSWORD` value):
@@ -36,16 +37,35 @@ Set up the number of `Celery Worker` containers to spin up:
 export CELERY_WORKERS=2
 ```
 
-Set up the number of threads per `Flask Application` container:
+Set up the number of `Flask Backend` containers:
 ```bash
-export WSGI_WORKERS=2
+export FLASK_WORKERS=2
 ```
 
-Set up the listening `HTTP` port for the `Flask Application`:
+Set up the listening `HTTP` port for the `Flask Backend`:
 ```bash
 export APP_PORT=8000
 ```
 
+Update `nginx.conf` file with the corresponding `Flask Backend` port:
+```
+upstream backend {
+    ip_hash;
+    server flask-app:8000;
+}
+
+server {
+    listen 8000;
+
+    location / {
+        proxy_pass http://backend;
+    }
+
+    location /socket.io {
+        proxy_pass http://backend/socket.io;
+    }
+}
+```
 
 ## 4. Build `Docker` images
 ```bash
@@ -54,8 +74,11 @@ docker-compose -f docker-compose.mysql.yml build
 
 ## 5. Create and start `SIMOC` service
 ```bash
-docker-compose -f docker-compose.mysql.yml \
-    up -d --scale celery-worker=${CELERY_WORKERS}
+docker-compose -f docker-compose.mysql.yml up -d \
+    --scale celery-worker=${CELERY_WORKERS} \
+    --scale flask-app=${FLASK_WORKERS} \
+    --scale redis=1 \
+    --scale redis-replica=${REDIS_WORKERS}
 ```
 
 ## 6. Initialize `MySQL` database
@@ -84,13 +107,17 @@ docker-compose -f docker-compose.mysql.yml ps
 
 The output should look similar to the following which means that all services are up and running:
 ```bash
-        Name                       Command                  State                     Ports
----------------------------------------------------------------------------------------------------------
-simoc_celery-worker_1   /bin/bash start_worker.sh        Up
-simoc_celery-worker_2   /bin/bash start_worker.sh        Up
-simoc_flask-app_1       /bin/bash run.sh                 Up             0.0.0.0:8000->8000/tcp
-simoc_redis_1           docker-entrypoint.sh redis ...   Up             0.0.0.0:6379->6379/tcp
-simoc_simoc-db_1        /entrypoint.sh mysqld            Up (healthy)   0.0.0.0:3306->3306/tcp, 33060/tcp
+        Name                     Command               State                     Ports
+----------------------------------------------------------------------------------------------------
+simoc_celery-worker_1   /bin/bash start_worker.sh   Up
+simoc_celery-worker_2   /bin/bash start_worker.sh   Up
+simoc_flask-app_1       /bin/bash run.sh            Up             0.0.0.0:32836->8000/tcp
+simoc_flask-app_2       /bin/bash run.sh            Up             0.0.0.0:32835->8000/tcp
+simoc_nginx_1           nginx -g daemon off;        Up             80/tcp, 0.0.0.0:8000->8000/tcp
+simoc_redis-replica_1   /entrypoint.sh /run.sh      Up             0.0.0.0:32834->6379/tcp
+simoc_redis-replica_2   /entrypoint.sh /run.sh      Up             0.0.0.0:32833->6379/tcp
+simoc_redis_1           /entrypoint.sh /run.sh      Up             0.0.0.0:6379->6379/tcp
+simoc_simoc-db_1        /entrypoint.sh mysqld       Up (healthy)   0.0.0.0:3306->3306/tcp, 33060/tcp
 ```
 
 Show all containers:
@@ -109,7 +136,7 @@ docker-compose -f docker-compose.mysql.yml \
     logs -t -f celery-worker
 ```
 
-Fetch logs from a `flask-app` container:
+Fetch logs from a `flask-app` containers:
 ```bash
 docker-compose -f docker-compose.mysql.yml \
     logs -t -f flask-app

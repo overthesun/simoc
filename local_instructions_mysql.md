@@ -128,11 +128,6 @@ Set up the listening `HTTP` port for the `Flask Application`:
 export APP_PORT=8000
 ```
 
-Set up the number of threads per `Flask Application` container:
-```bash
-export WSGI_WORKERS=2
-```
-
 Start `SIMOC` application:
 ```bash
 sh run.sh
