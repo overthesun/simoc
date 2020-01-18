@@ -195,7 +195,7 @@ class AgentModel(Model, AttributeHolder):
             counter[key] += 1 * agent.amount
         return counter
 
-    def get_storage_capacities(self):
+    def get_storage_capacities(self, value_round=6):
         """TODO
 
         Formats the agent storages and currencies for easier access to the step information later.
@@ -216,7 +216,7 @@ class AgentModel(Model, AttributeHolder):
                     currency_type = CurrencyType.query.filter_by(name=currency).first()
                     entity["currencies"].append({"currency_type": currency_type.name,
                                                  "currency_type_id": currency_type.id,
-                                                 "value": storage[currency],
+                                                 "value": round(storage[currency], value_round),
                                                  "units": storage.attr_details[attr]['units'],
                                                  "capacity": storage.attrs[attr]})
             storages.append(entity)

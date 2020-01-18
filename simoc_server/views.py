@@ -65,9 +65,10 @@ def get_steps_background(data, user_id, timeout=2, max_retries=5):
             retries_left -= 1
         else:
             socketio.emit('step_data_handler',
-                          {'data': output, 'count': len(output)})
+                          {'data': output, 'step_count': step_count, 'max_steps': n_steps})
             retries_left = max_retries
         if step_count >= n_steps or retries_left <= 0:
+            socketio.emit('steps_retrieved', {'message': f'{step_count} steps retrieved'})
             break
         else:
             min_step_num = step_count + 1
@@ -77,7 +78,7 @@ def get_steps_background(data, user_id, timeout=2, max_retries=5):
 def connect_handler():
     if current_user.is_anonymous:
         return False
-    emit('status',
+    emit('user_connected',
          {'message': f'User "{current_user.username}" connected'},
          broadcast=True)
 
@@ -96,7 +97,7 @@ def disconnect_request():
     @copy_current_request_context
     def can_disconnect():
         disconnect()
-    emit('status',
+    emit('user_disconnected',
          {'message': f'User {current_user.username} disconnected'},
          callback=can_disconnect)
 

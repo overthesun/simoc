@@ -272,7 +272,7 @@ def convert_configuration(game_config):
     return full_game_config
 
 
-def calc_step_in_out(direction, currencies, step_record_data):
+def calc_step_in_out(direction, currencies, step_record_data, value_round=6):
     """ 
     Calculate the total production or total consumption of given currencies for a given step.
 
@@ -294,13 +294,13 @@ def calc_step_in_out(direction, currencies, step_record_data):
     for step in step_record_data:
         currency = step['currency_type']
         if step['direction'] == direction and currency in output:
-            output[currency]['value'] += step['value']
+            output[currency]['value'] = round(output[currency]['value'] + step['value'], value_round)
             output[currency]['unit'] = step['unit']
 
     return output
 
 
-def calc_step_storage_ratios(agents, model_record_data):
+def calc_step_storage_ratios(agents, model_record_data, value_round=6):
     """
     Calculate the ratio for the requested currencies for the requested <agent_type>_<agent_id>.
 
@@ -345,7 +345,7 @@ def calc_step_storage_ratios(agents, model_record_data):
         for currency in agents[agent]:
             c_step_data = [record for record in agent_capacities
                            if record['currency_type'] == currency][0]
-            output[agent][currency] = c_step_data['value'] / total_value
+            output[agent][currency] = round(c_step_data['value'] / total_value, value_round)
 
     return output
 
@@ -403,7 +403,7 @@ def sum_agent_values_in_step(agent_types, currency_type_name, direction, step_re
     return output
 
 
-def calc_step_storage_capacities(agent_types, model_record_data):
+def calc_step_storage_capacities(agent_types, model_record_data, value_round=6):
     output = {}
     user_id = model_record_data['user_id']
     game_id = model_record_data['game_id']
@@ -422,7 +422,7 @@ def calc_step_storage_capacities(agent_types, model_record_data):
                 output[agent_type] = {}
             if storage_id not in output[agent_type]:
                 output[agent_type][storage_id] = {}
-            output[agent_type][storage_id][currency] = {'value': record['value'],
+            output[agent_type][storage_id][currency] = {'value': round(record['value'], value_round),
                                                         'unit': record['unit']}
     return output
 
