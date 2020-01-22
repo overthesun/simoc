@@ -5,7 +5,8 @@ MAINTAINER Iurii Milovanov "duruku@gmail.com"
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python3-pip \
-    python3-setuptools
+    python3-setuptools \
+    curl
 
 COPY ./requirements.txt /simoc/requirements.txt
 RUN python3 -m pip install -r /simoc/requirements.txt

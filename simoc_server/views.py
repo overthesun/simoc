@@ -637,3 +637,8 @@ def get_standard_user_obj():
         The current user entity for the request.
     """
     return current_user._get_current_object()
+
+
+@app.route("/ping", methods=["GET"])
+def ping():
+    return '', 200

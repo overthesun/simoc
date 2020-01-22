@@ -1,16 +1,15 @@
-version: '3'
+version: '3.7'
 services:
   nginx:
     image: nginx
     ports:
-      - "${APP_PORT}:${APP_PORT}"
+      - '${APP_PORT}:${APP_PORT}'
     networks:
       - simoc-net
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - flask-app
-    restart: always
     deploy:
       replicas: 1
       restart_policy:
@@ -18,7 +17,7 @@ services:
   simoc-db:
     image: mysql/mysql-server
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - '${DB_PORT}:${DB_PORT}'
     networks:
       - simoc-net
     environment:
@@ -67,6 +66,12 @@ services:
     image: 127.0.0.1:5000/celery-worker
     networks:
       - simoc-net
+    healthcheck:
+      test: ['CMD', 'bash', 'ping_worker.sh']
+      interval: 1m
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     environment:
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
@@ -98,6 +103,12 @@ services:
       - 8080
     networks:
       - simoc-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/ping']
+      interval: 1m
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     environment:
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
