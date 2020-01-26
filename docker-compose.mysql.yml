@@ -16,6 +16,8 @@ services:
         condition: on-failure
   simoc-db:
     image: mysql/mysql-server
+    volumes:
+      - db-data:/var/lib/mysql
     ports:
       - '${DB_PORT}:${DB_PORT}'
     networks:
@@ -133,5 +135,9 @@ services:
         limits:
           cpus: '1.0'
           memory: 200M
+
+volumes:
+  db-data: {}
+
 networks:
   simoc-net:
