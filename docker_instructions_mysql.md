@@ -148,9 +148,9 @@ docker-compose -f docker-compose.mysql.yml stop
 docker-compose -f docker-compose.mysql.yml start
 ```
 
-- Stop all `SIMOC` services and remove all containers and images:
+- Stop all `SIMOC` services and remove all containers, images and volumes:
 ```bash
-docker-compose -f docker-compose.mysql.yml down --rmi all
+docker-compose -f docker-compose.mysql.yml down --rmi all --volumes
 ```
 
 ### Initialize `MySQL` database
@@ -203,10 +203,9 @@ docker-compose -f docker-compose.mysql.yml up -d \
 ```
 
 ### Reset `MySQL` database
-- Kill and remove all running `simoc-db` containers (if any):
+- Stop and remove all `simoc-db` containers and volumes:
 ```bash
-docker-compose -f docker-compose.mysql.yml stop simoc-db
-docker-compose -f docker-compose.mysql.yml rm simoc-db
+docker-compose -f docker-compose.mysql.yml rm --stop -v simoc-db
 ```
 
 - Re-deploy `simoc-db` service:
