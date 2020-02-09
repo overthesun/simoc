@@ -58,7 +58,7 @@ services:
       - REDIS_MASTER_PASSWORD=${REDIS_PASSWORD}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     deploy:
-      replicas: 2
+      replicas: ${REDIS_WORKERS}
       restart_policy:
         condition: on-failure
   celery-worker:
@@ -91,13 +91,13 @@ services:
       - redis
       - redis-replica
     deploy:
-      replicas: 2
+      replicas: ${CELERY_WORKERS}
       restart_policy:
         condition: on-failure
       resources:
         limits:
           cpus: '1.0'
-          memory: 200M
+          memory: 300M
   flask-app:
     build: .
     image: 127.0.0.1:5000/flask-app
@@ -128,7 +128,7 @@ services:
       - redis
       - redis-replica
     deploy:
-      replicas: 2
+      replicas: ${FLASK_WORKERS}
       restart_policy:
         condition: on-failure
       resources:
@@ -141,3 +141,5 @@ volumes:
 
 networks:
   simoc-net:
+    driver: overlay
+    attachable: true

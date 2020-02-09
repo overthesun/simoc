@@ -157,7 +157,13 @@ def register():
     user = User(username=username)
     user.set_password(password)
     db.session.add(user)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        app.logger.exception(f'Failed to create  a user "{username}".')
+        db.session.rollback()
+    finally:
+        db.session.close()
     login_user(user)
     return status("Registration complete.")
 

@@ -153,6 +153,18 @@ docker-compose -f docker-compose.mysql.yml start
 docker-compose -f docker-compose.mysql.yml down --rmi all --volumes
 ```
 
+### Scale `SIMOC` components (optional)
+
+Scale the number of `celery-worker` containers to `5`:
+```bash
+docker-compose -f docker-compose.mysql.yml scale celery-worker=5
+```
+
+Scale the number of `flask-app` containers to `5`:
+```bash
+docker-compose -f docker-compose.mysql.yml scale flask-app=5
+```
+
 ### Initialize `MySQL` database
 Once all `SIMOC` services and containers are up and running, run the following command to create DB schema and populate the agent model:
 ```bash
@@ -206,6 +218,7 @@ docker-compose -f docker-compose.mysql.yml up -d \
 - Stop and remove all `simoc-db` containers and volumes:
 ```bash
 docker-compose -f docker-compose.mysql.yml rm --stop -v simoc-db
+docker volume rm simoc_db-data
 ```
 
 - Re-deploy `simoc-db` service:
@@ -247,6 +260,13 @@ qydpdq8dp0rf        registry            replicated          1/1                 
 ### Push `SIMOC` images to the registry
 ```bash
 docker-compose -f docker-compose.mysql.yml push
+```
+
+### Set up the number of worker containers to spin up
+```bash
+export FLASK_WORKERS=2
+export CELERY_WORKERS=2
+export REDIS_WORKERS=2
 ```
 
 ### Deploy `SIMOC` application stack to the `Swarm` cluster
