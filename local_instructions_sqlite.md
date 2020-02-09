@@ -86,11 +86,6 @@ Set up the number of threads per `Flask Application` container:
 export WSGI_WORKERS=2
 ```
 
-Set up the listening `HTTP` port for the `Flask Application`:
-```bash
-export APP_PORT=8000
-```
-
 Start `SIMOC` application:
 ```bash
 sh run.sh
@@ -98,7 +93,7 @@ sh run.sh
 
 ## 7. Access `SIMOC` web application
 Navigate to the following `URL` in your browser to access a `SIMOC` application (change `PORT` if needed):
-- [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- [http://127.0.0.1:8080](http://127.0.0.1:8080)
 
 # Useful commands
 
