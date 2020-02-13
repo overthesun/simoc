@@ -266,7 +266,6 @@ docker-compose -f docker-compose.mysql.yml push
 ```bash
 export FLASK_WORKERS=2
 export CELERY_WORKERS=2
-export REDIS_WORKERS=2
 ```
 
 ### Deploy `SIMOC` application stack to the `Swarm` cluster
@@ -326,6 +325,25 @@ docker exec -ti simoc_celery-worker.1.$(docker service ps -f 'name=simoc_celery-
 Scale the number of `celery-worker` containers to `5`:
 ```bash
 docker service scale simoc_celery-worker=5
+```
+
+### Re-deploy `SIMOC` on code changes
+```bash
+export REDIS_HOST=redis
+export REDIS_PORT=6379
+export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
+export DB_TYPE=mysql
+export DB_HOST=simoc-db
+export DB_PORT=3306
+export DB_NAME=simoc
+export DB_USER=root
+export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
+export APP_PORT=8000
+export FLASK_WORKERS=2
+export CELERY_WORKERS=2
+docker-compose -f docker-compose.mysql.yml build
+docker-compose -f docker-compose.mysql.yml push
+docker stack deploy --compose-file docker-compose.mysql.yml simoc
 ```
 
 ### Uninstall instructions
