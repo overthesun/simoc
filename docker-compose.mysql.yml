@@ -37,28 +37,9 @@ services:
     networks:
       - simoc-net
     environment:
-      - REDIS_REPLICATION_MODE=master
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     deploy:
       replicas: 1
-      restart_policy:
-        condition: on-failure
-  redis-replica:
-    image: bitnami/redis:latest
-    ports:
-      - 6379
-    networks:
-      - simoc-net
-    depends_on:
-      - redis
-    environment:
-      - REDIS_REPLICATION_MODE=slave
-      - REDIS_MASTER_HOST=redis
-      - REDIS_MASTER_PORT_NUMBER=6379
-      - REDIS_MASTER_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-    deploy:
-      replicas: ${REDIS_WORKERS}
       restart_policy:
         condition: on-failure
   celery-worker:
@@ -89,14 +70,13 @@ services:
     depends_on:
       - simoc-db
       - redis
-      - redis-replica
     deploy:
       replicas: ${CELERY_WORKERS}
       restart_policy:
         condition: on-failure
       resources:
         limits:
-          cpus: '1.0'
+          cpus: '.5'
           memory: 300M
   flask-app:
     build: .
@@ -126,15 +106,14 @@ services:
     depends_on:
       - simoc-db
       - redis
-      - redis-replica
     deploy:
       replicas: ${FLASK_WORKERS}
       restart_policy:
         condition: on-failure
       resources:
         limits:
-          cpus: '1.0'
-          memory: 200M
+          cpus: '.2'
+          memory: 300M
 
 volumes:
   db-data: {}
