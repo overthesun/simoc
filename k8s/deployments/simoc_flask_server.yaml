@@ -19,12 +19,15 @@ spec:
         - name: simoc-flask-server
           image: gcr.io/<PROJECT_ID>/simoc_flask:latest
           imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            periodSeconds: 60
+            timeoutSeconds: 10
+            failureThreshold: 5
+            initialDelaySeconds: 30
           env:
-          - name: APP_PORT
-            valueFrom:
-              configMapKeyRef:
-                name: flask-config
-                key: app_port
           - name: DB_TYPE
             valueFrom:
               configMapKeyRef:
@@ -72,11 +75,11 @@ spec:
                 key: redis_password
           ports:
             - name: http
-              containerPort: 8000
+              containerPort: 8080
           resources:
             requests:
-              memory: "500M"
-              cpu: 1.0
+              memory: "300M"
+              cpu: .2
             limits:
-              memory: "1G"
-              cpu: 2.0
+              memory: "500M"
+              cpu: .5

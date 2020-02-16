@@ -8,9 +8,9 @@ spec:
     kind: Deployment
     name: simoc-flask-server
   minReplicas: 2
-  maxReplicas: 5
+  maxReplicas: 10
   metrics:
   - type: Resource
     resource:
       name: cpu
-      targetAverageUtilization: 50
+      targetAverageUtilization: 30

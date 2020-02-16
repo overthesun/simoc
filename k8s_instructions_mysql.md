@@ -147,7 +147,7 @@ gcloud container clusters create k0 \
     --zone $GCP_ZONE \
     --preemptible \
     --machine-type=n1-standard-4 \
-    --num-nodes 2 --enable-autoscaling --min-nodes 2 --max-nodes 5
+    --num-nodes 3 --enable-autoscaling --min-nodes 3 --max-nodes 10
 ```
 
 #### 2. Set up a `Kubernetes` environment
@@ -213,8 +213,6 @@ Repeat the same for the `~/simoc/k8s/deployments/simoc_celery_cluster.yaml` file
 
 #### 9. Deploy `SIMOC` backend into the cluster
 ```bash
-kubectl create -f k8s/deployments/flask_server_environment.yaml
-kubectl create -f k8s/deployments/celery_cluster_environment.yaml
 kubectl create -f k8s/deployments/redis_environment.yaml
 kubectl create -f k8s/deployments/simoc_db_environment.yaml
 kubectl create -f k8s/deployments/simoc_flask_server.yaml
@@ -237,6 +235,12 @@ kubectl exec \
 If the following error occurs, wait for 1-2 minutes and retry:
 ```
 error: unable to upgrade connection: container not found ("simoc-flask-server")
+```
+
+#### Scale `SIMOC` components (optional)
+Scale the number of `celery-worker` containers to `20`:
+```bash
+kubectl scale --replicas=20 -f k8s/deployments/simoc_celery_cluster.yaml
 ```
 
 ### Access `SIMOC` web application
@@ -297,7 +301,7 @@ kubectl replace --force -f k8s/deployments/simoc_celery_cluster.yaml
 
 Delete the exiting `MySQL` server deployment and credentials:
 ```bash
-helm del --purge simoc-db
+helm uninstall simoc-db
 kubectl delete secret simoc-db-creds
 ```
 
