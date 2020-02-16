@@ -1,6 +1,7 @@
 import functools
 import itertools
 import json
+import time
 import traceback
 from collections import OrderedDict
 
@@ -12,7 +13,8 @@ from flask_socketio import emit, disconnect, SocketIO
 
 from simoc_server import app, db, redis_conn, broker_url
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User
-from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration
+from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration,\
+    ServerError
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
     calc_step_storage_ratios, count_agents_in_step, calc_step_storage_capacities, \
@@ -20,7 +22,6 @@ from simoc_server.front_end_routes import convert_configuration, calc_step_in_ou
 
 from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
-from celery.utils import worker_direct
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -192,18 +193,32 @@ def new_game():
 
     Returns
     -------
-    str: The Game ID
+    str: TBD
     """
+    retries = 30
+    user = get_standard_user_obj()
+    input = json.loads(request.data.decode('utf-8'))
+    if "game_config" not in input:
+        raise BadRequest("game_config is required.")
+    if "step_num" not in input:
+        raise BadRequest("step_num is required.")
+    step_num = int(input["step_num"])
     try:
-        game_config = convert_configuration(json.loads(request.data)["game_config"])
+        game_config = convert_configuration(input["game_config"])
     except BadRequest as e:
         raise BadRequest(f"Cannot retrieve game config. Reason: {e}")
-    # Send `new_game` for remote execution on Celery
-    result = tasks.new_game.delay(get_standard_user_obj().username, game_config).get(timeout=60)
-    # Save the hostname of the Celery worker that a game was assigned to
-    redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
-    redis_conn.set('user_mapping:{}'.format(get_standard_user_obj().id), result['game_id'])
-    return status("New game starts.", game_id=format(result['game_id'], 'X'))
+    tasks.new_game.apply_async(args=[user.username, game_config, step_num])
+    while True:
+        game_id = redis_conn.get(f'user_mapping:{user.id}')
+        game_id = game_id.decode("utf-8") if game_id else game_id
+        if not game_id:
+            retries -= 1
+        else:
+            break
+        if retries <= 0:
+            raise ServerError(f"Cannot create a new game.")
+        time.sleep(1)
+    return status("New game starts.", game_id=format(int(game_id), 'X'))
 
 
 @app.route("/get_steps", methods=["POST"])
@@ -354,7 +369,7 @@ def get_last_game_id():
     game_id = redis_conn.get(f'user_mapping:{user.id}')
     game_id = game_id.decode("utf-8") if game_id else game_id
     return status(f'Last game ID for user "{user.username}" retrieved.',
-                  game_id=format(game_id, 'X'))
+                  game_id=format(int(game_id), 'X'))
 
 
 @app.route("/kill_game", methods=["POST"])
@@ -377,31 +392,6 @@ def kill_all_games():
         for task in active_workers[worker]:
             celery_app.control.revoke(task['id'], terminate=True, signal='SIGKILL')
     return status("All games killed.")
-
-
-@app.route("/get_step_to", methods=["POST"])
-@login_required
-def get_step_to():
-    """
-    Schedules "step_num"  calculations on Celery cluster for the requested "game_id".
-
-    Returns
-    -------
-    str: A success message.
-    """
-    input = json.loads(request.data.decode('utf-8'))
-    if "game_id" not in input:
-        raise BadRequest("game_id is required.")
-    if "step_num" not in input:
-        raise BadRequest("step_num is required.")
-    game_id = int(input["game_id"], 16)
-    step_num = int(input["step_num"])
-    # Get a direct worker queue
-    worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
-    queue = worker_direct(worker)
-    # Send `get_step_to` for remote execution on Celery
-    tasks.get_step_to.apply_async(args=[get_standard_user_obj().username, step_num], queue=queue)
-    return status("Steps requested.")
 
 
 @app.route("/get_num_steps", methods=["POST"])
@@ -461,31 +451,31 @@ def get_agents_by_category():
         results.append(agent.AgentType.name)
     return json.dumps(results)
 
-
-@app.route("/save_game", methods=["POST"])
-@login_required
-def save_game():
-    """
-    Save the current game for the user.
-
-    Returns
-    -------
-    str: A success message.
-    """
-    input = json.loads(request.data.decode('utf-8'))
-    if "game_id" not in input:
-        raise BadRequest("game_id is required.")
-    if "save_name" in input:
-        save_name = str(input["save_name"])
-    else:
-        save_name = None
-    game_id = int(input["game_id"], 16)
-    # Get a direct worker queue
-    worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
-    queue = worker_direct(worker)
-    # Send `save_game` for remote execution on Celery
-    tasks.save_game.apply_async(args=[get_standard_user_obj().username, save_name], queue=queue)
-    return status("Save successful.")
+# TODO: This route needs to be re-designed since `worker_direct` is no longer activated
+# @app.route("/save_game", methods=["POST"])
+# @login_required
+# def save_game():
+#     """
+#     Save the current game for the user.
+#
+#     Returns
+#     -------
+#     str: A success message.
+#     """
+#     input = json.loads(request.data.decode('utf-8'))
+#     if "game_id" not in input:
+#         raise BadRequest("game_id is required.")
+#     if "save_name" in input:
+#         save_name = str(input["save_name"])
+#     else:
+#         save_name = None
+#     game_id = int(input["game_id"], 16)
+#     # Get a direct worker queue
+#     worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
+#     queue = worker_direct(worker)
+#     # Send `save_game` for remote execution on Celery
+#     tasks.save_game.apply_async(args=[get_standard_user_obj().username, save_name], queue=queue)
+#     return status("Save successful.")
 
 
 @app.route("/load_game", methods=["POST"])
@@ -510,14 +500,24 @@ def load_game():
     input = json.loads(request.data.decode('utf-8'))
     if "saved_game_id" not in input:
         raise BadRequest("saved_game_id is required.")
+    if "step_num" not in input:
+        raise BadRequest("step_num is required.")
     saved_game_id = input["saved_game_id"]
-    # Send `load_game` for remote execution on Celery
-    result = tasks.load_game.delay(get_standard_user_obj().username, saved_game_id).get(timeout=60)
-    # Save the hostname of the Celery worker that a game was assigned to
-    redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
-    output = {"game_id": result['game_id'],
-              "last_step_num": result['last_step_num']}
-
+    step_num = int(input["step_num"])
+    user = get_standard_user_obj()
+    result = tasks.load_game.apply_async(args=[user.username, saved_game_id, step_num])
+    retries = 10
+    while True:
+        game_id = redis_conn.get(f'user_mapping:{user.id}')
+        game_id = game_id.decode("utf-8") if game_id else game_id
+        if not game_id:
+            retries -= 1
+        else:
+            break
+        if retries <= 0:
+            break
+        time.sleep(1)
+    output = {"game_id": game_id}
     return status("Loaded game starts.", **output)
 
 

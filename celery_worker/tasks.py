@@ -39,7 +39,7 @@ def get_user(username):
 
 
 @app.task
-def load_game(username, saved_game_id):
+def load_game(username, saved_game_id, num_steps):
     global game_runner_manager
     saved_game = SavedGame.query.get(saved_game_id)
     if saved_game is None:
@@ -47,31 +47,29 @@ def load_game(username, saved_game_id):
     user = get_user(username)
     game_runner_manager.load_game(user, saved_game)
     game_runner = game_runner_manager.get_game_runner(user)
-    return dict(worker_hostname=current_task.request.hostname,
-                game_id=game_runner.game_id,
-                last_step_num=game_runner.agent_model.step_num)
+    game_id = game_runner.game_id
+    redis_conn.set('task_mapping:{}'.format(game_id), load_game.request.id)
+    redis_conn.set('user_mapping:{}'.format(user.id), game_id)
+    redis_conn.set('worker_mapping:{}'.format(game_id), current_task.request.hostname)
+    game_runner_manager.get_step_to(user, num_steps)
+
+
+# TODO: This route needs to be re-designed since `worker_direct` is no longer activated
+# @app.task
+# def save_game(username, save_name):
+#     global game_runner_manager
+#     game_runner_manager.save_game(get_user(username), save_name)
 
 
 @app.task
-def save_game(username, save_name):
-    global game_runner_manager
-    game_runner_manager.save_game(get_user(username), save_name)
-
-
-@app.task
-def new_game(username, game_config):
+def new_game(username, game_config, num_steps):
     global game_runner_manager
     user = get_user(username)
     game_runner_init_params = GameRunnerInitializationParams(game_config)
     game_runner_manager.new_game(user, game_runner_init_params)
     game_runner = game_runner_manager.get_game_runner(user)
-    return dict(worker_hostname=current_task.request.hostname, game_id=game_runner.game_id)
-
-
-@app.task
-def get_step_to(username, num_steps):
-    global game_runner_manager
-    user = get_user(username)
-    game_runner = game_runner_manager.get_game_runner(user)
-    redis_conn.set('task_mapping:{}'.format(game_runner.game_id), get_step_to.request.id)
+    game_id = game_runner.game_id
+    redis_conn.set('task_mapping:{}'.format(game_id), new_game.request.id)
+    redis_conn.set('user_mapping:{}'.format(user.id), game_id)
+    redis_conn.set('worker_mapping:{}'.format(game_id), current_task.request.hostname)
     game_runner_manager.get_step_to(user, num_steps)
