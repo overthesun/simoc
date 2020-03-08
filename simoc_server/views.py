@@ -383,7 +383,6 @@ def kill_game_by_id(game_id):
     task_id = redis_conn.get('task_mapping:{}'.format(game_id))
     task_id = task_id.decode("utf-8") if task_id else task_id
     if task_id:
-        print(task_id)
         celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
 
 
