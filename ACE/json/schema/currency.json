@@ -47,7 +47,8 @@
 					},
 					"required" : {
 						"type" : "boolean",
-						"title" : "Required"
+						"title" : "Required",
+						"default" : false
 					},
 					"deprive" : {
 						"type" : "object",
@@ -64,7 +65,8 @@
 									"second", "minute", "hour", "day", "week", "month", "year"
 								]
 							}
-						}
+						},
+						"default" : {}
 					},
 					"criteria" : {
 						"type" : "object",
@@ -89,7 +91,8 @@
 								"type" : "number",
 								"title" : "Buffer"
 							}	
-						}
+						},
+						"default" : {}
 					},
 					"growth" : {
 						"type" : "object",
@@ -102,26 +105,46 @@
 									"type" : {
 										"type" : "string",
 										"enum" : [
-											"norm", "linear", "logarithmic", "sigmoid"
+											"norm", "linear", "logarithmic", "sigmoid", "switch"
 										]
+									},
+									"min_threshold" : {
+										"type" : "number",
+										"title" : "Minimum Threshold"
+									},
+									"max_threshold" : {
+										"type" : "number",
+										"title" : "Maximum Threshold"
 									}
-								}
+								},
+								"defaultProperties": ["type"]
 							},
 							"daily" : {
 								"type" : "object",
-								"title" : "Lifetime",
+								"title" : "Daily",
 								"properties" : {
 									"type" : {
 										"type" : "string",
 										"enum" : [
-											"norm", "linear", "logarithmic", "sigmoid"
+											"norm", "linear", "logarithmic", "sigmoid", "switch"
 										]
+									},
+									"min_threshold" : {
+										"type" : "number",
+										"title" : "Minimum Threshold"
+									},
+									"max_threshold" : {
+										"type" : "number",
+										"title" : "Maximum Threshold"
 									}
-								}
+								},
+								"defaultProperties": ["type"]
 							}
-						}
+						},
+						"default" : {}
 					}
-				}
+				},
+				"defaultProperties": ["type","value", "flow_rate"]
 			}
 		},
 		"output" : {
@@ -164,7 +187,9 @@
 						"title" : "Requires",
 						"items" : {
 							"type" : "string"
-						}
+						},
+						"default" : []
+
 					},
 					"required" : {
 						"type" : "boolean",
@@ -193,7 +218,8 @@
 								"type" : "number",
 								"title" : "Buffer"
 							}	
-						}
+						},
+						"default" : {}
 					},
 					"growth" : {
 						"type" : "object",
@@ -206,26 +232,46 @@
 									"type" : {
 										"type" : "string",
 										"enum" : [
-											"norm", "linear", "logarithmic", "sigmoid"
+											"norm", "linear", "logarithmic", "sigmoid", "switch"
 										]
+									},
+									"min_threshold" : {
+										"type" : "number",
+										"title" : "Minimum Threshold"
+									},
+									"max_threshold" : {
+										"type" : "number",
+										"title" : "Maximum Threshold"
 									}
-								}
+								},
+								"defaultProperties": ["type"]
 							},
 							"daily" : {
 								"type" : "object",
-								"title" : "Lifetime",
+								"title" : "Daily",
 								"properties" : {
 									"type" : {
 										"type" : "string",
 										"enum" : [
-											"norm", "linear", "logarithmic", "sigmoid"
+											"norm", "linear", "logarithmic", "sigmoid", "switch"
 										]
+									},
+									"min_threshold" : {
+										"type" : "number",
+										"title" : "Minimum Threshold"
+									},
+									"max_threshold" : {
+										"type" : "number",
+										"title" : "Maximum Threshold"
 									}
-								}
+								},
+								"defaultProperties": ["type"]
 							}
-						}
+						},
+						"default" : {}
 					}
-				}
+				},
+				"defaultProperties": ["type","value", "flow_rate"]
 			}
 		},
 		"characteristics" : {

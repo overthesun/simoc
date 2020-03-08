@@ -1,5 +1,5 @@
 {
-
+	"$schema": "http://json-schema.org/schema#",
 	"title" : "Communications",
 	"type" : "object",
 	"options" : {"disable_collapse" : true, "disable_properties" : true},
