@@ -14,9 +14,6 @@ The guide covers two basic deployment scenarios:
 * [Using Google Cloud Shell (Ubuntu environment)](#scenario-1)
 * [Deployment from local Linux/macOS](#scenario-2)
 
-## Cloud Architecture Diagram (`OUTDATED`)
-![Architecture Diagram](k8s/images/GCP_architecture_diagram.png)
-
 ## Configure a `GCP` Project
 
 ### 1. Login to the `Cloud Console`

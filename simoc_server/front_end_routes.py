@@ -104,6 +104,7 @@ def convert_configuration(game_config):
     separation of concerns. If it is removed, the data from the front end needs to be changed into a
     format based on an object similar to the one created here or in the new game view.
     """
+    total_amount = 0
 
     # Anything in this list will be copied as is from the input to the full_game_config. If it's not
     # in the input it will be ignored
@@ -111,13 +112,18 @@ def convert_configuration(game_config):
 
     manual_entries = ['habitat', 'greenhouse']
 
+    # Is it a single agent
+    single_agent = game_config.get('single_agent', 0) or 0
+
     eclss_amount = 0
     if 'eclss' in game_config and isinstance(game_config['eclss'], dict):
         eclss_amount = game_config['eclss'].get('amount', 0) or 0
+        total_amount += 6 if single_agent else (eclss_amount * 6)
 
     human_amount = 0
     if 'human_agent' in game_config and isinstance(game_config['human_agent'], dict):
         human_amount = game_config['human_agent'].get('amount', 0) or 0
+        total_amount += 1 if single_agent else human_amount
 
     # Any agents with power_storage or food_storage will be assined power_storage = power
     # connections (defined later) etc. Agents initialised here must have all connections named here.
@@ -166,7 +172,8 @@ def convert_configuration(game_config):
                                                            'sold_k': 100}],
                                      'power_storage': [],
                                      'food_storage': []},
-                        'termination': []
+                        'termination': [],
+                        'single_agent': single_agent
                         }
 
     # This is where labels from labels_to_direct_copy are copied directly from game_config to full
@@ -181,9 +188,6 @@ def convert_configuration(game_config):
                     'value': game_config['duration'].get('value', 0) or 0,
                     'unit': game_config['duration'].get('type', 'day')}
         full_game_config['termination'].append(duration)
-
-    # Is it a single agent
-    full_game_config['single_agent'] = game_config.get('single_agent', 0) or 0
 
     # The rest of this function is for reformatting agents. Food_connections and power_connections
     # will be assigned to all agents with food_storage or power_storage respecitively, at the end of
@@ -238,6 +242,7 @@ def convert_configuration(game_config):
     for agent_type in pv_arrays:
         if agent_type in game_config and isinstance(game_config[agent_type], dict):
             amount = game_config[agent_type].get('amount', 0) or 0
+            total_amount += 1 if single_agent else amount
             full_game_config['agents'][agent_type] = [{'connections': {'power_storage': []},
                                                        'amount': amount}]
 
@@ -246,6 +251,7 @@ def convert_configuration(game_config):
     for x, y in full_game_config['agents'].items():
         if x in game_config and isinstance(game_config[x], dict):
             y[0]['amount'] = game_config[x].get('amount', 0) or 0
+            total_amount += 1 if single_agent else y[0]['amount']
 
     # Plants are treated separately because its a list of items which must be assigned as agents
     if 'plants' in game_config and isinstance(game_config['plants'], list):
@@ -253,6 +259,7 @@ def convert_configuration(game_config):
             if isinstance(plant, dict):
                 amount = plant.get('amount', 0) or 0
                 agent_type = plant.get('species', None)
+                total_amount += 1 if single_agent else amount
                 if agent_type:
                     full_game_config['agents'][agent_type] = [{'connections': {'air_storage': [1],
                                                                                'water_storage': [1],
@@ -268,6 +275,8 @@ def convert_configuration(game_config):
             agent[0]['connections']['power_storage'] = power_connections
         if 'food_storage' in agent[0]['connections']:
             agent[0]['connections']['food_storage'] = food_connections
+
+    full_game_config['total_amount'] = total_amount
 
     return full_game_config
 

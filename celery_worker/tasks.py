@@ -70,6 +70,7 @@ def new_game(username, game_config, num_steps):
     game_runner = game_runner_manager.get_game_runner(user)
     game_id = game_runner.game_id
     redis_conn.set('task_mapping:{}'.format(game_id), new_game.request.id)
-    redis_conn.set('user_mapping:{}'.format(user.id), game_id)
     redis_conn.set('worker_mapping:{}'.format(game_id), current_task.request.hostname)
+    redis_conn.set('user_mapping:{}'.format(user.id), game_id)
     game_runner_manager.get_step_to(user, num_steps)
+    redis_conn.delete('user_mapping:{}'.format(user.id))

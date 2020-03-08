@@ -23,6 +23,9 @@ from simoc_server.front_end_routes import convert_configuration, calc_step_in_ou
 from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
 
+MAX_NUMBER_OF_AGENTS = 50
+MAX_STEP_NUMBER = 2000
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -69,7 +72,7 @@ def get_steps_background(data, user_id, timeout=2, max_retries=5):
                           {'data': output, 'step_count': step_count, 'max_steps': n_steps})
             retries_left = max_retries
         if step_count >= n_steps or retries_left <= 0:
-            socketio.emit('steps_retrieved', {'message': f'{step_count} steps retrieved'})
+            socketio.emit('steps_sent', {'message': f'{step_count} steps sent'})
             break
         else:
             min_step_num = step_count + 1
@@ -93,14 +96,12 @@ def get_steps_handler(message):
     socketio.start_background_task(get_steps_background, message['data'], user_id)
 
 
-@socketio.on('disconnect_request')
-def disconnect_request():
-    @copy_current_request_context
-    def can_disconnect():
-        disconnect()
-    emit('user_disconnected',
-         {'message': f'User {current_user.username} disconnected'},
-         callback=can_disconnect)
+@socketio.on('disconnect')
+def handle_disconnect():
+    # triggered when the client disconnects
+    app.logger.info("*** received disconnect")
+    user_cleanup(get_standard_user_obj())
+    disconnect()
 
 
 @app.route("/")
@@ -196,7 +197,6 @@ def new_game():
     str: TBD
     """
     retries = 30
-    user = get_standard_user_obj()
     input = json.loads(request.data.decode('utf-8'))
     if "game_config" not in input:
         raise BadRequest("game_config is required.")
@@ -207,10 +207,15 @@ def new_game():
         game_config = convert_configuration(input["game_config"])
     except BadRequest as e:
         raise BadRequest(f"Cannot retrieve game config. Reason: {e}")
+    if game_config['total_amount'] >= MAX_NUMBER_OF_AGENTS:
+        raise BadRequest("Too many agents requested.")
+    if step_num >= MAX_STEP_NUMBER:
+        raise BadRequest("Too many steps requested.")
+    user = get_standard_user_obj()
+    user_cleanup(user)
     tasks.new_game.apply_async(args=[user.username, game_config, step_num])
     while True:
-        game_id = redis_conn.get(f'user_mapping:{user.id}')
-        game_id = game_id.decode("utf-8") if game_id else game_id
+        game_id = get_user_game_id(user)
         if not game_id:
             retries -= 1
         else:
@@ -255,14 +260,12 @@ def get_steps():
         json format -
     """
     data = json.loads(request.data.decode('utf-8'))
-    if "min_step_num" not in data and "n_steps" not in data:
-        raise BadRequest("min_step_num and n_steps are required.")
     if "game_id" not in data:
         raise BadRequest("game_id is required.")
-    min_step_num = int(data["min_step_num"])
-    n_steps = int(data["n_steps"])
+    min_step_num = int(data.get("min_step_num", 0))
+    n_steps = int(data.get("n_steps", 1e6))
     game_id = int(data["game_id"], 16)
-    max_step_num = min_step_num+n_steps-1
+    max_step_num = min_step_num + n_steps
     storage_ratios = data.get("storage_ratios", None)
     total_consumption = data.get("total_consumption", None)
     total_production = data.get("total_production", None)
@@ -362,14 +365,33 @@ def get_db_dump():
     return output
 
 
+def get_user_game_id(user):
+    game_id = redis_conn.get(f'user_mapping:{user.id}')
+    return game_id.decode("utf-8") if game_id else game_id
+
+
 @app.route("/get_last_game_id", methods=["POST"])
 @login_required
 def get_last_game_id():
     user = get_standard_user_obj()
-    game_id = redis_conn.get(f'user_mapping:{user.id}')
-    game_id = game_id.decode("utf-8") if game_id else game_id
+    game_id = get_user_game_id(user)
     return status(f'Last game ID for user "{user.username}" retrieved.',
                   game_id=format(int(game_id), 'X'))
+
+
+def kill_game_by_id(game_id):
+    task_id = redis_conn.get('task_mapping:{}'.format(game_id))
+    task_id = task_id.decode("utf-8") if task_id else task_id
+    if task_id:
+        print(task_id)
+        celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
+
+
+def user_cleanup(user):
+    game_id = get_user_game_id(get_standard_user_obj())
+    if game_id:
+        kill_game_by_id(game_id)
+    redis_conn.delete('user_mapping:{}'.format(user.id))
 
 
 @app.route("/kill_game", methods=["POST"])
@@ -379,8 +401,7 @@ def kill_game():
     if "game_id" not in input:
         raise BadRequest("game_id is required.")
     game_id = int(input["game_id"], 16)
-    task_id = redis_conn.get('task_mapping:{}'.format(game_id)).decode("utf-8")
-    celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
+    kill_game_by_id(game_id)
     return status(f"Game {game_id} killed.")
 
 
@@ -497,6 +518,7 @@ def load_game():
     simoc_server.exceptions.NotFound
         If the SavedGame with the requested 'saved_game_id' does not exist in the database
     """
+    retries = 30
     input = json.loads(request.data.decode('utf-8'))
     if "saved_game_id" not in input:
         raise BadRequest("saved_game_id is required.")
@@ -505,20 +527,18 @@ def load_game():
     saved_game_id = input["saved_game_id"]
     step_num = int(input["step_num"])
     user = get_standard_user_obj()
-    result = tasks.load_game.apply_async(args=[user.username, saved_game_id, step_num])
-    retries = 10
+    user_cleanup(user)
+    tasks.load_game.apply_async(args=[user.username, saved_game_id, step_num])
     while True:
-        game_id = redis_conn.get(f'user_mapping:{user.id}')
-        game_id = game_id.decode("utf-8") if game_id else game_id
+        game_id = get_user_game_id(user)
         if not game_id:
             retries -= 1
         else:
             break
         if retries <= 0:
-            break
+            raise ServerError(f"Cannot load a game.")
         time.sleep(1)
-    output = {"game_id": game_id}
-    return status("Loaded game starts.", **output)
+    return status("Loaded game starts.", game_id=format(int(game_id), 'X'))
 
 
 @app.route("/get_saved_games", methods=["GET"])
