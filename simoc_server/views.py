@@ -24,7 +24,7 @@ from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
 
 MAX_NUMBER_OF_AGENTS = 50
-MAX_STEP_NUMBER = 2000
+MAX_STEP_NUMBER = 20000
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -215,6 +215,7 @@ def new_game():
     user_cleanup(user)
     tasks.new_game.apply_async(args=[user.username, game_config, step_num])
     while True:
+        time.sleep(0.5)
         game_id = get_user_game_id(user)
         if not game_id:
             retries -= 1
@@ -222,7 +223,6 @@ def new_game():
             break
         if retries <= 0:
             raise ServerError(f"Cannot create a new game.")
-        time.sleep(1)
     return status("New game starts.", game_id=format(int(game_id), 'X'))
 
 
@@ -529,6 +529,7 @@ def load_game():
     user_cleanup(user)
     tasks.load_game.apply_async(args=[user.username, saved_game_id, step_num])
     while True:
+        time.sleep(0.5)
         game_id = get_user_game_id(user)
         if not game_id:
             retries -= 1
@@ -536,7 +537,6 @@ def load_game():
             break
         if retries <= 0:
             raise ServerError(f"Cannot load a game.")
-        time.sleep(1)
     return status("Loaded game starts.", game_id=format(int(game_id), 'X'))
 
 
