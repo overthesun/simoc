@@ -13,9 +13,8 @@ import sys
 
 from flask import request
 
-from simoc_server import app, db
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, StorageCapacityRecord, \
-    AgentTypeCountRecord
+from simoc_server import app, db, redis_conn
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 
 
 @app.route('/get_mass', methods=['GET'])
@@ -105,6 +104,7 @@ def convert_configuration(game_config):
     separation of concerns. If it is removed, the data from the front end needs to be changed into a
     format based on an object similar to the one created here or in the new game view.
     """
+    total_amount = 0
 
     # Anything in this list will be copied as is from the input to the full_game_config. If it's not
     # in the input it will be ignored
@@ -112,13 +112,18 @@ def convert_configuration(game_config):
 
     manual_entries = ['habitat', 'greenhouse']
 
+    # Is it a single agent
+    single_agent = game_config.get('single_agent', 0) or 0
+
     eclss_amount = 0
     if 'eclss' in game_config and isinstance(game_config['eclss'], dict):
         eclss_amount = game_config['eclss'].get('amount', 0) or 0
+        total_amount += 6 if single_agent else (eclss_amount * 6)
 
     human_amount = 0
     if 'human_agent' in game_config and isinstance(game_config['human_agent'], dict):
         human_amount = game_config['human_agent'].get('amount', 0) or 0
+        total_amount += 1 if single_agent else human_amount
 
     # Any agents with power_storage or food_storage will be assined power_storage = power
     # connections (defined later) etc. Agents initialised here must have all connections named here.
@@ -167,7 +172,8 @@ def convert_configuration(game_config):
                                                            'sold_k': 100}],
                                      'power_storage': [],
                                      'food_storage': []},
-                        'termination': []
+                        'termination': [],
+                        'single_agent': single_agent
                         }
 
     # This is where labels from labels_to_direct_copy are copied directly from game_config to full
@@ -182,9 +188,6 @@ def convert_configuration(game_config):
                     'value': game_config['duration'].get('value', 0) or 0,
                     'unit': game_config['duration'].get('type', 'day')}
         full_game_config['termination'].append(duration)
-
-    # Is it a single agent
-    full_game_config['single_agent'] = game_config.get('single_agent', 0) or 0
 
     # The rest of this function is for reformatting agents. Food_connections and power_connections
     # will be assigned to all agents with food_storage or power_storage respecitively, at the end of
@@ -239,6 +242,7 @@ def convert_configuration(game_config):
     for agent_type in pv_arrays:
         if agent_type in game_config and isinstance(game_config[agent_type], dict):
             amount = game_config[agent_type].get('amount', 0) or 0
+            total_amount += 1 if single_agent else amount
             full_game_config['agents'][agent_type] = [{'connections': {'power_storage': []},
                                                        'amount': amount}]
 
@@ -247,6 +251,7 @@ def convert_configuration(game_config):
     for x, y in full_game_config['agents'].items():
         if x in game_config and isinstance(game_config[x], dict):
             y[0]['amount'] = game_config[x].get('amount', 0) or 0
+            total_amount += 1 if single_agent else y[0]['amount']
 
     # Plants are treated separately because its a list of items which must be assigned as agents
     if 'plants' in game_config and isinstance(game_config['plants'], list):
@@ -254,6 +259,7 @@ def convert_configuration(game_config):
             if isinstance(plant, dict):
                 amount = plant.get('amount', 0) or 0
                 agent_type = plant.get('species', None)
+                total_amount += 1 if single_agent else amount
                 if agent_type:
                     full_game_config['agents'][agent_type] = [{'connections': {'air_storage': [1],
                                                                                'water_storage': [1],
@@ -270,10 +276,12 @@ def convert_configuration(game_config):
         if 'food_storage' in agent[0]['connections']:
             agent[0]['connections']['food_storage'] = food_connections
 
+    full_game_config['total_amount'] = total_amount
+
     return full_game_config
 
 
-def calc_step_in_out(direction, currencies, step_record_data):
+def calc_step_in_out(direction, currencies, step_record_data, value_round=6):
     """ 
     Calculate the total production or total consumption of given currencies for a given step.
 
@@ -293,15 +301,15 @@ def calc_step_in_out(direction, currencies, step_record_data):
         output[currency] = {'value': 0, 'unit': ''}
 
     for step in step_record_data:
-        currency = step.currency_type.name
-        if step.direction == direction and currency in output:
-            output[currency]['value'] += step.value
-            output[currency]['unit'] = step.unit
+        currency = step['currency_type']
+        if step['direction'] == direction and currency in output:
+            output[currency]['value'] = round(output[currency]['value'] + step['value'], value_round)
+            output[currency]['unit'] = step['unit']
 
     return output
 
 
-def calc_step_storage_ratios(agents, model_record_data):
+def calc_step_storage_ratios(agents, model_record_data, value_round=6):
     """
     Calculate the ratio for the requested currencies for the requested <agent_type>_<agent_id>.
 
@@ -315,52 +323,40 @@ def calc_step_storage_ratios(agents, model_record_data):
     {'air_storage_1': {'atmo_co2': 0.21001018914835098}
     """
 
-    capacity_data = StorageCapacityRecord.query.filter_by(model_record=model_record_data).all()
+    user_id = model_record_data['user_id']
+    game_id = model_record_data['game_id']
+    step_num = model_record_data['step_num']
+    storage_capacities = redis_conn.lrange(f'storage_capacities:{user_id}:{game_id}:{step_num}', 0, -1)
+    storage_capacities = [json.loads(r) for r in storage_capacities]
 
     output = {}
     for agent in agents:
         agent_type = agent[:agent.rfind('_')]
         agent_id = int(agent[agent.rfind('_')+1:])
-        agent_capacities = [record for record in capacity_data
-                            if record.agent_type.name == agent_type
-                            and record.storage_id == agent_id]
+        agent_capacities = [record for record in storage_capacities
+                            if record['storage_type'] == agent_type
+                            and record['storage_id'] == agent_id]
 
         # First, get sum of all currencies
         total_value = 0
         unit = ''
         for record in agent_capacities:
-            total_value += record.value
+            total_value += record['value']
             if unit == '':
-                unit = record.unit
+                unit = record['unit']
             else:
-                if not record.unit == unit:
+                if not record['unit'] == unit:
                     sys.exit('ERROR in front_end_routes.calc_step_storage_ratios().'
-                             'Currencies do not have same units.', unit, record.unit)
+                             'Currencies do not have same units.', unit, record['unit'])
 
         output[agent] = {}
         # Now, calculate the ratio for specified currencies.
         for currency in agents[agent]:
             c_step_data = [record for record in agent_capacities
-                           if record.currency_type.name == currency][0]
-            output[agent][currency] = c_step_data.value / total_value
+                           if record['currency_type'] == currency][0]
+            output[agent][currency] = round(c_step_data['value'] / total_value, value_round)
 
     return output
-
-
-def parse_step_data(model_record_data, filters, step_record_data):
-    reduced_output = model_record_data.get_data()
-    if len(filters) == 0:
-        return reduced_output
-    for f in filters:
-        if f == 'agent_type_counters':
-            reduced_output[f] = [i.get_data() for i in model_record_data.agent_type_counters]
-        if f == 'agent_type_counters':
-            reduced_output[f] = [i.get_data() for i in model_record_data.storage_capacities]
-        if f == 'agent_logs':
-            reduced_output[f] = [i.get_data() for i in step_record_data.all()]
-        else:
-            print(f'WARNING: No parse_filters option {filter} in game_runner.parse_step_data.')
-    return reduced_output
 
 
 def count_agents_in_step(agent_types, model_record_data):
@@ -378,10 +374,14 @@ def count_agents_in_step(agent_types, model_record_data):
     for agent_type in agent_types:
         output[agent_type] = 0
 
-    agent_counters = AgentTypeCountRecord.query.filter_by(model_record=model_record_data).all()
-    for record in agent_counters:
-        if record.agent_type.name in output:
-            output[record.agent_type.name] += record.agent_counter
+    user_id = model_record_data['user_id']
+    game_id = model_record_data['game_id']
+    step_num = model_record_data['step_num']
+    agent_type_counts = redis_conn.lrange(f'agent_type_counts:{user_id}:{game_id}:{step_num}', 0, -1)
+    agent_type_counts = [json.loads(r) for r in agent_type_counts]
+    for record in agent_type_counts:
+        if record['agent_type'] in output:
+            output[record['agent_type']] += record['agent_counter']
 
     return output
 
@@ -412,14 +412,17 @@ def sum_agent_values_in_step(agent_types, currency_type_name, direction, step_re
     return output
 
 
-def calc_step_storage_capacities(agent_types, model_record_data):
+def calc_step_storage_capacities(agent_types, model_record_data, value_round=6):
     output = {}
-    storage_capacities = StorageCapacityRecord.query \
-        .filter_by(model_record=model_record_data).all()
+    user_id = model_record_data['user_id']
+    game_id = model_record_data['game_id']
+    step_num = model_record_data['step_num']
+    storage_capacities = redis_conn.lrange(f'storage_capacities:{user_id}:{game_id}:{step_num}', 0, -1)
+    storage_capacities = [json.loads(r) for r in storage_capacities]
     for record in storage_capacities:
-        agent_type = record.agent_type.name
-        storage_id = record.storage_id
-        currency = record.currency_type.name
+        agent_type = record['storage_type']
+        storage_id = record['storage_id']
+        currency = record['currency_type']
         if (len(agent_types) == 0 or
            (agent_type in agent_types and
             (currency in agent_types[agent_type] or
@@ -428,8 +431,8 @@ def calc_step_storage_capacities(agent_types, model_record_data):
                 output[agent_type] = {}
             if storage_id not in output[agent_type]:
                 output[agent_type][storage_id] = {}
-            output[agent_type][storage_id][currency] = {'value': record.value,
-                                                        'unit': record.unit}
+            output[agent_type][storage_id][currency] = {'value': round(record['value'], value_round),
+                                                        'unit': record['unit']}
     return output
 
 
@@ -438,8 +441,8 @@ def get_growth_rates(agent_types, step_record_data):
     for agent_type in agent_types:
         output[agent_type] = None
     for step in step_record_data:
-        agent_type = step.agent_type.name
-        if agent_type in output and step.growth:
-            if not output[agent_type] or step.growth > output[agent_type]:
-                output[agent_type] = step.growth
+        agent_type = step['agent_type']
+        if agent_type in output and step['growth']:
+            if not output[agent_type] or step['growth'] > output[agent_type]:
+                output[agent_type] = step['growth']
     return output

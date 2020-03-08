@@ -1,9 +1,14 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: simoc-celery-cluster
+  labels:
+    app: simoc-celery-cluster
 spec:
-  replicas: 1
+  replicas: 10
+  selector:
+    matchLabels:
+      app: simoc-celery-cluster
   template:
     metadata:
       labels:
@@ -14,12 +19,16 @@ spec:
         - name: simoc-celery-cluster
           image: gcr.io/<PROJECT_ID>/simoc_celery:latest
           imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - ping_worker.sh
+            periodSeconds: 60
+            timeoutSeconds: 10
+            failureThreshold: 5
+            initialDelaySeconds: 30
           env:
-          - name: CELERY_THREADS
-            valueFrom:
-              configMapKeyRef:
-                name: celery-config
-                key: celery_threads
           - name: DB_TYPE
             valueFrom:
               configMapKeyRef:
@@ -42,7 +51,7 @@ spec:
                 key: db_name
           - name: DB_USER
             valueFrom:
-              secretKeyRef:
+              configMapKeyRef:
                 name: simoc-db-config
                 key: db_user
           - name: DB_PASSWORD
@@ -67,8 +76,8 @@ spec:
                 key: redis_password
           resources:
             requests:
-              memory: "500M"
-              cpu: 1.0
+              memory: "300M"
+              cpu: .5
             limits:
-              memory: "1G"
-              cpu: 2.0
+              memory: "500M"
+              cpu: .7

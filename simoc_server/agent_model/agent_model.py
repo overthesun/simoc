@@ -93,6 +93,8 @@ class AgentModel(Model, AttributeHolder):
         """
         super(Model, self).__init__()
         self.load_params()
+        self.start_time = None
+        self.game_id = None
         self.user_id = None
         self.grid_width = init_params.grid_width
         self.grid_height = init_params.grid_height
@@ -141,25 +143,34 @@ class AgentModel(Model, AttributeHolder):
         model_record = dict(id=record_id,
                             step_num=self.step_num,
                             user_id=self.user_id,
+                            game_id=self.game_id,
+                            start_time=self.start_time,
                             time=self["time"].total_seconds(),
                             hours_per_step=timedelta_to_hours(self.timedelta_per_step()),
                             is_terminated=str(self.is_terminated),
                             termination_reason=self.termination_reason)
         agent_type_counts = []
-        for agent_type_id, counter in self.get_agent_type_counts().items():
-            agent_type_count_record = dict(model_record_id=record_id,
+        for key, counter in self.get_agent_type_counts().items():
+            agent_type, agent_type_id = key.split('#')
+            agent_type_count_record = dict(game_id=self.game_id,
+                                           user_id=self.user_id,
+                                           step_num=self.step_num,
+                                           agent_type=agent_type,
                                            agent_type_id=agent_type_id,
                                            agent_counter=counter)
             agent_type_counts.append(agent_type_count_record)
         storage_capacities = []
         for storage in self.get_storage_capacities():
             for currency in storage['currencies']:
-                currency_type = CurrencyType.query.filter_by(name=currency['name']).first()
-                storage_capacity_record = dict(model_record_id=record_id,
-                                               agent_type_id=storage['agent_type_id'],
-                                               agent_id=storage['agent_id'],
+                storage_capacity_record = dict(game_id=self.game_id,
+                                               user_id=self.user_id,
+                                               step_num=self.step_num,
                                                storage_id=storage['storage_id'],
-                                               currency_type_id=currency_type.id,
+                                               storage_agent_id=storage['storage_agent_id'],
+                                               storage_type=storage['agent_type'],
+                                               storage_type_id=storage['agent_type_id'],
+                                               currency_type=currency['currency_type'],
+                                               currency_type_id=currency['currency_type_id'],
                                                value=currency['value'],
                                                capacity=currency['capacity'],
                                                unit=currency['units'])
@@ -176,13 +187,15 @@ class AgentModel(Model, AttributeHolder):
         """
         counter = {}
         for agent in self.get_agents_by_class(agent_class=GeneralAgent):
+            agent_type = agent.agent_type
             agent_type_id = agent.agent_type_id
-            if agent_type_id not in counter:
-                counter[agent_type_id] = 0
-            counter[agent_type_id] += 1 * agent.amount
+            key = f'{agent_type}#{agent_type_id}'
+            if key not in counter:
+                counter[key] = 0
+            counter[key] += 1 * agent.amount
         return counter
 
-    def get_storage_capacities(self):
+    def get_storage_capacities(self, value_round=6):
         """TODO
 
         Formats the agent storages and currencies for easier access to the step information later.
@@ -192,17 +205,20 @@ class AgentModel(Model, AttributeHolder):
         """
         storages = []
         for storage in self.get_agents_by_class(agent_class=StorageAgent):
-            entity = {"agent_type_id": storage.agent_type_id,
-                      "agent_id": storage.unique_id,
+            entity = {"agent_type": storage.agent_type,
+                      "agent_type_id": storage.agent_type_id,
+                      "storage_agent_id": storage.unique_id,
                       "storage_id": storage.id,
                       "currencies": []}
             for attr in storage.attrs:
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
-                    entity["currencies"].append({"name": currency,
-                                                 "value": storage[currency],
-                                                 "capacity": storage.attrs[attr],
-                                                 "units": storage.attr_details[attr]['units']})
+                    currency_type = CurrencyType.query.filter_by(name=currency).first()
+                    entity["currencies"].append({"currency_type": currency_type.name,
+                                                 "currency_type_id": currency_type.id,
+                                                 "value": round(storage[currency], value_round),
+                                                 "units": storage.attr_details[attr]['units'],
+                                                 "capacity": storage.attrs[attr]})
             storages.append(entity)
         return storages
 
@@ -332,13 +348,12 @@ class AgentModel(Model, AttributeHolder):
         """TODO"""
         self.snapshot_branch = SnapshotBranch(parent_branch_id=self.snapshot_branch.id)
 
-    def snapshot(self, commit=True):
+    def snapshot(self):
         """TODO
 
         TODO
 
         Args:
-            commit: TODO
 
         Returns:
           TODO
@@ -371,18 +386,18 @@ class AgentModel(Model, AttributeHolder):
                                                 config=json.dumps(self.config))
             snapshot = AgentModelSnapshot(agent_model_state=agent_model_state,
                                           snapshot_branch=self.snapshot_branch)
-            db.session.add(agent_model_state)
-            db.session.add(snapshot)
-            db.session.add(self.snapshot_branch)
-            for agent in self.scheduler.agents:
-                agent.snapshot(agent_model_state, commit=False)
-            if commit:
-                try:
-                    db.session.commit()
-                except:
-                    db.session.rollback()
-                finally:
-                    db.session.close()
+            try:
+                db.session.add(agent_model_state)
+                db.session.add(snapshot)
+                db.session.add(self.snapshot_branch)
+                for agent in self.scheduler.agents:
+                    agent.snapshot(agent_model_state)
+                db.session.commit()
+            except:
+                app.logger.exception('Failed to save a game.')
+                db.session.rollback()
+            finally:
+                db.session.close()
             return snapshot
         except StaleDataError:
             app.logger.warning("WARNING: StaleDataError during snapshot, probably a simultaneous"

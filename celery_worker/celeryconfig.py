@@ -8,4 +8,5 @@ broker_url = result_backend = 'redis://:{}@{}:{}/'.format(redis_password, redis_
 
 imports = ('celery_worker.tasks',)
 
-worker_direct = True
+worker_prefetch_multiplier = 1
+task_acks_late = True

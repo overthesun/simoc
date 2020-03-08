@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: flask-config
-  namespace: default
-data:
-  app_port: '8000'
-  wsgi_workers: '2'

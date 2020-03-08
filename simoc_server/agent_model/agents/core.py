@@ -9,7 +9,7 @@ import numpy as np
 import quantities as pq
 from mesa import Agent
 
-from simoc_server import db
+from simoc_server import app, db
 from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentType, AgentState, CurrencyType
 from simoc_server.util import load_db_attributes_into_dict
@@ -85,14 +85,13 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         """
         return self.attrs[name]
 
-    def snapshot(self, agent_model_state, commit=True):
+    def snapshot(self, agent_model_state):
         """TODO
 
         TODO
 
         Args:
           agent_model_state: TODO
-          commit: bool, TODO
         """
         args = dict(agent_model_state=agent_model_state,
                     agent_type_id=self.agent_type_id,
@@ -111,14 +110,14 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
             args['attributes'].append({'name': k, 'value': self[k]})
         args['attributes'] = json.dumps(args['attributes'])
         agent_state = AgentState(**args)
-        db.session.add(agent_state)
-        if commit:
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-            finally:
-                db.session.close()
+        try:
+            db.session.add(agent_state)
+            db.session.commit()
+        except:
+            app.logger.exception('Failed to save a game.')
+            db.session.rollback()
+        finally:
+            db.session.close()
 
     def destroy(self):
         """Destroys the agent and removes it from the model"""
@@ -456,7 +455,7 @@ class GeneralAgent(EnclosedAgent):
             agent_value *= self[weighted]
         return pq.Quantity(agent_value, agent_unit)
 
-    def step(self, eps=1e-6):
+    def step(self, value_eps=1e-6, value_round=6):
         """TODO
 
         TODO
@@ -552,7 +551,7 @@ class GeneralAgent(EnclosedAgent):
                             if attr == self.growth_criteria:
                                 self.agent_step_num += hours_per_step
                             break
-                    if value > eps:
+                    if value > value_eps:
                         currency_type = CurrencyType.query.filter_by(name=currency).first()
                         if attr == self.growth_criteria:
                             self.current_growth += (value / agent_amount)
@@ -561,15 +560,19 @@ class GeneralAgent(EnclosedAgent):
                         else:
                             growth = None
                         record = {"step_num": self.model.step_num + 1,
+                                  'game_id': self.model.game_id,
                                   "user_id": self.model.user_id,
+                                  "agent_type": self.agent_type,
                                   "agent_type_id": self.agent_type_id,
                                   "agent_id": self.unique_id,
                                   "direction": prefix,
                                   "agent_amount": agent_amount,
+                                  "currency_type": currency_type.name,
                                   "currency_type_id": currency_type.id,
-                                  "value": value,
+                                  "value": round(value, value_round),
                                   "growth": growth,
                                   "unit": str(step_value.units),
+                                  "storage_type": storage.agent_type,
                                   "storage_type_id": storage.agent_type_id,
                                   "storage_agent_id": storage.unique_id,
                                   "storage_id": storage.id}

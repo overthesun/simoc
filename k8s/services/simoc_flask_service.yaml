@@ -1,7 +1,10 @@
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: simoc-flask-svc
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+    beta.cloud.google.com/backend-config: '{"ports": {"flask-http":"simoc-backend-config"}}'
 spec:
   type: NodePort
   selector:
@@ -9,5 +12,6 @@ spec:
     track: stable
   ports:
     - name: flask-http
-      port: 8000
+      port: 80
+      targetPort: 8080
       protocol: TCP

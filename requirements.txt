@@ -3,6 +3,7 @@ celery
 flask
 flask-cors
 flask-login
+flask_socketio
 flask-sqlalchemy
 gevent
 gunicorn

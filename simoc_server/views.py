@@ -1,29 +1,109 @@
+import functools
+import itertools
 import json
+import time
 import traceback
 from collections import OrderedDict
 from pathlib import Path
 
-from flask import request, render_template, send_from_directory
+
+from flask import copy_current_request_context, render_template, request
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_socketio import emit, disconnect, SocketIO
 
-from simoc_server import app, db, redis_conn
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User, \
-    ModelRecord, StepRecord, StorageCapacityRecord, AgentTypeCountRecord
-from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration
+
+from simoc_server import app, db, redis_conn, broker_url
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User
+from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration,\
+    ServerError
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
-    calc_step_storage_ratios, parse_step_data, count_agents_in_step, sum_agent_values_in_step, \
-    calc_step_storage_capacities, get_growth_rates
+    calc_step_storage_ratios, count_agents_in_step, calc_step_storage_capacities, \
+    get_growth_rates
 
 from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
-from celery.utils import worker_direct
+
+MAX_NUMBER_OF_AGENTS = 50
+MAX_STEP_NUMBER = 20000
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials="true")
+
+socketio = SocketIO(app, message_queue=broker_url, manage_session=False)
+
+
+def authenticated_only(f):
+    @functools.wraps(f)
+    def wrapped(*args, **kwargs):
+        if not current_user.is_authenticated:
+            disconnect()
+        else:
+            return f(*args, **kwargs)
+    return wrapped
+
+
+def get_steps_background(data, user_id, timeout=2, max_retries=5):
+    if "game_id" not in data:
+        raise BadRequest("game_id is required.")
+    game_id = int(data["game_id"], 16)
+    n_steps = int(data.get("n_steps", 1e6))
+    min_step_num = int(data.get("min_step_num", 0))
+    max_step_num = min_step_num + n_steps
+    total_consumption = data.get("total_consumption", None)
+    total_production = data.get("total_production", None)
+    agent_growth = data.get("agent_growth", None)
+    total_agent_count = data.get("total_agent_count", None)
+    storage_ratios = data.get("storage_ratios", None)
+    storage_capacities = data.get("storage_capacities", None)
+    retries_left = max_retries
+    step_count = 0
+    while True:
+        socketio.sleep(timeout)
+        output = retrieve_steps(game_id, user_id, min_step_num, max_step_num,
+                                storage_capacities, storage_ratios, total_consumption,
+                                total_production, agent_growth, total_agent_count)
+        step_count += len(output)
+        if len(output) == 0:
+            retries_left -= 1
+        else:
+            socketio.emit('step_data_handler',
+                          {'data': output, 'step_count': step_count, 'max_steps': n_steps})
+            retries_left = max_retries
+        if step_count >= n_steps or retries_left <= 0:
+            socketio.emit('steps_sent', {'message': f'{step_count} steps sent'})
+            break
+        else:
+            min_step_num = step_count + 1
+
+
+@socketio.on('connect')
+def connect_handler():
+    if current_user.is_anonymous:
+        return False
+    emit('user_connected',
+         {'message': f'User "{current_user.username}" connected'},
+         broadcast=True)
+
+
+@socketio.on('get_steps')
+@authenticated_only
+def get_steps_handler(message):
+    if "data" not in message:
+        raise BadRequest("data is required.")
+    user_id = get_standard_user_obj().id
+    socketio.start_background_task(get_steps_background, message['data'], user_id)
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    # triggered when the client disconnects
+    app.logger.info("*** received disconnect")
+    user_cleanup(get_standard_user_obj())
+    disconnect()
 
 
 @app.route("/")
@@ -85,7 +165,13 @@ def register():
     user = User(username=username)
     user.set_password(password)
     db.session.add(user)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        app.logger.exception(f'Failed to create  a user "{username}".')
+        db.session.rollback()
+    finally:
+        db.session.close()
     login_user(user)
     return status("Registration complete.")
 
@@ -114,19 +200,36 @@ def new_game():
 
     Returns
     -------
-    str: The Game ID
+    str: TBD
     """
+    retries = 30
+    input = json.loads(request.data.decode('utf-8'))
+    if "game_config" not in input:
+        raise BadRequest("game_config is required.")
+    if "step_num" not in input:
+        raise BadRequest("step_num is required.")
+    step_num = int(input["step_num"])
     try:
-        game_config = convert_configuration(json.loads(request.data)["game_config"])
+        game_config = convert_configuration(input["game_config"])
     except BadRequest as e:
         raise BadRequest(f"Cannot retrieve game config. Reason: {e}")
-    # Send `new_game` for remote execution on Celery
-    result = tasks.new_game.delay(get_standard_user_obj().username, game_config).get(timeout=60)
-    # Save the hostname of the Celery worker that a game was assigned to
-    redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
-    redis_conn.set('user_mapping:{}'.format(get_standard_user_obj().id), result['game_id'])
-
-    return status("New game starts.", game_id=format(result['game_id'], 'X'))
+    if game_config['total_amount'] >= MAX_NUMBER_OF_AGENTS:
+        raise BadRequest("Too many agents requested.")
+    if step_num >= MAX_STEP_NUMBER:
+        raise BadRequest("Too many steps requested.")
+    user = get_standard_user_obj()
+    user_cleanup(user)
+    tasks.new_game.apply_async(args=[user.username, game_config, step_num])
+    while True:
+        time.sleep(0.5)
+        game_id = get_user_game_id(user)
+        if not game_id:
+            retries -= 1
+        else:
+            break
+        if retries <= 0:
+            raise ServerError(f"Cannot create a new game.")
+    return status("New game starts.", game_id=format(int(game_id), 'X'))
 
 
 @app.route("/get_steps", methods=["POST"])
@@ -162,71 +265,82 @@ def get_steps():
     str:
         json format -
     """
-    input = json.loads(request.data.decode('utf-8'))
-    if "min_step_num" not in input and "n_steps" not in input:
-        raise BadRequest("min_step_num and n_steps are required.")
-    if "game_id" not in input:
+    data = json.loads(request.data.decode('utf-8'))
+    if "game_id" not in data:
         raise BadRequest("game_id is required.")
-    min_step_num = int(input["min_step_num"])
-    n_steps = int(input["n_steps"])
-    game_id = int(input["game_id"], 16)
-    max_step_num = min_step_num+n_steps-1
+    min_step_num = int(data.get("min_step_num", 0))
+    n_steps = int(data.get("n_steps", 1e6))
+    game_id = int(data["game_id"], 16)
+    max_step_num = min_step_num + n_steps
+    storage_ratios = data.get("storage_ratios", None)
+    total_consumption = data.get("total_consumption", None)
+    total_production = data.get("total_production", None)
+    agent_growth = data.get("agent_growth", None)
+    storage_capacities = data.get("storage_capacities", None)
+    total_agent_count = data.get("total_agent_count", None)
+    user_id = get_standard_user_obj().id
+    output = retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities,
+                            storage_ratios, total_consumption, total_production, agent_growth,
+                            total_agent_count)
+    return status("Step data retrieved.", step_data=output)
 
-    # Which of the output from parse_step_data to you want returned.
-    parse_filters = [] if "parse_filters" not in input else input["parse_filters"]
 
-    user = get_standard_user_obj()
-    model_record_steps = ModelRecord.query \
-        .filter_by(user_id=user.id) \
-        .filter_by(game_id=game_id) \
-        .filter(ModelRecord.step_num >= min_step_num) \
-        .filter(ModelRecord.step_num <= max_step_num).all()
+def get_model_records(game_id, user_id, steps):
+    model_records = [redis_conn.get(f'model_records:{user_id}:{game_id}:{int(step_num)}')
+                     for step_num in steps]
+    model_records = [json.loads(r) for r in model_records]
+    return model_records
 
-    step_record_steps = StepRecord.query \
-        .filter_by(user_id=user.id) \
-        .filter_by(game_id=game_id) \
-        .filter(StepRecord.step_num >= min_step_num) \
-        .filter(StepRecord.step_num <= max_step_num).all()
+
+def get_step_records(game_id, user_id, steps):
+    step_records = [redis_conn.lrange(f'step_records:{user_id}:{game_id}:{int(step_num)}', 0, -1)
+                    for step_num in steps]
+    step_records = list(itertools.chain(*step_records))
+    step_records = [json.loads(r) for r in step_records]
+    return step_records
+
+
+def get_steps_list(game_id, user_id, min_step_num, max_step_num):
+    return redis_conn.zrangebyscore(f'game_steps:{user_id}:{game_id}', min_step_num, max_step_num)
+
+
+def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities=False,
+                   storage_ratios=False, total_consumption=False, total_production=False,
+                   agent_growth=False, total_agent_count=False):
+    steps = get_steps_list(game_id, user_id, min_step_num, max_step_num)
+    model_record_steps = get_model_records(game_id, user_id, steps)
+    step_record_steps = get_step_records(game_id, user_id, steps)
 
     step_record_dict = dict()
     for record in step_record_steps:
-        if record.step_num not in step_record_dict:
-            step_record_dict[record.step_num] = [record]
+        step_num = record['step_num']
+        if step_num not in step_record_dict:
+            step_record_dict[step_num] = [record]
         else:
-            step_record_dict[record.step_num].append(record)
+            step_record_dict[step_num].append(record)
 
     output = {}
-    for model_record_data in model_record_steps:
-        step_num = model_record_data.step_num
+    for record in model_record_steps:
+        step_num = record['step_num']
         if step_num in step_record_dict:
             step_record_data = step_record_dict[step_num]
         else:
-            #see issue #81. sometimes the modelrecord exists for a step but the steprecord doesn't.
             continue
-        agent_model_state = parse_step_data(model_record_data, parse_filters, step_record_data)
-        if "agent_growth" in input:
-            agent_model_state["agent_growth"] = get_growth_rates(input["agent_growth"],
-                                                                 step_record_data)
-        if "total_agent_count" in input:
-            agent_model_state["total_agent_count"] = count_agents_in_step(input["total_agent_count"],
-                                                                          model_record_data)
-        if "total_production" in input:
-            agent_model_state["total_production"] = calc_step_in_out("out",
-                                                                     input["total_production"],
-                                                                     step_record_data)
-        if "total_consumption" in input:
-            agent_model_state["total_consumption"] = calc_step_in_out("in",
-                                                                      input["total_consumption"],
-                                                                      step_record_data)
-        if "storage_ratios" in input:
-            agent_model_state["storage_ratios"] = calc_step_storage_ratios(input["storage_ratios"],
-                                                                           model_record_data)
-        if "storage_capacities" in input:
-            agent_model_state["storage_capacities"] = calc_step_storage_capacities(input["storage_capacities"],
-                                                                                   model_record_data)
-        output[int(step_num)] = agent_model_state
+        if agent_growth:
+            record["agent_growth"] = get_growth_rates(agent_growth, step_record_data)
+        if total_agent_count:
+            record["total_agent_count"] = count_agents_in_step(total_agent_count, record)
+        if total_production:
+            record["total_production"] = calc_step_in_out("out", total_production, step_record_data)
+        if total_consumption:
+            record["total_consumption"] = calc_step_in_out("in", total_consumption, step_record_data)
+        if storage_ratios:
+            record["storage_ratios"] = calc_step_storage_ratios(storage_ratios, record)
+        if isinstance(storage_capacities, dict):
+            record["storage_capacities"] = calc_step_storage_capacities(storage_capacities, record)
+        output[int(step_num)] = record
 
-    return status("Step data retrieved.", step_data=output)
+    return output
 
 
 @app.route("/get_db_dump", methods=["POST"])
@@ -241,46 +355,48 @@ def get_db_dump():
     n_steps = int(input["n_steps"])
     game_id = int(input["game_id"], 16)
     max_step_num = min_step_num+n_steps-1
-
-    user = get_standard_user_obj()
-
-    model_record_steps = ModelRecord.query \
-        .filter_by(user_id=user.id) \
-        .filter_by(game_id=game_id) \
-        .filter(ModelRecord.step_num >= min_step_num) \
-        .filter(ModelRecord.step_num <= max_step_num).all()
-    step_record_steps = StepRecord.query \
-        .filter_by(user_id=user.id) \
-        .filter_by(game_id=game_id) \
-        .filter(StepRecord.step_num >= min_step_num) \
-        .filter(StepRecord.step_num <= max_step_num).all()
-
-    output = dict()
-    output['model_record_steps'] = [i.get_data() for i in model_record_steps]
-    output['step_record_steps'] = [i.get_data() for i in step_record_steps]
-
-    output['storage_capacities'], output['agent_counters'] = {}, {}
-    for model_record in model_record_steps:
-        step_num = int(model_record.step_num)
-        storage_capacities = StorageCapacityRecord.query \
-            .filter_by(model_record=model_record).all()
-        agent_counters = AgentTypeCountRecord.query \
-            .filter_by(model_record=model_record).all()
-        output['storage_capacities'][step_num] = [i.get_data() for i in
-                                                  storage_capacities]
-        output['agent_counters'][step_num] = [i.get_data() for i in
-                                              agent_counters]
+    user_id = get_standard_user_obj().id
+    steps = get_steps_list(game_id, user_id, min_step_num, max_step_num)
+    output = dict(model_record_steps=get_model_records(game_id, user_id, steps),
+                  step_record_steps=get_step_records(game_id, user_id, steps),
+                  storage_capacities={}, agent_counters={})
+    for model_record in output['model_record_steps']:
+        step_num = model_record['step_num']
+        storage_capacities = redis_conn.lrange(f'storage_capacities:{user_id}:{game_id}:{step_num}',
+                                               0, -1)
+        agent_type_counts = redis_conn.lrange(f'agent_type_counts:{user_id}:{game_id}:{step_num}',
+                                              0, -1)
+        output['storage_capacities'] = [json.loads(r) for r in storage_capacities]
+        output['agent_counters'] = [json.loads(r) for r in agent_type_counts]
     return output
+
+
+def get_user_game_id(user):
+    game_id = redis_conn.get(f'user_mapping:{user.id}')
+    return game_id.decode("utf-8") if game_id else game_id
 
 
 @app.route("/get_last_game_id", methods=["POST"])
 @login_required
 def get_last_game_id():
     user = get_standard_user_obj()
-    game_id = redis_conn.get(f'user_mapping:{user.id}')
-    game_id = game_id.decode("utf-8") if game_id else game_id
+    game_id = get_user_game_id(user)
     return status(f'Last game ID for user "{user.username}" retrieved.',
-                  game_id=format(game_id, 'X'))
+                  game_id=format(int(game_id), 'X'))
+
+
+def kill_game_by_id(game_id):
+    task_id = redis_conn.get('task_mapping:{}'.format(game_id))
+    task_id = task_id.decode("utf-8") if task_id else task_id
+    if task_id:
+        celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
+
+
+def user_cleanup(user):
+    game_id = get_user_game_id(get_standard_user_obj())
+    if game_id:
+        kill_game_by_id(game_id)
+    redis_conn.delete('user_mapping:{}'.format(user.id))
 
 
 @app.route("/kill_game", methods=["POST"])
@@ -290,8 +406,7 @@ def kill_game():
     if "game_id" not in input:
         raise BadRequest("game_id is required.")
     game_id = int(input["game_id"], 16)
-    task_id = redis_conn.get('task_mapping:{}'.format(game_id)).decode("utf-8")
-    celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
+    kill_game_by_id(game_id)
     return status(f"Game {game_id} killed.")
 
 
@@ -305,31 +420,6 @@ def kill_all_games():
     return status("All games killed.")
 
 
-@app.route("/get_step_to", methods=["POST"])
-@login_required
-def get_step_to():
-    """
-    Schedules "step_num"  calculations on Celery cluster for the requested "game_id".
-
-    Returns
-    -------
-    str: A success message.
-    """
-    input = json.loads(request.data.decode('utf-8'))
-    if "game_id" not in input:
-        raise BadRequest("game_id is required.")
-    if "step_num" not in input:
-        raise BadRequest("step_num is required.")
-    game_id = int(input["game_id"], 16)
-    step_num = int(input["step_num"])
-    # Get a direct worker queue
-    worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
-    queue = worker_direct(worker)
-    # Send `get_step_to` for remote execution on Celery
-    tasks.get_step_to.apply_async(args=[get_standard_user_obj().username, step_num], queue=queue)
-    return status("Steps requested.")
-
-
 @app.route("/get_num_steps", methods=["POST"])
 @login_required
 def get_num_steps():
@@ -337,13 +427,10 @@ def get_num_steps():
     if "game_id" not in input:
         raise BadRequest("game_id is required.")
     game_id = int(input["game_id"], 16)
-    user = get_standard_user_obj()
-    last_record = ModelRecord.query \
-        .filter_by(user_id=user.id) \
-        .filter_by(game_id=game_id) \
-        .order_by(ModelRecord.step_num.desc()) \
-        .limit(1).first()
-    step_num = last_record.step_num if last_record else 0
+    user_id = get_standard_user_obj().id
+    last_record = [int(step_num) for step_num
+                   in redis_conn.zrange(f'game_steps:{user_id}:{game_id}', -1, -1)][-1]
+    step_num = last_record if last_record else 0
     return status("Total step number retrieved.", step_num=step_num)
 
 
@@ -390,31 +477,31 @@ def get_agents_by_category():
         results.append(agent.AgentType.name)
     return json.dumps(results)
 
-
-@app.route("/save_game", methods=["POST"])
-@login_required
-def save_game():
-    """
-    Save the current game for the user.
-
-    Returns
-    -------
-    str: A success message.
-    """
-    input = json.loads(request.data.decode('utf-8'))
-    if "game_id" not in input:
-        raise BadRequest("game_id is required.")
-    if "save_name" in input:
-        save_name = str(input["save_name"])
-    else:
-        save_name = None
-    game_id = int(input["game_id"], 16)
-    # Get a direct worker queue
-    worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
-    queue = worker_direct(worker)
-    # Send `save_game` for remote execution on Celery
-    tasks.save_game.apply_async(args=[get_standard_user_obj().username, save_name], queue=queue)
-    return status("Save successful.")
+# TODO: This route needs to be re-designed since `worker_direct` is no longer activated
+# @app.route("/save_game", methods=["POST"])
+# @login_required
+# def save_game():
+#     """
+#     Save the current game for the user.
+#
+#     Returns
+#     -------
+#     str: A success message.
+#     """
+#     input = json.loads(request.data.decode('utf-8'))
+#     if "game_id" not in input:
+#         raise BadRequest("game_id is required.")
+#     if "save_name" in input:
+#         save_name = str(input["save_name"])
+#     else:
+#         save_name = None
+#     game_id = int(input["game_id"], 16)
+#     # Get a direct worker queue
+#     worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
+#     queue = worker_direct(worker)
+#     # Send `save_game` for remote execution on Celery
+#     tasks.save_game.apply_async(args=[get_standard_user_obj().username, save_name], queue=queue)
+#     return status("Save successful.")
 
 
 @app.route("/load_game", methods=["POST"])
@@ -436,18 +523,27 @@ def load_game():
     simoc_server.exceptions.NotFound
         If the SavedGame with the requested 'saved_game_id' does not exist in the database
     """
+    retries = 30
     input = json.loads(request.data.decode('utf-8'))
     if "saved_game_id" not in input:
         raise BadRequest("saved_game_id is required.")
+    if "step_num" not in input:
+        raise BadRequest("step_num is required.")
     saved_game_id = input["saved_game_id"]
-    # Send `load_game` for remote execution on Celery
-    result = tasks.load_game.delay(get_standard_user_obj().username, saved_game_id).get(timeout=60)
-    # Save the hostname of the Celery worker that a game was assigned to
-    redis_conn.set('worker_mapping:{}'.format(result['game_id']), result['worker_hostname'])
-    output = {"game_id": result['game_id'],
-              "last_step_num": result['last_step_num']}
-
-    return status("Loaded game starts.", **output)
+    step_num = int(input["step_num"])
+    user = get_standard_user_obj()
+    user_cleanup(user)
+    tasks.load_game.apply_async(args=[user.username, saved_game_id, step_num])
+    while True:
+        time.sleep(0.5)
+        game_id = get_user_game_id(user)
+        if not game_id:
+            retries -= 1
+        else:
+            break
+        if retries <= 0:
+            raise ServerError(f"Cannot load a game.")
+    return status("Loaded game starts.", game_id=format(int(game_id), 'X'))
 
 
 @app.route("/get_saved_games", methods=["GET"])
@@ -551,6 +647,7 @@ def handle_error(e):
     status_code = e.status_code
     return serialize_response(e.to_dict()), status_code
 
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     traceback.print_exc()  # print error stack
@@ -571,3 +668,8 @@ def get_standard_user_obj():
         The current user entity for the request.
     """
     return current_user._get_current_object()
+
+
+@app.route("/ping", methods=["GET"])
+def ping():
+    return '', 200
