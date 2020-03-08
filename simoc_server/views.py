@@ -4,6 +4,8 @@ import json
 import time
 import traceback
 from collections import OrderedDict
+from pathlib import Path
+
 
 from flask import copy_current_request_context, render_template, request
 from flask_cors import CORS
@@ -108,6 +110,10 @@ def handle_disconnect():
 def home():
     return render_template('index.html')
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(Path(app.root_path, 'dist'), 'favicon.ico',
+                               mimetype='image/vnd.microsoft.icon')
 
 @app.route("/login", methods=["POST"])
 def login():
