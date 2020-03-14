@@ -74,7 +74,7 @@ def get_steps_background(data, user_id, timeout=2, max_retries=5):
                           {'data': output, 'step_count': step_count, 'max_steps': n_steps})
             retries_left = max_retries
         if step_count >= n_steps or retries_left <= 0:
-            socketio.emit('steps_sent', {'message': f'{step_count} steps sent'})
+            socketio.emit('steps_sent', {'message': f'{step_count} steps sent by the server'})
             break
         else:
             min_step_num = step_count + 1
