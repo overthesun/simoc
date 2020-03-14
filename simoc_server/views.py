@@ -7,7 +7,7 @@ from collections import OrderedDict
 from pathlib import Path
 
 
-from flask import copy_current_request_context, render_template, request
+from flask import copy_current_request_context, render_template, request, send_from_directory
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_socketio import emit, disconnect, SocketIO
