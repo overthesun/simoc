@@ -17,6 +17,8 @@ services:
       - ./certs:/etc/nginx/certs
     depends_on:
       - flask-app
+    deploy:
+      replicas: 1
   simoc-db:
     image: mysql/mysql-server
     restart: always
@@ -30,6 +32,8 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
+    deploy:
+      replicas: 1
   redis:
     image: bitnami/redis:latest
     restart: always
@@ -39,6 +43,8 @@ services:
       - simoc-net
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+    deploy:
+      replicas: 1
   celery-worker:
     build:
       context: .
@@ -68,6 +74,12 @@ services:
     depends_on:
       - simoc-db
       - redis
+    deploy:
+      replicas: ${CELERY_WORKERS}
+      resources:
+        limits:
+          cpus: '.5'
+          memory: 300M
   flask-app:
     build: .
     image: 127.0.0.1:5000/flask-app
@@ -98,9 +110,17 @@ services:
     depends_on:
       - simoc-db
       - redis
+    deploy:
+      replicas: ${FLASK_WORKERS}
+      resources:
+        limits:
+          cpus: '.2'
+          memory: 300M
 
 volumes:
   db-data: {}
 
 networks:
   simoc-net:
+    driver: overlay
+    attachable: true

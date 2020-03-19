@@ -13,6 +13,8 @@ else:
 
 app = Flask(__name__, static_folder='./dist/static', template_folder='./dist')
 
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET', 't00p__s3cr3t!?')
+
 gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
 app.logger.setLevel(gunicorn_logger.level)

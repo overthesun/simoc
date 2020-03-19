@@ -7,10 +7,11 @@ from collections import OrderedDict
 from pathlib import Path
 
 
-from flask import copy_current_request_context, render_template, request, send_from_directory
+from flask import render_template, request, send_from_directory
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_socketio import emit, disconnect, SocketIO
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 from simoc_server import app, db, redis_conn, broker_url
@@ -34,6 +35,10 @@ login_manager.init_app(app)
 cors = CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials="true")
 
 socketio = SocketIO(app, message_queue=broker_url, manage_session=False)
+
+# Fixes the issue with the SocketIO behind an Nginx proxy
+# https://github.com/miguelgrinberg/Flask-SocketIO/issues/1047
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
 
 def authenticated_only(f):

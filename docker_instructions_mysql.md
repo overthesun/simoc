@@ -34,13 +34,24 @@ export DB_USER=root
 export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 ```
 
-## Set up `HTTP` port for `SIMOC` application
+## Set up `FLASK_SECRET` with any random string value
 ```bash
-export APP_PORT=8000
+export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
+```
+
+## Set up `HTTP/HTTPS` ports for `SIMOC` application
+```bash
+export HTTP_PORT=8000
+export HTTPS_PORT=8443
+```
+
+## Set up `Domain Name` (use `localhost` when deploying on local machine)
+```bash
+export DOMAIN=localhost
 ```
 
 ## Configure `Nginx` proxy service
-Open the `nginx.conf` file with your favorite text editor and update the `listen` parameter with the corresponding `SIMOC` application port:
+Open the `nginx/simoc_nginx.conf` file with your favorite text editor and update the `listen` parameter in the both `HTTP` and `HTTPS` sections with the corresponding `SIMOC` application ports:
 ```
 upstream socketio_nodes {
     ip_hash;
@@ -51,40 +62,86 @@ upstream http_nodes {
     server flask-app:8080;
 }
 
+# Unencrypted HTTP section
 server {
     listen 8000;
-    server_name _;
+    server_name ${DOMAIN};
 
     location / {
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        include proxy_params;
         proxy_pass http://http_nodes;
     }
 
     location /socket.io {
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        include proxy_params;
+        include proxy_ws_params;
         proxy_pass http://socketio_nodes/socket.io;
-        proxy_http_version 1.1;
-        proxy_buffering off;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "Upgrade";
+    }
+}
+
+# Secure HTTPS section
+server {
+    listen 8443 ssl http2;
+    server_name ${DOMAIN};
+
+    ssl_certificate /etc/nginx/certs/cert.pem;
+    ssl_certificate_key /etc/nginx/certs/key.pem;
+
+    location / {
+        include proxy_params;
+        proxy_pass http://http_nodes;
+    }
+
+    location /socket.io {
+        include proxy_params;
+        include proxy_ws_params;
+        proxy_pass http://socketio_nodes/socket.io;
     }
 }
 ```
 
-# 4. Build `Docker` images
+## Generate SSL certificates
+
+Follow your platform-specific instructions to set up either `OpenSSL` or `LibreSSL` on your local machine.
+
+Run the following commands to generate a new `SSL` certificate and provide additional details in
+the interactive console menu:
 ```bash
-docker-compose -f docker-compose.mysql.yml build
+mkdir certs
+openssl req -x509 -newkey rsa:4096 -nodes -out certs/cert.pem -keyout certs/key.pem -days 365
+```
+
+Make sure you provide the correct `hostname` value in the `Common Name` section (i.e. `localhost`):
+```bash
+Generating a 4096 bit RSA private key
+...................++
+...............++
+writing new private key to 'certs/key.pem'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) []:US
+State or Province Name (full name) []:Texas
+Locality Name (eg, city) []:Austin
+Organization Name (eg, company) []:SIMOC
+Organizational Unit Name (eg, section) []:
+Common Name (eg, fully qualified host name) []:localhost
+Email Address []:
 ```
 
 # 5. Deploy `SIMOC` application
 
 ## 5.1. Deploy using `Docker Compose`
+
+### Build `Docker` images
+```bash
+docker-compose -f docker-compose.mysql.yml build
+```
 
 ### Set up the number of worker containers to spin up
 ```bash
@@ -193,7 +250,10 @@ export DB_NAME=simoc
 export DB_USER=root
 export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 
-export APP_PORT=8000
+export HTTP_PORT=8080
+export HTTPS_PORT=8443
+export DOMAIN=localhost
+export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
 
 export FLASK_WORKERS=2
 export CELERY_WORKERS=2
@@ -257,20 +317,25 @@ ID                  NAME                MODE                REPLICAS            
 qydpdq8dp0rf        registry            replicated          1/1                 registry:2          *:5000->5000/tcp
 ```
 
-### Push `SIMOC` images to the registry
-```bash
-docker-compose -f docker-compose.mysql.yml push
-```
-
 ### Set up the number of worker containers to spin up
 ```bash
 export FLASK_WORKERS=2
 export CELERY_WORKERS=2
 ```
 
+### Build `Docker` images
+```bash
+docker-compose -f docker-compose.swarm.yml build
+```
+
+### Push `SIMOC` images to the registry
+```bash
+docker-compose -f docker-swarm.swarm.yml push
+```
+
 ### Deploy `SIMOC` application stack to the `Swarm` cluster
 ```bash
-docker stack deploy --compose-file docker-compose.mysql.yml simoc
+docker stack deploy --compose-file docker-swarm.mysql.yml simoc
 ```
 
 ### Debug deployment

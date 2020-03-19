@@ -1,6 +1,3 @@
-import os
-
-SECRET_KEY = os.environ.get('FLASK_SECRET', 't00p__s3cr3t!?')
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ENGINE_OPTIONS = {'pool_size': 10,
                              'max_overflow': 0,
