@@ -4,11 +4,8 @@ metadata:
   name: "simoc-flask-ingress"
   annotations:
     kubernetes.io/ingress.global-static-ip-name: "simoc-static-ip"
+    networking.gke.io/managed-certificates: simoc-cert
 spec:
-  rules:
-  - http:
-      paths:
-      - path: "/*"
-        backend:
-          serviceName: "simoc-flask-svc"
-          servicePort: "flask-http"
+  backend:
+    serviceName: "simoc-flask-svc"
+    servicePort: "flask-http"
