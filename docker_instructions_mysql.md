@@ -250,7 +250,7 @@ export DB_NAME=simoc
 export DB_USER=root
 export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 
-export HTTP_PORT=8080
+export HTTP_PORT=8000
 export HTTPS_PORT=8443
 export DOMAIN=localhost
 export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
@@ -403,7 +403,10 @@ export DB_PORT=3306
 export DB_NAME=simoc
 export DB_USER=root
 export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
-export APP_PORT=8000
+export HTTP_PORT=8000
+export HTTPS_PORT=8443
+export DOMAIN=localhost
+export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
 export FLASK_WORKERS=2
 export CELERY_WORKERS=2
 docker-compose -f docker-compose.mysql.yml build
