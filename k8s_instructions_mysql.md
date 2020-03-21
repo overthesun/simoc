@@ -171,7 +171,8 @@ kubectl create secret generic simoc-db-creds \
 
 #### Deploy `Redis` server
 ```bash
-helm install redis bitnami/redis
+curl -Lo values-production.yaml https://raw.githubusercontent.com/bitnami/charts/master/bitnami/redis/values-production.yaml
+helm install redis bitnami/redis --values values-production.yaml
 ```
 
 #### Save `Redis` credentials to the `Cloud Secrets`
@@ -244,6 +245,16 @@ error: unable to upgrade connection: container not found ("simoc-flask-server")
 Scale the number of `celery-worker` containers to `20`:
 ```bash
 kubectl scale --replicas=20 -f k8s/deployments/simoc_celery_cluster.yaml
+```
+
+#### Stream logs from the `flask-server` service (optional)
+```bash
+kubectl logs -f -l app=simoc-flask-server --all-containers --max-log-requests 100
+```
+
+#### Stream logs from the `celery-cluster` service (optional)
+```bash
+kubectl logs -f -l app=simoc-celery-cluster --all-containers --max-log-requests 100
 ```
 
 ### Access the `SIMOC` web application

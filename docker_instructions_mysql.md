@@ -180,19 +180,19 @@ simoc_simoc-db_1        /entrypoint.sh mysqld       Up (healthy)   0.0.0.0:3306-
 ```
 Make sure all services are `Up` and `Healthy`.
 
-- Fetch logs from all `SIMOC` services:
+- Stream logs from all `SIMOC` services:
 ```bash
 docker-compose -f docker-compose.mysql.yml logs -t -f
 ```
 
-- Fetch logs from `celery-worker` service:
+- Stream logs from the `celery-worker` service:
 ```bash
 docker-compose -f docker-compose.mysql.yml logs -t -f celery-worker
 ```
 
-- Fetch logs from`flask-app` service:
+- Stream logs from the `flask-app` service:
 ```bash
-docker-compose -f docker-compose.mysql.yml ogs -t -f flask-app
+docker-compose -f docker-compose.mysql.yml logs -t -f flask-app
 ```
 
 - Stop all `SIMOC` containers:
@@ -430,3 +430,4 @@ docker swarm leave --force
 ### 6. Access `SIMOC` web application
 Navigate to the following `URL` in your browser to access a `SIMOC` application (change `PORT` if needed):
 - [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- [https://localhost:8443](https://localhost:8443)
