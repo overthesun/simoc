@@ -4,4 +4,4 @@ metadata:
   name: simoc-cert
 spec:
   domains:
-    - dev.simoc.space
+    - <DOMAIN_NAME>
