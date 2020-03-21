@@ -1,5 +1,3 @@
-from simoc_server import app
-
 class GenericError(Exception):
     status_code = 400
 
@@ -20,6 +18,7 @@ class GenericError(Exception):
             "message":self.message
         }
 
+
 class BadRegistration(GenericError):
     status_code = 409
 
@@ -27,6 +26,7 @@ class BadRegistration(GenericError):
         if message is None:
             message = "Error During Registration"
         super().__init__(message, status_code=status_code)
+
 
 class InvalidLogin(GenericError):
     status_code = 401
@@ -36,6 +36,7 @@ class InvalidLogin(GenericError):
             message = "Error During Login"
         super().__init__(message, status_code=status_code)
 
+
 class BadRequest(GenericError):
     status_code = 400
 
@@ -43,6 +44,7 @@ class BadRequest(GenericError):
         if message is None:
             message = "Bad request."
         super().__init__(message, status_code=status_code)
+
 
 class NotFound(GenericError):
     status_code = 404
@@ -52,6 +54,7 @@ class NotFound(GenericError):
             message = "Not Found."
         super().__init__(message, status_code=status_code)
 
+
 class Unauthorized(GenericError):
     status_code = 401
 
@@ -59,6 +62,7 @@ class Unauthorized(GenericError):
         if message is None:
             message = "Unauthorized."
         super().__init__(message, status_code=status_code)
+
 
 class ServerError(GenericError):
     status_code = 500
@@ -68,11 +72,13 @@ class ServerError(GenericError):
             message = "Internal server error."
         super().__init__(message, status_code=status_code)
 
+
 class AgentModelError(ServerError):
     def __init__(self, message=None, status_code=None):
         if message is None:
             message = "Unknown error in agent model."
         super().__init__(message, status_code=status_code)
+
 
 class GameNotFoundException(ServerError):
     def __init__(self, message=None, status_code=None):

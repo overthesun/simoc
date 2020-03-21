@@ -1,9 +1,7 @@
-import msgpack
 import json
 import datetime
 import pytimeparse
 
-from msgpack.exceptions import ExtraData, UnpackException
 from json.decoder import JSONDecodeError
 from abc import ABCMeta, abstractmethod
 from flask import make_response
@@ -69,30 +67,6 @@ class JsonSerializer(Serializer):
     @classmethod
     def get_format_name(cls):
         return "json"
-
-
-class MsgPackSerializer(Serializer):
-
-    @classmethod
-    def serialize_response(cls, obj):
-        resp = make_response(msgpack.packb(obj, default=encode_msgpack))
-        resp.mimetype = "application/x-msgpack"
-        return resp
-
-    @classmethod
-    def deserialize_request(cls, request):
-        request.__dict__["deserialized"] = None
-
-        data = request.get_data()
-        if data:
-            try:
-                request.__dict__["deserialized"] = msgpack.unpackb(data, object_hook=decode_msgpack, encoding='utf-8')
-            except (UnpackException, ExtraData) as e:
-                app.logger.error("Error deserializing msgpack: {}".format(data))
-
-    @classmethod
-    def get_format_name(cls):
-        return "msgpack"
 
 
 def serialize_response(obj):

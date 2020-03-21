@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/bdmccord/simoc.svg?branch=master)](https://travis-ci.org/bdmccord/simoc)
-
 # SIMOC
 `SIMOC` - A Scalable, Interactive Model of an Off-world Community
 

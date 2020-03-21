@@ -1,13 +1,13 @@
 import argparse
 import os
-import json
-import time
+# import json
+# import time
 import logging
 from logging.handlers import RotatingFileHandler
 
-from simoc_server import db
-from simoc_server.game_runner import GameRunnerManager, GameRunnerInitializationParams
-from simoc_server.database.db_model import User, ModelRecord, StepRecord
+# from simoc_server import db
+# from simoc_server.game_runner import GameRunnerManager, GameRunnerInitializationParams
+# from simoc_server.database.db_model import User, ModelRecord, StepRecord
 from simoc_server.serialize.serializer import JsonSerializer,  set_serializer
 
 
@@ -72,53 +72,53 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    # TODO: Console Mode has to be redesign for the new Redis backend
     if not args.console_mode:
         run_flask(debug=args.debug, port=args.port, run_local=args.run_local,
                   threaded=args.threaded, use_json=args.use_json, logger_level=args.logger_level)
-    else:
-        user = User.query.filter_by(username=args.username).first()
-        if user:
-            if user.validate_password(args.password):
-                print(f"'{args.username}' logged in.")
-            else:
-                raise Exception('Invalid username or password.')
-        else:
-            print(f"Creating new user '{args.username}'.")
-            user = User(username=args.username)
-            user.set_password(args.password)
-            db.session.add(user)
-            db.session.commit()
-        with open(args.game_config_path, 'r') as f:
-            game_config = json.load(f)
-        print('Initializing new simulation.')
-        game_runner_manager = GameRunnerManager()
-        game_runner_init_params = GameRunnerInitializationParams(game_config)
-        game_runner_manager.new_game(user, game_runner_init_params)
-        game_runner = game_runner_manager.get_game_runner(user)
-        game_id = game_runner.game_id
-
-        print('Starting simulation.')
-        game_runner_manager.get_step_to(user, args.num_steps)
-        print('Simulation complete.')
-
-        print('Storing Model records.')
-        ts = int(time.time())
-        model_records = ModelRecord.query \
-            .filter_by(user_id=user.id) \
-            .filter_by(game_id=game_id)
-        model_records = [i.get_all_data() for i in model_records]
-        with open(f'{ts}_model_records.json', 'w') as f:
-            json.dump(model_records, f)
-        print(f'The result saved in {ts}_model_records.json.')
-
-        print('Storing Step records.')
-        step_records = StepRecord.query \
-            .filter_by(user_id=user.id) \
-            .filter_by(game_id=game_id)
-        step_records = [i.get_data() for i in step_records]
-        with open(f'{ts}_step_records.json', 'w') as f:
-            json.dump(step_records, f)
-        print(f'The result saved in {ts}_step_records.json.')
-
-        print('All work is done! You can now interrupt this script.')
-
+    # else:
+    #     user = User.query.filter_by(username=args.username).first()
+    #     if user:
+    #         if user.validate_password(args.password):
+    #             print(f"'{args.username}' logged in.")
+    #         else:
+    #             raise Exception('Invalid username or password.')
+    #     else:
+    #         print(f"Creating new user '{args.username}'.")
+    #         user = User(username=args.username)
+    #         user.set_password(args.password)
+    #         db.session.add(user)
+    #         db.session.commit()
+    #     with open(args.game_config_path, 'r') as f:
+    #         game_config = json.load(f)
+    #     print('Initializing new simulation.')
+    #     game_runner_manager = GameRunnerManager()
+    #     game_runner_init_params = GameRunnerInitializationParams(game_config)
+    #     game_runner_manager.new_game(user, game_runner_init_params)
+    #     game_runner = game_runner_manager.get_game_runner(user)
+    #     game_id = game_runner.game_id
+    #
+    #     print('Starting simulation.')
+    #     game_runner_manager.get_step_to(user, args.num_steps)
+    #     print('Simulation complete.')
+    #
+    #     print('Storing Model records.')
+    #     ts = int(time.time())
+    #     model_records = ModelRecord.query \
+    #         .filter_by(user_id=user.id) \
+    #         .filter_by(game_id=game_id)
+    #     model_records = [i.get_all_data() for i in model_records]
+    #     with open(f'{ts}_model_records.json', 'w') as f:
+    #         json.dump(model_records, f)
+    #     print(f'The result saved in {ts}_model_records.json.')
+    #
+    #     print('Storing Step records.')
+    #     step_records = StepRecord.query \
+    #         .filter_by(user_id=user.id) \
+    #         .filter_by(game_id=game_id)
+    #     step_records = [i.get_data() for i in step_records]
+    #     with open(f'{ts}_step_records.json', 'w') as f:
+    #         json.dump(step_records, f)
+    #     print(f'The result saved in {ts}_step_records.json.')
+    #
+    #     print('All work is done! You can now interrupt this script.')

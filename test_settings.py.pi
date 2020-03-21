@@ -1,2 +1,0 @@
-SECRET_KEY="20%@#$AGasd46#$$QQ*%&%$&@FF."
-SQLALCHEMY_DATABASE_URI="postgres://postgres:password123@192.168.1.138:5432/simoc_server_test"
