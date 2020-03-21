@@ -73,6 +73,11 @@ spec:
               secretKeyRef:
                 name: redis-creds
                 key: redis_password
+          - name: FLASK_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: flask-secret
+                key: flask_secret
           ports:
             - name: http
               containerPort: 8080
