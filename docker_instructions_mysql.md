@@ -45,11 +45,6 @@ export HTTP_PORT=8000
 export HTTPS_PORT=8443
 ```
 
-## Set up `Domain Name` (use `localhost` when deploying on local machine)
-```bash
-export DOMAIN=localhost
-```
-
 ## Configure `Nginx` proxy service
 Open the `nginx/simoc_nginx.conf` file with your favorite text editor and update `listen` and `server_name` parameters in the both `HTTP` and `HTTPS` sections with the corresponding `SIMOC` application ports and domain name:
 ```
