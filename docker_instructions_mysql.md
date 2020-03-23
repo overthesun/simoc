@@ -51,7 +51,7 @@ export DOMAIN=localhost
 ```
 
 ## Configure `Nginx` proxy service
-Open the `nginx/simoc_nginx.conf` file with your favorite text editor and update the `listen` parameter in the both `HTTP` and `HTTPS` sections with the corresponding `SIMOC` application ports:
+Open the `nginx/simoc_nginx.conf` file with your favorite text editor and update `listen` and `server_name` parameters in the both `HTTP` and `HTTPS` sections with the corresponding `SIMOC` application ports and domain name:
 ```
 upstream socketio_nodes {
     ip_hash;
@@ -65,7 +65,7 @@ upstream http_nodes {
 # Unencrypted HTTP section
 server {
     listen 8000;
-    server_name ${DOMAIN};
+    server_name localhost;
 
     location / {
         include proxy_params;
@@ -82,7 +82,7 @@ server {
 # Secure HTTPS section
 server {
     listen 8443 ssl http2;
-    server_name ${DOMAIN};
+    server_name localhost;
 
     ssl_certificate /etc/nginx/certs/cert.pem;
     ssl_certificate_key /etc/nginx/certs/key.pem;
