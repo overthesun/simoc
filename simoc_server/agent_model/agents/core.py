@@ -488,7 +488,10 @@ class GeneralAgent(EnclosedAgent):
                                     currency, self.agent_type))
                                 return
         influx = set()
+        skip_step = False
         for prefix in ['in', 'out']:
+            if prefix == 'out' and skip_step:
+                return
             for currency in self.selected_storage[prefix]:
                 attr = '{}_{}'.format(prefix, currency)
                 num_of_storages = len(self.selected_storage[prefix][currency])
@@ -523,10 +526,10 @@ class GeneralAgent(EnclosedAgent):
                         storage_unit = storage.attr_details[attr_name]['units']
                         storage_value = pq.Quantity(storage[currency], storage_unit)
                         step_value.units = storage_unit
-                        if prefix == 'out':
-                            new_storage_value = storage_value + step_value * i
-                        elif prefix == 'in':
+                        if prefix == 'in':
                             new_storage_value = storage_value - step_value * i
+                        elif prefix == 'out':
+                            new_storage_value = storage_value + step_value * i
                         else:
                             raise Exception('Unknown flow type. Neither Input nor Output.')
                         new_storage_value = new_storage_value.magnitude.tolist()
@@ -535,21 +538,21 @@ class GeneralAgent(EnclosedAgent):
                                 self.deprive[currency] -= delta_per_step
                                 if self.deprive[currency] < 0:
                                     self.amount -= 1
-                            if self.grown:
-                                break
                             elif is_required:
-                                return
+                                skip_step = True
                         else:
-                            storage[currency] = min(new_storage_value, storage_cap)
-                            if prefix == 'in' and currency not in influx:
-                                influx.add(currency)
-                            if deprive_value > 0:
-                                self.deprive[currency] = min(deprive_value * self.amount,
-                                                             self.deprive[currency] + deprive_value)
-                            agent_amount = i
-                            value = float(step_value.magnitude.tolist()) * i
-                            if attr == self.growth_criteria:
-                                self.agent_step_num += hours_per_step
+                            if not skip_step or is_required:
+                                storage[currency] = min(new_storage_value, storage_cap)
+                                if prefix == 'in' and currency not in influx:
+                                    influx.add(currency)
+                                if deprive_value > 0:
+                                    self.deprive[currency] = min(deprive_value * self.amount,
+                                                                 self.deprive[currency] +
+                                                                 deprive_value)
+                                agent_amount = i
+                                value = float(step_value.magnitude.tolist()) * i
+                                if attr == self.growth_criteria:
+                                    self.agent_step_num += hours_per_step
                             break
                     if value > value_eps:
                         currency_type = CurrencyType.query.filter_by(name=currency).first()

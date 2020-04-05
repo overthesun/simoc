@@ -5539,7 +5539,7 @@
         "characteristics": [
           {
             "type": "capacity_enrg_kwh",
-            "value": 10000,
+            "value": 1000,
             "unit": "kWh"
           },
           {
