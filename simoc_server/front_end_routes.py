@@ -91,7 +91,7 @@ def get_energy():
     return json.dumps(total)
 
 
-def calc_air_storage(volume, id):
+def calc_air_storage(volume):
     # 1 m3 of air weighs ~1.25 kg (depending on temperature and humidity)
     AIR_DENSITY = 1.25  # kg/m3
     # convert from m3 to kg
@@ -111,21 +111,11 @@ def calc_air_storage(volume, id):
         #"atmo_kr": 0.000114,  # krypton
     }
     # calculate the mass for each element
-    air_storage = {label: mass*perc/100 for label, perc in percentages.items()}
-    air_storage['id'] = id
-    return air_storage
+    return {label: mass*perc/100 for label, perc in percentages.items()}
 
 
-def calc_water_storage(volume, structure_type, id):
-    water_storage = {'id': id, 'h2o_potb': 0, 'h2o_tret': 0, 'h2o_wste': 0, 'h2o_urin': 0}
-    if structure_type == 'habitat':
-        water_type = 'h2o_potb'
-    elif structure_type == 'greenhouse':
-        water_type = 'h2o_tret'
-    else:
-        raise ValueError(f'Invalid structure_type: {structure_type!r}')
-    water_storage[water_type] = round(volume, -2)
-    return water_storage
+def calc_water_storage(volume):
+    return {'h2o_potb': 0.9 * volume, 'h2o_tret': 0.1 * volume}
 
 
 def convert_configuration(game_config):
@@ -152,27 +142,30 @@ def convert_configuration(game_config):
     # Is it a single agent
     single_agent = game_config.get('single_agent', 0) or 0
 
-    air_storages = []
-    water_storages = []
-    connections = {'air_storage': [], 'water_storage': []}
     if 'habitat' in game_config or 'greenhouse' in game_config:
-        storage_id = 0
+        total_volume = 0
         structures = db.session.query(AgentType).filter_by(agent_class='structures').all()
         structures = [agent.name for agent in structures]
         for structure in ['habitat', 'greenhouse']:
             if game_config.get(structure) not in structures:
                 continue  # invalid structure or none
             if structure in game_config:
-                storage_id += 1
                 agent_type, type_attribute = db.session.query(AgentType, AgentTypeAttribute) \
                     .filter_by(name=game_config[structure]) \
                     .filter(AgentType.id == AgentTypeAttribute.agent_type_id) \
                     .filter(AgentTypeAttribute.name == 'char_volume').first()
-                habitat_volume = float(type_attribute.value)
-                air_storages.append(calc_air_storage(habitat_volume, storage_id))
-                water_storages.append(calc_water_storage(habitat_volume, structure, storage_id))
-                connections['air_storage'].append(storage_id)
-                connections['water_storage'].append(storage_id)
+                total_volume += float(type_attribute.value)
+
+        def _update_config(game_config, storage_type, data):
+            if storage_type not in game_config:
+                game_config[storage_type] = data
+            else:
+                for k, v in data.items():
+                    game_config[storage_type][k] = game_config[storage_type].get(k, 0) + v
+            return game_config
+
+        game_config = _update_config(game_config, 'air_storage', calc_air_storage(total_volume))
+        game_config = _update_config(game_config, 'water_storage', calc_water_storage(total_volume))
 
     eclss_amount = 0
     if 'eclss' in game_config and isinstance(game_config['eclss'], dict):
@@ -213,8 +206,8 @@ def convert_configuration(game_config):
                                                                                'water_storage': []},
                                                                'amount': eclss_amount}]
                                    },
-                        'storages': {'air_storage': air_storages,
-                                     'water_storage': water_storages,
+                        'storages': {'air_storage': [],
+                                     'water_storage': [],
                                      'nutrient_storage': [],
                                      'power_storage': [],
                                      'food_storage': []},
@@ -238,6 +231,7 @@ def convert_configuration(game_config):
     # The rest of this function is for reformatting agents. Food_connections and power_connections
     # will be assigned to all agents with food_storage or power_storage respectively, at the end of
     # this function.
+    connections = {}
     for storage_type in ['air_storage', 'water_storage', 'nutrient_storage', 'food_storage',
                          'power_storage']:
         storage = {}
@@ -249,6 +243,7 @@ def convert_configuration(game_config):
                 currency = attr.name.split('_', 2)[2]
                 if storage_type in game_config:
                     storage[currency] = game_config[storage_type].get(currency, 0) or 0
+                    minimum_storage_amount = max(minimum_storage_amount, 1)
                 else:
                     storage[currency] = 0
                 minimum_storage_amount = max(minimum_storage_amount,
@@ -307,7 +302,6 @@ def convert_configuration(game_config):
 
     full_game_config['total_amount'] = total_amount
 
-    app.logger.info(f'full_game_config = {full_game_config}')
     return full_game_config
 
 
