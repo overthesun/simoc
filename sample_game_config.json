@@ -17,7 +17,7 @@
             },
             "amount": 1
         }],
-        "multifiltration_purifier_post_treament": [{
+        "multifiltration_purifier_post_treatment": [{
             "connections": {
                 "water_storage": [1, 2],
                 "power_storage": [1]

@@ -249,7 +249,7 @@
       },
       "description": "Cleans wastewater using microbial degradation, provides nutrients for plants."
     },
-    "multifiltration_purifier_post_treament": {
+    "multifiltration_purifier_post_treatment": {
       "data": {
         "input": [
           {
