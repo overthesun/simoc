@@ -309,7 +309,7 @@
         "input": [
           {
             "type": "h2o_urin",
-            "value": 1.36,
+            "value": 2.0,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -328,7 +328,7 @@
         "output": [
           {
             "type": "h2o_tret",
-            "value": 1.36,
+            "value": 1.96,
             "requires": ["h2o_urin"],
             "flow_rate": {
               "unit": "kg",
