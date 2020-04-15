@@ -333,6 +333,14 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
+            },
+            {
+            "type": "sold_wste",
+            "value": 0.04,
+            "requires": ["h2o_urin"],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
             }
           }
         ],
