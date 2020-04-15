@@ -746,7 +746,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.321,
+            "value": 0.0077095,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
