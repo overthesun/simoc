@@ -754,7 +754,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0077095,
+            "value": 0.77095,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -952,7 +952,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0658,
+            "value": 1.580,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -1150,7 +1150,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0215,
+            "value": 0.5151,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -1348,7 +1348,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0131,
+            "value": 0.315,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -1546,7 +1546,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0323,
+            "value": 0.77475,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -1744,7 +1744,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0077,
+            "value": 0.18396,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -1942,7 +1942,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0082,
+            "value": 0.1971,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -2140,7 +2140,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0354,
+            "value": 0.850,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -2338,7 +2338,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0244,
+            "value": 0.58552,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -2536,7 +2536,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0243,
+            "value": 0.582,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -2734,7 +2734,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0276,
+            "value": 0.66215,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -2932,7 +2932,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0369,
+            "value": 0.88655,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -3130,7 +3130,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0215,
+            "value": 0.450,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -3166,7 +3166,7 @@
           },
           {
             "type": "lifetime",
-            "value": 2040,
+            "value": 1200,
             "unit": "hour"
           },
           {
@@ -3328,7 +3328,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.01875,
+            "value": 0.450,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -3526,7 +3526,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.03353,
+            "value": 0.80475,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -3724,7 +3724,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.03694,
+            "value": 0.88655,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -3922,7 +3922,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0421,
+            "value": 1.0098,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -4120,7 +4120,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0057,
+            "value": 0.1375,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -4318,7 +4318,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0102,
+            "value": 0.247,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -4516,7 +4516,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0281,
+            "value": 0.6735,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -4714,7 +4714,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0531,
+            "value": 1.275,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
@@ -4912,7 +4912,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.1158,
+            "value": 2.7799,
             "weighted": "growth_rate",
             "flow_rate": {
               "unit": "kg",
