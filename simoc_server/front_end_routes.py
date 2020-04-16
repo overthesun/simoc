@@ -305,8 +305,8 @@ def convert_configuration(game_config):
     return full_game_config
 
 
-def calc_step_in_out(direction, currencies, step_record_data, value_round=2):
-    """ 
+def calc_step_in_out(direction, currencies, step_record_data, value_round=6):
+    """
     Calculate the total production or total consumption of given currencies for a given step.
 
     Called from: route views.get_step()
@@ -333,7 +333,7 @@ def calc_step_in_out(direction, currencies, step_record_data, value_round=2):
     return output
 
 
-def calc_step_storage_ratios(agents, model_record_data, value_round=2):
+def calc_step_storage_ratios(agents, model_record_data, value_round=6):
     """
     Calculate the ratio for the requested currencies for the requested <agent_type>_<agent_id>.
 
@@ -436,7 +436,7 @@ def sum_agent_values_in_step(agent_types, currency_type_name, direction, step_re
     return output
 
 
-def calc_step_storage_capacities(agent_types, model_record_data, value_round=2):
+def calc_step_storage_capacities(agent_types, model_record_data, value_round=6):
     output = {}
     user_id = model_record_data['user_id']
     game_id = model_record_data['game_id']
