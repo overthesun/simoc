@@ -198,8 +198,7 @@ docker-compose -f docker-compose.mysql.yml build
 docker-compose -f docker-compose.mysql.yml up -d \
     --force-recreate \
     --scale celery-worker=${CELERY_WORKERS} \
-    --scale flask-app=${FLASK_WORKERS} \
-    --scale redis=1
+    --scale flask-app=${FLASK_WORKERS}
 ```
 
 ## Debug `SIMOC` deployment
@@ -281,8 +280,7 @@ docker-compose -f docker-compose.mysql.yml build
 docker-compose -f docker-compose.mysql.yml up -d \
     --force-recreate \
     --scale celery-worker=${CELERY_WORKERS} \
-    --scale flask-app=${FLASK_WORKERS} \
-    --scale redis=1
+    --scale flask-app=${FLASK_WORKERS}
 ```
 
 ## Reset `MySQL` database
