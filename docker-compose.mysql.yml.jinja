@@ -2,6 +2,9 @@ version: '3.6'
 services:
   nginx:
     image: nginx
+    {% if use_certbot %}
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    {% endif %}
     restart: always
     ports:
       - '${HTTP_PORT}:${HTTP_PORT}'
@@ -12,10 +15,29 @@ services:
       - ./nginx/simoc_nginx.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/proxy_params:/etc/nginx/proxy_params
       - ./nginx/proxy_ws_params:/etc/nginx/proxy_ws_params
+      {% if use_ssl %}
+      {% if use_certbot %}
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+      {% else %}
       - ./certs:/etc/nginx/certs
+      {% endif %}
+      {% endif %}
+      {% if add_basic_auth %}
       - ./nginx/htpasswd:/etc/nginx/htpasswd
+      {% endif %}
     depends_on:
       - flask-app
+  {% if use_ssl %}
+  {% if use_certbot %}
+  certbot:
+    image: certbot/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+  {% endif %}
+  {% endif %}
   simoc-db:
     image: mysql/mysql-server
     restart: always
@@ -42,7 +64,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-celery-worker
-    image: 127.0.0.1:5000/celery-worker
+    image: celery-worker-image
     restart: always
     networks:
       - simoc-net
@@ -69,7 +91,7 @@ services:
       - redis
   flask-app:
     build: .
-    image: 127.0.0.1:5000/flask-app
+    image: flask-app-image
     restart: always
     ports:
       - 8080

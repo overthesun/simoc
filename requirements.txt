@@ -5,6 +5,7 @@ flask_socketio
 flask-sqlalchemy
 gevent==1.4.0
 gunicorn
+jinja2
 mesa
 msgpack-python
 mysql-connector-python

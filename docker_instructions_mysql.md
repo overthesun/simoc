@@ -44,11 +44,32 @@ export CELERY_WORKERS=2
 export REDIS_WORKERS=2
 ```
 
-## Set up `HTTP/HTTPS` ports for `SIMOC` application
+## Generate dynamic config files (Nginx, Docker)
+### Setup environment variables
+- SERVER_NAME - the domain name of the SIMOC host (default: localhost)
+- USE_SSL - 1 to enable SSL access (default: 0)
+- REDIRECT_TO_SSL - 1 to redirect all HTTP traffic to HTTPS (default: 0)
+- USE_CERTBOT - 1 to use Let's Encrypt certificates (default: 0)
+- ADD_BASIC_AUTH - 1 to enable Basic HTTP authentication (default: 0)
+- VALID_REFERERS - the domain name of the only referer to allow  (default: '')
+- HTTP_PORT - http port to listen on (default: 8000)
+- HTTPS_PORT - https port to listen on (default: 8443)
 ```bash
-export HTTP_PORT=8000
-export HTTPS_PORT=8443
+export SERVER_NAME='localhoste'
+export USE_SSL=1
+export REDIRECT_TO_SSL=1
+export USE_CERTBOT=1
+export ADD_BASIC_AUTH=1
+export VALID_REFERERS='kaistaats.com'
+export HTTP_PORT=80
+export HTTPS_PORT=443
 ```
+
+### Generate configuration files
+```bash
+python3 generate_configs.py
+```
+The script will produce `docker-compose.mysql.yml` and `./nginx/simoc_nginx.conf` files.
 
 ## Configure additional HTTP authentication (optional)
 Make sure you installed a password file creation utility such as `apache2-utils` (Debian, Ubuntu) or `httpd-tools` (RHEL/CentOS/Oracle Linux)
@@ -63,70 +84,7 @@ Create additional users. Omit the -c flag because the file already exists:
 htpasswd ./nginx/htpasswd user2
 ```
 
-## Configure `Nginx Proxy` service
-Open one of the following files with your favorite text editor depending on your SSL configuration:
-- `Self-signed` certificates - `nginx/simoc_nginx.conf`
-- `Let's Encrypt` certificates - `nginx/simoc_nginx_certbot.conf`
-
-Read the `Create SSL certificates` section to decide which configuration to use.
- 
-Update `listen` and `server_name` parameters in the both `HTTP` and `HTTPS` configs with the corresponding `SIMOC` application ports and domain name.
-
-Additionally, update the `return` function argument string inside the `server -> location` section of the `HTTP` config with the corresponding `HTTPS` port.
-
-Below is an example of the `nginx/simoc_nginx.conf` file that configures ports `8000` and `8443` for the `HTTP` and `HTTPS` traffic respectively and uses `localhost` as the domain name:
-```
-upstream socketio_nodes {
-    ip_hash;
-    server flask-app:8080;
-}
-
-upstream http_nodes {
-    server flask-app:8080;
-}
-
-# Unencrypted HTTP listener
-server {
-    listen 8000;
-    server_name localhost;
-
-    # Redirect all HTTP traffic to HTTPS
-    location / {
-        return 301 https://$host:8443$request_uri;
-    }
-}
-
-# Secure HTTPS listener
-server {
-    listen 8443 ssl http2;
-    server_name localhost;
-
-    ssl_certificate /etc/nginx/certs/cert.pem;
-    ssl_certificate_key /etc/nginx/certs/key.pem;
-
-    # auth_basic "Restricted Files";
-    # auth_basic_user_file /etc/nginx/htpasswd;
-
-    location / {
-        include proxy_params;
-        proxy_pass http://http_nodes;
-    }
-
-    location /socket.io {
-        include proxy_params;
-        include proxy_ws_params;
-        proxy_pass http://socketio_nodes/socket.io;
-    }
-}
-```
-
-Uncomment the following lines if you need HTTP authentication:
-```bash
-    auth_basic "Restricted Files";
-    auth_basic_user_file /etc/nginx/htpasswd;
-```
-
-## Create SSL certificates
+## Create SSL certificates (optional)
 `SIMOC` supports two different SSL configurations:
 - Using self-signed SSL certificates that cannot be validated via third-party authority
 - Using trusted SSL certificates managed by `Let's Encrypt` (check out the [official website](https://letsencrypt.org/]))
@@ -167,17 +125,7 @@ Common Name (eg, fully qualified host name) []:localhost
 Email Address []:
 ```
 
-Select the corresponding `Docker Compose` file:
-```bash
-export COMPOSE_FILE=docker-compose.mysql.yml
-```
-
 ### Option #2: Use verified certificates (`Let's Encrypt`)
-Select the corresponding `Docker Compose` file:
-```bash
-export COMPOSE_FILE=docker-compose.mysql.certbot.yml
-```
-
 Create a `Certbot` configuration directory:
 ```bash
 export CERTBOT_PATH="./certbot"
@@ -204,7 +152,7 @@ mkdir -p "${CERTBOT_PATH}/conf/live/${DOMAIN}"
 
 Generate "dummy" certificates:
 ```bash
-docker-compose -f ${COMPOSE_FILE} run --rm --entrypoint "\
+docker-compose -f docker-compose.mysql.yml run --rm --entrypoint "\
   openssl req -x509 -nodes -newkey rsa:1024 -days 1 \
     -keyout '${CERT_PATH}/privkey.pem' \
     -out '${CERT_PATH}/fullchain.pem' \
@@ -213,12 +161,12 @@ docker-compose -f ${COMPOSE_FILE} run --rm --entrypoint "\
 
 Start `Nginx` service:
 ```bash
-docker-compose -f ${COMPOSE_FILE} up --force-recreate -d nginx
+docker-compose -f docker-compose.mysql.yml up --force-recreate -d nginx
 ```
 
 Delete "dummy" certificates:
 ```bash
-docker-compose -f ${COMPOSE_FILE} run --rm --entrypoint " \
+docker-compose -f docker-compose.mysql.yml run --rm --entrypoint " \
   rm -Rf /etc/letsencrypt/live/${DOMAIN} && \
   rm -Rf /etc/letsencrypt/archive/${DOMAIN} && \
   rm -Rf /etc/letsencrypt/renewal/${DOMAIN}.conf" certbot
@@ -226,7 +174,7 @@ docker-compose -f ${COMPOSE_FILE} run --rm --entrypoint " \
 
 Request managed certificates from `Let's Encrypt`:
 ```bash
-docker-compose -f ${COMPOSE_FILE} run --rm --entrypoint " \
+docker-compose -f docker-compose.mysql.yml run --rm --entrypoint " \
   certbot certonly --webroot -w /var/www/certbot \
     --email ${EMAIL} \
     -d ${DOMAIN} \
@@ -237,19 +185,19 @@ docker-compose -f ${COMPOSE_FILE} run --rm --entrypoint " \
 
 Reload `Nginx` service:
 ```bash
-docker-compose -f ${COMPOSE_FILE} exec nginx nginx -s reload
+docker-compose -f docker-compose.mysql.yml exec nginx nginx -s reload
 ```
 
 
 # 5. Deploy `SIMOC` application
 ## Build `Docker` images
 ```bash
-docker-compose -f ${COMPOSE_FILE} build
+docker-compose -f docker-compose.mysql.yml build
 ```
 
 ## Start all `SIMOC` services
 ```bash
-docker-compose -f ${COMPOSE_FILE} up -d \
+docker-compose -f docker-compose.mysql.yml up -d \
     --force-recreate \
     --scale celery-worker=${CELERY_WORKERS} \
     --scale flask-app=${FLASK_WORKERS} \
@@ -260,7 +208,7 @@ docker-compose -f ${COMPOSE_FILE} up -d \
 ## Debug `SIMOC` deployment
 Show all running `SIMOC` containers:
 ```bash
-$ docker-compose -f ${COMPOSE_FILE} ps
+$ docker-compose -f docker-compose.mysql.yml ps
         Name                      Command                State                 Ports
 -----------------------------------------------------------------------------------------------
 simoc_celery-worker_1   /bin/bash start_worker.sh     Up (healthy)
@@ -279,7 +227,7 @@ Check out [Docker Cheat Sheet](https://github.com/wsargent/docker-cheat-sheet) f
 ## Initialize `MySQL` database
 Once all `SIMOC` services and containers are up and running, run the following command to create DB schema and populate the agent model:
 ```bash
-docker-compose -f ${COMPOSE_FILE} exec celery-worker python3 create_db.py
+docker-compose -f docker-compose.mysql.yml exec celery-worker python3 create_db.py
 ```
 
 If the following error occurs, retry the command in 10-30 seconds:
@@ -290,12 +238,12 @@ sqlalchemy.exc.OperationalError: (_mysql_exceptions.OperationalError) (2003, "Ca
 ## Scale `SIMOC` components (optional)
 Scale the number of `celery-worker` containers to `5`:
 ```bash
-docker-compose -f ${COMPOSE_FILE} scale celery-worker=5
+docker-compose -f docker-compose.mysql.yml scale celery-worker=5
 ```
 
 Scale the number of `flask-app` containers to `5`:
 ```bash
-docker-compose -f ${COMPOSE_FILE} scale flask-app=5
+docker-compose -f docker-compose.mysql.yml scale flask-app=5
 ```
 
 ## Access `SIMOC` web application
@@ -329,12 +277,12 @@ export REDIS_WORKERS=2
 
 - Re-build `SIMOC` images:
 ```bash
-docker-compose -f ${COMPOSE_FILE} build
+docker-compose -f docker-compose.mysql.yml build
 ```
 
 - Re-deploy `SIMOC` services:
 ```bash
-docker-compose -f ${COMPOSE_FILE} up -d \
+docker-compose -f docker-compose.mysql.yml up -d \
     --force-recreate \
     --scale celery-worker=${CELERY_WORKERS} \
     --scale flask-app=${FLASK_WORKERS} \
@@ -345,42 +293,42 @@ docker-compose -f ${COMPOSE_FILE} up -d \
 ## Reset `MySQL` database
 Stop and remove all `simoc-db` containers and volumes:
 ```bash
-docker-compose -f ${COMPOSE_FILE} rm --stop -v simoc-db
+docker-compose -f docker-compose.mysql.yml rm --stop -v simoc-db
 docker volume rm simoc_db-data
 ```
 
 Re-deploy `simoc-db` service:
 ```bash
-docker-compose -f ${COMPOSE_FILE} up -d --force-recreate simoc-db
+docker-compose -f docker-compose.mysql.yml up -d --force-recreate simoc-db
 ```
 
 # 7. Useful commands
 ### Stream logs from all `SIMOC` services
 ```bash
-docker-compose -f ${COMPOSE_FILE} logs -t -f
+docker-compose -f docker-compose.mysql.yml logs -t -f
 ```
 
 ### Stream logs from the `celery-worker` service
 ```bash
-docker-compose -f ${COMPOSE_FILE} logs -t -f celery-worker
+docker-compose -f docker-compose.mysql.yml logs -t -f celery-worker
 ```
 
 ### Stream logs from the `flask-app` service
 ```bash
-docker-compose -f ${COMPOSE_FILE} logs -t -f flask-app
+docker-compose -f docker-compose.mysql.yml logs -t -f flask-app
 ```
 
 ### Stop all `SIMOC` containers
 ```bash
-docker-compose -f ${COMPOSE_FILE} stop
+docker-compose -f docker-compose.mysql.yml stop
 ```
 
 ### Start all `SIMOC` containers
 ```bash
-docker-compose -f ${COMPOSE_FILE} start
+docker-compose -f docker-compose.mysql.yml start
 ```
 
 ### Stop all `SIMOC` services and remove all containers, images and volumes
 ```bash
-docker-compose -f ${COMPOSE_FILE} down --rmi all --volumes
+docker-compose -f docker-compose.mysql.yml down --rmi all --volumes
 ```
