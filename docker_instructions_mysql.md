@@ -12,7 +12,7 @@ Follow the official guide to set up `Docker` software:
 - https://docs.docker.com/compose/install/
 - https://docs.docker.com/engine/swarm/swarm-tutorial/
 
-Make sure you installed `Docker Engine`, `Docker Compose` and `Swarm` components.
+Make sure you installed `Docker Engine` and`Docker Compose` components.
 
 # 3. Configure `SIMOC` deployment
 ## Set up `Redis` connection details (fill in the `REDIS_PASSWORD` value)
