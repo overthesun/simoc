@@ -128,7 +128,7 @@ class AgentTypeAttributeDetails(BaseEntity):
     criteria_buffer = db.Column(db.Float, nullable=True)
     deprive_unit = db.Column(db.String(100), nullable=True)
     deprive_value = db.Column(db.Float, nullable=True)
-    is_required = db.Column(db.Integer, nullable=True)
+    is_required = db.Column(db.String(100), nullable=True)
     requires = db.Column(db.JSON, nullable=True)
     is_growing = db.Column(db.Integer, nullable=True)
     lifetime_growth_type = db.Column(db.String(100), nullable=True)

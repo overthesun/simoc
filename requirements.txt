@@ -1,11 +1,9 @@
-kombu==4.6.3
 celery
 flask
-flask-cors
 flask-login
 flask_socketio
 flask-sqlalchemy
-gevent
+gevent==1.4.0
 gunicorn
 mesa
 msgpack-python

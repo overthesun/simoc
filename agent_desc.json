@@ -161,6 +161,7 @@
           {
             "type": "h2o_wste",
             "value": 1.5,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -169,6 +170,7 @@
           {
             "type": "atmo_o2",
             "value": 0.00045,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -177,7 +179,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.678,
-            "required": true,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -262,6 +264,7 @@
           {
             "type": "h2o_tret",
             "value": 4.75,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -270,7 +273,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.012,
-            "required": true,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -310,6 +313,7 @@
           {
             "type": "h2o_urin",
             "value": 2.0,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -318,7 +322,7 @@
           {
             "type": "enrg_kwh",
             "value": 1.501,
-            "required": true,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -333,8 +337,9 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
-            },
-            {
+            }
+          },
+          {
             "type": "sold_wste",
             "value": 0.04,
             "requires": ["h2o_urin"],
@@ -366,6 +371,7 @@
           {
             "type": "h2o_potb",
             "value": 0.413,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -379,7 +385,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.959,
-            "required": true,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -432,6 +438,7 @@
           {
             "type": "atmo_co2",
             "value": 0.006534,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -445,6 +452,7 @@
           {
             "type": "atmo_h2",
             "value": 0.00163,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -458,7 +466,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.291,
-            "required": true,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -512,6 +520,7 @@
           {
             "type": "atmo_co2",
             "value": 0.211,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -526,7 +535,7 @@
           {
             "type": "enrg_kwh",
             "value": 1.12,
-            "required": true,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -562,6 +571,7 @@
           {
             "type": "atmo_cont",
             "value": 0.12533,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -575,7 +585,7 @@
           {
             "type": "enrg_kwh",
             "value": 1.12,
-            "required": true,
+            "required": "mandatory",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -612,7 +622,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0015399905754,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -633,7 +643,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0079341666667,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -654,7 +664,7 @@
           {
             "type": "sold_n",
             "value": 0.0000206755062,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -675,7 +685,7 @@
           {
             "type": "sold_p",
             "value": 0.0000003270886,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -696,7 +706,7 @@
           {
             "type": "sold_k",
             "value": 0.000002466768,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -717,7 +727,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.2300870147,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -810,7 +820,7 @@
           {
             "type": "atmo_co2",
             "value": 0.002547123016,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -831,7 +841,7 @@
           {
             "type": "h2o_potb",
             "value": 0.01125,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -852,7 +862,7 @@
           {
             "type": "sold_n",
             "value": 0.000034197,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -873,7 +883,7 @@
           {
             "type": "sold_p",
             "value": 0.000000541,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -894,7 +904,7 @@
           {
             "type": "sold_k",
             "value": 0.00000408,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -915,7 +925,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.8018183846,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1008,7 +1018,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0003777302131,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1029,7 +1039,7 @@
           {
             "type": "h2o_potb",
             "value": 0.00025529166667,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1050,7 +1060,7 @@
           {
             "type": "sold_n",
             "value": 0.0000098276438,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1071,7 +1081,7 @@
           {
             "type": "sold_p",
             "value": 0.0000003632356,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1092,7 +1102,7 @@
           {
             "type": "sold_k",
             "value": 0.0000027380959,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1113,7 +1123,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1206,7 +1216,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0006044805936,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1227,7 +1237,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0014133333333,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1248,7 +1258,7 @@
           {
             "type": "sold_n",
             "value": 0.0000157271507,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1269,7 +1279,7 @@
           {
             "type": "sold_p",
             "value": 0.0000002493329,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1290,7 +1300,7 @@
           {
             "type": "sold_k",
             "value": 0.000001878111,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1311,7 +1321,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1404,7 +1414,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0006443302892,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1424,7 +1434,7 @@
           },
           {
             "type": "h2o_potb",
-            "required" : true,
+            "required": "desired",
             "value": 0.00043,
             "flow_rate": {
               "unit": "kg",
@@ -1446,7 +1456,7 @@
           {
             "type": "sold_n",
             "value": 0.0000167639452,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1467,7 +1477,7 @@
           {
             "type": "sold_p",
             "value": 0.0000002657699,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1488,7 +1498,7 @@
           {
             "type": "sold_k",
             "value": 0.0000020019233,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1509,7 +1519,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1602,7 +1612,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0004097222222,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1623,7 +1633,7 @@
           {
             "type": "h2o_potb",
             "value": 0.00027375,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1644,7 +1654,7 @@
           {
             "type": "sold_n",
             "value": 0.00001066,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1665,7 +1675,7 @@
           {
             "type": "sold_p",
             "value": 0.000000169,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1686,7 +1696,7 @@
           {
             "type": "sold_k",
             "value": 0.000001273,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1707,7 +1717,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1800,7 +1810,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0004097222222,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1821,7 +1831,7 @@
           {
             "type": "h2o_potb",
             "value": 0.00027375,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1842,7 +1852,7 @@
           {
             "type": "sold_n",
             "value": 0.00001066,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1863,7 +1873,7 @@
           {
             "type": "sold_p",
             "value": 0.000000169,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1884,7 +1894,7 @@
           {
             "type": "sold_k",
             "value": 0.000001273,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1905,7 +1915,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -1998,7 +2008,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0020616319444,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2019,7 +2029,7 @@
           {
             "type": "h2o_potb",
             "value": 0.005625,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2040,7 +2050,7 @@
           {
             "type": "sold_n",
             "value": 0.0000300195313,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2061,7 +2071,7 @@
           {
             "type": "sold_p",
             "value": 0.0000005058594,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2082,7 +2092,7 @@
           {
             "type": "sold_k",
             "value": 0.0000038085938,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2103,7 +2113,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1673360107,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2196,7 +2206,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0018562934028,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2217,7 +2227,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0063258333333,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2238,7 +2248,7 @@
           {
             "type": "sold_n",
             "value": 0.0000270295859,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2259,7 +2269,7 @@
           {
             "type": "sold_p",
             "value": 0.0000004554758,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2280,7 +2290,7 @@
           {
             "type": "sold_k",
             "value": 0.0000034292578,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2301,7 +2311,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.188253012,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2394,7 +2404,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0010555555556,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2415,7 +2425,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0025516666667,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2436,7 +2446,7 @@
           {
             "type": "sold_n",
             "value": 0.00001537,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2457,7 +2467,7 @@
           {
             "type": "sold_p",
             "value": 0.000000259,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2478,7 +2488,7 @@
           {
             "type": "sold_k",
             "value": 0.00000195,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2499,7 +2509,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2592,7 +2602,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0007907178481,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2613,7 +2623,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0054183333333,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2634,7 +2644,7 @@
           {
             "type": "sold_n",
             "value": 0.0000184122632,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2655,7 +2665,7 @@
           {
             "type": "sold_p",
             "value": 0.0000002913426,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2676,7 +2686,7 @@
           {
             "type": "sold_k",
             "value": 0.0000021961615,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2697,7 +2707,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1533913432,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2790,7 +2800,7 @@
           {
             "type": "atmo_co2",
             "value": 0.000823412698,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2811,7 +2821,7 @@
           {
             "type": "h2o_potb",
             "value": 0.00477875,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2832,7 +2842,7 @@
           {
             "type": "sold_n",
             "value": 0.000019173579,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2853,7 +2863,7 @@
           {
             "type": "sold_p",
             "value": 0.000000303389,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2874,7 +2884,7 @@
           {
             "type": "sold_k",
             "value": 0.000002286969,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2895,7 +2905,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.188253012,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -2988,7 +2998,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0005612633181,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3009,7 +3019,7 @@
           {
             "type": "h2o_potb",
             "value": 0.000375,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3030,7 +3040,7 @@
           {
             "type": "sold_n",
             "value": 0.0000146027397,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3051,7 +3061,7 @@
           {
             "type": "sold_p",
             "value": 0.0000002315068,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3072,7 +3082,7 @@
           {
             "type": "sold_k",
             "value": 0.0000017438356,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3093,7 +3103,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1812806783,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -3186,7 +3196,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0006314212329,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3207,7 +3217,7 @@
           {
             "type": "h2o_potb",
             "value": 0.00084375,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3228,7 +3238,7 @@
           {
             "type": "sold_n",
             "value": 0.0000164280822,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3249,7 +3259,7 @@
           {
             "type": "sold_p",
             "value": 0.0000002604452,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3270,7 +3280,7 @@
           {
             "type": "sold_k",
             "value": 0.0000019618151,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3291,7 +3301,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -3384,7 +3394,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0015058694825,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3405,7 +3415,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0060375,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3426,7 +3436,7 @@
           {
             "type": "sold_n",
             "value": 0.0000391791507,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3447,7 +3457,7 @@
           {
             "type": "sold_p",
             "value": 0.0000006211329,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3468,7 +3478,7 @@
           {
             "type": "sold_k",
             "value": 0.000004678711,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3489,7 +3499,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1673360107,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -3582,7 +3592,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0013004471081,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3603,7 +3613,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0047775,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3624,7 +3634,7 @@
           {
             "type": "sold_n",
             "value": 0.0000338345479,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3645,7 +3655,7 @@
           {
             "type": "sold_p",
             "value": 0.0000005364014,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3666,7 +3676,7 @@
           {
             "type": "sold_k",
             "value": 0.0000040404671,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3687,7 +3697,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.188253012,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -3780,7 +3790,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0016669520548,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3801,7 +3811,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0066825,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3822,7 +3832,7 @@
           {
             "type": "sold_n",
             "value": 0.00043370137,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3843,7 +3853,7 @@
           {
             "type": "sold_p",
             "value": 0.0000006875753,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3864,7 +3874,7 @@
           {
             "type": "sold_k",
             "value": 0.0000051791918,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3885,7 +3895,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1673360107,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -3978,7 +3988,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0005393177194,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3999,7 +4009,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0020625,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4020,7 +4030,7 @@
           {
             "type": "sold_n",
             "value": 0.0000091026919,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4041,7 +4051,7 @@
           {
             "type": "sold_p",
             "value": 0.0000001440346,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4062,7 +4072,7 @@
           {
             "type": "sold_k",
             "value": 0.0000010857428,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4083,7 +4093,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1812806783,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -4176,7 +4186,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0006774599116,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4197,7 +4207,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0013125,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4218,7 +4228,7 @@
           {
             "type": "sold_n",
             "value": 0.0000082751745,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4239,7 +4249,7 @@
           {
             "type": "sold_p",
             "value": 0.0000009870389,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4260,7 +4270,7 @@
           {
             "type": "sold_k",
             "value": 0.0000009870389,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4281,7 +4291,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1185296743,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -4374,7 +4384,7 @@
           {
             "type": "atmo_co2",
             "value": 0.0010141574877,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4395,7 +4405,7 @@
           {
             "type": "h2o_potb",
             "value": 0.002245,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4416,7 +4426,7 @@
           {
             "type": "sold_n",
             "value": 0.0000123879362,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4437,7 +4447,7 @@
           {
             "type": "sold_p",
             "value": 0.0000001960179,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4458,7 +4468,7 @@
           {
             "type": "sold_k",
             "value": 0.0000014775972,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4479,7 +4489,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -4572,7 +4582,7 @@
           {
             "type": "atmo_co2",
             "value": 0.002540474668,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4593,7 +4603,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0084375,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4614,7 +4624,7 @@
           {
             "type": "sold_n",
             "value": 0.000031031904,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4635,7 +4645,7 @@
           {
             "type": "sold_p",
             "value": 0.000000491027,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4656,7 +4666,7 @@
           {
             "type": "sold_k",
             "value": 0.000003701396,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4677,7 +4687,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -4770,7 +4780,7 @@
           {
             "type": "atmo_co2",
             "value": 0.002038476874,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4791,7 +4801,7 @@
           {
             "type": "h2o_potb",
             "value": 0.0033841666667,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4812,7 +4822,7 @@
           {
             "type": "sold_n",
             "value": 0.0000249,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4833,7 +4843,7 @@
           {
             "type": "sold_p",
             "value": 0.000000394,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4854,7 +4864,7 @@
           {
             "type": "sold_k",
             "value": 0.00000297,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4875,7 +4885,7 @@
           {
             "type": "enrg_kwh",
             "value": 0.1952253458,
-            "required" : true,
+            "required": "desired",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"

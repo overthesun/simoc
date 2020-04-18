@@ -490,8 +490,6 @@ class GeneralAgent(EnclosedAgent):
         influx = set()
         skip_step = False
         for prefix in ['in', 'out']:
-            if prefix == 'out' and skip_step:
-                return
             for currency in self.selected_storage[prefix]:
                 attr = '{}_{}'.format(prefix, currency)
                 num_of_storages = len(self.selected_storage[prefix][currency])
@@ -511,12 +509,10 @@ class GeneralAgent(EnclosedAgent):
                         raise Exception('Unknown agent deprive_unit value.')
                 else:
                     delta_per_step = 0
-                is_required = self.attr_details[attr]['is_required']
-                requires = self.attr_details[attr]['requires']
-                if requires:
-                    for req_currency in requires:
-                        if req_currency not in influx:
-                            continue
+                is_required = self.attr_details[attr]['is_required'] or ''
+                requires = self.attr_details[attr]['requires'] or []
+                if len(requires) > 0 and len(set(requires).difference(influx)) > 0:
+                    continue
                 step_value = self.get_step_value(attr) / num_of_storages
                 for storage in self.selected_storage[prefix][currency]:
                     value = agent_amount = 0
@@ -538,10 +534,15 @@ class GeneralAgent(EnclosedAgent):
                                 self.deprive[currency] -= delta_per_step
                                 if self.deprive[currency] < 0:
                                     self.amount -= 1
-                            elif is_required:
+                                if self.amount <= 0:
+                                    self.kill(f'All {self.agent_type} are died. Killing the agent')
+                                    return
+                            if is_required == 'mandatory':
+                                return
+                            elif is_required == 'desired':
                                 skip_step = True
                         else:
-                            if not skip_step or is_required:
+                            if not skip_step or is_required or self.attr_details[attr]['criteria_name']:
                                 storage[currency] = min(new_storage_value, storage_cap)
                                 if prefix == 'in' and currency not in influx:
                                     influx.add(currency)
