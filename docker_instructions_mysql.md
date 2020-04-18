@@ -10,7 +10,6 @@ cd simoc/
 Follow the official guide to set up `Docker` software:
 - https://docs.docker.com/install/
 - https://docs.docker.com/compose/install/
-- https://docs.docker.com/engine/swarm/swarm-tutorial/
 
 Make sure you installed `Docker Engine` and`Docker Compose` components.
 
