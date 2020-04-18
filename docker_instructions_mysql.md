@@ -55,12 +55,12 @@ export REDIS_WORKERS=2
 - HTTP_PORT - http port to listen on (default: 8000)
 - HTTPS_PORT - https port to listen on (default: 8443)
 ```bash
-export SERVER_NAME='localhoste'
+export SERVER_NAME='localhost'
 export USE_SSL=1
 export REDIRECT_TO_SSL=1
 export USE_CERTBOT=1
 export ADD_BASIC_AUTH=1
-export VALID_REFERERS='kaistaats.com'
+export VALID_REFERERS='example.com'
 export HTTP_PORT=80
 export HTTPS_PORT=443
 ```
