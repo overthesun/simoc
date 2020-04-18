@@ -40,7 +40,6 @@ export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
 ```bash
 export FLASK_WORKERS=2
 export CELERY_WORKERS=2
-export REDIS_WORKERS=2
 ```
 
 ## Generate dynamic config files (Nginx, Docker)
@@ -200,8 +199,7 @@ docker-compose -f docker-compose.mysql.yml up -d \
     --force-recreate \
     --scale celery-worker=${CELERY_WORKERS} \
     --scale flask-app=${FLASK_WORKERS} \
-    --scale redis=1 \
-    --scale redis-replica=${REDIS_WORKERS}
+    --scale redis=1
 ```
 
 ## Debug `SIMOC` deployment
@@ -271,7 +269,6 @@ export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
 
 export FLASK_WORKERS=2
 export CELERY_WORKERS=2
-export REDIS_WORKERS=2
 ```
 
 - Re-build `SIMOC` images:
@@ -285,8 +282,7 @@ docker-compose -f docker-compose.mysql.yml up -d \
     --force-recreate \
     --scale celery-worker=${CELERY_WORKERS} \
     --scale flask-app=${FLASK_WORKERS} \
-    --scale redis=1 \
-    --scale redis-replica=${REDIS_WORKERS}
+    --scale redis=1
 ```
 
 ## Reset `MySQL` database
