@@ -46,23 +46,23 @@ export REDIS_WORKERS=2
 
 ## Generate dynamic config files (Nginx, Docker)
 ### Setup environment variables
-- SERVER_NAME - the domain name of the SIMOC host (default: localhost)
-- USE_SSL - 1 to enable SSL access (default: 0)
-- REDIRECT_TO_SSL - 1 to redirect all HTTP traffic to HTTPS (default: 0)
-- USE_CERTBOT - 1 to use Let's Encrypt certificates (default: 0)
-- ADD_BASIC_AUTH - 1 to enable Basic HTTP authentication (default: 0)
-- VALID_REFERERS - the domain name of the only referer to allow  (default: '')
-- HTTP_PORT - http port to listen on (default: 8000)
-- HTTPS_PORT - https port to listen on (default: 8443)
+- `SERVER_NAME` - domain name of the SIMOC host (default: `localhost`)
+- `HTTP_PORT` - http port to listen on (default: `8000`)
+- `HTTPS_PORT` - https port to listen on (default: `8443`)
+- `USE_SSL` - `1` to enable SSL access (default: `0`)
+- `USE_CERTBOT` - `1` to use Let's Encrypt certificates (default: `0`)
+- `REDIRECT_TO_SSL` - `1` to redirect all HTTP traffic to HTTPS (default: `0`)
+- `ADD_BASIC_AUTH` - `1` to enable Basic HTTP authentication (default: `0`)
+- `VALID_REFERERS` - domain name of the only referer to allow (default: `''`)
 ```bash
 export SERVER_NAME='localhost'
+export HTTP_PORT=8000
+export HTTPS_PORT=8443
 export USE_SSL=1
-export REDIRECT_TO_SSL=1
 export USE_CERTBOT=1
+export REDIRECT_TO_SSL=1
 export ADD_BASIC_AUTH=1
 export VALID_REFERERS='example.com'
-export HTTP_PORT=80
-export HTTPS_PORT=443
 ```
 
 ### Generate configuration files
