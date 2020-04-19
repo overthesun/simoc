@@ -11,7 +11,6 @@ if __name__ == "__main__":
               "redirect_to_ssl": int(os.environ.get('REDIRECT_TO_SSL', False)),
               "add_basic_auth":  int(os.environ.get('ADD_BASIC_AUTH', False)),
               "valid_referers":  os.environ.get('VALID_REFERERS', '')}
-    print(config)
     nginx_conf = j2_env.get_template('nginx/simoc_nginx.conf.jinja')
     docker_compose = j2_env.get_template('docker-compose.mysql.yml.jinja')
     with open('./nginx/simoc_nginx.conf', 'w') as f:
