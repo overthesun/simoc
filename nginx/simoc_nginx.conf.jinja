@@ -15,12 +15,10 @@ server {
     auth_basic "Restricted Files";
     auth_basic_user_file /etc/nginx/htpasswd;
     {% endif %}
-    {% if use_ssl %}
     {% if use_certbot %}
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
     }
-    {% endif %}
     {% endif %}
     {% if redirect_to_ssl %}
     location / {

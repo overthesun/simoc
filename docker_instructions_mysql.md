@@ -14,36 +14,13 @@ Follow the official guide to set up `Docker` software:
 Make sure you installed `Docker Engine` and`Docker Compose` components.
 
 # 3. Configure `SIMOC` deployment
-## Set up `Redis` connection details (fill in the `REDIS_PASSWORD` value)
+### Open `simoc.env` file with any text editor
+Scroll through the file and update the variable values to configure the deployment:
 ```bash
-export REDIS_HOST=redis
-export REDIS_PORT=6379
-export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
+vim simoc.env
 ```
 
-## Set up `MySQL` configuration (fill in the `DB_PASSWORD` value)
-```bash
-export DB_TYPE=mysql
-export DB_HOST=simoc-db
-export DB_PORT=3306
-export DB_NAME=simoc
-export DB_USER=root
-export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
-```
-
-## Set up `FLASK_SECRET` with any random string value
-```bash
-export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
-```
-
-## Set up the number of worker containers to spin up
-```bash
-export FLASK_WORKERS=2
-export CELERY_WORKERS=2
-```
-
-## Generate dynamic config files (Nginx, Docker)
-### Setup environment variables
+### Update web server configuration
 - `SERVER_NAME` - domain name of the SIMOC host (default: `localhost`)
 - `HTTP_PORT` - http port to listen on (default: `8000`)
 - `HTTPS_PORT` - https port to listen on (default: `8443`)
@@ -63,7 +40,33 @@ export ADD_BASIC_AUTH=1
 export VALID_REFERERS='example.com'
 ```
 
-### Generate configuration files
+### Setup `Redis` root password
+```bash
+export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
+```
+
+### Setup `MySQL` root password
+```bash
+export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
+```
+
+### Update `FLASK_SECRET` with any random string value
+```bash
+export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
+```
+
+### Update the number of worker containers to spin up (optional)
+```bash
+export FLASK_WORKERS=2
+export CELERY_WORKERS=2
+```
+
+### Load `SIMOC` environment variables
+```bash
+source simoc.env
+```
+
+### Generate dynamic config files (Nginx, Docker)
 ```bash
 python3 generate_configs.py
 ```
@@ -136,16 +139,15 @@ curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/c
 curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem > "$CERTBOT_PATH/conf/ssl-dhparams.pem"
 ```
 
-Configure `EMAIL` and `DOMAIN` values for SSL certificates:
+Configure `EMAIL` for SSL certificates:
 ```bash
 export EMAIL=address@domain.com
-export DOMAIN=beta.simoc.space
 ```
 
 Create domain-specific directories:
 ```bash
-export CERT_PATH="/etc/letsencrypt/live/${DOMAIN}"
-mkdir -p "${CERTBOT_PATH}/conf/live/${DOMAIN}"
+export CERT_PATH="/etc/letsencrypt/live/${SERVER_NAME}"
+mkdir -p "${CERTBOT_PATH}/conf/live/${SERVER_NAME}"
 ```
 
 Generate "dummy" certificates:
@@ -165,9 +167,9 @@ docker-compose -f docker-compose.mysql.yml up --force-recreate -d nginx
 Delete "dummy" certificates:
 ```bash
 docker-compose -f docker-compose.mysql.yml run --rm --entrypoint " \
-  rm -Rf /etc/letsencrypt/live/${DOMAIN} && \
-  rm -Rf /etc/letsencrypt/archive/${DOMAIN} && \
-  rm -Rf /etc/letsencrypt/renewal/${DOMAIN}.conf" certbot
+  rm -Rf /etc/letsencrypt/live/${SERVER_NAME} && \
+  rm -Rf /etc/letsencrypt/archive/${SERVER_NAME} && \
+  rm -Rf /etc/letsencrypt/renewal/${SERVER_NAME}.conf" certbot
 ```
 
 Request managed certificates from `Let's Encrypt`:
@@ -175,7 +177,7 @@ Request managed certificates from `Let's Encrypt`:
 docker-compose -f docker-compose.mysql.yml run --rm --entrypoint " \
   certbot certonly --webroot -w /var/www/certbot \
     --email ${EMAIL} \
-    -d ${DOMAIN} \
+    -d ${SERVER_NAME} \
     --rsa-key-size 4096 \
     --agree-tos \
     --force-renewal" certbot
@@ -185,7 +187,6 @@ Reload `Nginx` service:
 ```bash
 docker-compose -f docker-compose.mysql.yml exec nginx nginx -s reload
 ```
-
 
 # 5. Deploy `SIMOC` application
 ## Build `Docker` images
@@ -249,25 +250,9 @@ Navigate to the following `URL` in your browser to access a `SIMOC` application 
 
 # 6. Update `SIMOC` application
 ## Re-deploy `SIMOC` on code changes
-- Configure environment variables:
+- Load `SIMOC` environment variables:
 ```bash
-export REDIS_HOST=redis
-export REDIS_PORT=6379
-export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
-
-export DB_TYPE=mysql
-export DB_HOST=simoc-db
-export DB_PORT=3306
-export DB_NAME=simoc
-export DB_USER=root
-export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
-
-export HTTP_PORT=8000
-export HTTPS_PORT=8443
-export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
-
-export FLASK_WORKERS=2
-export CELERY_WORKERS=2
+source simoc.env
 ```
 
 - Re-build `SIMOC` images:
