@@ -1,4 +1,4 @@
-# Deploy `SIMOC` via `Docker` on `Linux/macOS` (`MySQL` backend)
+# Deploy `SIMOC` via `Docker` on `Linux/macOS`
 
 # 1. Clone `SIMOC` code from `GitHub`
 ```bash

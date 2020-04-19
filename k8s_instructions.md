@@ -1,4 +1,4 @@
-# Deploy `SIMOC` to `Google Kubernetes Engine` (`MySQL` backend)
+# Deploy `SIMOC` to `Google Kubernetes Engine (GKE)`
 
 ## Introduction
 This guide describes the process of deploying `SIMOC` web application to the `Google Cloud Platform (GCP)` through the following set of steps:
