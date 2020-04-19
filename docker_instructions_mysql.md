@@ -30,14 +30,14 @@ vim simoc.env
 - `ADD_BASIC_AUTH` - `1` to enable Basic HTTP authentication (default: `0`)
 - `VALID_REFERERS` - domain name of the only referer to allow (default: `''`)
 ```bash
-export SERVER_NAME='localhost'
-export HTTP_PORT=8000
-export HTTPS_PORT=8443
+export SERVER_NAME='beta.simoc.space'
+export HTTP_PORT=80
+export HTTPS_PORT=443
 export USE_SSL=1
 export USE_CERTBOT=1
 export REDIRECT_TO_SSL=1
 export ADD_BASIC_AUTH=1
-export VALID_REFERERS='example.com'
+export VALID_REFERERS='www.example.com'
 ```
 
 ### Setup `Redis` root password
