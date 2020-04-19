@@ -72,7 +72,7 @@ python3 generate_configs.py
 ```
 The script will produce `docker-compose.mysql.yml` and `./nginx/simoc_nginx.conf` files.
 
-## Configure additional HTTP authentication (optional)
+## Configure Basic HTTP authentication (optional)
 Make sure you installed a password file creation utility such as `apache2-utils` (Debian, Ubuntu) or `httpd-tools` (RHEL/CentOS/Oracle Linux)
 
 Create a `htpasswd` file and a first user:
