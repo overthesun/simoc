@@ -8,7 +8,9 @@ services:
     restart: always
     ports:
       - '${HTTP_PORT}:${HTTP_PORT}'
+      {% if use_ssl %}
       - '${HTTPS_PORT}:${HTTPS_PORT}'
+      {% endif %}
     networks:
       - simoc-net
     volumes:

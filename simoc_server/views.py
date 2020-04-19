@@ -48,7 +48,7 @@ def authenticated_only(f):
     return wrapped
 
 
-def get_steps_background(data, user_id, timeout=2, max_retries=5):
+def get_steps_background(data, user_id, sid, timeout=2, max_retries=5):
     if "game_id" not in data:
         raise BadRequest("game_id is required.")
     game_id = int(data["game_id"], 16)
@@ -73,10 +73,12 @@ def get_steps_background(data, user_id, timeout=2, max_retries=5):
             retries_left -= 1
         else:
             socketio.emit('step_data_handler',
-                          {'data': output, 'step_count': step_count, 'max_steps': n_steps})
+                          {'data': output, 'step_count': step_count, 'max_steps': n_steps},
+                          room=sid)
             retries_left = max_retries
         if step_count >= n_steps or retries_left <= 0:
-            socketio.emit('steps_sent', {'message': f'{step_count} steps sent by the server'})
+            socketio.emit('steps_sent', {'message': f'{step_count} steps sent by the server'},
+                          room=sid)
             break
         else:
             min_step_num = step_count + 1
@@ -86,9 +88,8 @@ def get_steps_background(data, user_id, timeout=2, max_retries=5):
 def connect_handler():
     if current_user.is_anonymous:
         return False
-    emit('user_connected',
-         {'message': f'User "{current_user.username}" connected'},
-         broadcast=True)
+    socketio.emit('user_connected', {'message': f'User "{current_user.username}" connected'},
+                  room=request.sid)
 
 
 @socketio.on('get_steps')
@@ -97,7 +98,7 @@ def get_steps_handler(message):
     if "data" not in message:
         raise BadRequest("data is required.")
     user_id = get_standard_user_obj().id
-    socketio.start_background_task(get_steps_background, message['data'], user_id)
+    socketio.start_background_task(get_steps_background, message['data'], user_id, request.sid)
 
 
 @socketio.on('disconnect')
@@ -111,10 +112,12 @@ def handle_disconnect():
 def home():
     return render_template('index.html')
 
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(Path(app.root_path, 'dist'), 'favicon.ico',
                                mimetype='image/vnd.microsoft.icon')
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -163,10 +166,10 @@ def register():
     password = input["password"]
     if User.query.filter_by(username=username).first():
         raise BadRegistration("User already exists.")
-    user = User(username=username)
-    user.set_password(password)
-    db.session.add(user)
     try:
+        user = User(username=username)
+        user.set_password(password)
+        db.session.add(user)
         db.session.commit()
     except:
         app.logger.exception(f'Failed to create  a user "{username}".')

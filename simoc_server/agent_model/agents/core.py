@@ -109,8 +109,8 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         for k in self.attribute_descriptors:
             args['attributes'].append({'name': k, 'value': self[k]})
         args['attributes'] = json.dumps(args['attributes'])
-        agent_state = AgentState(**args)
         try:
+            agent_state = AgentState(**args)
             db.session.add(agent_state)
             db.session.commit()
         except:
