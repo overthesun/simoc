@@ -6,7 +6,7 @@ git clone git@github.com:kstaats/simoc.git
 cd simoc/
 ```
 
-# 2. Configure `Docker` environment
+# 2. Setup `Docker` environment
 Follow the official guide to set up `Docker` software:
 - https://docs.docker.com/install/
 - https://docs.docker.com/compose/install/
@@ -188,7 +188,7 @@ Reload `Nginx` service:
 docker-compose -f docker-compose.mysql.yml exec nginx nginx -s reload
 ```
 
-# 5. Deploy `SIMOC` application
+# 4. Deploy `SIMOC` application
 ## Build `Docker` images
 ```bash
 docker-compose -f docker-compose.mysql.yml build
@@ -248,7 +248,7 @@ Navigate to the following `URL` in your browser to access a `SIMOC` application 
 - [http://127.0.0.1:8000](http://127.0.0.1:8000)
 - [https://localhost:8443](https://localhost:8443)
 
-# 6. Update `SIMOC` application
+# 5. Update `SIMOC` application
 ## Re-deploy `SIMOC` on code changes
 - Load `SIMOC` environment variables:
 ```bash
@@ -280,7 +280,7 @@ Re-deploy `simoc-db` service:
 docker-compose -f docker-compose.mysql.yml up -d --force-recreate simoc-db
 ```
 
-# 7. Useful commands
+# 6. Useful commands
 ### Stream logs from all `SIMOC` services
 ```bash
 docker-compose -f docker-compose.mysql.yml logs -t -f
