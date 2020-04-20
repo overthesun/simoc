@@ -612,8 +612,8 @@
         ]
       },
       "description": "Removes potentially hazardous trace contaminants"
-    }
-    
+    },
+
     "dehumidifier": {
       "data": {
         "input": [
@@ -626,7 +626,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_cont_ratio",
+              "name": "atmo_h2o_ratio",
               "limit": ">",
               "value": 0.01
             }
@@ -640,7 +640,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_cont_ratio",
+              "name": "atmo_h2o_ratio",
               "limit": ">",
               "value": 0.01
             }
@@ -660,7 +660,7 @@
         "characteristics": [
           {
             "type": "mass",
-            "value": 50.0,
+            "value": 35.0,
             "unit": "kg"
           },
           {

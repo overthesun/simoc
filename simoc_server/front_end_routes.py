@@ -1,8 +1,8 @@
 """
-These functions perform calculations or assignments which 
-are to be passed back to the front end, but none of the functions 
-are called directly from the front end. 
-These functions were originally in views.py. 
+These functions perform calculations or assignments which
+are to be passed back to the front end, but none of the functions
+are called directly from the front end.
+These functions were originally in views.py.
 The front end routes which call the functions here are in views.py
 Note: the name of this script is misleading and should be changed
 """
@@ -205,7 +205,11 @@ def convert_configuration(game_config):
                                    'co2_reduction_sabatier': [{'connections': {'air_storage': [],
                                                                                'power_storage': [],
                                                                                'water_storage': []},
-                                                               'amount': eclss_amount}]
+                                                               'amount': eclss_amount}],
+                                   'dehumidifier': [{'connections': {'air_storage': [],
+                                                                     'power_storage': [],
+                                                                     'water_storage': []},
+                                                     'amount': eclss_amount}],
                                    },
                         'storages': {'air_storage': [],
                                      'water_storage': [],
@@ -385,7 +389,7 @@ def calc_step_storage_ratios(agents, model_record_data, value_round=6):
 
 
 def count_agents_in_step(agent_types, model_record_data):
-    """ 
+    """
     Count the number of agents matching the agent_name for this step
 
     Called from: route views.get_step()
@@ -412,7 +416,7 @@ def count_agents_in_step(agent_types, model_record_data):
 
 
 def sum_agent_values_in_step(agent_types, currency_type_name, direction, step_record_data):
-    """ 
+    """
     Sum the values for this agent
 
     Called from: route views.get_step()
