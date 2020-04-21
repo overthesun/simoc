@@ -612,6 +612,65 @@
         ]
       },
       "description": "Removes potentially hazardous trace contaminants"
+    },
+
+    "dehumidifier": {
+      "data": {
+        "input": [
+          {
+            "type": "atmo_h2o",
+            "value": 0.5,
+            "required": "mandatory",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_h2o_ratio",
+              "limit": ">",
+              "value": 0.01
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 1.0,
+            "required": "mandatory",
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_h2o_ratio",
+              "limit": ">",
+              "value": 0.01
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "h2o_potb",
+            "value": 0.5,
+            "requires": ["atmo_h2o"],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "mass",
+            "value": 35.0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0.2,
+            "unit": "m^3"
+          }
+        ]
+      },
+      "description": "Converts free water vapor into potable water."
     }
   },
 
