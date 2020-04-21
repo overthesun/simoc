@@ -38,20 +38,21 @@ def get_user(username):
         return user[0]
 
 
-@app.task
-def load_game(username, saved_game_id, num_steps):
-    global game_runner_manager
-    saved_game = SavedGame.query.get(saved_game_id)
-    if saved_game is None:
-        raise NotFound(f'Saved game with Id {saved_game_id} not found.')
-    user = get_user(username)
-    game_runner_manager.load_game(user, saved_game)
-    game_runner = game_runner_manager.get_game_runner(user)
-    game_id = game_runner.game_id
-    redis_conn.set('task_mapping:{}'.format(game_id), load_game.request.id)
-    redis_conn.set('user_mapping:{}'.format(user.id), game_id)
-    redis_conn.set('worker_mapping:{}'.format(game_id), current_task.request.hostname)
-    game_runner_manager.get_step_to(user, num_steps)
+# TODO: Disabled until save_game is fixed
+# @app.task
+# def load_game(username, saved_game_id, num_steps):
+#     global game_runner_manager
+#     saved_game = SavedGame.query.get(saved_game_id)
+#     if saved_game is None:
+#         raise NotFound(f'Saved game with Id {saved_game_id} not found.')
+#     user = get_user(username)
+#     game_runner_manager.load_game(user, saved_game)
+#     game_runner = game_runner_manager.get_game_runner(user)
+#     game_id = game_runner.game_id
+#     redis_conn.set('task_mapping:{}'.format(game_id), load_game.request.id)
+#     redis_conn.set('user_mapping:{}'.format(user.id), game_id)
+#     redis_conn.set('worker_mapping:{}'.format(game_id), current_task.request.hostname)
+#     game_runner_manager.get_step_to(user, num_steps)
 
 
 # TODO: This route needs to be re-designed since `worker_direct` is no longer activated
@@ -62,7 +63,7 @@ def load_game(username, saved_game_id, num_steps):
 
 
 @app.task
-def new_game(username, game_config, num_steps):
+def new_game(username, game_config, num_steps, expire=3600):
     global game_runner_manager
     user = get_user(username)
     game_runner_init_params = GameRunnerInitializationParams(game_config)
@@ -72,5 +73,10 @@ def new_game(username, game_config, num_steps):
     redis_conn.set('task_mapping:{}'.format(game_id), new_game.request.id)
     redis_conn.set('worker_mapping:{}'.format(game_id), current_task.request.hostname)
     redis_conn.set('user_mapping:{}'.format(user.id), game_id)
-    game_runner_manager.get_step_to(user, num_steps)
-    redis_conn.delete('user_mapping:{}'.format(user.id))
+    redis_conn.expire(f'task_mapping:{user.id}', expire)
+    redis_conn.expire(f'worker_mapping:{game_id}', expire)
+    redis_conn.expire(f'user_mapping:{user.id}', expire)
+    try:
+        game_runner_manager.get_step_to(user, num_steps)
+    finally:
+        redis_conn.delete('user_mapping:{}'.format(user.id))

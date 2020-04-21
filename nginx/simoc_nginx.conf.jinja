@@ -12,8 +12,10 @@ server {
     server_name {{ server_name }};
     error_log /dev/stdout debug;
     {% if add_basic_auth %}
+    {% if redirect_to_ssl != true %}
     auth_basic "Restricted Files";
     auth_basic_user_file /etc/nginx/htpasswd;
+    {% endif %}
     {% endif %}
     {% if use_certbot %}
     location /.well-known/acme-challenge/ {
@@ -44,7 +46,7 @@ server {
 }
 {% if use_ssl %}
 server {
-    listen {{ https_port }} ssl http2;;
+    listen {{ https_port }} ssl http2;
     server_name {{ server_name }};
     error_log /dev/stdout debug;
     {% if use_certbot %}

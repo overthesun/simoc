@@ -48,7 +48,7 @@ def authenticated_only(f):
     return wrapped
 
 
-def get_steps_background(data, user_id, sid, timeout=2, max_retries=5):
+def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=3600):
     if "game_id" not in data:
         raise BadRequest("game_id is required.")
     game_id = int(data["game_id"], 16)
@@ -63,25 +63,31 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5):
     storage_capacities = data.get("storage_capacities", None)
     retries_left = max_retries
     step_count = 0
-    while True:
-        socketio.sleep(timeout)
-        output = retrieve_steps(game_id, user_id, min_step_num, max_step_num,
-                                storage_capacities, storage_ratios, total_consumption,
-                                total_production, agent_growth, total_agent_count)
-        step_count += len(output)
-        if len(output) == 0:
-            retries_left -= 1
-        else:
-            socketio.emit('step_data_handler',
-                          {'data': output, 'step_count': step_count, 'max_steps': n_steps},
-                          room=sid)
-            retries_left = max_retries
-        if step_count >= n_steps or retries_left <= 0:
-            socketio.emit('steps_sent', {'message': f'{step_count} steps sent by the server'},
-                          room=sid)
-            break
-        else:
-            min_step_num = step_count + 1
+    steps_sent = False
+    redis_conn.set('step_retrieval:{}'.format(user_id), game_id)
+    redis_conn.expire(f'step_retrieval:{user_id}', expire)
+    try:
+        while not steps_sent:
+            socketio.sleep(timeout)
+            output = retrieve_steps(game_id, user_id, min_step_num, max_step_num,
+                                    storage_capacities, storage_ratios, total_consumption,
+                                    total_production, agent_growth, total_agent_count)
+            step_count += len(output)
+            if len(output) == 0:
+                retries_left -= 1
+            else:
+                socketio.emit('step_data_handler',
+                              {'data': output, 'step_count': step_count, 'max_steps': n_steps},
+                              room=sid)
+                retries_left = max_retries
+            if step_count >= n_steps or retries_left <= 0:
+                socketio.emit('steps_sent', {'message': f'{step_count} steps sent by the server'},
+                              room=sid)
+                steps_sent = True
+            else:
+                min_step_num = step_count + 1
+    finally:
+        redis_conn.delete('step_retrieval:{}'.format(user_id))
 
 
 @socketio.on('connect')
@@ -98,12 +104,15 @@ def get_steps_handler(message):
     if "data" not in message:
         raise BadRequest("data is required.")
     user_id = get_standard_user_obj().id
-    socketio.start_background_task(get_steps_background, message['data'], user_id, request.sid)
+    game_id = redis_conn.get('step_retrieval:{}'.format(user_id))
+    game_id = int(game_id.decode("utf-8")) if game_id else None
+    if not game_id or game_id != int(message['data']["game_id"], 16):
+        socketio.start_background_task(get_steps_background, message['data'], user_id, request.sid)
 
 
-@socketio.on('disconnect')
-def handle_disconnect():
-    # triggered when the client disconnects
+@socketio.on('user_disconnected')
+def user_disconnected_handler():
+    # triggered when the client sends user_disconnected event
     user_cleanup(get_standard_user_obj())
     disconnect()
 
@@ -508,97 +517,99 @@ def get_agents_by_category():
 #     return status("Save successful.")
 
 
-@app.route("/load_game", methods=["POST"])
-@login_required
-def load_game():
-    """
-    Load the game with the given 'saved_game_id' on Celery Cluster.
+# TODO: Disabled until save_game is fixed
+# @app.route("/load_game", methods=["POST"])
+# @login_required
+# def load_game():
+#     """
+#     Load the game with the given 'saved_game_id' on Celery Cluster.
+#
+#     Prints a success message.
+#
+#     Returns
+#     -------
+#     str:
+#         JSON-formatted string:
+#         {"game_id": "str, Game Id value", "last_step_num": "int, the last calculated step num"}
+#
+#     Raises
+#     ------
+#     simoc_server.exceptions.NotFound
+#         If the SavedGame with the requested 'saved_game_id' does not exist in the database
+#     """
+#     retries = 30
+#     input = json.loads(request.data.decode('utf-8'))
+#     if "saved_game_id" not in input:
+#         raise BadRequest("saved_game_id is required.")
+#     if "step_num" not in input:
+#         raise BadRequest("step_num is required.")
+#     saved_game_id = input["saved_game_id"]
+#     step_num = int(input["step_num"])
+#     user = get_standard_user_obj()
+#     user_cleanup(user)
+#     tasks.load_game.apply_async(args=[user.username, saved_game_id, step_num])
+#     while True:
+#         time.sleep(0.5)
+#         game_id = get_user_game_id(user)
+#         if not game_id:
+#             retries -= 1
+#         else:
+#             break
+#         if retries <= 0:
+#             raise ServerError(f"Cannot load a game.")
+#     return status("Loaded game starts.", game_id=format(int(game_id), 'X'))
 
-    Prints a success message.
 
-    Returns
-    -------
-    str:
-        JSON-formatted string:
-        {"game_id": "str, Game Id value", "last_step_num": "int, the last calculated step num"}
-
-    Raises
-    ------
-    simoc_server.exceptions.NotFound
-        If the SavedGame with the requested 'saved_game_id' does not exist in the database
-    """
-    retries = 30
-    input = json.loads(request.data.decode('utf-8'))
-    if "saved_game_id" not in input:
-        raise BadRequest("saved_game_id is required.")
-    if "step_num" not in input:
-        raise BadRequest("step_num is required.")
-    saved_game_id = input["saved_game_id"]
-    step_num = int(input["step_num"])
-    user = get_standard_user_obj()
-    user_cleanup(user)
-    tasks.load_game.apply_async(args=[user.username, saved_game_id, step_num])
-    while True:
-        time.sleep(0.5)
-        game_id = get_user_game_id(user)
-        if not game_id:
-            retries -= 1
-        else:
-            break
-        if retries <= 0:
-            raise ServerError(f"Cannot load a game.")
-    return status("Loaded game starts.", game_id=format(int(game_id), 'X'))
-
-
-@app.route("/get_saved_games", methods=["GET"])
-@login_required
-def get_saved_games():
-    """
-    Get saved games for current user. All save games fall under the root
-    branch id that they are saved under.
-
-    Returns
-    -------
-    str:
-        json format -
-
-        {
-            <root_branch_id>: [
-                {
-                    "date_created":<date_created:str(db.DateTime)>
-                    "name": "<ave_name:str>,
-                    "save_game_id":<save_game_id:int>
-                },
-                ...
-            ],
-            ...
-        }
-    """
-    saved_games = SavedGame.query.filter_by(user=get_standard_user_obj()).all()
-
-    sequences = {}
-    for saved_game in saved_games:
-        snapshot = saved_game.agent_model_snapshot
-        snapshot_branch = snapshot.snapshot_branch
-        root_branch = snapshot_branch.get_root_branch()
-        if root_branch in sequences.keys():
-            sequences[root_branch].append(saved_game)
-        else:
-            sequences[root_branch] = [saved_game]
-
-    sequences = OrderedDict(
-        sorted(sequences.items(), key=lambda x: x[0].date_created))
-
-    response = {}
-    for root_branch, saved_games in sequences.items():
-        response[root_branch.id] = []
-        for saved_game in saved_games:
-            response[root_branch.id].append({
-                "saved_game_id": saved_game.id,
-                "name":          saved_game.name,
-                "date_created":  saved_game.date_created.strftime("%m/%d/%Y, %H:%M:%S")
-            })
-    return serialize_response(response)
+# TODO: Disabled until save_game is fixed
+# @app.route("/get_saved_games", methods=["GET"])
+# @login_required
+# def get_saved_games():
+#     """
+#     Get saved games for current user. All save games fall under the root
+#     branch id that they are saved under.
+#
+#     Returns
+#     -------
+#     str:
+#         json format -
+#
+#         {
+#             <root_branch_id>: [
+#                 {
+#                     "date_created":<date_created:str(db.DateTime)>
+#                     "name": "<ave_name:str>,
+#                     "save_game_id":<save_game_id:int>
+#                 },
+#                 ...
+#             ],
+#             ...
+#         }
+#     """
+#     saved_games = SavedGame.query.filter_by(user=get_standard_user_obj()).all()
+#
+#     sequences = {}
+#     for saved_game in saved_games:
+#         snapshot = saved_game.agent_model_snapshot
+#         snapshot_branch = snapshot.snapshot_branch
+#         root_branch = snapshot_branch.get_root_branch()
+#         if root_branch in sequences.keys():
+#             sequences[root_branch].append(saved_game)
+#         else:
+#             sequences[root_branch] = [saved_game]
+#
+#     sequences = OrderedDict(
+#         sorted(sequences.items(), key=lambda x: x[0].date_created))
+#
+#     response = {}
+#     for root_branch, saved_games in sequences.items():
+#         response[root_branch.id] = []
+#         for saved_game in saved_games:
+#             response[root_branch.id].append({
+#                 "saved_game_id": saved_game.id,
+#                 "name":          saved_game.name
+#                 "date_created":  saved_game.date_created.strftime("%m/%d/%Y, %H:%M:%S")
+#             })
+#     return serialize_response(response)
 
 
 @login_manager.user_loader
