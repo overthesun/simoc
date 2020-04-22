@@ -194,28 +194,30 @@ s
         def _save_records(model_records, agent_type_counts, storage_capacities, step_records,
                           expire=3600):
             user_id = user.id
+            pipe = redis_conn.pipeline()
             for record in model_records:
                 game_id = record['game_id']
                 step_num = record['step_num']
-                redis_conn.set(f'model_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
-                redis_conn.expire(f'model_records:{user_id}:{game_id}:{step_num}', expire)
-                redis_conn.zadd(f'game_steps:{user_id}:{game_id}', {step_num: step_num})
-                redis_conn.expire(f'game_steps:{user_id}:{game_id}', expire)
+                pipe.set(f'model_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
+                pipe.expire(f'model_records:{user_id}:{game_id}:{step_num}', expire)
+                pipe.zadd(f'game_steps:{user_id}:{game_id}', {step_num: step_num})
+                pipe.expire(f'game_steps:{user_id}:{game_id}', expire)
             for record in agent_type_counts:
                 game_id = record['game_id']
                 step_num = record['step_num']
-                redis_conn.rpush(f'agent_type_counts:{user_id}:{game_id}:{step_num}', json.dumps(record))
-                redis_conn.expire(f'agent_type_counts:{user_id}:{game_id}:{step_num}', expire)
+                pipe.rpush(f'agent_type_counts:{user_id}:{game_id}:{step_num}', json.dumps(record))
+                pipe.expire(f'agent_type_counts:{user_id}:{game_id}:{step_num}', expire)
             for record in storage_capacities:
                 game_id = record['game_id']
                 step_num = record['step_num']
-                redis_conn.rpush(f'storage_capacities:{user_id}:{game_id}:{step_num}', json.dumps(record))
-                redis_conn.expire(f'storage_capacities:{user_id}:{game_id}:{step_num}', expire)
+                pipe.rpush(f'storage_capacities:{user_id}:{game_id}:{step_num}', json.dumps(record))
+                pipe.expire(f'storage_capacities:{user_id}:{game_id}:{step_num}', expire)
             for record in step_records:
                 game_id = record['game_id']
                 step_num = record['step_num']
-                redis_conn.rpush(f'step_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
-                redis_conn.expire(f'step_records:{user_id}:{game_id}:{step_num}', expire)
+                pipe.rpush(f'step_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
+                pipe.expire(f'step_records:{user_id}:{game_id}:{step_num}', expire)
+            pipe.execute()
 
         def step_loop(agent_model):
             model_records_buffer = []
