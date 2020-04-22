@@ -30,7 +30,7 @@ def get_mass():
 
     value = 0
     agent_name = request.args.get('agent_name', type=str)
-    agent_quantity = request.args.get('quantity', type=int)
+    agent_quantity = request.args.get('quantity', 1, type=int) or 1
     if agent_name == 'eclss':
         total = 0
         for agent in db.session.query(AgentType, AgentTypeAttribute) \
@@ -62,7 +62,7 @@ def get_energy():
     """
 
     agent_name = request.args.get('agent_name', type=str)
-    agent_quantity = request.args.get('quantity', type=int)
+    agent_quantity = request.args.get('quantity', 1, type=int) or 1
     attribute_name = 'in_enrg_kwh'
     value_type = 'energy_input'
     total = {}
