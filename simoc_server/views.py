@@ -31,7 +31,8 @@ MAX_STEP_NUMBER = 20000
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-socketio = SocketIO(app, message_queue=broker_url, manage_session=False)
+# pass logger=app.logger to enable socketio logging
+socketio = SocketIO(app, message_queue=broker_url, manage_session=False, logger=app.logger)
 
 # Fixes the issue with the SocketIO behind an Nginx proxy
 # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1047
