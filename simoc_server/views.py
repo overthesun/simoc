@@ -62,7 +62,7 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
     storage_ratios = data.get("storage_ratios", None)
     storage_capacities = data.get("storage_capacities", None)
     retries_left = max_retries
-    step_count = 0
+    step_count = max(0, min_step_num - 1)
     steps_sent = False
     redis_conn.set(f'sid_mapping:{game_id}', sid)
     redis_conn.expire(f'sid_mapping:{game_id}', expire)
