@@ -64,11 +64,16 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
     retries_left = max_retries
     step_count = 0
     steps_sent = False
-    redis_conn.set('step_retrieval:{}'.format(user_id), game_id)
-    redis_conn.expire(f'step_retrieval:{user_id}', expire)
+    redis_conn.set(f'sid_mapping:{game_id}', sid)
+    redis_conn.expire(f'sid_mapping:{game_id}', expire)
     try:
         while not steps_sent:
             socketio.sleep(timeout)
+            stop_task = redis_conn.get(f'stop_task:{sid}')
+            stop_task = bool(stop_task.decode("utf-8")) if stop_task else None
+            if stop_task:
+                app.logger.info("Bg task closed")
+                break
             output = retrieve_steps(game_id, user_id, min_step_num, max_step_num,
                                     storage_capacities, storage_ratios, total_consumption,
                                     total_production, agent_growth, total_agent_count)
@@ -87,7 +92,7 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
             else:
                 min_step_num = step_count + 1
     finally:
-        redis_conn.delete('step_retrieval:{}'.format(user_id))
+        redis_conn.delete(f'sid_mapping:{sid}')
 
 
 @socketio.on('connect')
@@ -104,10 +109,11 @@ def get_steps_handler(message):
     if "data" not in message:
         raise BadRequest("data is required.")
     user_id = get_standard_user_obj().id
-    game_id = redis_conn.get('step_retrieval:{}'.format(user_id))
-    game_id = int(game_id.decode("utf-8")) if game_id else None
-    if not game_id or game_id != int(message['data']["game_id"], 16):
-        socketio.start_background_task(get_steps_background, message['data'], user_id, request.sid)
+    sid = redis_conn.get(f'sid_mapping:{int(message["data"]["game_id"], 16)}')
+    sid = sid.decode("utf-8") if sid else None
+    if sid:
+        redis_conn.set('stop_task:{}'.format(sid), 1)
+    socketio.start_background_task(get_steps_background, message['data'], user_id, request.sid)
 
 
 @socketio.on('user_disconnected')
