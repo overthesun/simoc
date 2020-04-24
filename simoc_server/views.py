@@ -119,9 +119,8 @@ def get_steps_handler(message):
 
 @socketio.on('user_disconnected')
 def user_disconnected_handler():
-    # triggered when the client sends user_disconnected event
+    # the client will disconnect after sending the user_disconnected event
     user_cleanup(get_standard_user_obj())
-    disconnect()
 
 
 @app.route("/")
