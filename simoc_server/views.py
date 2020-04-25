@@ -3,24 +3,23 @@ import itertools
 import json
 import time
 import traceback
-from collections import OrderedDict
 from pathlib import Path
 
 
 from flask import render_template, request, send_from_directory
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from flask_socketio import emit, disconnect, SocketIO
+from flask_socketio import disconnect, SocketIO
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 from simoc_server import app, db, redis_conn, broker_url
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, SavedGame, User
-from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration,\
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute, User
+from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration, \
     ServerError
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
     calc_step_storage_ratios, count_agents_in_step, calc_step_storage_capacities, \
-    get_growth_rates
+    get_growth_rates, calc_step_per_agent
 
 from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
@@ -62,6 +61,7 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
     total_agent_count = data.get("total_agent_count", None)
     storage_ratios = data.get("storage_ratios", None)
     storage_capacities = data.get("storage_capacities", None)
+    details_per_agent = data.get("details_per_agent", None)
     retries_left = max_retries
     step_count = max(0, min_step_num - 1)
     steps_sent = False
@@ -77,7 +77,8 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
                 break
             output = retrieve_steps(game_id, user_id, min_step_num, max_step_num,
                                     storage_capacities, storage_ratios, total_consumption,
-                                    total_production, agent_growth, total_agent_count)
+                                    total_production, agent_growth, total_agent_count,
+                                    details_per_agent)
             step_count += len(output)
             if len(output) == 0:
                 retries_left -= 1
@@ -297,10 +298,11 @@ def get_steps():
     agent_growth = data.get("agent_growth", None)
     storage_capacities = data.get("storage_capacities", None)
     total_agent_count = data.get("total_agent_count", None)
+    details_per_agent = data.get("details_per_agent", None)
     user_id = get_standard_user_obj().id
     output = retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities,
                             storage_ratios, total_consumption, total_production, agent_growth,
-                            total_agent_count)
+                            total_agent_count, details_per_agent)
     return status("Step data retrieved.", step_data=output)
 
 
@@ -325,7 +327,7 @@ def get_steps_list(game_id, user_id, min_step_num, max_step_num):
 
 def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities=False,
                    storage_ratios=False, total_consumption=False, total_production=False,
-                   agent_growth=False, total_agent_count=False):
+                   agent_growth=False, total_agent_count=False, details_per_agent=False):
     steps = get_steps_list(game_id, user_id, min_step_num, max_step_num)
     model_record_steps = get_model_records(game_id, user_id, steps)
     step_record_steps = get_step_records(game_id, user_id, steps)
@@ -355,6 +357,12 @@ def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacit
             record["total_consumption"] = calc_step_in_out("in", total_consumption, step_record_data)
         if storage_ratios:
             record["storage_ratios"] = calc_step_storage_ratios(storage_ratios, record)
+        if details_per_agent:
+            agent_types = details_per_agent.get('agent_types', [])
+            currency_types = details_per_agent.get('currency_types', [])
+            directions = details_per_agent.get('directions', [])
+            record["details_per_agent"] = calc_step_per_agent(step_record_data, agent_types,
+                                                              currency_types, directions)
         if isinstance(storage_capacities, dict):
             record["storage_capacities"] = calc_step_storage_capacities(storage_capacities, record)
         output[int(step_num)] = record

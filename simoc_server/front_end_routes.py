@@ -310,6 +310,34 @@ def convert_configuration(game_config):
     return full_game_config
 
 
+def calc_step_per_agent(step_record_data, agent_types=(), currency_types=(), directions=(),
+                        value_round=6):
+    output = {k: {} for k in directions or ['in', 'out']}
+    for step in step_record_data:
+        direction = step['direction']
+        agent_type = step['agent_type']
+        currency_type = step['currency_type']
+        if agent_types and agent_type not in agent_types:
+            continue
+        elif currency_types and currency_type not in currency_types:
+            continue
+        elif directions and direction not in directions:
+            continue
+        else:
+            value = step['value']
+            unit = step['unit']
+            if currency_type not in output[direction]:
+                output[direction][currency_type] = {}
+            if agent_type not in output[direction][currency_type]:
+                output[direction][currency_type][agent_type] = {'value': round(value, value_round),
+                                                                'unit': unit}
+            else:
+                output[direction][currency_type][agent_type]['value'] = \
+                    round(output[direction][currency_type][agent_type]['value'] + value,
+                          value_round)
+    return output
+
+
 def calc_step_in_out(direction, currencies, step_record_data, value_round=6):
     """
     Calculate the total production or total consumption of given currencies for a given step.
