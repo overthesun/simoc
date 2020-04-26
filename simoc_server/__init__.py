@@ -59,6 +59,12 @@ if db_type == 'sqlite':
 
 app.config['DB_TYPE'] = db_type
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_size': 10,
+                                           'max_overflow': 0,
+                                           'pool_timeout': 30,
+                                           'pool_recycle': 300,
+                                           'pool_pre_ping': True}
 
 db = SQLAlchemy(app, session_options={'expire_on_commit': False})
 

@@ -11,10 +11,10 @@ logger = get_task_logger(__name__)
 
 sys.path.append("../")
 
-from simoc_server.database.db_model import User, SavedGame
+from simoc_server.database.db_model import User
 from simoc_server.game_runner import GameRunnerManager, GameRunnerInitializationParams
 from simoc_server.exceptions import NotFound
-from simoc_server import redis_conn
+from simoc_server import redis_conn, db
 
 app = Celery('tasks')
 app.config_from_object('celery_worker.celeryconfig')
@@ -31,7 +31,11 @@ def on_worker_init(**kwargs):
 
 
 def get_user(username):
-    user = User.query.filter_by(username=username).all()
+    try:
+        user = User.query.filter_by(username=username).all()
+    except:
+        db.session.rollback()
+        user = User.query.filter_by(username=username).all()
     if len(user) != 1:
         raise NotFound(f'User {username} not found.')
     else:
@@ -67,7 +71,11 @@ def new_game(username, game_config, num_steps, expire=3600):
     global game_runner_manager
     user = get_user(username)
     game_runner_init_params = GameRunnerInitializationParams(game_config)
-    game_runner_manager.new_game(user, game_runner_init_params)
+    try:
+        game_runner_manager.new_game(user, game_runner_init_params)
+    except:
+        db.session.rollback()
+        game_runner_manager.new_game(user, game_runner_init_params)
     game_runner = game_runner_manager.get_game_runner(user)
     game_id = game_runner.game_id
     redis_conn.set('task_mapping:{}'.format(game_id), new_game.request.id)
