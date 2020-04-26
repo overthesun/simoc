@@ -1255,7 +1255,7 @@
           },
           {
             "type": "lifetime",
-            "value": 2400.0,
+            "value": 2040.0,
             "unit": "hour"
           },
           {
