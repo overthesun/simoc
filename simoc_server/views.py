@@ -346,7 +346,7 @@ def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacit
         if not agent_types:
             game_config = get_game_config(game_id)
             agent_types = list(game_config['agents'].keys()) if game_config else []
-        detailed_output = {k: {} for k in directions}
+        output_template = {k: {} for k in directions}
         for agent_name in agent_types:
             agent_type = AgentType.query.filter_by(name=agent_name).first()
             for type_attribute in agent_type.agent_type_attributes:
@@ -355,9 +355,9 @@ def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacit
                 if prefix in directions:
                     if currency_types and currency not in currency_types:
                         continue
-                    if currency not in detailed_output[prefix]:
-                        detailed_output[prefix][currency] = {}
-                    detailed_output[prefix][currency][agent_name] = {'value': 0, 'unit': ''}
+                    if currency not in output_template[prefix]:
+                        output_template[prefix][currency] = {}
+                    output_template[prefix][currency][agent_name] = {'value': 0, 'unit': ''}
 
     step_record_dict = dict()
     for record in step_record_steps:
@@ -385,7 +385,7 @@ def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacit
         if storage_ratios:
             record["storage_ratios"] = calc_step_storage_ratios(storage_ratios, record)
         if details_per_agent:
-            record["details_per_agent"] = calc_step_per_agent(step_record_data, detailed_output,
+            record["details_per_agent"] = calc_step_per_agent(step_record_data, output_template.copy(),
                                                               agent_types, currency_types,
                                                               directions)
         if isinstance(storage_capacities, dict):
