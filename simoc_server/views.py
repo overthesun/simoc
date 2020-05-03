@@ -345,7 +345,7 @@ def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacit
         directions = directions if directions else ['in', 'out']
         if not agent_types:
             game_config = get_game_config(game_id)
-            agent_types = list(game_config['agents'].keys())
+            agent_types = list(game_config['agents'].keys()) if game_config else []
         detailed_output = {k: {} for k in directions}
         for agent_name in agent_types:
             agent_type = AgentType.query.filter_by(name=agent_name).first()
