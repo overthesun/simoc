@@ -249,6 +249,7 @@ def new_game():
             break
         if retries <= 0:
             raise ServerError(f"Cannot create a new game.")
+    redis_conn.set('game_config:{}'.format(game_id), json.dumps(game_config))
     return status("New game starts.", game_id=format(int(game_id), 'X'))
 
 
@@ -325,12 +326,38 @@ def get_steps_list(game_id, user_id, min_step_num, max_step_num):
     return redis_conn.zrangebyscore(f'game_steps:{user_id}:{game_id}', min_step_num, max_step_num)
 
 
+def get_game_config(game_id):
+    game_config = redis_conn.get(f'game_config:{game_id}')
+    return json.loads(game_config.decode("utf-8")) if game_config else game_config
+
+
 def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities=False,
                    storage_ratios=False, total_consumption=False, total_production=False,
                    agent_growth=False, total_agent_count=False, details_per_agent=False):
     steps = get_steps_list(game_id, user_id, min_step_num, max_step_num)
     model_record_steps = get_model_records(game_id, user_id, steps)
     step_record_steps = get_step_records(game_id, user_id, steps)
+
+    if details_per_agent:
+        agent_types = details_per_agent.get('agent_types', [])
+        currency_types = details_per_agent.get('currency_types', [])
+        directions = details_per_agent.get('directions', [])
+        directions = directions if directions else ['in', 'out']
+        if not agent_types:
+            game_config = get_game_config(game_id)
+            agent_types = list(game_config['agents'].keys())
+        detailed_output = {k: {} for k in directions}
+        for agent_name in agent_types:
+            agent_type = AgentType.query.filter_by(name=agent_name).first()
+            for type_attribute in agent_type.agent_type_attributes:
+                name = type_attribute['name']
+                prefix, currency = name.split('_', 1)
+                if prefix in directions:
+                    if currency_types and currency not in currency_types:
+                        continue
+                    if currency not in detailed_output[prefix]:
+                        detailed_output[prefix][currency] = {}
+                    detailed_output[prefix][currency][agent_name] = {'value': 0, 'unit': ''}
 
     step_record_dict = dict()
     for record in step_record_steps:
@@ -358,11 +385,9 @@ def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacit
         if storage_ratios:
             record["storage_ratios"] = calc_step_storage_ratios(storage_ratios, record)
         if details_per_agent:
-            agent_types = details_per_agent.get('agent_types', [])
-            currency_types = details_per_agent.get('currency_types', [])
-            directions = details_per_agent.get('directions', [])
-            record["details_per_agent"] = calc_step_per_agent(step_record_data, agent_types,
-                                                              currency_types, directions)
+            record["details_per_agent"] = calc_step_per_agent(step_record_data, detailed_output,
+                                                              agent_types, currency_types,
+                                                              directions)
         if isinstance(storage_capacities, dict):
             record["storage_capacities"] = calc_step_storage_capacities(storage_capacities, record)
         output[int(step_num)] = record
