@@ -1,6 +1,7 @@
 import functools
 import itertools
 import json
+import copy
 import time
 import traceback
 from pathlib import Path
@@ -385,7 +386,8 @@ def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacit
         if storage_ratios:
             record["storage_ratios"] = calc_step_storage_ratios(storage_ratios, record)
         if details_per_agent:
-            record["details_per_agent"] = calc_step_per_agent(step_record_data, output_template.copy(),
+            output_template_copy = copy.deepcopy(output_template)
+            record["details_per_agent"] = calc_step_per_agent(step_record_data, output_template_copy,
                                                               agent_types, currency_types,
                                                               directions)
         if isinstance(storage_capacities, dict):
