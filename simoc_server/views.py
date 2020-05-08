@@ -7,7 +7,7 @@ import traceback
 from pathlib import Path
 
 
-from flask import render_template, request, send_from_directory
+from flask import render_template, request, send_from_directory, redirect
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_socketio import disconnect, SocketIO
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -123,6 +123,15 @@ def get_steps_handler(message):
 def user_disconnected_handler():
     # the client will disconnect after sending the user_disconnected event
     user_cleanup(get_standard_user_obj())
+
+
+
+@app.errorhandler(404)
+def handle_404(e):
+    # the only entry point for vue is /, attempting to go directtly to
+    # other pages (such as /dashboard) will result in a 404 -- in that
+    # case redirect to the root (i.e. the welcome page)
+    return redirect('/')
 
 
 @app.route("/")
