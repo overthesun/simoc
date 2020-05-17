@@ -180,6 +180,60 @@ class GameRunner(object):
         """
         self.last_accessed = time.time()
 
+    @staticmethod
+    def save_records(model_records, agent_type_counts, storage_capacities, step_records, user_id, expire=3600):
+        pipe = redis_conn.pipeline()
+        for record in step_records:
+            game_id = record['game_id']
+            step_num = record['step_num']
+            pipe.rpush(f'step_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
+            pipe.expire(f'step_records:{user_id}:{game_id}:{step_num}', expire)
+        for record in agent_type_counts:
+            game_id = record['game_id']
+            step_num = record['step_num']
+            pipe.rpush(f'agent_type_counts:{user_id}:{game_id}:{step_num}', json.dumps(record))
+            pipe.expire(f'agent_type_counts:{user_id}:{game_id}:{step_num}', expire)
+        for record in storage_capacities:
+            game_id = record['game_id']
+            step_num = record['step_num']
+            pipe.rpush(f'storage_capacities:{user_id}:{game_id}:{step_num}', json.dumps(record))
+            pipe.expire(f'storage_capacities:{user_id}:{game_id}:{step_num}', expire)
+        for record in model_records:
+            game_id = record['game_id']
+            step_num = record['step_num']
+            pipe.set(f'model_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
+            pipe.expire(f'model_records:{user_id}:{game_id}:{step_num}', expire)
+            pipe.zadd(f'game_steps:{user_id}:{game_id}', {step_num: step_num})
+            pipe.expire(f'game_steps:{user_id}:{game_id}', expire)
+        pipe.execute()
+
+    def step_loop(self, agent_model, max_step_num, buffer_size, user_id):
+        model_records_buffer = []
+        agent_type_counts_buffer = []
+        storage_capacities_buffer = []
+        while agent_model.step_num <= max_step_num and not agent_model.is_terminated:
+            agent_model.step()
+            model_record, agent_type_counts, storage_capacities = agent_model.get_step_logs()
+            model_records_buffer.append(model_record)
+            agent_type_counts_buffer += agent_type_counts
+            storage_capacities_buffer += storage_capacities
+            if agent_model.step_num % buffer_size == 0:
+                self.save_records(model_records_buffer,
+                                  agent_type_counts_buffer,
+                                  storage_capacities_buffer,
+                                  agent_model.step_records_buffer,
+                                  user_id)
+                model_records_buffer = []
+                agent_type_counts_buffer = []
+                storage_capacities_buffer = []
+                agent_model.step_records_buffer = []
+        self.save_records(model_records_buffer,
+                          agent_type_counts_buffer,
+                          storage_capacities_buffer,
+                          agent_model.step_records_buffer,
+                          user_id)
+        agent_model.step_records_buffer = []
+
     def step_to(self, max_step_num, user, buffer_size):
         """Run the agent model to the requested step.
 s
@@ -191,60 +245,8 @@ s
         buffer_size : int
             Size of the buffer used to batch the database updates
         """
-        def _save_records(model_records, agent_type_counts, storage_capacities, step_records,
-                          expire=3600):
-            user_id = user.id
-            pipe = redis_conn.pipeline()
-            for record in step_records:
-                game_id = record['game_id']
-                step_num = record['step_num']
-                pipe.rpush(f'step_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
-                pipe.expire(f'step_records:{user_id}:{game_id}:{step_num}', expire)
-            for record in agent_type_counts:
-                game_id = record['game_id']
-                step_num = record['step_num']
-                pipe.rpush(f'agent_type_counts:{user_id}:{game_id}:{step_num}', json.dumps(record))
-                pipe.expire(f'agent_type_counts:{user_id}:{game_id}:{step_num}', expire)
-            for record in storage_capacities:
-                game_id = record['game_id']
-                step_num = record['step_num']
-                pipe.rpush(f'storage_capacities:{user_id}:{game_id}:{step_num}', json.dumps(record))
-                pipe.expire(f'storage_capacities:{user_id}:{game_id}:{step_num}', expire)
-            for record in model_records:
-                game_id = record['game_id']
-                step_num = record['step_num']
-                pipe.set(f'model_records:{user_id}:{game_id}:{step_num}', json.dumps(record))
-                pipe.expire(f'model_records:{user_id}:{game_id}:{step_num}', expire)
-                pipe.zadd(f'game_steps:{user_id}:{game_id}', {step_num: step_num})
-                pipe.expire(f'game_steps:{user_id}:{game_id}', expire)
-            pipe.execute()
-
-        def step_loop(agent_model):
-            model_records_buffer = []
-            agent_type_counts_buffer = []
-            storage_capacities_buffer = []
-            while agent_model.step_num <= max_step_num and not agent_model.is_terminated:
-                agent_model.step()
-                model_record, agent_type_counts, storage_capacities = agent_model.get_step_logs()
-                model_records_buffer.append(model_record)
-                agent_type_counts_buffer += agent_type_counts
-                storage_capacities_buffer += storage_capacities
-                if agent_model.step_num % buffer_size == 0:
-                    _save_records(model_records_buffer,
-                                  agent_type_counts_buffer,
-                                  storage_capacities_buffer,
-                                  agent_model.step_records_buffer)
-                    model_records_buffer = []
-                    agent_type_counts_buffer = []
-                    storage_capacities_buffer = []
-                    agent_model.step_records_buffer = []
-            _save_records(model_records_buffer,
-                          agent_type_counts_buffer,
-                          storage_capacities_buffer,
-                          agent_model.step_records_buffer)
-            agent_model.step_records_buffer = []
-
-        step_loop(self.agent_model)
+        user_id = user.id
+        self.step_loop(self.agent_model, max_step_num, buffer_size, user_id)
         self.reset_last_accessed()
 
 

@@ -320,7 +320,7 @@ def get_steps():
 def get_model_records(game_id, user_id, steps):
     model_records = [redis_conn.get(f'model_records:{user_id}:{game_id}:{int(step_num)}')
                      for step_num in steps]
-    model_records = [json.loads(r) for r in model_records]
+    model_records = map(json.loads, model_records)
     return model_records
 
 
@@ -328,7 +328,7 @@ def get_step_records(game_id, user_id, steps):
     step_records = [redis_conn.lrange(f'step_records:{user_id}:{game_id}:{int(step_num)}', 0, -1)
                     for step_num in steps]
     step_records = list(itertools.chain(*step_records))
-    step_records = [json.loads(r) for r in step_records]
+    step_records = map(json.loads, step_records)
     return step_records
 
 
@@ -429,8 +429,8 @@ def get_db_dump():
                                                0, -1)
         agent_type_counts = redis_conn.lrange(f'agent_type_counts:{user_id}:{game_id}:{step_num}',
                                               0, -1)
-        output['storage_capacities'] = [json.loads(r) for r in storage_capacities]
-        output['agent_counters'] = [json.loads(r) for r in agent_type_counts]
+        output['storage_capacities'] = map(json.loads, storage_capacities)
+        output['agent_counters'] = map(json.loads, agent_type_counts)
     return output
 
 

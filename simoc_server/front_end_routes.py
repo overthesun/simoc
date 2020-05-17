@@ -376,7 +376,7 @@ def calc_step_storage_ratios(agents, model_record_data, value_round=6):
     game_id = model_record_data['game_id']
     step_num = model_record_data['step_num']
     storage_capacities = redis_conn.lrange(f'storage_capacities:{user_id}:{game_id}:{step_num}', 0, -1)
-    storage_capacities = [json.loads(r) for r in storage_capacities]
+    storage_capacities = map(json.loads, storage_capacities)
 
     output = {}
     for agent in agents:
@@ -427,7 +427,7 @@ def count_agents_in_step(agent_types, model_record_data):
     game_id = model_record_data['game_id']
     step_num = model_record_data['step_num']
     agent_type_counts = redis_conn.lrange(f'agent_type_counts:{user_id}:{game_id}:{step_num}', 0, -1)
-    agent_type_counts = [json.loads(r) for r in agent_type_counts]
+    agent_type_counts = map(json.loads, agent_type_counts)
     for record in agent_type_counts:
         if record['agent_type'] in output:
             output[record['agent_type']] += record['agent_counter']
@@ -467,7 +467,7 @@ def calc_step_storage_capacities(agent_types, model_record_data, value_round=6):
     game_id = model_record_data['game_id']
     step_num = model_record_data['step_num']
     storage_capacities = redis_conn.lrange(f'storage_capacities:{user_id}:{game_id}:{step_num}', 0, -1)
-    storage_capacities = [json.loads(r) for r in storage_capacities]
+    storage_capacities = map(json.loads, storage_capacities)
     for record in storage_capacities:
         agent_type = record['storage_type']
         storage_id = record['storage_id']

@@ -252,11 +252,13 @@ class GeneralAgent(EnclosedAgent):
     def _init_selected_storage(self):
         storages = self.model.get_agents_by_class(agent_class=StorageAgent)
         self.selected_storage = {"in": {}, 'out': {}}
+        self.currency_dict = {}
         for attr in self.attrs:
             prefix, currency = attr.split('_', 1)
             if prefix not in ['in', 'out']:
                 continue
             self.selected_storage[prefix][currency] = []
+            self.currency_dict[currency] = CurrencyType.query.filter_by(name=currency).first()
             for storage in storages:
                 if len(self.connections) > 0:
                     if storage.agent_type not in self.connections:
@@ -455,7 +457,7 @@ class GeneralAgent(EnclosedAgent):
             agent_value *= self[weighted]
         return pq.Quantity(agent_value, agent_unit)
 
-    def step(self, value_eps=1e-6, value_round=6):
+    def step(self, value_eps=1e-12, value_round=6):
         """TODO
 
         TODO
@@ -556,7 +558,7 @@ class GeneralAgent(EnclosedAgent):
                                     self.agent_step_num += hours_per_step
                             break
                     if value > value_eps:
-                        currency_type = CurrencyType.query.filter_by(name=currency).first()
+                        currency_type = self.currency_dict[currency]
                         if attr == self.growth_criteria:
                             self.current_growth += (value / agent_amount)
                             self.growth_rate = self.current_growth / self.total_growth

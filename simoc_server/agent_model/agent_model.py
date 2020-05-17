@@ -125,6 +125,9 @@ class AgentModel(Model, AttributeHolder):
         else:
             self.scheduler = RandomActivation(self)
         self.scheduler.steps = init_params.starting_step_num
+        self.currency_dict = {}
+        self.storage_list = None
+        self.agents_list = None
 
     @property
     def logger(self):
@@ -186,7 +189,9 @@ class AgentModel(Model, AttributeHolder):
           TODO
         """
         counter = {}
-        for agent in self.get_agents_by_class(agent_class=GeneralAgent):
+        if not self.agents_list:
+            self.agents_list = self.get_agents_by_class(agent_class=GeneralAgent)
+        for agent in self.agents_list:
             agent_type = agent.agent_type
             agent_type_id = agent.agent_type_id
             key = f'{agent_type}#{agent_type_id}'
@@ -204,7 +209,9 @@ class AgentModel(Model, AttributeHolder):
           A dictionary of the storages information for this step
         """
         storages = []
-        for storage in self.get_agents_by_class(agent_class=StorageAgent):
+        if not self.storage_list:
+            self.storage_list = self.get_agents_by_class(agent_class=StorageAgent)
+        for storage in self.storage_list:
             entity = {"agent_type": storage.agent_type,
                       "agent_type_id": storage.agent_type_id,
                       "storage_agent_id": storage.unique_id,
@@ -213,7 +220,9 @@ class AgentModel(Model, AttributeHolder):
             for attr in storage.attrs:
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
-                    currency_type = CurrencyType.query.filter_by(name=currency).first()
+                    if currency not in self.currency_dict:
+                        self.currency_dict[currency] = CurrencyType.query.filter_by(name=currency).first()
+                    currency_type = self.currency_dict[currency]
                     entity["currencies"].append({"currency_type": currency_type.name,
                                                  "currency_type_id": currency_type.id,
                                                  "value": round(storage[currency], value_round),
