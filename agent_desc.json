@@ -108,6 +108,7 @@
           {
             "type": "h2o_wste",
             "value": 0.066,
+            "requires": ["food_edbl"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -116,6 +117,7 @@
           {
             "type": "h2o_urin",
             "value": 0.063,
+            "requires": ["h2o_potb"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
