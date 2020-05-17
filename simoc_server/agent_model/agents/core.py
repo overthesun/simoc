@@ -418,12 +418,9 @@ class GeneralAgent(EnclosedAgent):
                 source = self[cr_name]
             else:
                 source = 0
-                for curr in self.selected_storage[prefix]:
-                    for storage in self.selected_storage[prefix][curr]:
-                        storage_id = '{}_{}'.format(
-                            storage.agent_type, storage.id)
-                        if cr_name in self.model.storage_ratios[storage_id]:
-                            source += self.model.storage_ratios[storage_id][cr_name]
+                for storage_id in self.model.storage_ratios:
+                    if cr_name in self.model.storage_ratios[storage_id]:
+                        source += self.model.storage_ratios[storage_id][cr_name]
             cr_id = '{}_{}_{}'.format(prefix, currency, cr_name)
             if cr_limit == '>':
                 if source < cr_value:
@@ -546,8 +543,6 @@ class GeneralAgent(EnclosedAgent):
                         else:
                             if not skip_step or is_required or self.attr_details[attr]['criteria_name']:
                                 storage[currency] = min(new_storage_value, storage_cap)
-                                if prefix == 'in' and currency not in influx:
-                                    influx.add(currency)
                                 if deprive_value > 0:
                                     self.deprive[currency] = min(deprive_value * self.amount,
                                                                  self.deprive[currency] +
@@ -558,6 +553,8 @@ class GeneralAgent(EnclosedAgent):
                                     self.agent_step_num += hours_per_step
                             break
                     if value > value_eps:
+                        if prefix == 'in' and currency not in influx:
+                            influx.add(currency)
                         currency_type = self.currency_dict[currency]
                         if attr == self.growth_criteria:
                             self.current_growth += (value / agent_amount)
