@@ -388,7 +388,7 @@
             "type": "enrg_kwh",
             "value": 0.959,
             "required": "mandatory",
-            "requires": "h2o_potb",
+            "requires": ["h2o_potb"],
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -576,7 +576,7 @@
             "type": "enrg_kwh",
             "value": 1.12,
             "required": "mandatory",
-            "requires": "atmo_cont",
+            "requires": ["atmo_cont"],
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
@@ -621,7 +621,7 @@
             "type": "enrg_kwh",
             "value": 1.0,
             "required": "mandatory",
-            "requires": "atmo_h2o",
+            "requires": ["atmo_h2o"],
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
