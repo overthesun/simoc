@@ -14,10 +14,10 @@ Follow the official guide to set up `Docker` software:
 Make sure you installed `Docker Engine` and`Docker Compose` components.
 
 # 3. Configure `SIMOC` deployment
-### Open `simoc.env` file with any text editor
+### Open `simoc_docker.env` file with any text editor
 Scroll through the file and update the variable values to configure the deployment:
 ```bash
-vim simoc.env
+vim simoc_docker.env
 ```
 
 ### Update web server configuration
@@ -63,12 +63,12 @@ export CELERY_WORKERS=2
 
 ### Load `SIMOC` environment variables
 ```bash
-source simoc.env
+source simoc_docker.env
 ```
 
 ### Generate dynamic config files (Nginx, Docker)
 ```bash
-python3 generate_configs.py
+python3 generate_docker_configs.py
 ```
 The script will produce `docker-compose.mysql.yml` and `./nginx/simoc_nginx.conf` files.
 
@@ -252,7 +252,7 @@ Navigate to the following `URL` in your browser to access a `SIMOC` application 
 ## Re-deploy `SIMOC` on code changes
 - Load `SIMOC` environment variables:
 ```bash
-source simoc.env
+source simoc_docker.env
 ```
 
 - Re-build `SIMOC` images:

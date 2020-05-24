@@ -170,7 +170,7 @@ def import_agents(agents, agent_class):
                                 'lifetime_growth_steepness': lifetime_growth_steepness}
                 AgentTypeAttributeDetails(**attr_details)
     util.add_all(agent_data)
-    # calculate_growth_coef()
+    calculate_growth_coef()
 
 
 def seed(config_file):
@@ -222,57 +222,56 @@ def calculate_growth_coef():
                                                            min_value=min_value,
                                                            invert=invert,
                                                            noise=False)
-                attr_details['lifetime_growth_scale'] = float(res['scale'])
-                attr.value = float(res['max_value'])
+                attr_details['lifetime_growth_max_value'] = float(res['max_value'])
                 update = True
-            elif attr_details['lifetime_growth_type'] in ['sig', 'sigmoid'] \
-                    and attr_details['lifetime_growth_steepness'] is None:
-                mean_value = float(attr.value)
-                day_length_minutes = location_to_day_length_minutes(location)
-                day_length_hours = day_length_minutes / 60
-                num_values = int(lifetime * day_length_hours + 1)
-                center = attr_details['lifetime_growth_center'] or num_values // 2
-                min_value = attr_details['lifetime_growth_min_value'] or 0
-                res = growth_func.optimize_sigmoid_curve_mean(mean_value=mean_value,
-                                                              num_values=num_values,
-                                                              center=center,
-                                                              min_value=min_value,
-                                                              noise=False)
-                attr_details['lifetime_growth_steepness'] = float(res['steepness'])
-                attr.value = float(res['max_value'])
-                update = True
-            if attr_details['daily_growth_type'] in ['norm', 'normal'] \
-                    and attr_details['daily_growth_scale'] is None:
-                mean_value = float(attr.value)
-                day_length_minutes = location_to_day_length_minutes(location)
-                day_length_hours = day_length_minutes / 60
-                day_length = int(day_length_hours)
-                center = attr_details['daily_growth_center'] or day_length // 2
-                min_value = attr_details['daily_growth_min_value'] or 0
-                invert = attr_details['daily_growth_invert']
-                res = growth_func.optimize_bell_curve_mean(mean_value=mean_value,
-                                                           num_values=day_length,
-                                                           center=center,
-                                                           min_value=min_value,
-                                                           invert=invert,
-                                                           noise=False)
-                attr_details['daily_growth_scale'] = float(res['scale'])
-                update = True
-            elif attr_details['daily_growth_type'] in ['sig', 'sigmoid'] \
-                    and attr_details['daily_growth_steepness'] is None:
-                mean_value = float(attr.value)
-                day_length_minutes = location_to_day_length_minutes(location)
-                day_length_hours = day_length_minutes / 60
-                day_length = int(day_length_hours)
-                center = attr_details['daily_growth_center'] or day_length // 2
-                min_value = attr_details['daily_growth_min_rate'] or 0
-                res = growth_func.optimize_sigmoid_curve_mean(mean_value=mean_value,
-                                                              num_values=day_length,
-                                                              center=center,
-                                                              min_value=min_value,
-                                                              noise=False)
-                attr_details['daily_growth_steepness'] = float(res['steepness'])
-                update = True
+            # elif attr_details['lifetime_growth_type'] in ['sig', 'sigmoid'] \
+            #         and attr_details['lifetime_growth_steepness'] is None:
+            #     mean_value = float(attr.value)
+            #     day_length_minutes = location_to_day_length_minutes(location)
+            #     day_length_hours = day_length_minutes / 60
+            #     num_values = int(lifetime * day_length_hours + 1)
+            #     center = attr_details['lifetime_growth_center'] or num_values // 2
+            #     min_value = attr_details['lifetime_growth_min_value'] or 0
+            #     res = growth_func.optimize_sigmoid_curve_mean(mean_value=mean_value,
+            #                                                   num_values=num_values,
+            #                                                   center=center,
+            #                                                   min_value=min_value,
+            #                                                   noise=False)
+            #     attr_details['lifetime_growth_steepness'] = float(res['steepness'])
+            #     attr.value = float(res['max_value'])
+            #     update = True
+            # if attr_details['daily_growth_type'] in ['norm', 'normal'] \
+            #         and attr_details['daily_growth_scale'] is None:
+            #     mean_value = float(attr.value)
+            #     day_length_minutes = location_to_day_length_minutes(location)
+            #     day_length_hours = day_length_minutes / 60
+            #     day_length = int(day_length_hours)
+            #     center = attr_details['daily_growth_center'] or day_length // 2
+            #     min_value = attr_details['daily_growth_min_value'] or 0
+            #     invert = attr_details['daily_growth_invert']
+            #     res = growth_func.optimize_bell_curve_mean(mean_value=mean_value,
+            #                                                num_values=day_length,
+            #                                                center=center,
+            #                                                min_value=min_value,
+            #                                                invert=invert,
+            #                                                noise=False)
+            #     attr_details['daily_growth_max_value'] = float(res['max_value'])
+            #     update = True
+            # elif attr_details['daily_growth_type'] in ['sig', 'sigmoid'] \
+            #         and attr_details['daily_growth_steepness'] is None:
+            #     mean_value = float(attr.value)
+            #     day_length_minutes = location_to_day_length_minutes(location)
+            #     day_length_hours = day_length_minutes / 60
+            #     day_length = int(day_length_hours)
+            #     center = attr_details['daily_growth_center'] or day_length // 2
+            #     min_value = attr_details['daily_growth_min_rate'] or 0
+            #     res = growth_func.optimize_sigmoid_curve_mean(mean_value=mean_value,
+            #                                                   num_values=day_length,
+            #                                                   center=center,
+            #                                                   min_value=min_value,
+            #                                                   noise=False)
+            #     attr_details['daily_growth_steepness'] = float(res['steepness'])
+            #     update = True
             if update:
                 db.session.delete(attr)
                 db.session.delete(attr_details)

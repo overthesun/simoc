@@ -106,7 +106,7 @@ def optimize_bell_curve_mean(mean_value, num_values, center, min_value, invert,
              + np.abs(y[-1] - min_value)) ** 2)
         return rmse
 
-    res = minimize(_loss, mean_value, bounds=[[1e-8, 1e8]], options={'disp': False})
+    res = minimize(_loss, mean_value, bounds=[[max(1e-8, mean_value), 1e8]], options={'disp': False})
     return {'max_value': res.x[0]}
 
 
@@ -282,17 +282,19 @@ def get_growth_values(agent_value, growth_type, **kwargs):
     """
     assert growth_type
     assert agent_value is not None
+    if kwargs.get('max_value', 0.0) <= 0:
+        kwargs['max_value'] = agent_value
     if growth_type in ['linear', 'lin']:
-        return get_linear_curve(max_value=agent_value, **kwargs)
+        return get_linear_curve(**kwargs)
     elif growth_type in ['logarithmic', 'log']:
-        return get_log_curve(max_value=agent_value, **kwargs)
+        return get_log_curve(**kwargs)
     elif growth_type in ['sigmoid', 'sig']:
-        return get_sigmoid_curve(max_value=agent_value, **kwargs)
+        return get_sigmoid_curve(**kwargs)
     elif growth_type in ['norm', 'normal']:
-        return get_bell_curve(max_value=agent_value, **kwargs)
+        return get_bell_curve(**kwargs)
     elif growth_type in ['clipped', 'clip']:
-        return get_clipped_bell_curve(max_value=agent_value, **kwargs)
+        return get_clipped_bell_curve(**kwargs)
     elif growth_type in ['step', 'switch']:
-        return get_switch_curve(max_value=agent_value, **kwargs)
+        return get_switch_curve(**kwargs)
     else:
         raise ValueError("Unknown growth function type '{}'.".format(growth_type))

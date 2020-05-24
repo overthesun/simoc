@@ -232,7 +232,7 @@ def new_game():
     -------
     str: TBD
     """
-    retries = 30
+    retries = 60
     input = json.loads(request.data.decode('utf-8'))
     if "game_config" not in input:
         raise BadRequest("game_config is required.")

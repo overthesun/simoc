@@ -2,6 +2,7 @@ r"""Describes Core Agent Types.
 """
 
 import json
+import operator
 import random
 from abc import ABCMeta
 
@@ -15,6 +16,7 @@ from simoc_server.database.db_model import AgentType, AgentState, CurrencyType
 from simoc_server.util import load_db_attributes_into_dict
 from simoc_server.util import timedelta_to_hours
 from simoc_server.agent_model.agents import growth_func
+from simoc_server.exceptions import ServerError
 
 
 class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
@@ -292,6 +294,7 @@ class GeneralAgent(EnclosedAgent):
             lifetime_growth_type = self.attr_details[attr]['lifetime_growth_type']
             lifetime_growth_center = self.attr_details[attr]['lifetime_growth_center']
             lifetime_growth_min_value = self.attr_details[attr]['lifetime_growth_min_value']
+            lifetime_growth_max_value = self.attr_details[attr]['lifetime_growth_max_value']
             daily_growth_type = self.attr_details[attr]['daily_growth_type']
             daily_growth_center = self.attr_details[attr]['daily_growth_center']
             daily_growth_min_value = self.attr_details[attr]['daily_growth_min_value']
@@ -322,6 +325,7 @@ class GeneralAgent(EnclosedAgent):
 
             if lifetime_growth_type:
                 start_value = lifetime_growth_min_value or 0.0
+                max_value = lifetime_growth_max_value or 0.0
                 center = lifetime_growth_center or None
                 min_threshold = lifetime_growth_min_threshold or 0.0
                 min_threshold *= num_values
@@ -330,6 +334,7 @@ class GeneralAgent(EnclosedAgent):
                 invert = bool(lifetime_growth_invert)
                 noise = bool(lifetime_growth_noise)
                 kwargs = {'agent_value': agent_value,
+                          'max_value': max_value,
                           'num_values': num_values,
                           'growth_type': lifetime_growth_type,
                           'min_value': start_value,
@@ -379,6 +384,9 @@ class GeneralAgent(EnclosedAgent):
                               'invert': invert}
                     if daily_growth_scale:
                         kwargs['scale'] = daily_growth_scale
+                    elif lifetime_growth_type:
+                        kwargs['scale'] = 0.5
+                        kwargs['max_value'] = agent_value * 1.1
                     if daily_growth_steepness:
                         kwargs['steepness'] = daily_growth_steepness
                     if start_value == agent_value:
@@ -423,29 +431,21 @@ class GeneralAgent(EnclosedAgent):
                         source += self.model.storage_ratios[storage_id][cr_name]
             cr_id = '{}_{}_{}'.format(prefix, currency, cr_name)
             if cr_limit == '>':
-                if source < cr_value:
-                    if self.buffer.get(cr_id, 0) > 0:
-                        self.buffer[cr_id] -= 1
-                    else:
-                        return pq.Quantity(0.0, agent_unit)
-                elif cr_buffer > 0:
-                    self.buffer[cr_id] = cr_buffer
+                opp = operator.gt
             elif cr_limit == '<':
-                if source > cr_value:
-                    if self.buffer.get(cr_id, 0) > 0:
-                        self.buffer[cr_id] -= 1
-                    else:
-                        return pq.Quantity(0.0, agent_unit)
-                elif cr_buffer > 0:
-                    self.buffer[cr_id] = cr_buffer
+                opp = operator.lt
             elif cr_limit == '=':
-                if cr_value != source:
-                    if self.buffer.get(cr_id, 0) > 0:
-                        self.buffer[cr_id] -= 1
-                    else:
-                        return pq.Quantity(0.0, agent_unit)
-                elif cr_buffer > 0:
+                opp = operator.eq
+            else:
+                raise ServerError('Unknown attr criteria.')
+            if opp(source, cr_value):
+                if cr_buffer > 0 and self.buffer.get(cr_id, 0) > 0:
+                    self.buffer[cr_id] -= 1
+                    return pq.Quantity(0.0, agent_unit)
+            else:
+                if cr_buffer > 0:
                     self.buffer[cr_id] = cr_buffer
+                return pq.Quantity(0.0, agent_unit)
         step_num = int(self.agent_step_num)
         if step_num >= self.step_values[attr].shape[0]:
             step_num = step_num % int(self.model.day_length_hours)

@@ -116,6 +116,7 @@
           {
             "type": "h2o_urin",
             "value": 0.063,
+            "requires": ["h2o_potb"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -386,14 +387,10 @@
             "type": "enrg_kwh",
             "value": 0.959,
             "required": "mandatory",
+            "requires": "h2o_potb",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
-            },
-            "criteria": {
-              "name": "atmo_o2_ratio",
-              "limit": "<",
-              "value": 0.195
             }
           }
         ],
@@ -436,20 +433,6 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
-            "value": 0.006534,
-            "required": "mandatory",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "atmo_co2_ratio",
-              "limit": ">",
-              "value": 0.001
-            }
-          },
-          {
             "type": "atmo_h2",
             "value": 0.00163,
             "required": "mandatory",
@@ -464,17 +447,28 @@
             }
           },
           {
-            "type": "enrg_kwh",
-            "value": 0.291,
+            "type": "atmo_co2",
+            "value": 0.006534,
             "required": "mandatory",
+            "requires": ["atmo_h2"],
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "kg",
               "time": "hour"
             },
             "criteria": {
               "name": "atmo_co2_ratio",
               "limit": ">",
               "value": 0.001
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.291,
+            "required": "mandatory",
+            "requires": ["atmo_co2"],
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
             }
           }
         ],
@@ -536,15 +530,10 @@
             "type": "enrg_kwh",
             "value": 1.12,
             "required": "mandatory",
+            "requires": ["atmo_co2"],
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
-            },
-            "criteria": {
-              "name": "atmo_co2_ratio",
-              "limit": ">",
-              "value": 0.001,
-              "buffer": 10
             }
           }
         ],
@@ -586,14 +575,10 @@
             "type": "enrg_kwh",
             "value": 1.12,
             "required": "mandatory",
+            "requires": "atmo_cont",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
-            },
-            "criteria": {
-              "name": "atmo_cont_ratio",
-              "limit": ">",
-              "value": 0.001
             }
           }
         ],
@@ -635,14 +620,10 @@
             "type": "enrg_kwh",
             "value": 1.0,
             "required": "mandatory",
+            "requires": "atmo_h2o",
             "flow_rate": {
               "unit": "kWh",
               "time": "hour"
-            },
-            "criteria": {
-              "name": "atmo_h2o_ratio",
-              "limit": ">",
-              "value": 0.01
             }
           }
         ],
@@ -801,6 +782,21 @@
             "deprive": {
               "value": 72,
               "unit": "hour"
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.77095,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
             }
           }
         ],
@@ -1000,6 +996,21 @@
               "value": 72,
               "unit": "hour"
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 1.580,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
+            }
           }
         ],
         "output": [
@@ -1197,6 +1208,21 @@
             "deprive": {
               "value": 72,
               "unit": "hour"
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.5151,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
             }
           }
         ],
@@ -1396,6 +1422,21 @@
               "value": 72,
               "unit": "hour"
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.315,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
+            }
           }
         ],
         "output": [
@@ -1593,6 +1634,21 @@
             "deprive": {
               "value": 72,
               "unit": "hour"
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.77475,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
             }
           }
         ],
@@ -1792,6 +1848,21 @@
               "value": 72,
               "unit": "hour"
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.18396,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
+            }
           }
         ],
         "output": [
@@ -1989,6 +2060,21 @@
             "deprive": {
               "value": 72,
               "unit": "hour"
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.1971,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
             }
           }
         ],
@@ -2188,6 +2274,21 @@
               "value": 72,
               "unit": "hour"
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.850,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
+            }
           }
         ],
         "output": [
@@ -2385,6 +2486,21 @@
             "deprive": {
               "value": 72,
               "unit": "hour"
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.58552,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
             }
           }
         ],
@@ -2584,6 +2700,21 @@
               "value": 72,
               "unit": "hour"
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.582,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
+            }
           }
         ],
         "output": [
@@ -2781,6 +2912,21 @@
             "deprive": {
               "value": 72,
               "unit": "hour"
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.66215,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
             }
           }
         ],
@@ -2980,6 +3126,21 @@
               "value": 72,
               "unit": "hour"
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.88655,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
+            }
           }
         ],
         "output": [
@@ -3177,6 +3338,21 @@
             "deprive": {
               "value": 72,
               "unit": "hour"
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.450,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
             }
           }
         ],
@@ -3376,6 +3552,21 @@
               "value": 72,
               "unit": "hour"
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.450,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
+            }
           }
         ],
         "output": [
@@ -3573,6 +3764,21 @@
             "deprive": {
               "value": 72,
               "unit": "hour"
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.80475,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
             }
           }
         ],
@@ -3772,6 +3978,21 @@
               "value": 72,
               "unit": "hour"
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.88655,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
+            }
           }
         ],
         "output": [
@@ -3969,6 +4190,21 @@
             "deprive": {
               "value": 72,
               "unit": "hour"
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 1.0098,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
             }
           }
         ],
@@ -4168,6 +4404,21 @@
               "value": 72,
               "unit": "hour"
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.1375,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
+            }
           }
         ],
         "output": [
@@ -4365,6 +4616,21 @@
             "deprive": {
               "value": 72,
               "unit": "hour"
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.247,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
             }
           }
         ],
@@ -4564,6 +4830,21 @@
               "value": 72,
               "unit": "hour"
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 0.6735,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
+            }
           }
         ],
         "output": [
@@ -4762,6 +5043,21 @@
               "value": 72,
               "unit": "hour"
             }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 1.275,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
+            }
           }
         ],
         "output": [
@@ -4959,6 +5255,21 @@
             "deprive": {
               "value": 72,
               "unit": "hour"
+            }
+          },
+          {
+            "type": "biomass_totl",
+            "value": 2.7799,
+            "required": "desired",
+            "weighted": "growth_rate",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "growth_rate",
+              "limit": ">",
+              "value": 1
             }
           }
         ],
