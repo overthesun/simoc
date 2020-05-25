@@ -4283,7 +4283,7 @@
         "input": [
           {
             "type": "atmo_co2",
-            "value": 0.0005393177194,
+            "value": 0.0007452059028,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
