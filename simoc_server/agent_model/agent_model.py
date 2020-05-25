@@ -189,8 +189,7 @@ class AgentModel(Model, AttributeHolder):
           TODO
         """
         counter = {}
-        if not self.agents_list:
-            self.agents_list = self.get_agents_by_class(agent_class=GeneralAgent)
+        self.agents_list = self.get_agents_by_class(agent_class=GeneralAgent)
         for agent in self.agents_list:
             agent_type = agent.agent_type
             agent_type_id = agent.agent_type_id
@@ -209,8 +208,7 @@ class AgentModel(Model, AttributeHolder):
           A dictionary of the storages information for this step
         """
         storages = []
-        if not self.storage_list:
-            self.storage_list = self.get_agents_by_class(agent_class=StorageAgent)
+        self.storage_list = self.get_agents_by_class(agent_class=StorageAgent)
         for storage in self.storage_list:
             entity = {"agent_type": storage.agent_type,
                       "agent_type_id": storage.agent_type_id,
