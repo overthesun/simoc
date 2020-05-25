@@ -205,7 +205,6 @@ class EnclosedAgent(BaseAgent):
           reason: str, cause of death
         """
         self.model.logger.info("Object Died! Reason: {}".format(reason))
-        print("Object Died! Reason: {}".format(reason))
         self.cause_of_death = reason
         super().destroy()
 
@@ -481,7 +480,7 @@ class GeneralAgent(EnclosedAgent):
                                 self.kill('Threshold {} met for {}. Killing the agent'.format(
                                     currency, self.agent_type))
                                 return
-                            if threshold_type == 'upper' and self.model.storage_ratios[agent_id][
+                            elif threshold_type == 'upper' and self.model.storage_ratios[agent_id][
                                 currency + '_ratio'] > threshold_value:
                                 self.kill('Threshold {} met for {}. Killing the agent'.format(
                                     currency, self.agent_type))

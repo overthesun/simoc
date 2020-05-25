@@ -343,11 +343,7 @@ class AgentModel(Model, AttributeHolder):
             agent: TODO
             pos: TODO
         """
-        if pos is None and hasattr(agent, "pos"):
-            pos = agent.pos
         self.scheduler.add(agent)
-        if pos is not None:
-            self.grid.place_agent(agent, pos)
 
     def num_agents(self):
         """Returns total number of agents in the models."""
@@ -473,8 +469,6 @@ class AgentModel(Model, AttributeHolder):
     def remove(self, agent):
         """TODO"""
         self.scheduler.remove(agent)
-        if hasattr(agent, "pos"):
-            self.grid.remove_agent(agent)
 
     def get_agents_by_type(self, agent_type=None):
         """TODO
