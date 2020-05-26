@@ -819,6 +819,22 @@
             }
           },
           {
+            "type": "atmo_h2o",
+            "value": 0.0071179138073,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
             "type": "food_edbl",
             "value": 0.77095,
             "weighted": "growth_rate",
@@ -1018,6 +1034,22 @@
           {
             "type": "atmo_o2",
             "value": 0.0018526785714,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.0098999291113,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1245,6 +1277,22 @@
             }
           },
           {
+            "type": "atmo_h2o",
+            "value": 0.0000878642873,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
             "type": "food_edbl",
             "value": 0.5151,
             "weighted": "growth_rate",
@@ -1444,6 +1492,22 @@
           {
             "type": "atmo_o2",
             "value": 0.000440553653,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.0011463648685,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1671,6 +1735,22 @@
             }
           },
           {
+            "type": "atmo_h2o",
+            "value": 0.0001454319429,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
             "type": "food_edbl",
             "value": 0.77475,
             "weighted": "growth_rate",
@@ -1870,6 +1950,22 @@
           {
             "type": "atmo_o2",
             "value": 0.0002986111111,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.0000927964444,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2097,6 +2193,22 @@
             }
           },
           {
+            "type": "atmo_h2o",
+            "value": 0.0000927964444,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
             "type": "food_edbl",
             "value": 0.1971,
             "weighted": "growth_rate",
@@ -2296,6 +2408,22 @@
           {
             "type": "atmo_o2",
             "value": 0.0015010127315,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.0051782865307,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2523,6 +2651,22 @@
             }
           },
           {
+            "type": "atmo_h2o",
+            "value": 0.0059236125255,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
             "type": "food_edbl",
             "value": 0.58552,
             "weighted": "growth_rate",
@@ -2722,6 +2866,22 @@
           {
             "type": "atmo_o2",
             "value": 0.0007685185185,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.0023229493705,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -2949,6 +3109,22 @@
             }
           },
           {
+            "type": "atmo_h2o",
+            "value": 0.0047265009912,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
             "type": "food_edbl",
             "value": 0.66215,
             "weighted": "growth_rate",
@@ -3148,6 +3324,22 @@
           {
             "type": "atmo_o2",
             "value": 0.0006001984127,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.0040583115556,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3375,6 +3567,22 @@
             }
           },
           {
+            "type": "atmo_h2o",
+            "value": 0.0001271184169,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
             "type": "food_edbl",
             "value": 0.450,
             "weighted": "growth_rate",
@@ -3574,6 +3782,22 @@
           {
             "type": "atmo_o2",
             "value": 0.0004601883562,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.0005648832192,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -3801,6 +4025,22 @@
             }
           },
           {
+            "type": "atmo_h2o",
+            "value": 0.0053724337130,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
             "type": "food_edbl",
             "value": 0.80475,
             "weighted": "growth_rate",
@@ -4000,6 +4240,22 @@
           {
             "type": "atmo_o2",
             "value": 0.0009477834855,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.0042031583723,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4227,6 +4483,22 @@
             }
           },
           {
+            "type": "atmo_h2o",
+            "value": 0.0059462916986,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
             "type": "food_edbl",
             "value": 1.0098,
             "weighted": "growth_rate",
@@ -4426,6 +4698,22 @@
           {
             "type": "atmo_o2",
             "value": 0.0005393177194,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.0018203873194,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4653,6 +4941,22 @@
             }
           },
           {
+            "type": "atmo_h2o",
+            "value": 0.0010923975630,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
             "type": "food_edbl",
             "value": 0.247,
             "weighted": "growth_rate",
@@ -4852,6 +5156,22 @@
           {
             "type": "atmo_o2",
             "value": 0.0007339623872,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.0019155066518,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -5079,6 +5399,22 @@
             }
           },
           {
+            "type": "atmo_h2o",
+            "value": 0.0076121158608,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
             "type": "food_edbl",
             "value": 1.275,
             "weighted": "growth_rate",
@@ -5278,6 +5614,22 @@
           {
             "type": "atmo_o2",
             "value": 0.0014752791069,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "sigmoid"
+              },
+              "daily": {
+                "type": "norm"
+              }
+            }
+          },
+          {
+            "type": "atmo_h2o",
+            "value": 0.0027218784338,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -5946,3 +6298,4 @@
     }
   }
 }
+
