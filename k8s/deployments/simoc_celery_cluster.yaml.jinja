@@ -5,7 +5,7 @@ metadata:
   labels:
     app: simoc-celery-cluster
 spec:
-  replicas: {{ min_celery_replicas }}10
+  replicas: {{ min_celery_replicas }}
   selector:
     matchLabels:
       app: simoc-celery-cluster
