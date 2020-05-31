@@ -53,7 +53,7 @@
         "input": [
           {
             "type": "atmo_o2",
-            "value": 0.0492,
+            "value": 0.021583,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -65,7 +65,7 @@
           },
           {
             "type": "h2o_potb",
-            "value": 0.4242,
+            "value": 0.186667,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -77,7 +77,7 @@
           },
           {
             "type": "food_edbl",
-            "value": 0.0998,
+            "value": 0.062917,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -91,7 +91,7 @@
         "output": [
           {
             "type": "atmo_co2",
-            "value": 0.064,
+            "value": 0.025916,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -99,16 +99,7 @@
           },
           {
             "type": "atmo_h2o",
-            "value": 0.111,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "h2o_wste",
-            "value": 0.066,
-            "requires": ["food_edbl"],
+            "value": 0.079167,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -116,8 +107,17 @@
           },
           {
             "type": "h2o_urin",
-            "value": 0.063,
+            "value": 0.0625,
             "requires": ["h2o_potb"],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "h2o_wste",
+            "value": 0.107917,
+            "requires": ["food_edbl"],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
