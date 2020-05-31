@@ -126,16 +126,20 @@ def start_services():
 @cmd
 def init_db():
     """Initialize the MySQL DB."""
-    while True:
+    attempts = 15
+    for attempt in range(15):
         result = docker_compose('exec', 'celery-worker', 'python3', 'create_db.py')
         if result.returncode == 0:
             return result
         else:
-            print('create_db.py failed: if the error says "Can\'t connect to '
-                  'MySQL server on \'simoc-db\' (111)" this is expected -- '
-                  'it might take a few minutes before the db is up and running. '
-                  'Another attempt will be made in 15 seconds.')
+            print('create_db.py failed: if the error above says:\n'
+                  '  "Can\'t connect to MySQL server on \'simoc-db\' (111)"\n'
+                  'this is expected -- it might take a few minutes before the '
+                  'db is up and running. Another attempt will be made in 15s.\n')
             time.sleep(15)
+    else:
+        print(f'Giving up after {attempts} attempts.  Run the above command '
+              f'manually to try again.')
 
 @cmd
 def remove_db():
