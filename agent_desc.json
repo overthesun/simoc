@@ -653,6 +653,52 @@
         ]
       },
       "description": "Converts free water vapor into potable water."
+    },
+
+    "ch4_removal_agent": {
+      "data": {
+        "input": [
+          {
+            "type": "atmo_ch4",
+            "value": 0.02,
+            "required": "mandatory",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_ch4_ratio",
+              "limit": ">",
+              "value": 0.01,
+              "buffer": 6
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.2,
+            "required": "mandatory",
+            "requires": ["atmo_ch4"],
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "mass",
+            "value": 20.0,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0.1,
+            "unit": "m^3"
+          }
+        ]
+      },
+      "description": "Vents methane from the habitat, removing it from the system."
     }
   },
 
@@ -6298,4 +6344,3 @@
     }
   }
 }
-
