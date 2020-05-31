@@ -1,0 +1,85 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirectscheme
+  namespace: default
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+{% if basic_auth %}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: basic-auth
+spec:
+  basicAuth:
+    secret: authsecret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: authsecret
+  namespace: default
+data:
+  users: {{ auth_secret }}
+---
+{% endif %}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tk-http-route
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  sticky:
+    cookie:
+      name: cookie
+  routes:
+  - match: Host(`{{ server_name }}`) && PathPrefix(`/`)
+    middlewares:
+      - name: redirectscheme
+        namespace: default
+    kind: Rule
+    services:
+    - name: simoc-flask-svc
+      port: 80
+      passHostHeader: true
+      sticky:
+        cookie:
+          name: cookie
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tk-https-route
+  namespace: default
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`{{ server_name }}`) && PathPrefix(`/`)
+    middlewares:
+    - name: basic-auth
+      namespace: default
+    kind: Rule
+    services:
+    - name: simoc-flask-svc
+      port: 80
+      passHostHeader: true
+      sticky:
+        cookie:
+          name: cookie
+          httpOnly: true
+          secure: true
+  tls:
+    certResolver: "le"
+    domains:
+      - main: "{{ server_name }}"
+  sticky:
+    cookie:
+      name: cookie
+      httpOnly: true
+      secure: true

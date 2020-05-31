@@ -1,9 +1,9 @@
 import argparse
 import os
+import time
 
 os.environ["NO_FLASK"] = "1"
 
-import simoc_server
 from simoc_server import app
 from simoc_server.database import *
 from simoc_server.database.seed_data import seed_agents
@@ -27,23 +27,22 @@ if __name__ == "__main__":
                         help="Do not add seed data.")
     args = parser.parse_args()
 
-    if app.config['DB_TYPE'] == 'sqlite':
-        db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
-        sqlite_uri_start = "sqlite:///"
-        if db_uri.startswith(sqlite_uri_start):
-            if db_uri.startswith(sqlite_uri_start + "/"):
-                db_path = db_uri[len(sqlite_uri_start):]
+    num_retries = 10
+    interval = 5
+    while True:
+        try:
+            app.logger.info(f"Populating the '{app.config['DB_TYPE']}' database at '{app.config['SQLALCHEMY_DATABASE_URI']}' with '{app.config['AGENT_CONFIG']}' config file.")
+            create(app.config["AGENT_CONFIG"])
+            break
+        except Exception as e:
+            app.logger.info(e)
+            if num_retries > 0:
+                num_retries -= 1
+                app.logger.info(f"Unable to populate '{app.config['DB_TYPE']}' database. Retrying in {interval} seconds.")
+                time.sleep(interval)
+                continue
             else:
-                db_rel_path = db_uri[len(sqlite_uri_start):]
-                package_path = os.path.dirname(simoc_server.__file__)
-                db_path = os.path.join(package_path, db_rel_path)
-            if os.path.isfile(db_path):
-                os.remove(db_path)
-        else:
-            raise ValueError('Wrong sqlite URL.')
+                raise Exception("Error while populating the database.")
 
-    create(app.config["AGENT_CONFIG"])
-
-    print(f"The '{app.config['DB_TYPE']}' database at '{app.config['SQLALCHEMY_DATABASE_URI']}' was"
-          f" successfully populated with '{app.config['AGENT_CONFIG']}' config file.")
+    app.logger.info(f"The '{app.config['DB_TYPE']}' database was successfully populated.")
 

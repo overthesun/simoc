@@ -1,14 +1,14 @@
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: simoc-celery-autoscaler
+  name: simoc-flask-autoscaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: simoc-celery-cluster
-  minReplicas: 10
-  maxReplicas: 50
+    name: simoc-flask-server
+  minReplicas: {{ min_flask_replicas }}
+  maxReplicas: {{ max_flask_replicas }}
   metrics:
   - type: Resource
     resource:

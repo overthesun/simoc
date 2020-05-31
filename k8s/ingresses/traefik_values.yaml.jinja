@@ -1,0 +1,45 @@
+image:
+  name: traefik
+  tag: 2.2.1
+
+additionalArguments:
+  - "--accesslog"
+  - "--log.level=INFO"
+  - "--providers.kubernetescrd"
+  - "--certificatesresolvers.le.acme.tlsChallenge=true"
+  - "--certificatesresolvers.le.acme.email={{ acme_email }}"
+  - "--certificatesresolvers.le.acme.storage=/data/acme.json"
+{% if acme_staging %}
+  - "--certificatesresolvers.le.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+{% endif %}
+
+ports:
+  traefik:
+    port: 9000
+    expose: false
+    exposedPort: 9000
+  web:
+    port: 8000
+    expose: true
+    exposedPort: 80
+    nodePort: 32080
+  websecure:
+    port: 8443
+    expose: true
+    exposedPort: 443
+    nodePort: 32443
+
+service:
+  enabled: true
+  type: LoadBalancer
+  spec:
+     externalTrafficPolicy: Local
+     loadBalancerIP: "{{ public_ip }}"
+  externalIPs:
+   - "{{ public_ip }}"
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 128Mi
+  path: /data

@@ -1,28 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: simoc-flask-server
+  name: simoc-celery-cluster
   labels:
-    app: simoc-flask-server
+    app: simoc-celery-cluster
 spec:
-  replicas: 2
+  replicas: {{ min_celery_replicas }}10
   selector:
     matchLabels:
-      app: simoc-flask-server
+      app: simoc-celery-cluster
   template:
     metadata:
       labels:
-        app: simoc-flask-server
+        app: simoc-celery-cluster
         track: stable
     spec:
       containers:
-        - name: simoc-flask-server
-          image: gcr.io/<PROJECT_ID>/simoc_flask:latest
+        - name: simoc-celery-cluster
+          image: gcr.io/{{ gcp_project_id }}/simoc_celery:latest
           imagePullPolicy: Always
           livenessProbe:
-            httpGet:
-              path: /ping
-              port: 8080
+            exec:
+              command:
+                - bash
+                - ping_worker.sh
             periodSeconds: 60
             timeoutSeconds: 10
             failureThreshold: 5
@@ -73,18 +74,10 @@ spec:
               secretKeyRef:
                 name: redis-creds
                 key: redis_password
-          - name: FLASK_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: flask-secret
-                key: flask_secret
-          ports:
-            - name: http
-              containerPort: 8080
           resources:
             requests:
               memory: "300M"
-              cpu: .2
+              cpu: .5
             limits:
               memory: "500M"
-              cpu: .5
+              cpu: .7
