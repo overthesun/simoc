@@ -8,12 +8,14 @@ from simoc_server import app
 from simoc_server.database import *
 from simoc_server.database.seed_data import seed_agents
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute,AgentTypeAttributeDetails,\
-    CurrencyType
+    CurrencyType, AgentStateAttribute, AgentState
 
 
 def create(agent_conf):
     db.create_all()
-    for record in [*AgentTypeAttributeDetails.query.all(),
+    for record in [*AgentStateAttribute.query.all(),
+                   *AgentState.query.all(),
+                   *AgentTypeAttributeDetails.query.all(),
                    *AgentTypeAttribute.query.all(),
                    *AgentType.query.all(),
                    *CurrencyType.query.all()]:
