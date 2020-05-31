@@ -7,17 +7,18 @@ os.environ["NO_FLASK"] = "1"
 from simoc_server import app
 from simoc_server.database import *
 from simoc_server.database.seed_data import seed_agents
-
-
-def confirm(message):
-    choice = input(message + "[y/N]")
-    if choice.lower() != "y":
-        return False
-    return True
+from simoc_server.database.db_model import AgentType, AgentTypeAttribute,AgentTypeAttributeDetails,\
+    CurrencyType
 
 
 def create(agent_conf):
     db.create_all()
+    for record in [*AgentTypeAttributeDetails.query.all(),
+                   *AgentTypeAttribute.query.all(),
+                   *AgentType.query.all(),
+                   *CurrencyType.query.all()]:
+        db.session.delete(record)
+    db.session.commit()
     seed_agents.seed(agent_conf)
 
 
