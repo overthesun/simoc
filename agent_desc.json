@@ -257,56 +257,7 @@
           }
         ]
       },
-      "description": "Cleans wastewater using microbial degradation, provides nutrients for plants."
-    },
-
-    "multifiltration_purifier_post_treatment": {
-      "data": {
-        "input": [
-          {
-            "type": "h2o_tret",
-            "value": 4.75,
-            "required": "mandatory",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
-            "value": 0.012,
-            "required": "mandatory",
-            "flow_rate": {
-              "unit": "kWh",
-              "time": "hour"
-            }
-          }
-        ],
-        "output": [
-          {
-            "type": "h2o_potb",
-            "value": 4.75,
-            "requires": ["h2o_tret"],
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          }
-        ],
-        "characteristics": [
-          {
-            "type": "mass",
-            "value": 114.6,
-            "unit": "kg"
-          },
-          {
-            "type": "volume",
-            "value": 0.11,
-            "unit": "m^3"
-          }
-        ]
-      },
-      "description": "Purifies relatively clean water"
+      "description": "First stage recovery of wastewater, using microbial degradation. Isolates nutrients from urine."
     },
 
     "urine_recycling_processor_VCD": {
@@ -364,7 +315,56 @@
           }
         ]
       },
-      "description": "Purifies relatively clean water"
+      "description": "First stage recovery of urine, both that captured directly and as isolated from wastewater."
+    },
+
+    "multifiltration_purifier_post_treatment": {
+      "data": {
+        "input": [
+          {
+            "type": "h2o_tret",
+            "value": 4.75,
+            "required": "mandatory",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "enrg_kwh",
+            "value": 0.012,
+            "required": "mandatory",
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "h2o_potb",
+            "value": 4.75,
+            "requires": ["h2o_tret"],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "mass",
+            "value": 114.6,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0.11,
+            "unit": "m^3"
+          }
+        ]
+      },
+      "description": "Second stage recovery of urine, producing relatively clean water following VCD."
     },
 
     "oxygen_generation_SFWE": {
@@ -427,7 +427,8 @@
             "unit": "m^3"
           }
         ]
-      }
+      },
+      "description": "Generates oxygen through electrolysis of water."
     },
 
     "co2_reduction_sabatier": {
@@ -444,7 +445,8 @@
             "criteria": {
               "name": "atmo_co2_ratio",
               "limit": ">",
-              "value": 0.001
+              "value": 0.001,
+              "buffer": 2
             }
           },
           {
@@ -459,7 +461,8 @@
             "criteria": {
               "name": "atmo_co2_ratio",
               "limit": ">",
-              "value": 0.001
+              "value": 0.001,
+              "buffer": 2
             }
           },
           {
@@ -506,7 +509,7 @@
           }
         ]
       },
-      "description": "Reduces co2 in air, without requiring venting"
+      "description": "Reduces carbon dioxide without requiring venting."
     },
 
     "co2_removal_SAWD": {
@@ -524,7 +527,7 @@
               "name": "atmo_co2_ratio",
               "limit": ">",
               "value": 0.001,
-              "buffer": 10
+              "buffer": 8
             }
           },
           {
@@ -552,7 +555,7 @@
           }
         ]
       },
-      "description": "Removes CO2 from air"
+      "description": "Vents carbon dioxide from the habitat, removing it from the system."
     },
 
     "particulate_removal_TCCS": {
@@ -597,7 +600,7 @@
           }
         ]
       },
-      "description": "Removes potentially hazardous trace contaminants"
+      "description": "Removes potentially hazardous trace contaminants."
     },
 
     "dehumidifier": {
@@ -619,7 +622,7 @@
           },
           {
             "type": "enrg_kwh",
-            "value": 1.0,
+            "value": 0.5,
             "required": "mandatory",
             "requires": ["atmo_h2o"],
             "flow_rate": {
@@ -630,7 +633,7 @@
         ],
         "output": [
           {
-            "type": "h2o_potb",
+            "type": "h2o_tret",
             "value": 0.5,
             "requires": ["atmo_h2o"],
             "flow_rate": {
