@@ -61,9 +61,11 @@ spec:
     - websecure
   routes:
   - match: Host(`{{ server_name }}`) && PathPrefix(`/`)
+    {% if basic_auth %}
     middlewares:
     - name: basic-auth
       namespace: default
+    {% endif %}
     kind: Rule
     services:
     - name: simoc-flask-svc
