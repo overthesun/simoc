@@ -94,7 +94,7 @@ export AUTH_PASSWORD=password
 export STATIC_IP_NAME=simoc-static-ip
 ```
 
-#### Load the configuration into the environment
+#### Load `SIMOC` configuration into the environment
 ```bash
 source simoc_k8s.env
 ```
@@ -158,7 +158,7 @@ gcloud container clusters create $K8S_CLUSTER_NAME \
 
 # 5. Deploy `SIMOC` to the cluster
 
-#### Retrieve the cluster configuration
+#### Configure `Kubernetes` client (`kubctl`)
 ```bash
 gcloud container clusters get-credentials $K8S_CLUSTER_NAME --zone $GCP_ZONE
 ```
@@ -241,6 +241,33 @@ kubectl exec \
 ```
 
 # 6. Roll-out updates
+
+#### Make sure you logged in and retrieved the `GCP` credentials
+```bash
+gcloud auth login
+gcloud auth application-default login
+```
+
+#### Load `SIMOC` configuration into the environment
+```bash
+source simoc_k8s.env
+```
+
+#### Set up `GCP Project` and `Zone`
+```bash
+gcloud config set project $GCP_PROJECT_ID
+gcloud config set compute/zone $GCP_ZONE
+```
+
+#### Configure `Kubernetes` client (`kubctl`)
+```bash
+gcloud container clusters get-credentials $K8S_CLUSTER_NAME --zone $GCP_ZONE
+```
+
+#### Configure `Docker` environment
+```bash
+gcloud auth configure-docker
+```
 
 #### Re-build `simoc_flask_mysql_k8s` image
 ```bash
