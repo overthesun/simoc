@@ -1,4 +1,5 @@
 import sys
+import time
 
 from celery import Celery
 from celery import current_task
@@ -31,15 +32,22 @@ def on_worker_init(**kwargs):
 
 
 def get_user(username):
-    try:
-        user = User.query.filter_by(username=username).all()
-    except:
-        db.session.rollback()
-        user = User.query.filter_by(username=username).all()
-    if len(user) != 1:
-        raise NotFound(f'User {username} not found.')
-    else:
-        return user[0]
+    num_retries = 10
+    while True:
+        user = []
+        try:
+            user = User.query.filter_by(username=username).all()
+        except Exception:
+            db.session.rollback()
+        if len(user) != 1:
+            if num_retries > 0:
+                num_retries -= 1
+                time.sleep(1)
+                continue
+            else:
+                raise NotFound(f'User {username} not found.')
+        else:
+            return user[0]
 
 
 # TODO: Disabled until save_game is fixed
