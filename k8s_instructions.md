@@ -99,7 +99,7 @@ export STATIC_IP_NAME=simoc-static-ip
 source simoc_k8s.env
 ```
 
-#### Set up `GCP Project` and `Zone`
+#### Configure `GCP Project` and `Zone`
 ```bash
 gcloud config set project $GCP_PROJECT_ID
 gcloud config set compute/zone $GCP_ZONE
@@ -253,7 +253,7 @@ gcloud auth application-default login
 source simoc_k8s.env
 ```
 
-#### Set up `GCP Project` and `Zone`
+#### Configure `GCP Project` and `Zone`
 ```bash
 gcloud config set project $GCP_PROJECT_ID
 gcloud config set compute/zone $GCP_ZONE
