@@ -1,10 +1,7 @@
-import os
+from simoc_server import redis_url
 
-redis_host = os.environ.get("REDIS_HOST", 'localhost')
-redis_port = os.environ.get("REDIS_PORT", '6379')
-redis_password = os.environ.get("REDIS_PASSWORD", '')
-
-broker_url = result_backend = 'redis://:{}@{}:{}/'.format(redis_password, redis_host, redis_port)
+result_backend = redis_url
+broker_url = redis_url
 
 imports = ('celery_worker.tasks',)
 

@@ -16,8 +16,17 @@ if __name__ == "__main__":
               "acme_staging": int(os.environ.get('ACME_STAGING', True)),
               "basic_auth": int(os.environ.get('BASIC_AUTH', False)),
               "auth_secret": os.environ.get('AUTH_SECRET', ''),
-              "public_ip": os.environ.get('PUBLIC_IP', '')}
+              "static_ip_name": os.environ.get('STATIC_IP_NAME', ''),
+              "redis_host": os.environ.get('REDIS_HOST', ''),
+              "redis_port": os.environ.get('REDIS_PORT', ''),
+              "redis_use_password": int(os.environ.get('REDIS_USE_PASSWORD', False)),
+              "db_host": os.environ.get('DB_HOST', ''),
+              "db_port": os.environ.get('DB_PORT', ''),
+              "db_user": os.environ.get('DB_USER', ''),
+              "db_name": os.environ.get('DB_NAME', '')}
 
+    redis_environment = j2_env.get_template('k8s/deployments/redis_environment.yaml.jinja')
+    simoc_db_environment = j2_env.get_template('k8s/deployments/simoc_db_environment.yaml.jinja')
     simoc_celery_cluster = j2_env.get_template('k8s/deployments/simoc_celery_cluster.yaml.jinja')
     simoc_flask_server = j2_env.get_template('k8s/deployments/simoc_flask_server.yaml.jinja')
     simoc_celery_autoscaler = j2_env.get_template('k8s/autoscalers/simoc_celery_autoscaler.yaml.jinja')
@@ -25,6 +34,10 @@ if __name__ == "__main__":
     traefik = j2_env.get_template('k8s/ingresses/traefik.yaml.jinja')
     traefik_values = j2_env.get_template('k8s/ingresses/traefik_values.yaml.jinja')
 
+    with open('k8s/deployments/redis_environment.yaml', 'w') as f:
+        f.write(redis_environment.render(**config))
+    with open('k8s/deployments/simoc_db_environment.yaml', 'w') as f:
+        f.write(simoc_db_environment.render(**config))
     with open('k8s/deployments/simoc_celery_cluster.yaml', 'w') as f:
         f.write(simoc_celery_cluster.render(**config))
     with open('k8s/deployments/simoc_flask_server.yaml', 'w') as f:

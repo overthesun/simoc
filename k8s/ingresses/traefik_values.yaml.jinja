@@ -34,9 +34,9 @@ service:
   type: LoadBalancer
   spec:
      externalTrafficPolicy: Local
-     loadBalancerIP: "{{ public_ip }}"
+     loadBalancerIP: "{{ static_ip_name }}"
   externalIPs:
-   - "{{ public_ip }}"
+   - "{{ static_ip_name }}"
 
 persistence:
   enabled: true

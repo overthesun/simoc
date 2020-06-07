@@ -69,11 +69,13 @@ spec:
               configMapKeyRef:
                 name: redis-config
                 key: redis_port
+          {% if redis_use_password %}
           - name: REDIS_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: redis-creds
                 key: redis_password
+          {% endif %}
           resources:
             requests:
               memory: "300M"

@@ -31,19 +31,18 @@ def on_worker_init(**kwargs):
     logger.info('GameRunnerManager initialized.')
 
 
-def get_user(username):
-    num_retries = 10
+def get_user(username, num_retries=30, interval=1):
     while True:
-        user = []
         try:
             user = User.query.filter_by(username=username).all()
         except Exception:
+            user = []
             db.session.rollback()
         if len(user) != 1:
             if num_retries > 0:
                 num_retries -= 1
-                time.sleep(1)
-                continue
+                db.session.rollback()
+                time.sleep(interval)
             else:
                 raise NotFound(f'User {username} not found.')
         else:

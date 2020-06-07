@@ -13,7 +13,7 @@ from flask_socketio import disconnect, SocketIO
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
-from simoc_server import app, db, redis_conn, broker_url
+from simoc_server import app, db, redis_conn, redis_url
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute, User
 from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration, \
     ServerError
@@ -31,7 +31,7 @@ MAX_STEP_NUMBER = 10000  # 1 Earth year == 365*24 == 8760 steps
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-socketio = SocketIO(app, cors_allowed_origins='*', message_queue=broker_url, manage_session=False,
+socketio = SocketIO(app, cors_allowed_origins='*', message_queue=redis_url, manage_session=False,
                     logger=app.logger)
 
 # Fixes the issue with the SocketIO behind an Nginx proxy

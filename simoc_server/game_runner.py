@@ -181,7 +181,7 @@ class GameRunner(object):
         self.last_accessed = time.time()
 
     @staticmethod
-    def save_records(model_records, agent_type_counts, storage_capacities, step_records, user_id, expire=3600):
+    def save_records(model_records, agent_type_counts, storage_capacities, step_records, user_id, expire=1800):
         pipe = redis_conn.pipeline()
         for record in step_records:
             game_id = record['game_id']
