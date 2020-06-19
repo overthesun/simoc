@@ -50,9 +50,9 @@ export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 ```
 
-### Update `FLASK_SECRET` with any random string value
+### Generate a `Flask` secret string
 ```bash
-export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
+export FLASK_SECRET=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 ```
 
 ### Update the number of worker containers to spin up (optional)

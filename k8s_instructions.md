@@ -5,7 +5,7 @@
 #### Login to the `Cloud Console`
 * https://cloud.google.com/
 
-#### Create or select a `GCP` project
+#### Create or select a `GCP Project`
 * https://cloud.google.com/resource-manager/docs/creating-managing-projects
 
 #### Make sure that billing is enabled for your project
@@ -14,23 +14,23 @@
 #### Navigate to the `API Library`
 * https://console.cloud.google.com/apis/library
 
-#### Activate the following `GCP` APIs
+#### Activate the following GCP APIs
 * Compute Engine API
 * Kubernetes Engine API
 * Google Container Registry API
 * Cloud SQL (optional)
 * Google Cloud Memorystore for Redis API (optional)
 
-#### Setup managed database backends (optional)
+#### Configure managed database backends (optional)
 `SIMOC` supports multiple scenarios for hosting  `MySQL` and `Redis` components on GCP:
-1. Using fully managed instances by GCP (zero maintenance, provisioning, operations)
+1. Using database instances fully managed by GCP (zero maintenance, provisioning, operations)
 2. Manually deploying DB components to a `Kubernetes` cluster (native k8s automations - health checks, recovery, auto scaling)
 
 Follow the official `Google Cloud` instructions to set up managed database components:
 * https://cloud.google.com/memorystore/docs/redis/creating-managing-instances#console
 * https://cloud.google.com/sql/docs/mysql/create-instance#console
 
-Make sure you configured MySQL version `5.7+` and Redis `5.0+`.
+Make sure that you configured MySQL version `5.7+` and Redis `5.0+`.
 
 Copy the IP addresses that `GCP` provisioned for the corresponding instance and the `MySQL` password as you will need those values later on.
 
@@ -39,7 +39,7 @@ Copy the IP addresses that `GCP` provisioned for the corresponding instance and 
 * https://cloud.google.com/shell/docs/quickstart
 * https://console.cloud.google.com/cloudshell
 
-#### Enable `Boost mode` for `Cloud Shell`
+#### Enable `Boost mode` in `Cloud Shell`
 * https://cloud.google.com/shell/docs/how-cloud-shell-works#boost_mode
 
 # 2. Configure `SIMOC` deployment
@@ -76,7 +76,7 @@ cd simoc/
 vim simoc_k8s.env
 ```
 
-#### Update the deployment configuration with the following variables
+#### Update the following variables in the default deployment configuration
 - `GCP_PROJECT_ID` - string ID of the GCP project (execute `gcloud projects list` to get all available options)
 - `GCP_ZONE` - GCP regional zone to deploy all SIMOC resources (execute `gcloud compute zones list` to get all available options)
 - `K8S_CLUSTER_NAME` - string name for the Kubernetes cluster
@@ -95,7 +95,7 @@ vim simoc_k8s.env
 - `STATIC_IP_NAME` - string name for a static external IP address
 - `REDIS_HOST` - domain or IP address of the Redis database (do not change the default value if you DON"T plan to use a managed database)
 - `REDIS_PORT` - Redis TCP port (default: `6379`)
-- `REDIS_USE_PASSWORD` - whether to password auth for Redis connection (default: `1`, use `0` if you DO plan to use a managed database)
+- `REDIS_USE_PASSWORD` - `0` to use password auth in Redis (default: `1`, use `0` if you DO plan to use a managed database)
 - `DB_HOST` - domain or IP address of the MySQL database (do not change the default value if you DON"T plan to use a managed database)
 - `DB_PORT` - MySQL TCP port (default: `3306`)
 - `DB_USER` - MySQL username (default: `root`)
@@ -126,7 +126,7 @@ export DB_USER=root
 export DB_NAME=simoc
 ```
 
-#### Load `SIMOC` configuration into the environment
+#### Load `SIMOC` configuration into the shell environment
 ```bash
 source simoc_k8s.env
 ```
@@ -196,9 +196,9 @@ helm repo update
 ```
 
 #### Deploy custom database backends
-Follow the instruction below if you prefer to manually manage database components
+Follow the instructions below if you prefer to manually manage `SIMOC` database components:
 
-* Deploy `MySQL` server components
+* Deploy `MySQL` server component
 ```bash
 helm install simoc-db \
     --set mysqlDatabase=simoc \
@@ -233,28 +233,28 @@ export REDIS_PASSWORD=$(
 kubectl create secret generic redis-creds --from-literal=redis_password=$REDIS_PASSWORD
 ```
 
-#### Configure and save `Flask` secret string to `Cloud Secrets`
+#### Generate a `Flask` secret string and save it to `Cloud Secrets`
 ```bash
-export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
+export FLASK_SECRET=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 kubectl create secret generic flask-secret --from-literal=flask_secret=$FLASK_SECRET
 ```
 
-#### Create a static IP address for `SIMOC` application
+#### Reserve a static IP address for `SIMOC` application
 ```bash
 gcloud compute addresses create $STATIC_IP_NAME --region $GCP_REGION
 ```
 
-#### Install `apache2-utils` if you plan to use `Basic Auth`
+#### Install `apache2-utils` if you plan to use `Basic Auth` (optional)
 ```bash
 sudo apt-get install apache2-utils
 ```
 
-#### Generate `Kubernetes` manifests
+#### Generate `Kubernetes` manifest files
 ```bash
 python3 generate_k8s_configs.py
 ```
 
-#### Deploy `SIMOC` backend into the cluster
+#### Deploy `SIMOC` backend to the `Kubernetes` cluster
 ```bash
 kubectl create -f k8s/deployments/redis_environment.yaml
 kubectl create -f k8s/deployments/simoc_db_environment.yaml
@@ -265,7 +265,7 @@ kubectl create -f k8s/autoscalers/simoc_celery_autoscaler.yaml
 kubectl create -f k8s/services/simoc_flask_service.yaml
 ```
 
-#### Deploy `Traefik` router
+#### Deploy `Traefik` router component
 ```bash
 helm install traefik --values k8s/ingresses/traefik_values.yaml traefik/traefik
 kubectl create -f k8s/ingresses/traefik.yaml
@@ -316,7 +316,7 @@ docker build -t simoc_flask_mysql_k8s .
 
 #### Re-build `simoc_celery_worker_k8s` image
 ```bash
-docker build -f celery_worker/Dockerfile -t simoc_celery_worker_k8s .
+docker build -f Dockerfile-celery-worker -t simoc_celery_worker_k8s .
 ```
 
 #### Push new images to `Container Registry`
@@ -335,7 +335,7 @@ kubectl replace --force -f k8s/deployments/simoc_celery_cluster.yaml
 
 # 7. Useful commands
 
-#### Scale `SIMOC` components
+#### Scale `SIMOC` components independently
 Scale the number of `Celery` containers to `20`:
 ```bash
 kubectl scale --replicas=20 -f k8s/deployments/simoc_celery_cluster.yaml
