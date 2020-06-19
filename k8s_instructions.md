@@ -351,7 +351,7 @@ gcloud auth configure-docker
 gcloud compute addresses describe $STATIC_IP_NAME --region $GCP_REGION
 ```
 
-#### Scale `SIMOC` components independently
+#### Scale `SIMOC` components up and down independently
 * Scale the number of `Celery` containers to `20`:
 ```bash
 kubectl scale --replicas=20 -f k8s/deployments/simoc_celery_cluster.yaml
