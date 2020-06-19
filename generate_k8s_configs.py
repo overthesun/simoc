@@ -1,4 +1,7 @@
+import base64
 import os
+import subprocess
+import json
 from jinja2 import Environment, FileSystemLoader
 
 if __name__ == "__main__":
@@ -15,7 +18,8 @@ if __name__ == "__main__":
               "acme_email": os.environ.get('ACME_EMAIL', ''),
               "acme_staging": int(os.environ.get('ACME_STAGING', True)),
               "basic_auth": int(os.environ.get('BASIC_AUTH', False)),
-              "auth_secret": os.environ.get('AUTH_SECRET', ''),
+              "auth_username": os.environ.get('AUTH_USERNAME', ''),
+              "auth_password": os.environ.get('AUTH_PASSWORD', ''),
               "static_ip_name": os.environ.get('STATIC_IP_NAME', ''),
               "redis_host": os.environ.get('REDIS_HOST', ''),
               "redis_port": os.environ.get('REDIS_PORT', ''),
@@ -33,6 +37,15 @@ if __name__ == "__main__":
     simoc_flask_autoscaler = j2_env.get_template('k8s/autoscalers/simoc_flask_autoscaler.yaml.jinja')
     traefik = j2_env.get_template('k8s/ingresses/traefik.yaml.jinja')
     traefik_values = j2_env.get_template('k8s/ingresses/traefik_values.yaml.jinja')
+
+    gcloud_cmd = f"gcloud compute addresses describe {config['static_ip_name']} --region {config['gcp_region']} --format=json".split()
+    result = subprocess.run(gcloud_cmd, capture_output=True)
+    config['public_ip'] = json.loads(result.stdout.decode('utf-8'))['address']
+
+    if config['basic_auth']:
+        htpasswd_cmd = f"htpasswd -nb {config['auth_username']} {config['auth_password']}".split()
+        result = subprocess.run(htpasswd_cmd, capture_output=True)
+        config['auth_secret'] = base64.b64encode(result.stdout)
 
     with open('k8s/deployments/redis_environment.yaml', 'w') as f:
         f.write(redis_environment.render(**config))
