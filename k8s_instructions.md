@@ -2,27 +2,45 @@
 
 # 1. Configure `GCP` Project
 
-## Login to the `Cloud Console`
+#### Login to the `Cloud Console`
 * https://cloud.google.com/
 
-## Create or select a `GCP` project
+#### Create or select a `GCP` project
 * https://cloud.google.com/resource-manager/docs/creating-managing-projects
 
-## Make sure that billing is enabled for your project
+#### Make sure that billing is enabled for your project
 * https://cloud.google.com/billing/docs/how-to/modify-project
 
-## Navigate to the API Library
+#### Navigate to the `API Library`
 * https://console.cloud.google.com/apis/library
 
-## Activate the following APIs
+#### Activate the following `GCP` APIs
 * Compute Engine API
 * Kubernetes Engine API
 * Google Container Registry API
+* Cloud SQL (optional)
+* Google Cloud Memorystore for Redis API (optional)
 
-## Initialize a new `Cloud Shell` session
+#### Setup managed database backends (optional)
+`SIMOC` supports multiple scenarios for hosting  `MySQL` and `Redis` components on GCP:
+1. Using fully managed instances by GCP (zero maintenance, provisioning, operations)
+2. Manually deploying DB components to a `Kubernetes` cluster (native k8s automations - health checks, recovery, auto scaling)
+
+Follow the official `Google Cloud` instructions to set up managed database components:
+* https://cloud.google.com/memorystore/docs/redis/creating-managing-instances#console
+* https://cloud.google.com/sql/docs/mysql/create-instance#console
+
+Make sure you configured MySQL version `5.7+` and Redis `5.0+`.
+
+Copy the IP addresses that `GCP` provisioned for the corresponding instance and the `MySQL` password as you will need those values later on.
+
+#### Initialize a new `Cloud Shell` session
 * https://console.cloud.google.com/getting-started
 * https://cloud.google.com/shell/docs/quickstart
 * https://console.cloud.google.com/cloudshell
+
+#### Enable `Boost mode` for `Cloud Shell`
+* https://cloud.google.com/shell/docs/how-cloud-shell-works#boost_mode
 
 # 2. Configure `SIMOC` deployment
 
@@ -75,6 +93,13 @@ vim simoc_k8s.env
 - `AUTH_USERNAME` - username for Basic Auth
 - `AUTH_PASSWORD` - password for Basic Auth
 - `STATIC_IP_NAME` - string name for a static external IP address
+- `REDIS_HOST` - domain or IP address of the Redis database (do not change the default value if you DON"T plan to use a managed database)
+- `REDIS_PORT` - Redis TCP port (default: `6379`)
+- `REDIS_USE_PASSWORD` - whether to password auth for Redis connection (default: `1`, use `0` if you DO plan to use a managed database)
+- `DB_HOST` - domain or IP address of the MySQL database (do not change the default value if you DON"T plan to use a managed database)
+- `DB_PORT` - MySQL TCP port (default: `3306`)
+- `DB_USER` - MySQL username (default: `root`)
+- `DB_NAME` - MySQL database name (default: `simoc`)
 ```bash
 export GCP_PROJECT_ID=simoc-gcp-180321
 export GCP_ZONE=us-east1-b
@@ -92,6 +117,13 @@ export BASIC_AUTH=1
 export AUTH_USERNAME=admin
 export AUTH_PASSWORD=password
 export STATIC_IP_NAME=simoc-static-ip
+export REDIS_HOST=redis-master.default.svc.cluster.local
+export REDIS_PORT=6379
+export REDIS_USE_PASSWORD=1
+export DB_HOST=simoc-db-mysql.default.svc.cluster.local
+export DB_PORT=3306
+export DB_USER=root
+export DB_NAME=simoc
 ```
 
 #### Load `SIMOC` configuration into the environment
@@ -105,21 +137,6 @@ gcloud config set project $GCP_PROJECT_ID
 gcloud config set compute/zone $GCP_ZONE
 ```
 
-#### Install `Helm` client (`package manager for k8s`)
-```bash
-curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
-chmod 700 get_helm.sh
-./get_helm.sh
-```
-
-#### Register `Helm` repositories
-```bash
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo add stable https://kubernetes-charts.storage.googleapis.com/
-helm repo add traefik https://containous.github.io/traefik-helm-chart
-helm repo update
-```
-
 # 3. Build `SIMOC` images
 
 #### Configure `Docker` environment
@@ -130,7 +147,7 @@ gcloud auth configure-docker
 #### Build `Docker` images
 ```bash
 docker build -t simoc_flask_mysql_k8s .
-docker build -f celery_worker/Dockerfile -t simoc_celery_worker_k8s .
+docker build -f Dockerfile-celery-worker -t simoc_celery_worker_k8s .
 ```
 
 #### Push images to `Container Registry`
@@ -163,7 +180,25 @@ gcloud container clusters create $K8S_CLUSTER_NAME \
 gcloud container clusters get-credentials $K8S_CLUSTER_NAME --zone $GCP_ZONE
 ```
 
-#### Deploy `MySQL` server
+#### Install `Helm` client (`package manager for k8s`)
+```bash
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+chmod 700 get_helm.sh
+./get_helm.sh
+```
+
+#### Register `Helm` repositories
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo add traefik https://containous.github.io/traefik-helm-chart
+helm repo update
+```
+
+#### Deploy custom database backends
+Follow the instruction below if you prefer to manually manage database components
+
+* Deploy `MySQL` server components
 ```bash
 helm install simoc-db \
     --set mysqlDatabase=simoc \
@@ -174,7 +209,7 @@ helm install simoc-db \
     stable/mysql
 ```
 
-#### Save `MySQL` credentials to `Cloud Secrets`
+* Save `MySQL` credentials to `Cloud Secrets`
 ```bash
 export DB_PASSWORD=$(
     kubectl get secret --namespace default simoc-db-mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode
@@ -183,13 +218,13 @@ export DB_PASSWORD=$(
 kubectl create secret generic simoc-db-creds --from-literal=db_password=$DB_PASSWORD
 ```
 
-#### Deploy `Redis` server
+* Deploy `Redis` server component
 ```bash
 curl -Lo values-production.yaml https://raw.githubusercontent.com/bitnami/charts/master/bitnami/redis/values-production.yaml
 helm install redis bitnami/redis --values values-production.yaml
 ```
 
-#### Save `Redis` credentials to `Cloud Secrets`
+* Save `Redis` credentials to `Cloud Secrets`
 ```bash
 export REDIS_PASSWORD=$(
     kubectl get secret --namespace default redis -o jsonpath="{.data.redis-password}" | base64 --decode
@@ -207,6 +242,11 @@ kubectl create secret generic flask-secret --from-literal=flask_secret=$FLASK_SE
 #### Create a static IP address for `SIMOC` application
 ```bash
 gcloud compute addresses create $STATIC_IP_NAME --region $GCP_REGION
+```
+
+#### Install `apache2-utils` if you plan to use `Basic Auth`
+```bash
+sudo apt-get install apache2-utils
 ```
 
 #### Generate `Kubernetes` manifests
@@ -228,7 +268,7 @@ kubectl create -f k8s/services/simoc_flask_service.yaml
 #### Deploy `Traefik` router
 ```bash
 helm install traefik --values k8s/ingresses/traefik_values.yaml traefik/traefik
-kubectl create --force -f k8s/ingresses/traefik.yaml
+kubectl create -f k8s/ingresses/traefik.yaml
 kubectl patch deployment/traefik -p '{"spec": {"template": {"spec": {"initContainers": [{"name": "fix-acme", "image": "alpine:3.6", "command": ["chmod", "600", "/data/acme.json"], "volumeMounts": [{"name": "data", "mountPath": "/data"}]}]}}}}'
 ```
 
@@ -314,4 +354,9 @@ kubectl logs -f -l app=simoc-flask-server --all-containers --max-log-requests 10
 #### Stream logs from the `celery-cluster` service
 ```bash
 kubectl logs -f -l app=simoc-celery-cluster --all-containers --max-log-requests 100
+```
+
+#### Stream logs from the `traefik` service
+```bash
+kubectl logs -f -l app.kubernetes.io/name=traefik --all-containers --max-log-requests 100
 ```
