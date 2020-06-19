@@ -256,19 +256,19 @@ python3 generate_k8s_configs.py
 
 #### Deploy `SIMOC` backend to the `Kubernetes` cluster
 ```bash
-kubectl create -f k8s/deployments/redis_environment.yaml
-kubectl create -f k8s/deployments/simoc_db_environment.yaml
-kubectl create -f k8s/deployments/simoc_flask_server.yaml
-kubectl create -f k8s/deployments/simoc_celery_cluster.yaml
-kubectl create -f k8s/autoscalers/simoc_flask_autoscaler.yaml
-kubectl create -f k8s/autoscalers/simoc_celery_autoscaler.yaml
-kubectl create -f k8s/services/simoc_flask_service.yaml
+kubectl apply -f k8s/deployments/redis_environment.yaml
+kubectl apply -f k8s/deployments/simoc_db_environment.yaml
+kubectl apply -f k8s/deployments/simoc_flask_server.yaml
+kubectl apply -f k8s/deployments/simoc_celery_cluster.yaml
+kubectl apply -f k8s/autoscalers/simoc_flask_autoscaler.yaml
+kubectl apply -f k8s/autoscalers/simoc_celery_autoscaler.yaml
+kubectl apply -f k8s/services/simoc_flask_service.yaml
 ```
 
 #### Deploy `Traefik` router component
 ```bash
 helm install traefik --values k8s/ingresses/traefik_values.yaml traefik/traefik
-kubectl create -f k8s/ingresses/traefik.yaml
+kubectl applly -f k8s/ingresses/traefik.yaml
 kubectl patch deployment/traefik -p '{"spec": {"template": {"spec": {"initContainers": [{"name": "fix-acme", "image": "alpine:3.6", "command": ["chmod", "600", "/data/acme.json"], "volumeMounts": [{"name": "data", "mountPath": "/data"}]}]}}}}'
 ```
 
@@ -280,7 +280,7 @@ kubectl exec \
     -- bash -c "python3 create_db.py"
 ```
 
-# 6. Roll-out updates
+# 6. Performing rolling updates
 
 #### Make sure you logged in and retrieved the `GCP` credentials
 ```bash
@@ -309,13 +309,9 @@ gcloud container clusters get-credentials $K8S_CLUSTER_NAME --zone $GCP_ZONE
 gcloud auth configure-docker
 ```
 
-#### Re-build `simoc_flask_mysql_k8s` image
+#### Re-build `Docker` images
 ```bash
 docker build -t simoc_flask_mysql_k8s .
-```
-
-#### Re-build `simoc_celery_worker_k8s` image
-```bash
 docker build -f Dockerfile-celery-worker -t simoc_celery_worker_k8s .
 ```
 
@@ -329,8 +325,14 @@ docker push gcr.io/$GCP_PROJECT_ID/simoc_celery:latest
 
 #### Re-deploy `SIMOC` containers with new images
 ```bash
-kubectl replace --force -f k8s/deployments/simoc_flask_server.yaml
-kubectl replace --force -f k8s/deployments/simoc_celery_cluster.yaml
+kubectl rollout restart deployment/simoc-flask-server
+kubectl rollout restart deployment/simoc-celery-cluster
+```
+
+#### Inspect the status of a rollout
+```bash
+kubectl rollout status deployment simoc-flask-server
+kubectl rollout status deployment simoc-celery-cluster
 ```
 
 # 7. Useful commands
