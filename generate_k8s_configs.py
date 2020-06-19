@@ -43,9 +43,9 @@ if __name__ == "__main__":
     config['public_ip'] = json.loads(result.stdout.decode('utf-8'))['address']
 
     if config['basic_auth']:
-        htpasswd_cmd = f"htpasswd -nb {config['auth_username']} {config['auth_password']}".split()
-        result = subprocess.run(htpasswd_cmd, capture_output=True)
-        config['auth_secret'] = base64.b64encode(result.stdout)
+        htpasswd_cmd = f"htpasswd -nb {config['auth_username']} {config['auth_password']} | base64"
+        result = subprocess.Popen(htpasswd_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        config['auth_secret'] = result.communicate()[0].decode('utf-8').strip()
 
     with open('k8s/deployments/redis_environment.yaml', 'w') as f:
         f.write(redis_environment.render(**config))
