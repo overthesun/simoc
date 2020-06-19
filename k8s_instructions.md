@@ -21,7 +21,7 @@
 * Cloud SQL (optional)
 * Google Cloud Memorystore for Redis API (optional)
 
-#### Configure managed database backends (optional)
+#### Set up managed database backends (optional)
 `SIMOC` supports multiple scenarios for hosting  `MySQL` and `Redis` components on GCP:
 1. Using database instances fully managed by GCP (zero maintenance, provisioning, operations)
 2. Manually deploying DB components to a `Kubernetes` cluster (native k8s automations - health checks, recovery, auto scaling)
