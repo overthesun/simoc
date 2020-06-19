@@ -337,13 +337,27 @@ kubectl rollout status deployment simoc-celery-cluster
 
 # 7. Useful commands
 
+#### Load `SIMOC` config into the shell environment
+```bash
+source simoc_k8s.env
+gcloud config set project $GCP_PROJECT_ID
+gcloud config set compute/zone $GCP_ZONE
+gcloud container clusters get-credentials $K8S_CLUSTER_NAME --zone $GCP_ZONE
+gcloud auth configure-docker
+```
+
+#### Display detailed information about a reserved IP address
+```bash
+gcloud compute addresses describe $STATIC_IP_NAME --region $GCP_REGION
+```
+
 #### Scale `SIMOC` components independently
-Scale the number of `Celery` containers to `20`:
+* Scale the number of `Celery` containers to `20`:
 ```bash
 kubectl scale --replicas=20 -f k8s/deployments/simoc_celery_cluster.yaml
 ```
 
-Scale the number of `Flask` containers to `5`:
+* Scale the number of `Flask` containers to `5`:
 ```bash
 kubectl scale --replicas=5 -f k8s/deployments/simoc_flask_server.yaml
 ```
