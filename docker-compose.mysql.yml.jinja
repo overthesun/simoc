@@ -83,8 +83,6 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - .:/simoc
     depends_on:
       - simoc-db
       - redis
@@ -112,8 +110,6 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       FLASK_SECRET: ${FLASK_SECRET}
-    volumes:
-      - .:/simoc
     depends_on:
       - simoc-db
       - redis
