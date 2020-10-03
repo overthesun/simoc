@@ -3,7 +3,9 @@ from jinja2 import Environment, FileSystemLoader
 
 if __name__ == "__main__":
     j2_env = Environment(loader=FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
-    config = {"server_name":     os.environ.get('SERVER_NAME', 'localhost'),
+    config = {"version":     os.environ.get('VERSION', 'latest'),
+              "docker_repo":     os.environ.get('DOCKER_REPO', ''),
+              "server_name":     os.environ.get('SERVER_NAME', 'localhost'),
               "use_ssl":         int(os.environ.get('USE_SSL', False)),
               "http_port":       os.environ.get('HTTP_PORT', 8000),
               "https_port":      os.environ.get('HTTPS_PORT', 8443),
