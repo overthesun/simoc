@@ -6,7 +6,8 @@ from jinja2 import Environment, FileSystemLoader
 if __name__ == "__main__":
     j2_env = Environment(loader=FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
 
-    config = {"gcp_project_id": os.environ.get('GCP_PROJECT_ID', ''),
+    config = {"version": os.environ.get('VERSION', 'latest'),
+              "gcp_project_id": os.environ.get('GCP_PROJECT_ID', ''),
               "gcp_zone": os.environ.get('GCP_ZONE', ''),
               "gcp_region": os.environ.get('GCP_REGION', ''),
               "min_flask_replicas": os.environ.get('MIN_FLASK_REPLICAS', ''),

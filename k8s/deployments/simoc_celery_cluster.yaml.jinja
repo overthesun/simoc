@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: simoc-celery-cluster
-          image: gcr.io/{{ gcp_project_id }}/simoc_celery:latest
+          image: gcr.io/{{ gcp_project_id }}/simoc_celery:{{ version }}
           imagePullPolicy: Always
           livenessProbe:
             exec:
