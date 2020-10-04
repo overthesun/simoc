@@ -8,11 +8,6 @@ on:
   repository_dispatch:
     types: [frontend-update]
   workflow_dispatch:
-#    inputs:
-#      ref:
-#        required: true
-#      sha:
-#        required: true
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
@@ -47,7 +42,7 @@ jobs:
       - name: Set up Node Environment
         uses: actions/setup-node@v1
         with:
-          node-version: '8'
+          node-version: '12'
       - name: npm install and build
         working-directory: simoc-web
         run: |
