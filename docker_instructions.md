@@ -20,7 +20,8 @@ Scroll through the file and update the variable values to configure the deployme
 vim simoc_docker.env
 ```
 
-### Update web server configuration
+##### Update web server configuration
+- `DOCKER_REPO` - Docker Hub account name (default: ``)
 - `SERVER_NAME` - domain name of the SIMOC host (default: `localhost`)
 - `HTTP_PORT` - http port to listen on (default: `8000`)
 - `HTTPS_PORT` - https port to listen on (default: `8443`)
@@ -30,6 +31,7 @@ vim simoc_docker.env
 - `ADD_BASIC_AUTH` - `1` to enable Basic HTTP authentication (default: `0`)
 - `VALID_REFERERS` - domain name of the only referer to allow (default: `''`)
 ```bash
+export DOCKER_REPO='imilov'
 export SERVER_NAME='beta.simoc.space'
 export HTTP_PORT=80
 export HTTPS_PORT=443
@@ -40,22 +42,22 @@ export ADD_BASIC_AUTH=1
 export VALID_REFERERS='www.example.com'
 ```
 
-### Setup `Redis` root password
+##### Setup `Redis` root password
 ```bash
 export REDIS_PASSWORD='ENTER_REDIS_PASSWORD_HERE'
 ```
 
-### Setup `MySQL` root password
+##### Setup `MySQL` root password
 ```bash
 export DB_PASSWORD='ENTER_MYSQL_PASSWORD_HERE'
 ```
 
-### Generate a `Flask` secret string
+##### Generate a `Flask` secret string
 ```bash
-export FLASK_SECRET=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+export FLASK_SECRET='ENTER_RANDOM_STRING_VALUE'
 ```
 
-### Update the number of worker containers to spin up (optional)
+##### Update the number of worker containers to spin up (optional)
 ```bash
 export FLASK_WORKERS=2
 export CELERY_WORKERS=2
@@ -152,8 +154,8 @@ mkdir -p "${CERTBOT_PATH}/conf/live/${SERVER_NAME}"
 
 Generate "dummy" certificates:
 ```bash
-docker-compose -f docker-compose.mysql.yml run --rm --entrypoint "\
-  openssl req -x509 -nodes -newkey rsa:1024 -days 1 \
+docker-compose -f ${COMPOSE_FILE} run --rm --entrypoint "\
+  openssl req -x509 -nodes -newkey rsa:4096 -days 1 \
     -keyout '${CERT_PATH}/privkey.pem' \
     -out '${CERT_PATH}/fullchain.pem' \
     -subj '/CN=localhost'" certbot
@@ -161,12 +163,12 @@ docker-compose -f docker-compose.mysql.yml run --rm --entrypoint "\
 
 Start `Nginx` service:
 ```bash
-docker-compose -f docker-compose.mysql.yml up --force-recreate -d nginx
+docker-compose -f ${COMPOSE_FILE} up --force-recreate -d nginx
 ```
 
 Delete "dummy" certificates:
 ```bash
-docker-compose -f docker-compose.mysql.yml run --rm --entrypoint " \
+docker-compose -f ${COMPOSE_FILE} run --rm --entrypoint " \
   rm -Rf /etc/letsencrypt/live/${SERVER_NAME} && \
   rm -Rf /etc/letsencrypt/archive/${SERVER_NAME} && \
   rm -Rf /etc/letsencrypt/renewal/${SERVER_NAME}.conf" certbot
@@ -174,7 +176,7 @@ docker-compose -f docker-compose.mysql.yml run --rm --entrypoint " \
 
 Request managed certificates from `Let's Encrypt`:
 ```bash
-docker-compose -f docker-compose.mysql.yml run --rm --entrypoint " \
+docker-compose -f ${COMPOSE_FILE} run --rm --entrypoint " \
   certbot certonly --webroot -w /var/www/certbot \
     --email ${EMAIL} \
     -d ${SERVER_NAME} \
@@ -185,18 +187,14 @@ docker-compose -f docker-compose.mysql.yml run --rm --entrypoint " \
 
 Reload `Nginx` service:
 ```bash
-docker-compose -f docker-compose.mysql.yml exec nginx nginx -s reload
+docker-compose -f ${COMPOSE_FILE} exec nginx nginx -s reload
 ```
 
-# 4. Deploy `SIMOC` application
-## Build `Docker` images
-```bash
-docker-compose -f docker-compose.mysql.yml build
-```
+# 5. Deploy `SIMOC` application
 
-## Start all `SIMOC` services
+## Start all `SIMOC` components
 ```bash
-docker-compose -f docker-compose.mysql.yml up -d \
+docker-compose -f ${COMPOSE_FILE} up -d \
     --force-recreate \
     --scale celery-worker=${CELERY_WORKERS} \
     --scale flask-app=${FLASK_WORKERS}
@@ -205,7 +203,7 @@ docker-compose -f docker-compose.mysql.yml up -d \
 ## Debug `SIMOC` deployment
 Show all running `SIMOC` containers:
 ```bash
-$ docker-compose -f docker-compose.mysql.yml ps
+$ docker-compose -f ${COMPOSE_FILE} ps
         Name                      Command                State                 Ports
 -----------------------------------------------------------------------------------------------
 simoc_celery-worker_1   /bin/bash start_worker.sh     Up (healthy)
@@ -224,7 +222,7 @@ Check out [Docker Cheat Sheet](https://github.com/wsargent/docker-cheat-sheet) f
 ## Initialize `MySQL` database
 Once all `SIMOC` services and containers are up and running, run the following command to create DB schema and populate the agent model:
 ```bash
-docker-compose -f docker-compose.mysql.yml exec celery-worker python3 create_db.py
+docker-compose -f ${COMPOSE_FILE} exec celery-worker python3 create_db.py
 ```
 
 If the following error occurs, retry the command in 10-30 seconds:
@@ -235,12 +233,12 @@ sqlalchemy.exc.OperationalError: (_mysql_exceptions.OperationalError) (2003, "Ca
 ## Scale `SIMOC` components (optional)
 Scale the number of `celery-worker` containers to `5`:
 ```bash
-docker-compose -f docker-compose.mysql.yml scale celery-worker=5
+docker-compose -f ${COMPOSE_FILE} scale celery-worker=5
 ```
 
 Scale the number of `flask-app` containers to `5`:
 ```bash
-docker-compose -f docker-compose.mysql.yml scale flask-app=5
+docker-compose -f ${COMPOSE_FILE} scale flask-app=5
 ```
 
 ## Access `SIMOC` web application
@@ -248,21 +246,62 @@ Navigate to the following `URL` in your browser to access a `SIMOC` application 
 - [http://127.0.0.1:8000](http://127.0.0.1:8000)
 - [https://localhost:8443](https://localhost:8443)
 
-# 5. Update `SIMOC` application
-## Re-deploy `SIMOC` on code changes
+# 6. Update `SIMOC` application
+
+## Re-build `SIMOC` images
 - Load `SIMOC` environment variables:
 ```bash
 source simoc_docker.env
 ```
 
-- Re-build `SIMOC` images:
+- Login to `Docker Hub`:
 ```bash
-docker-compose -f docker-compose.mysql.yml build
+docker login
 ```
 
-- Re-deploy `SIMOC` services:
+- Build `Docker` images:
 ```bash
-docker-compose -f docker-compose.mysql.yml up -d \
+docker build -t simoc_flask .
+docker build -f Dockerfile-celery-worker -t simoc_celery .
+```
+
+- Setup version tag for the new images:
+```bash
+export VERSION=latest
+```
+
+- Push new images to `Docker Hub`:
+```bash
+docker tag simoc_flask ${DOCKER_REPO}/simoc_flask:${VERSION}
+docker tag simoc_celery ${DOCKER_REPO}/simoc_celery:${VERSION}
+docker push ${DOCKER_REPO}/simoc_flask:${VERSION}
+docker push ${DOCKER_REPO}/simoc_celery:${VERSION}
+```
+
+## Re-deploy `SIMOC` application
+- Load `SIMOC` environment variables:
+```bash
+source simoc_docker.env
+```
+
+- Specify the version to deploy:
+```bash
+export VERSION=latest
+```
+
+- Generate `Docker Compose` config file:
+```bash
+python3 generate_docker_configs.py
+```
+
+- Pull the latest `SIMOC` images:
+```bash
+docker-compose -f ${COMPOSE_FILE} pull
+```
+
+- Re-deploy `SIMOC` components:
+```bash
+docker-compose -f ${COMPOSE_FILE} up -d \
     --force-recreate \
     --scale celery-worker=${CELERY_WORKERS} \
     --scale flask-app=${FLASK_WORKERS}
@@ -271,42 +310,43 @@ docker-compose -f docker-compose.mysql.yml up -d \
 ## Reset `MySQL` database
 Stop and remove all `simoc-db` containers and volumes:
 ```bash
-docker-compose -f docker-compose.mysql.yml rm --stop -v simoc-db
+docker-compose -f ${COMPOSE_FILE} rm --stop -v simoc-db
 docker volume rm simoc_db-data
 ```
 
 Re-deploy `simoc-db` service:
 ```bash
-docker-compose -f docker-compose.mysql.yml up -d --force-recreate simoc-db
+docker-compose -f ${COMPOSE_FILE} up -d --force-recreate simoc-db
 ```
 
-# 6. Useful commands
+# 7. Useful commands
+
 ### Stream logs from all `SIMOC` services
 ```bash
-docker-compose -f docker-compose.mysql.yml logs -t -f
+docker-compose -f ${COMPOSE_FILE} logs -t -f
 ```
 
 ### Stream logs from the `celery-worker` service
 ```bash
-docker-compose -f docker-compose.mysql.yml logs -t -f celery-worker
+docker-compose -f ${COMPOSE_FILE} logs -t -f celery-worker
 ```
 
 ### Stream logs from the `flask-app` service
 ```bash
-docker-compose -f docker-compose.mysql.yml logs -t -f flask-app
+docker-compose -f ${COMPOSE_FILE} logs -t -f flask-app
 ```
 
 ### Stop all `SIMOC` containers
 ```bash
-docker-compose -f docker-compose.mysql.yml stop
+docker-compose -f ${COMPOSE_FILE} stop
 ```
 
 ### Start all `SIMOC` containers
 ```bash
-docker-compose -f docker-compose.mysql.yml start
+docker-compose -f ${COMPOSE_FILE} start
 ```
 
 ### Stop all `SIMOC` services and remove all containers, images and volumes
 ```bash
-docker-compose -f docker-compose.mysql.yml down --rmi all --volumes
+docker-compose -f ${COMPOSE_FILE} down --rmi all --volumes
 ```
