@@ -12,6 +12,8 @@ if __name__ == "__main__":
               "use_certbot":     int(os.environ.get('USE_CERTBOT', False)),
               "redirect_to_ssl": int(os.environ.get('REDIRECT_TO_SSL', False)),
               "add_basic_auth":  int(os.environ.get('ADD_BASIC_AUTH', False)),
+              "use_node_dev":  int(os.environ.get('USE_NODE_DEV', False)),
+              "node_dev_dir":     os.environ.get('NODE_DEV_DIR', ''),
               "valid_referers":  os.environ.get('VALID_REFERERS', '')}
     nginx_conf = j2_env.get_template('nginx/simoc_nginx.conf.jinja')
     docker_compose = j2_env.get_template('docker-compose.mysql.yml.jinja')

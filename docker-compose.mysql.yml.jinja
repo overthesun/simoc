@@ -113,6 +113,19 @@ services:
     depends_on:
       - simoc-db
       - redis
+  {% if use_node_dev %}
+  node-dev:
+    image: {{ docker_repo }}/node_dev:latest
+    restart: always
+    ports:
+      - 9080:8080
+    networks:
+      - simoc-net
+    volumes:
+      - {{ node_dev_dir }}:/frontend
+    depends_on:
+      - nginx
+  {% endif %}
 
 volumes:
   db-data: {}
