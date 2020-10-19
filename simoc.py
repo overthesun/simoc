@@ -50,7 +50,7 @@ def run(args):
     print(result)
     print('<'*80)
     print()
-    return result
+    return not result.returncode
 
 def docker_compose(*args):
     return run([*DOCKER_COMPOSE_CMD, *args])
@@ -129,7 +129,7 @@ def init_db():
     attempts = 15
     for attempt in range(15):
         result = docker_compose('exec', 'celery-worker', 'python3', 'create_db.py')
-        if result.returncode == 0:
+        if result is True:
             return result
         else:
             print('create_db.py failed: if the error above says:\n'
@@ -140,6 +140,7 @@ def init_db():
     else:
         print(f'Giving up after {attempts} attempts.  Run the above command '
               f'manually to try again.')
+    return False
 
 @cmd
 def remove_db():
@@ -234,7 +235,7 @@ Use `logs`, `celery-logs`, `flask-logs`, to see the logs.
     cmd = args.cmd.replace('-', '_')
     if cmd in COMMANDS:
         result = COMMANDS[cmd]()
-        parser.exit(getattr(result, 'returncode', 0))
+        parser.exit(not result)
     else:
         cmds = ', '.join(cmd.replace('_', '-') for cmd in COMMANDS.keys())
         parser.exit(f'Command not found.  Available commands: {cmds}')
