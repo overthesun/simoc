@@ -1,24 +1,36 @@
 import os
+from pathlib import Path
+
 from jinja2 import Environment, FileSystemLoader
 
-if __name__ == "__main__":
-    j2_env = Environment(loader=FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
-    config = {"version":     os.environ.get('VERSION', 'latest'),
-              "docker_repo":     os.environ.get('DOCKER_REPO', ''),
-              "server_name":     os.environ.get('SERVER_NAME', 'localhost'),
-              "use_ssl":         int(os.environ.get('USE_SSL', False)),
-              "http_port":       os.environ.get('HTTP_PORT', 8000),
-              "https_port":      os.environ.get('HTTPS_PORT', 8443),
-              "use_certbot":     int(os.environ.get('USE_CERTBOT', False)),
-              "redirect_to_ssl": int(os.environ.get('REDIRECT_TO_SSL', False)),
-              "add_basic_auth":  int(os.environ.get('ADD_BASIC_AUTH', False)),
-              "use_node_dev":  int(os.environ.get('USE_NODE_DEV', False)),
-              "node_dev_dir":     os.environ.get('NODE_DEV_DIR', ''),
-              "valid_referers":  os.environ.get('VALID_REFERERS', '')}
-    nginx_conf = j2_env.get_template('nginx/simoc_nginx.conf.jinja')
-    docker_compose = j2_env.get_template('docker-compose.mysql.yml.jinja')
-    with open('./nginx/simoc_nginx.conf', 'w') as f:
-        f.write(nginx_conf.render(**config))
-    with open('docker-compose.mysql.yml', 'w') as f:
-        f.write(docker_compose.render(**config))
 
+def main(env=os.environ):
+    j2_env = Environment(loader=FileSystemLoader('./'),
+                         trim_blocks=True, lstrip_blocks=True)
+    config = {
+        "version": env.get('VERSION', 'latest'),
+        "docker_repo": env.get('DOCKER_REPO', ''),
+        "server_name": env.get('SERVER_NAME', 'localhost'),
+        "use_ssl": int(env.get('USE_SSL', False)),
+        "http_port": env.get('HTTP_PORT', 8000),
+        "https_port": env.get('HTTPS_PORT', 8443),
+        "use_certbot": int(env.get('USE_CERTBOT', False)),
+        "redirect_to_ssl": int(env.get('REDIRECT_TO_SSL', False)),
+        "add_basic_auth": int(env.get('ADD_BASIC_AUTH', False)),
+        "use_node_dev": int(env.get('USE_NODE_DEV', False)),
+        "node_dev_dir": env.get('NODE_DEV_DIR', ''),
+        "valid_referers": env.get('VALID_REFERERS', ''),
+    }
+    nginx_jinja = Path('nginx/simoc_nginx.conf.jinja')
+    docker_compose_jinja = Path('docker-compose.mysql.yml.jinja')
+    print('Generating config files:')
+    for jinja_file in [nginx_jinja, docker_compose_jinja]:
+        temp_file = j2_env.get_template(str(jinja_file))
+        conf_file = jinja_file.stem  # remove .jinja suffix
+        with open(conf_file, 'w') as f:
+            f.write(temp_file.render(**config))
+        print(f'  * <{conf_file}> created')
+
+
+if __name__ == "__main__":
+    main()
