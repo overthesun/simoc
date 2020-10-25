@@ -143,8 +143,9 @@ class AgentModel(Model, AttributeHolder):
         Returns
         """
         record_id = random.getrandbits(63)
+        step_num = self.step_num - 1
         model_record = dict(id=record_id,
-                            step_num=self.step_num,
+                            step_num=step_num,
                             user_id=self.user_id,
                             game_id=self.game_id,
                             start_time=self.start_time,
@@ -167,7 +168,7 @@ class AgentModel(Model, AttributeHolder):
             for currency in storage['currencies']:
                 storage_capacity_record = dict(game_id=self.game_id,
                                                user_id=self.user_id,
-                                               step_num=self.step_num,
+                                               step_num=step_num,
                                                storage_id=storage['storage_id'],
                                                storage_agent_id=storage['storage_agent_id'],
                                                storage_type=storage['agent_type'],

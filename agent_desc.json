@@ -126,6 +126,10 @@
         ],
         "characteristics": [
           {
+            "type": "friendly_name",
+            "value": "Human"
+          },
+          {
             "type": "lifetime",
             "value": 525600.0,
             "unit": "hour"
@@ -4809,6 +4813,10 @@
         ],
         "characteristics": [
           {
+            "type": "friendly_name",
+            "value": "Radish"
+          },
+          {
             "type": "category",
             "value": "food_root"
           },
@@ -6167,6 +6175,10 @@
         "output": [],
         "characteristics": [
           {
+            "type": "friendly_name",
+            "value": "Air Storage"
+          },
+          {
             "type": "capacity_atmo_o2",
             "value": 10000,
             "unit": "kg"
@@ -6216,6 +6228,10 @@
         "output": [],
         "characteristics": [
           {
+            "type": "friendly_name",
+            "value": "Water Storage"
+          },
+          {
             "type": "capacity_h2o_potb",
             "value": 4000,
             "unit": "kg"
@@ -6254,6 +6270,10 @@
         "input": [],
         "output": [],
         "characteristics": [
+          {
+            "type": "friendly_name",
+            "value": "Nutrient Storage"
+          },
           {
             "type": "capacity_biomass_totl",
             "value": 10000,
@@ -6304,6 +6324,10 @@
         "output": [],
         "characteristics": [
           {
+            "type": "friendly_name",
+            "value": "Food Storage"
+          },
+          {
             "type": "capacity_food_edbl",
             "value": 10000,
             "unit": "kg"
@@ -6327,6 +6351,10 @@
         "input": [],
         "output": [],
         "characteristics": [
+          {
+            "type": "friendly_name",
+            "value": "Power Storage"
+          },
           {
             "type": "capacity_enrg_kwh",
             "value": 1000,

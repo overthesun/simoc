@@ -361,7 +361,7 @@ def calc_step_in_out(direction, currencies, step_record_data, value_round=6):
     return output
 
 
-def calc_step_storage_ratios(agents, model_record_data, value_round=6):
+def calc_step_storage_ratios(agent_types, model_record_data, value_round=6):
     """
     Calculate the ratio for the requested currencies for the requested <agent_type>_<agent_id>.
 
@@ -382,31 +382,33 @@ def calc_step_storage_ratios(agents, model_record_data, value_round=6):
     storage_capacities = map(json.loads, storage_capacities)
 
     output = {}
-    for agent in agents:
-        agent_type = agent[:agent.rfind('_')]
-        agent_id = int(agent[agent.rfind('_')+1:])
-        agent_capacities = [record for record in storage_capacities
-                            if record['storage_type'] == agent_type
-                            and record['storage_id'] == agent_id]
+    for agent_type in agent_types:
+        agent_capacities = {}
+        for record in storage_capacities:
+            if record['storage_type'] == agent_type:
+                if record['storage_id'] not in agent_capacities:
+                    agent_capacities[record['storage_id']] = []
+                agent_capacities[record['storage_id']].append(record)
 
-        # First, get sum of all currencies
-        total_value = 0
-        unit = ''
-        for record in agent_capacities:
-            total_value += record['value']
-            if unit == '':
-                unit = record['unit']
-            else:
-                if not record['unit'] == unit:
-                    sys.exit('ERROR in front_end_routes.calc_step_storage_ratios().'
-                             'Currencies do not have same units.', unit, record['unit'])
-
-        output[agent] = {}
-        # Now, calculate the ratio for specified currencies.
-        for currency in agents[agent]:
-            c_step_data = [record for record in agent_capacities
-                           if record['currency_type'] == currency][0]
-            output[agent][currency] = round(c_step_data['value'] / total_value, value_round)
+        output[agent_type] = {}
+        for storage_id, capacities in agent_capacities.items():
+            # First, get sum of all currencies
+            total_value = 0
+            unit = ''
+            for record in capacities:
+                total_value += record['value']
+                if unit == '':
+                    unit = record['unit']
+                else:
+                    if not record['unit'] == unit:
+                        sys.exit('ERROR in front_end_routes.calc_step_storage_ratios().'
+                                 'Currencies do not have same units.', unit, record['unit'])
+            # Now, calculate the ratio for specified currencies.
+            output[agent_type][storage_id] = {}
+            for currency in agent_types[agent_type]:
+                c_step_data = [record for record in capacities
+                               if record['currency_type'] == currency][0]
+                output[agent_type][storage_id][currency] = round(c_step_data['value'] / total_value, value_round)
 
     return output
 

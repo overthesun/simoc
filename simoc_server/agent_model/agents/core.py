@@ -168,6 +168,10 @@ class EnclosedAgent(BaseAgent):
             self.reproduce = self.attrs['char_reproduce']
         else:
             self.reproduce = 0
+        if 'char_friendly_name' in self.attrs:
+            self.friendly_name = self.attrs['char_friendly_name']
+        else:
+            self.friendly_name = self.agent_type
         self.growth_criteria = self.attrs.get('char_growth_criteria', None)
         self.total_growth = 0
         self.current_growth = 0
@@ -561,10 +565,11 @@ class GeneralAgent(EnclosedAgent):
                             growth = self.growth_rate
                         else:
                             growth = None
-                        record = {"step_num": self.model.step_num + 1,
+                        record = {"step_num": self.model.step_num,
                                   'game_id': self.model.game_id,
                                   "user_id": self.model.user_id,
                                   "agent_type": self.agent_type,
+                                  "agent_friendly_name": self.friendly_name,
                                   "agent_type_id": self.agent_type_id,
                                   "agent_id": self.unique_id,
                                   "direction": prefix,
@@ -573,8 +578,9 @@ class GeneralAgent(EnclosedAgent):
                                   "currency_type_id": currency_type.id,
                                   "value": round(value, value_round),
                                   "growth": growth,
-                                  "unit": str(step_value.units),
+                                  "unit": str(step_value.units).split()[1],
                                   "storage_type": storage.agent_type,
+                                  "storage_friendly_name": storage.friendly_name,
                                   "storage_type_id": storage.agent_type_id,
                                   "storage_agent_id": storage.unique_id,
                                   "storage_id": storage.id}

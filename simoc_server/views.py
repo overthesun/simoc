@@ -343,7 +343,8 @@ def get_game_config(game_id):
 
 def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities=False,
                    storage_ratios=False, total_consumption=False, total_production=False,
-                   agent_growth=False, total_agent_count=False, details_per_agent=False):
+                   agent_growth=False, total_agent_count=False, details_per_agent=False,
+                   post_processing=True):
     steps = get_steps_list(game_id, user_id, min_step_num, max_step_num)
     model_record_steps = get_model_records(game_id, user_id, steps)
     step_record_steps = get_step_records(game_id, user_id, steps)
@@ -378,8 +379,9 @@ def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacit
             step_record_dict[step_num].append(record)
 
     output = {}
+    agent_types_to_names = {}
     for record in model_record_steps:
-        step_num = record['step_num']
+        step_num = int(record['step_num'])
         if step_num in step_record_dict:
             step_record_data = step_record_dict[step_num]
         else:
@@ -401,7 +403,35 @@ def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacit
                                                               directions)
         if isinstance(storage_capacities, dict):
             record["storage_capacities"] = calc_step_storage_capacities(storage_capacities, record)
-        output[int(step_num)] = record
+        output[step_num] = record
+
+        if post_processing:
+            def _convert_agent_name(agent_type):
+                if agent_type not in agent_types_to_names:
+                    agent = AgentType.query.filter_by(name=agent_type).first()
+                    friendly_name = agent_type
+                    for attr in agent.agent_type_attributes:
+                        if attr.name.startswith('char_friendly_name'):
+                            friendly_name = attr.value
+                    agent_types_to_names[agent_type] = friendly_name
+                return agent_types_to_names[agent_type]
+            if agent_growth:
+                output[step_num]["agent_growth"] = {_convert_agent_name(k): v for k, v in
+                                                    output[step_num]["agent_growth"].items()}
+            if total_agent_count:
+                output[step_num]["total_agent_count"] = {_convert_agent_name(k): v for k, v in
+                                                         output[step_num]["total_agent_count"].items()}
+            if storage_ratios:
+                output[step_num]["storage_ratios"] = {_convert_agent_name(k): v for k, v in
+                                                      output[step_num]["storage_ratios"].items()}
+            if isinstance(storage_capacities, dict):
+                output[step_num]["storage_capacities"] = {_convert_agent_name(k): v for k, v in
+                                                          output[step_num]["storage_capacities"].items()}
+            if details_per_agent:
+                for direction, currencies in output[step_num]["details_per_agent"].items():
+                    for currency, agents in currencies.items():
+                        output[step_num]["details_per_agent"][direction][currency] = \
+                            {_convert_agent_name(k): v for k, v in agents.items()}
 
     return output
 
