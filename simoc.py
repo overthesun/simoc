@@ -10,6 +10,8 @@ import pathlib
 import argparse
 import subprocess
 
+import generate_docker_configs
+
 ENV_FILE = 'simoc_docker.env'
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
@@ -35,8 +37,18 @@ except FileNotFoundError:
 FLASK_WORKERS = ENVVARS['FLASK_WORKERS']
 CELERY_WORKERS = ENVVARS['CELERY_WORKERS']
 
+# update environ with the new envvars
+os.environ.update(ENVVARS)
+
+# if the docker-compose file is missing, create it
+if not pathlib.Path(COMPOSE_FILE).exists():
+    generate_docker_configs.main()
+
+
 COMMANDS = {}
+
 def cmd(func):
+    """Decorator to add commands to the COMMANDS dict."""
     COMMANDS[func.__name__] = func
     return func
 
@@ -44,13 +56,12 @@ def run(args):
     print('>'*80)
     print(' '.join(args))
     print('-'*80)
-    env = {**os.environ, **ENVVARS}  # add original env
-    result = subprocess.run(args, env=env)
+    result = subprocess.run(args, env=os.environ)
     print('-'*80)
     print(result)
     print('<'*80)
     print()
-    return result
+    return not result.returncode
 
 def docker_compose(*args):
     return run([*DOCKER_COMPOSE_CMD, *args])
@@ -65,28 +76,7 @@ def print_env():
 @cmd
 def generate_scripts():
     """Generate simoc_nginx.conf and docker-compose.mysql.yml."""
-    from jinja2 import Environment, FileSystemLoader
-    j2_env = Environment(loader=FileSystemLoader('./'),
-                         trim_blocks=True, lstrip_blocks=True)
-    config = {
-        "server_name": ENVVARS.get('SERVER_NAME', 'localhost'),
-        "use_ssl": int(ENVVARS.get('USE_SSL', False)),
-        "http_port": ENVVARS.get('HTTP_PORT', 8000),
-        "https_port": ENVVARS.get('HTTPS_PORT', 8443),
-        "use_certbot": int(ENVVARS.get('USE_CERTBOT', False)),
-        "redirect_to_ssl": int(ENVVARS.get('REDIRECT_TO_SSL', False)),
-        "add_basic_auth": int(ENVVARS.get('ADD_BASIC_AUTH', False)),
-        "valid_referers": ENVVARS.get('VALID_REFERERS', '')
-    }
-    nginx_conf = j2_env.get_template('nginx/simoc_nginx.conf.jinja')
-    docker_compose = j2_env.get_template('docker-compose.mysql.yml.jinja')
-    print('Generating scripts:')
-    with open('./nginx/simoc_nginx.conf', 'w') as f:
-        f.write(nginx_conf.render(**config))
-        print('  * nginx/simoc_nginx.conf created')
-    with open('docker-compose.mysql.yml', 'w') as f:
-        f.write(docker_compose.render(**config))
-        print('  * docker-compose.mysql.yml created')
+    generate_docker_configs.main()
     print()
     return True
 
@@ -126,10 +116,11 @@ def start_services():
 @cmd
 def init_db():
     """Initialize the MySQL DB."""
+    print('Creating DB.  This might take a while...\n')
     attempts = 15
     for attempt in range(15):
         result = docker_compose('exec', 'celery-worker', 'python3', 'create_db.py')
-        if result.returncode == 0:
+        if result is True:
             return result
         else:
             print('create_db.py failed: if the error above says:\n'
@@ -140,12 +131,14 @@ def init_db():
     else:
         print(f'Giving up after {attempts} attempts.  Run the above command '
               f'manually to try again.')
+    return False
 
 @cmd
 def remove_db():
     """Remove the volume for the MySQL DB."""
-    return (docker_compose('rm', '--stop', '-v', 'simoc-db') and
-            run(['docker', 'volume', 'rm', 'simoc_db-data']))
+    docker_compose('rm', '--stop', '-v', 'simoc-db')
+    run(['docker', 'volume', 'rm', 'simoc_db-data'])
+    return True  # the volume rm might return False if the volume is missing
 
 @cmd
 def reset_db():
@@ -234,7 +227,7 @@ Use `logs`, `celery-logs`, `flask-logs`, to see the logs.
     cmd = args.cmd.replace('-', '_')
     if cmd in COMMANDS:
         result = COMMANDS[cmd]()
-        parser.exit(getattr(result, 'returncode', 0))
+        parser.exit(not result)
     else:
         cmds = ', '.join(cmd.replace('_', '-') for cmd in COMMANDS.keys())
         parser.exit(f'Command not found.  Available commands: {cmds}')
