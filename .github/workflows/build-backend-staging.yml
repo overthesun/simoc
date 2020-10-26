@@ -1,4 +1,4 @@
-name: SIMOC CI/CD
+name: SIMOC CI/CD Staging
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ staging ]
   repository_dispatch:
-    types: [frontend-update]
+    types: [frontend-update-staging]
   workflow_dispatch:
 
 env:
@@ -22,11 +22,13 @@ jobs:
       - name: Checkout Backend Repository
         uses: actions/checkout@v2
         with:
+          ref: staging
           path: simoc
       - name: Checkout Frontend Repository
         uses: actions/checkout@v2
         with:
           repository: overthesun/simoc-web
+          ref: staging
           token: ${{ secrets.ACCESS_TOKEN }}
           path: simoc-web
       - name: Set up Node Environment
