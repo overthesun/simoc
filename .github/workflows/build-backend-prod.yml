@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ master ]
   repository_dispatch:
-    types: [frontend-update-master]
+    types: [frontend-update-prod]
   workflow_dispatch:
 
 env:
