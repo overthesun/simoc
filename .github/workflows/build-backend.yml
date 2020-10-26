@@ -2,21 +2,17 @@ name: SIMOC CI/CD
 
 on:
   push:
-    branches: [ master ]
+    branches: [ staging ]
   pull_request:
-    branches: [ master ]
+    branches: [ staging ]
   repository_dispatch:
     types: [frontend-update]
   workflow_dispatch:
 
 env:
-  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER:  ${{ secrets.GKE_CLUSTER }}
-  GKE_ZONE: ${{ secrets.GKE_ZONE }}
   DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
   FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
   REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
-  K8S_CONFIG: simoc_k8s_ngs.env
   DOCKER_CONFIG: simoc_docker_beta.env
 
 jobs:
@@ -33,12 +29,6 @@ jobs:
           repository: overthesun/simoc-web
           token: ${{ secrets.ACCESS_TOKEN }}
           path: simoc-web
-      - name: Set up gcloud CLI
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with:
-          version: '290.0.1'
-          service_account_key: ${{ secrets.GKE_SA_KEY }}
-          project_id: ${{ secrets.GKE_PROJECT }}
       - name: Set up Node Environment
         uses: actions/setup-node@v1
         with:
@@ -70,10 +60,6 @@ jobs:
           docker tag simoc_celery ${{ secrets.DOCKER_REPO }}/simoc_celery:${{ github.sha }}
           docker tag simoc_flask ${{ secrets.DOCKER_REPO }}/simoc_flask:latest
           docker tag simoc_celery ${{ secrets.DOCKER_REPO }}/simoc_celery:latest
-          docker tag simoc_flask gcr.io/$PROJECT_ID/simoc_flask:${{ github.sha }}
-          docker tag simoc_celery gcr.io/$PROJECT_ID/simoc_celery:${{ github.sha }}
-          docker tag simoc_flask gcr.io/$PROJECT_ID/simoc_flask:latest
-          docker tag simoc_celery gcr.io/$PROJECT_ID/simoc_celery:latest
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Publish Images to Docker Hub
@@ -82,14 +68,6 @@ jobs:
           docker push ${{ secrets.DOCKER_REPO }}/simoc_celery:${{ github.sha }}
           docker push ${{ secrets.DOCKER_REPO }}/simoc_flask:latest
           docker push ${{ secrets.DOCKER_REPO }}/simoc_celery:latest
-      - name: Configure Docker for GCP
-        run: gcloud --quiet auth configure-docker
-      - name: Publish Images to GCP
-        run: |-
-          docker push gcr.io/$PROJECT_ID/simoc_flask:${{ github.sha }}
-          docker push gcr.io/$PROJECT_ID/simoc_celery:${{ github.sha }}
-          docker push gcr.io/$PROJECT_ID/simoc_flask:latest
-          docker push gcr.io/$PROJECT_ID/simoc_celery:latest
 
   cd-docker:
     runs-on: ubuntu-latest
@@ -119,38 +97,3 @@ jobs:
           args: up -d
           docker_prune: 'false'
           pull_images_first: 'true'
-
-  cd-gcp:
-    runs-on: ubuntu-latest
-    needs: ci
-    steps:
-      - name: Checkout Backend Repository
-        uses: actions/checkout@v2
-      - name: Set up Python Environment
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Set up gcloud CLI
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with:
-          version: '290.0.1'
-          service_account_key: ${{ secrets.GKE_SA_KEY }}
-          project_id: ${{ secrets.GKE_PROJECT }}
-      - name: Configure GKE
-        run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
-      - name: Create Kubernetes Configs
-        run: |-
-          source $K8S_CONFIG && export VERSION=${{ github.sha }}
-          python3 -m pip install -U jinja2
-          python3 generate_k8s_configs.py
-      - name: Deploy to Kubernetes Cluster
-        run: |-
-          kubectl apply -f k8s/deployments/redis_environment.yaml
-          kubectl apply -f k8s/deployments/simoc_db_environment.yaml
-          kubectl apply -f k8s/deployments/simoc_flask_server.yaml
-          kubectl apply -f k8s/deployments/simoc_celery_cluster.yaml
-          kubectl apply -f k8s/autoscalers/simoc_flask_autoscaler.yaml
-          kubectl apply -f k8s/autoscalers/simoc_celery_autoscaler.yaml
-          kubectl apply -f k8s/services/simoc_flask_service.yaml
-          kubectl rollout restart deployment/simoc-flask-server
-          kubectl rollout restart deployment/simoc-celery-cluster
