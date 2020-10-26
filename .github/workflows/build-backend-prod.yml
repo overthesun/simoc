@@ -1,10 +1,12 @@
-name: SIMOC CI/CD
+name: SIMOC CI/CD Production
 
 on:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  repository_dispatch:
+    types: [frontend-update-master]
   workflow_dispatch:
 
 env:
@@ -23,11 +25,13 @@ jobs:
       - name: Checkout Backend Repository
         uses: actions/checkout@v2
         with:
+          ref: master
           path: simoc
       - name: Checkout Frontend Repository
         uses: actions/checkout@v2
         with:
           repository: overthesun/simoc-web
+          ref: master
           token: ${{ secrets.ACCESS_TOKEN }}
           path: simoc-web
       - name: Set up gcloud CLI
