@@ -151,17 +151,17 @@ def ps():
     """Run `docker-compose ps`."""
     return docker_compose('ps')
 @cmd
-def start():
+def start(*args):
     """Run `docker-compose start`."""
-    return docker_compose('start')
+    return docker_compose('start', *args)
 @cmd
-def restart():
+def restart(*args):
     """Run `docker-compose restart`."""
-    return docker_compose('restart')
+    return docker_compose('restart', *args)
 @cmd
-def stop():
+def stop(*args):
     """Run `docker-compose stop`."""
-    return docker_compose('stop')
+    return docker_compose('stop', *args)
 @cmd
 def logs():
     """Show all logs."""
@@ -218,6 +218,8 @@ Use `logs`, `celery-logs`, `flask-logs`, to see the logs.
                         help='the docker-compose yml file (default: %(default)r)',
                         default=COMPOSE_FILE)
     parser.add_argument('cmd', metavar='CMD', help=create_help(COMMANDS))
+    parser.add_argument('args', metavar='*ARGS', nargs='*',
+                        help='Additional optional args to be passed to CMD.')
     args = parser.parse_args()
 
     if args.docker_file:
@@ -226,7 +228,7 @@ Use `logs`, `celery-logs`, `flask-logs`, to see the logs.
 
     cmd = args.cmd.replace('-', '_')
     if cmd in COMMANDS:
-        result = COMMANDS[cmd]()
+        result = COMMANDS[cmd](*args.args)
         parser.exit(not result)
     else:
         cmds = ', '.join(cmd.replace('_', '-') for cmd in COMMANDS.keys())
