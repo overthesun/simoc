@@ -232,4 +232,4 @@ Use `logs`, `celery-logs`, `flask-logs`, to see the logs.
         parser.exit(not result)
     else:
         cmds = ', '.join(cmd.replace('_', '-') for cmd in COMMANDS.keys())
-        parser.exit(f'Command not found.  Available commands: {cmds}')
+        parser.error(f'Command not found.  Available commands: {cmds}')
