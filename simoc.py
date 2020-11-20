@@ -14,6 +14,7 @@ import generate_docker_configs
 
 ENV_FILE = 'simoc_docker.env'
 COMPOSE_FILE = 'docker-compose.mysql.yml'
+DEV_FE_COMPOSE_FILE = 'docker-compose.dev-fe.yml'
 DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
 
 def parse_env(fname):
@@ -214,9 +215,22 @@ Use `logs`, `celery-logs`, `flask-logs`, to see the logs.
         description=desc,
         formatter_class=argparse.RawTextHelpFormatter
     )
-    parser.add_argument('--docker-file', metavar='FILE',
-                        help='the docker-compose yml file (default: %(default)r)',
-                        default=COMPOSE_FILE)
+    parser.add_argument(
+        '--docker-file', metavar='FILE', default=COMPOSE_FILE,
+        help='the docker-compose yml file (default: %(default)r)'
+    )
+    parser.add_argument(
+        '--with-dev-frontend', action='store_true',
+        help='also start the dev frontend container'
+    )
+    parser.add_argument(
+        '--dev-frontend-yml', metavar='FILE',
+        help='the dev frontend docker-compose yml file'
+    )
+    parser.add_argument(
+        '--dev-frontend-dir', metavar='DIR',
+        help='the dir where the dev frontend code is'
+    )
     parser.add_argument('cmd', metavar='CMD', help=create_help(COMMANDS))
     parser.add_argument('args', metavar='*ARGS', nargs='*',
                         help='Additional optional args to be passed to CMD.')
@@ -225,6 +239,18 @@ Use `logs`, `celery-logs`, `flask-logs`, to see the logs.
     if args.docker_file:
         COMPOSE_FILE = args.docker_file
         DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
+
+    if (args.dev_frontend_dir or args.dev_frontend_yml) and not args.with_dev_frontend:
+        parser.error("Can't specify the dev frontend dir/yml without --with-dev-frontend")
+
+    if args.with_dev_frontend:
+        if args.dev_frontend_dir:
+            os.environ['DEV_FE_DIR'] = args.dev_frontend_dir
+        if not os.environ['DEV_FE_DIR']:
+            parser.error('Please specify the dev frontend dir (either in '
+                         'simoc_docker.env or with --dev-frontend-dir).')
+        yml_file = args.dev_frontend_yml or DEV_FE_COMPOSE_FILE
+        DOCKER_COMPOSE_CMD.extend(['-f', yml_file])
 
     cmd = args.cmd.replace('-', '_')
     if cmd in COMMANDS:
