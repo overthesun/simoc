@@ -1,0 +1,10 @@
+version: '3.6'
+# Use this file to override and add the volume to the flask-app container.
+# By doing this, the cwd will be shared with the container and changes
+# you make to the code will be visible within the container.
+# Run `python3 simoc.py --with-dev-backend up` to share the cwd
+# and `python3 simoc.py up` to use the original code of the flask image.
+services:
+  flask-app:
+    volumes:
+      - .:/simoc
