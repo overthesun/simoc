@@ -13,9 +13,11 @@ import subprocess
 import generate_docker_configs
 
 ENV_FILE = 'simoc_docker.env'
+
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_FE_COMPOSE_FILE = 'docker-compose.dev-fe.yml'
 DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
+
 
 def parse_env(fname):
     env = {}
@@ -64,7 +66,9 @@ def run(args):
     print()
     return not result.returncode
 
+@cmd
 def docker_compose(*args):
+    """Run an arbitrary docker-compose command."""
     return run([*DOCKER_COMPOSE_CMD, *args])
 
 @cmd
@@ -74,6 +78,8 @@ def print_env():
         print(f'export {key}={value!r}')
     return True
 
+
+# initial setup
 @cmd
 def generate_scripts():
     """Generate simoc_nginx.conf and docker-compose.mysql.yml."""
@@ -103,17 +109,14 @@ def make_cert():
                 '-subj', f"/C=US/ST=Texas/L=Austin/O=SIMOC/CN={domain}"])
 
 @cmd
-def build():
-    """Build the docker container."""
-    return docker_compose('build')
-
-@cmd
 def start_services():
     """Starts the services."""
     return docker_compose('up', '-d',
                           '--force-recreate',
                           '--scale', f'celery-worker={CELERY_WORKERS}',
                           '--scale', f'flask-app={FLASK_WORKERS}')
+
+# DB
 @cmd
 def init_db():
     """Initialize the MySQL DB."""
@@ -137,63 +140,70 @@ def init_db():
 @cmd
 def remove_db():
     """Remove the volume for the MySQL DB."""
-    docker_compose('rm', '--stop', '-v', 'simoc-db')
+    docker_compose('rm', '--stop', '-v', '-f', 'simoc-db')
     run(['docker', 'volume', 'rm', 'simoc_db-data'])
     return True  # the volume rm might return False if the volume is missing
+
 
 @cmd
 def reset_db():
     """Remove and recreate the MySQL DB."""
     return (remove_db() and
-            docker_compose('up', '-d', '--force-recreate', 'simoc-db'))
+            docker_compose('up', '-d', '--force-recreate', 'simoc-db') and
+            init_db())
+
+
+# start/stop
+@cmd
+def up(*args):
+    """Start/update the containers with `docker-compose up -d`."""
+    return docker_compose('up', '-d', *args)
 
 @cmd
-def ps():
+def down(*args):
+    """Stop/remove the containers with `docker-compose down`."""
+    return docker_compose('down', *args)
+
+
+# status and logging
+@cmd
+def ps(*args):
     """Run `docker-compose ps`."""
-    return docker_compose('ps')
+    return docker_compose('ps', *args)
+
 @cmd
-def start(*args):
-    """Run `docker-compose start`."""
-    return docker_compose('start', *args)
-@cmd
-def restart(*args):
-    """Run `docker-compose restart`."""
-    return docker_compose('restart', *args)
-@cmd
-def stop(*args):
-    """Run `docker-compose stop`."""
-    return docker_compose('stop', *args)
-@cmd
-def logs():
+def logs(*args):
     """Show all logs."""
-    return docker_compose('logs', '-t', '-f')
+    return docker_compose('logs', '-t', '-f', *args)
+
 @cmd
 def celery_logs():
     """Show the celery logs."""
     return docker_compose('logs', '-t', '-f', 'celery-worker')
+
 @cmd
 def flask_logs():
     """Show the flask logs."""
     return docker_compose('logs', '-t', '-f', 'flask-app')
-@cmd
-def remove():
-    """Remove all images and volumes."""
-    return docker_compose('down', '--rmi', 'all', '--volumes')
 
 
+# install/uninstall
 @cmd
 def setup():
     """Run a complete setup of SIMOC."""
     return (generate_scripts() and make_cert() and
-            build() and start_services() and init_db())
+            start_services() and init_db() and ps())
+
 @cmd
-def rebuild():
-    """Stop, rebuild, and restart the containers."""
-    return stop() and build() and start_services()
+def teardown():
+    """Remove simoc and all related containers/images/volumes"""
+    return docker_compose('down', '--rmi', 'all',
+                          '--volumes', '--remove-orphans')
+
 @cmd
-def hard_reset():
-    """Stop and remove everything, then run a full setup."""
-    return stop() and remove() and remove_db() and setup()
+def reset():
+    """Remove everything, then run a full setup."""
+    return teardown() and setup()
 
 
 def create_help(cmds):
@@ -202,14 +212,15 @@ def create_help(cmds):
         help.append(f'{cmd.replace("_", "-"):18} {func.__doc__}')
     return '\n'.join(help)
 
+
 if __name__ == '__main__':
     desc = """\
 Simplify installation and maintainment of SIMOC.
 
-Use `setup` to install SIMOC, `rebuild` to rebuild the containers.
-Use `hard-reset` to remove and reinstall everything.
-Use `start`, `stop`, `restart` to control the containers.
-Use `logs`, `celery-logs`, `flask-logs`, to see the logs.
+Use `setup` to install SIMOC, `teardown` to uninstall everything.
+Use `reset` to reinstall (same as `teardown` + `setup`).
+Use `up` to start/update the containers, `down` to stop/remove them.
+Use `logs`, `flask-logs`, `celery-logs`, to see the logs.
 """
     parser = argparse.ArgumentParser(
         description=desc,
