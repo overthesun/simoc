@@ -1,12 +1,14 @@
 name: SIMOC CI/CD Production
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-  repository_dispatch:
-    types: [frontend-update-prod]
+  #push:
+    #branches: [ master ]
+  #pull_request:
+    #branches: [ master ]
+  #repository_dispatch:
+    #types: [frontend-update-prod]
+  # disable automatic push to ngs,
+  # but leave the manual trigger
   workflow_dispatch:
 
 env:
