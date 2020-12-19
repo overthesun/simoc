@@ -8,6 +8,17 @@ on:
   #repository_dispatch:
     #types: [frontend-update-staging]
   workflow_dispatch:
+    inputs:
+      fe_branch:
+        description: 'Use this frontend branch:'
+        required: true
+        default: 'master'
+      # This could be used to merge the two yml
+      # files and conditionally push to beta/ngs
+      # depending on the selected value
+      #publish_to:
+        #description: 'Push to this server:'
+        #required: true
 
 env:
   DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
@@ -28,7 +39,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: overthesun/simoc-web
-          ref: staging
+          ref: ${{ github.event.inputs.fe_branch }}
           token: ${{ secrets.ACCESS_TOKEN }}
           path: simoc-web
       - name: Set up Node Environment
