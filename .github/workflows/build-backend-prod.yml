@@ -1,4 +1,4 @@
-name: SIMOC CI/CD Production
+name: Publish to NGS
 
 on:
   #push:
@@ -13,6 +13,10 @@ on:
     inputs:
       fe_branch:
         description: 'Use this frontend branch:'
+        required: true
+        default: 'master'
+      be_branch:
+        description: 'Use this backend branch:'
         required: true
         default: 'master'
       # This could be used to merge the two yml
@@ -38,7 +42,7 @@ jobs:
       - name: Checkout Backend Repository
         uses: actions/checkout@v2
         with:
-          ref: master
+          ref: ${{ github.event.inputs.be_branch }}
           path: simoc
       - name: Checkout Frontend Repository
         uses: actions/checkout@v2
