@@ -26,7 +26,7 @@ def main(env=os.environ):
     print('Generating config files:')
     for jinja_file in [nginx_jinja, docker_compose_jinja]:
         temp_file = j2_env.get_template(str(jinja_file))
-        conf_file = jinja_file.stem  # remove .jinja suffix
+        conf_file = jinja_file.parent / jinja_file.stem  # remove .jinja suffix
         with open(conf_file, 'w') as f:
             f.write(temp_file.render(**config))
         print(f'  * <{conf_file}> created')
