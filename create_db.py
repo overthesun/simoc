@@ -20,6 +20,19 @@ def create(agent_conf):
                    *AgentType.query.all(),
                    *CurrencyType.query.all()]:
         db.session.delete(record)
+    # This approach should be better, but benchmarks
+    # show minimal differences, since the slow part
+    # is the call to seed_agents.seed()
+    #models = [
+        #AgentStateAttribute,
+        #AgentState,
+        #AgentTypeAttributeDetails,
+        #AgentTypeAttribute,
+        #AgentType,
+        #CurrencyType,
+    #]
+    #for model in models:
+        #db.session.query(model).delete()
     db.session.commit()
     seed_agents.seed(agent_conf)
 
@@ -38,6 +51,10 @@ if __name__ == "__main__":
             create(app.config["AGENT_CONFIG"])
             break
         except Exception as e:
+            # TODO: catch sqlalchemy.exc.DatabaseError: (mysql.connector.errors.DatabaseError)
+            #    2003 (HY000): Can't connect to MySQL server on 'simoc-db' (111)
+            # specifically instead of all errors.
+            #print('*** Error:', e)
             app.logger.info(e)
             if num_retries > 0:
                 num_retries -= 1
