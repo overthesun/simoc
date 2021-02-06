@@ -111,11 +111,14 @@ def calc_air_storage(volume):
         #"atmo_kr": 0.000114,  # krypton
     }
     # calculate the mass for each element
-    return {label: mass*perc/100 for label, perc in percentages.items()}
+    return dict({label: mass*perc/100 for label, perc in percentages.items()},
+                total_capacity=dict(value=mass, unit='kg'))
 
 
 def calc_water_storage(volume):
-    return {'h2o_potb': 0.9 * volume, 'h2o_tret': 0.1 * volume}
+    # the total_capacity is in kg, and it's equal to the volume'
+    return dict({'h2o_potb': 0.9 * volume, 'h2o_tret': 0.1 * volume},
+                total_capacity=dict(value=volume, unit='kg'))
 
 
 def convert_configuration(game_config):
@@ -261,8 +264,10 @@ def convert_configuration(game_config):
         for i in range(minimum_storage_amount):
             x = len(connections[storage_type]) + 1
             connections[storage_type].append(x)
-            full_game_config['storages'][storage_type] \
-                .append({'id': x, **{k: v / minimum_storage_amount for k, v in storage.items()}})
+            storage_info = {'id': x, **{k: v / minimum_storage_amount for k, v in storage.items()}}
+            if 'total_capacity' in game_config[storage_type]:
+                storage_info['total_capacity'] = game_config[storage_type]['total_capacity']
+            full_game_config['storages'][storage_type].append(storage_info)
 
     for label in manual_entries:
         if label in game_config:
