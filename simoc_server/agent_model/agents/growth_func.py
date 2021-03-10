@@ -10,6 +10,26 @@ from scipy.optimize import Bounds
 np.seterr(over='ignore')
 
 
+# Caching norm.pdf() directly is not possible since
+# x0 is a non-hashable numpy.ndarray.  x0 depends
+# on num_values, so we can create this helper function
+# and cache num_values, scale, and center instead.
+# This makes DB initializazion much faster, since
+# of the 15k calls done, all except 12 can be cached.
+# We also can't use lru_cache() directly because the
+# return value is a mutable ndarray, and we need to
+# explicitly create and return a copy.
+def norm_pdf(num_values, scale, center, *, _cache={}):
+    if (num_values, scale, center) in _cache:
+        y = _cache[(num_values, scale, center)].copy()
+    else:
+        center = center or num_values // 2
+        x0 = np.linspace(0, 1, num_values)
+        y = norm.pdf(x0, x0[center], scale)
+        _cache[(num_values, scale, center)] = y
+    return y
+
+
 def get_bell_curve(num_values, min_value, max_value, scale=0.1, center=None, invert=False,
                    noise=False, noise_factor=10.0, clip=False, **kwargs):
     """TODO
@@ -36,9 +56,7 @@ def get_bell_curve(num_values, min_value, max_value, scale=0.1, center=None, inv
     assert min_value is not None
     assert max_value is not None
     assert scale is not None
-    center = center or num_values // 2
-    x0 = np.linspace(0, 1, num_values)
-    y = norm.pdf(x0, x0[center], scale)
+    y = norm_pdf(num_values, scale, center)
     y = MinMaxScaler((min_value, max_value)).fit_transform(y.reshape(-1, 1)).reshape(num_values)
     if invert:
         y = -1 * y
@@ -77,9 +95,7 @@ def get_clipped_bell_curve(num_values, min_value, max_value, scale=0.1, factor=2
     assert min_value is not None
     assert max_value is not None
     assert scale is not None
-    center = center or num_values // 2
-    x0 = np.linspace(0, 1, num_values)
-    y = norm.pdf(x0, x0[center], scale)
+    y = norm_pdf(num_values, scale, center)
     y = MinMaxScaler((min_value, max_value * factor)).fit_transform(y.reshape(-1, 1)).reshape(num_values)
     y = np.clip(y, min_value, max_value)
     if invert:

@@ -17,6 +17,7 @@ ENV_FILE = 'simoc_docker.env'
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_FE_COMPOSE_FILE = 'docker-compose.dev-fe.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
+AGENT_DESC_COMPOSE_FILE = 'docker-compose.agent-desc.yml'
 DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
 
 
@@ -149,7 +150,11 @@ def remove_db():
 @cmd
 def reset_db():
     """Remove and recreate the MySQL DB."""
-    return (remove_db() and
+    # the up is needed to update the simoc source code
+    # in the containers before rebuilding the db,
+    # restarting nginx is needed to make sure the
+    # ips of the flask/celery containers are updated
+    return (up() and restart('nginx') and remove_db() and
             docker_compose('up', '-d', '--force-recreate', 'simoc-db') and
             init_db())
 
@@ -164,6 +169,11 @@ def up(*args):
 def down(*args):
     """Stop/remove the containers with `docker-compose down`."""
     return docker_compose('down', *args)
+
+@cmd
+def restart(*args):
+    """Restart the containers with `docker-compose restart`."""
+    return docker_compose('restart', *args)
 
 
 # status and logging
@@ -252,6 +262,10 @@ Use the `--with-dev-backend` flag to run the dev backend container.
         '--dev-backend-yml', metavar='FILE',
         help='the dev backend docker-compose yml file'
     )
+    parser.add_argument(
+        '--agent-desc', metavar='FILE',
+        help='the agent_desc.json file to be used'
+    )
     parser.add_argument('cmd', metavar='CMD', help=create_help(COMMANDS))
     parser.add_argument('args', metavar='*ARGS', nargs='*',
                         help='Additional optional args to be passed to CMD.')
@@ -279,6 +293,13 @@ Use the `--with-dev-backend` flag to run the dev backend container.
     if args.with_dev_backend:
         yml_file = args.dev_backend_yml or DEV_BE_COMPOSE_FILE
         DOCKER_COMPOSE_CMD.extend(['-f', yml_file])
+
+    if args.agent_desc and args.with_dev_backend:
+        parser.error("Can't specify the agent_desc.json file with --with-dev-backend")
+
+    if args.agent_desc:
+        os.environ['AGENT_DESC'] = str(pathlib.Path(args.agent_desc).resolve())
+        DOCKER_COMPOSE_CMD.extend(['-f', AGENT_DESC_COMPOSE_FILE])
 
     cmd = args.cmd.replace('-', '_')
     if cmd in COMMANDS:

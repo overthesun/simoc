@@ -8,3 +8,6 @@ services:
   flask-app:
     volumes:
       - .:/simoc
+  celery-worker:
+    volumes:
+      - .:/simoc

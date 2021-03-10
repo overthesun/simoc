@@ -260,7 +260,8 @@ def new_game():
         if retries <= 0:
             raise ServerError(f"Cannot create a new game.")
     redis_conn.set('game_config:{}'.format(game_id), json.dumps(game_config))
-    return status("New game starts.", game_id=format(int(game_id), 'X'))
+    return status("New game starts.", game_id=format(int(game_id), 'X'),
+                  game_config=game_config)
 
 
 @app.route("/get_steps", methods=["POST"])

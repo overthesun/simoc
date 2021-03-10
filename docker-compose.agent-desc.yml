@@ -1,0 +1,11 @@
+version: '3.6'
+# This file is used to specify a custom agent_desc.json file.
+# Run `python3 simoc.py --agent-desc agent_desc.json reset-db` to use a
+# custom file and `python3 simoc.py reset-db` to use the original file.
+services:
+  flask-app:
+    volumes:
+      - ${AGENT_DESC}:/simoc/agent_desc.json
+  celery-worker:
+    volumes:
+      - ${AGENT_DESC}:/simoc/agent_desc.json
