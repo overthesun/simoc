@@ -64,7 +64,7 @@ jobs:
       - name: Download preset simdata
         working-directory: simoc-web/src/assets
         run: |
-          apt install wget
+          sudo apt install wget
           mkdir simdata
           cd simdata
           wget -r -nH --cut-dirs=2 --no-parent --accept="*.json" -erobots=off -q --show-progress https://simoc.space/download/simdata/
