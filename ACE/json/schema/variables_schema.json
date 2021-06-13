@@ -20,9 +20,8 @@
 				"sold_n" : {"type" : "number"},
 				"sold_p" : {"type" : "number"},
 				"sold_k": {"type" : "number"},
-				"sold_wast" : {"type" : "number"},
+				"sold_wste" : {"type" : "number"},
 
-				"food_totl" : {"type" : "number"},
 				"food_stor" : {"type" : "number"},
 				"food_edbl" : {"type" : "number"},
 				"food_ined" : {"type" : "number"},
@@ -34,7 +33,6 @@
 				"food_root" : {"type" : "number"}, 
 				"food_othr" : {"type" : "number"}, 
 				
-				"h2o_totl" : {"type" : "number"}, 
 				"h2o_tret" : {"type" : "number"},
 				"h2o_potb" : {"type" : "number"}, 
 				"h2o_urin" : {"type" : "number"}, 

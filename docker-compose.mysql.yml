@@ -1,0 +1,94 @@
+version: '3.6'
+services:
+  nginx:
+    image: nginx
+    restart: always
+    ports:
+      - '${HTTP_PORT}:${HTTP_PORT}'
+    networks:
+      - simoc-net
+    volumes:
+      - ./nginx/simoc_nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/proxy_params:/etc/nginx/proxy_params
+      - ./nginx/proxy_ws_params:/etc/nginx/proxy_ws_params
+    depends_on:
+      - flask-app
+  simoc-db:
+    image: mysql/mysql-server
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+    networks:
+      - simoc-net
+    environment:
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+  redis:
+    image: bitnami/redis:latest
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - simoc-net
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+  celery-worker:
+    image: imilov/simoc_celery:latest
+    restart: always
+    networks:
+      - simoc-net
+    healthcheck:
+      test: ['CMD', 'bash', 'ping_worker.sh']
+      interval: 1m
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      DB_TYPE: ${DB_TYPE}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - simoc-db
+      - redis
+  flask-app:
+    image: imilov/simoc_flask:latest
+    restart: always
+    ports:
+      - 8080
+    networks:
+      - simoc-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/ping']
+      interval: 1m
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      DB_TYPE: ${DB_TYPE}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      FLASK_SECRET: ${FLASK_SECRET}
+    depends_on:
+      - simoc-db
+      - redis
+
+volumes:
+  db-data: {}
+
+networks:
+  simoc-net:

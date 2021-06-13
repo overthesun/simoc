@@ -8,7 +8,7 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
 				},
 				"description" : {"type" : "string", "title" : "Description"}
 			}
@@ -19,7 +19,7 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
 				},
 				"description" : {"type" : "string", "title" : "Description"}
 			}
@@ -30,7 +30,7 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
 				},
 				"description" : {"type" : "string", "title" : "Description"}
 			}
@@ -41,7 +41,7 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
 				},
 				"description" : {"type" : "string", "title" : "Description"}
 			}
@@ -52,7 +52,7 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
 				},
 				"description" : {"type" : "string", "title" : "Description"}
 			}
@@ -63,7 +63,7 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
 				},
 				"description" : {"type" : "string", "title" : "Description"}
 			}
@@ -74,7 +74,29 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
+				},
+				"description" : {"type" : "string", "title" : "Description"}
+			}
+		},
+		"dehumidifier" : {
+			"type" : "object",
+			"title" : "Dehumidifier",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "./currency.json"
+				},
+				"description" : {"type" : "string", "title" : "Description"}
+			}
+		},
+		"ch4_removal_agent" : {
+			"type" : "object",
+			"title" : "CH4 Removal Agent",
+			"options" :{"collapsed" : true},
+			"properties" : {
+				"data" : {
+					"$ref" : "./currency.json"
 				},
 				"description" : {"type" : "string", "title" : "Description"}
 			}

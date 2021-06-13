@@ -11,7 +11,7 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
 				}
 			}
 		},
@@ -21,7 +21,7 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
 				}
 			}
 		},
@@ -31,7 +31,7 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
 				}
 			}
 		},
@@ -41,7 +41,7 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
 				}
 			}
 		}

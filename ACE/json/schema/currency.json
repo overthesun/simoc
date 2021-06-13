@@ -8,7 +8,9 @@
 			"title" : "Input",
 			"items" : {
 				"type" : "object",
-				"options" :{"collapsed" : true},
+				"options" :{
+					"collapsed" : true
+				},
 				"headerTemplate" : "{{self.type}}",
 				"properties" : {
 					"type" : {
@@ -38,20 +40,18 @@
 							}
 						}
 					},
-					"requires" : {
-						"type" : "array",
-						"title" : "Requires",
-						"items" : {
-							"type" : "string"
-						}
-					},
 					"required" : {
-						"type" : "boolean",
-						"title" : "Required"
+						"type" : "string",
+						"title" : "Required",
+						"required" : false,
+						"enum" : [
+							"", "mandatory", "desired"
+						]
 					},
 					"deprive" : {
 						"type" : "object",
 						"title" : "Deprive",
+						"required" : false,
 						"properties" : {
 							"value" : {
 								"type" : "number",
@@ -69,6 +69,7 @@
 					"criteria" : {
 						"type" : "object",
 						"title" : "Criteria",
+						"required" : false,
 						"properties" : {
 							"name" : {
 								"type" : "string",
@@ -94,6 +95,7 @@
 					"growth" : {
 						"type" : "object",
 						"title" : "Growth Function",
+						"required" : false,
 						"properties" : {
 							"lifetime" : {
 								"type" : "object",
@@ -102,20 +104,36 @@
 									"type" : {
 										"type" : "string",
 										"enum" : [
-											"norm", "linear", "logarithmic", "sigmoid"
+											"", "norm", "linear", "logarithmic", "sigmoid"
 										]
 									}
 								}
 							},
 							"daily" : {
 								"type" : "object",
-								"title" : "Lifetime",
+								"title" : "Daily",
 								"properties" : {
 									"type" : {
 										"type" : "string",
 										"enum" : [
-											"norm", "linear", "logarithmic", "sigmoid"
+											"", "norm", "linear", "logarithmic", "sigmoid", "clipped", "switch"
 										]
+									},
+									"min_threshold": {
+										"type" : "number",
+										"options" : {
+											"dependencies" : {
+												"type" : "switch"
+											}
+										}
+									},
+									"max_threshold": {
+										"type": "number",
+										"options" : {
+											"dependencies" : {
+												"type" : "switch"
+											}
+										}
 									}
 								}
 							}
@@ -162,17 +180,19 @@
 					"requires" : {
 						"type" : "array",
 						"title" : "Requires",
+						"required" : false,
 						"items" : {
 							"type" : "string"
 						}
 					},
-					"required" : {
-						"type" : "boolean",
-						"title" : "Required"
+					"weighted" : {
+						"type" : "string",
+						"title": "Weighted"
 					},
 					"criteria" : {
 						"type" : "object",
 						"title" : "Criteria",
+						"required" : false,
 						"properties" : {
 							"name" : {
 								"type" : "string",
@@ -206,20 +226,36 @@
 									"type" : {
 										"type" : "string",
 										"enum" : [
-											"norm", "linear", "logarithmic", "sigmoid"
+											"", "norm", "linear", "logarithmic", "sigmoid"
 										]
 									}
 								}
 							},
 							"daily" : {
 								"type" : "object",
-								"title" : "Lifetime",
+								"title" : "Daily",
 								"properties" : {
 									"type" : {
 										"type" : "string",
 										"enum" : [
-											"norm", "linear", "logarithmic", "sigmoid"
+											"", "norm", "linear", "logarithmic", "sigmoid", "clipped", "switch"
 										]
+									},
+									"min_threshold": {
+										"type" : "number",
+										"options" : {
+											"dependencies" : {
+												"type" : "switch"
+											}
+										}
+									},
+									"max_threshold": {
+										"type": "number",
+										"options" : {
+											"dependencies" : {
+												"type" : "switch"
+											}
+										}
 									}
 								}
 							}
@@ -240,13 +276,15 @@
 						"type" : "string"
 					},
 					"value" : {
-						"type" : "number"
+						"type" : [
+							"number", "string"
+						]
 					},
 					"unit" : {
 						"type" : "string",
 						"title" : "Unit",
 						"enum" : [
-							"kg", "L", "J", "kWh", "m^3"
+							"", "kg", "L", "J", "kWh", "m^3", "hour"
 						]
 					}
 				}

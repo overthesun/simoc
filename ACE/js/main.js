@@ -16,7 +16,9 @@ var variable_editor = new window.JSONEditor(document.getElementById('variables')
   ajax: true,
   disable_array_reorder: true,
   schema: {$ref: 'json/schema/variables_schema.json'},
-  required_by_default: true
+  required_by_default: true,
+  remove_empty_properties: true,
+  show_opt_in: true
 })
 
 //Initialize habitat starting values 
@@ -27,7 +29,9 @@ var inhabitants_editor = new window.JSONEditor(document.getElementById('inhabita
   ajax: true,
   disable_array_reorder: true,
   schema: {$ref: 'json/schema/inhabitants_schema.json'},
-  required_by_default: true
+  required_by_default: true,
+  remove_empty_properties: true,
+  show_opt_in: true
 })
 
 //Initialize inhabitants starting values
@@ -37,7 +41,9 @@ var eclss_editor = new window.JSONEditor(document.getElementById('eclss'), {
   ajax: true,
   disable_array_reorder: true,
   schema: {$ref: 'json/schema/eclss_schema.json'},
-  required_by_default: true
+  required_by_default: true,
+  remove_empty_properties: true,
+  show_opt_in: true
 })
 
 //Initialize eclss starting values
@@ -48,6 +54,8 @@ var agriculture_editor = new window.JSONEditor(document.getElementById('agricult
   disable_array_reorder: true,
   schema: {$ref: 'json/schema/agriculture_schema.json'},
   required_by_default: true,
+  remove_empty_properties: true,
+  show_opt_in: true
 })
 
 
@@ -59,7 +67,9 @@ var isru_editor = new window.JSONEditor(document.getElementById('isru'), {
   ajax: true,
   disable_array_reorder: true,
   schema: {$ref: 'json/schema/isru_schema.json'},
-  required_by_default: true
+  required_by_default: true,
+  remove_empty_properties: true,
+  show_opt_in: true
 })
 
 //Initialize isru starting values
@@ -70,7 +80,9 @@ var structure_editor = new window.JSONEditor(document.getElementById('structure'
   ajax: true,
   disable_array_reorder: true,
   schema: {$ref: 'json/schema/structure_schema.json'},
-  required_by_default: true
+  required_by_default: true,
+  remove_empty_properties: true,
+  show_opt_in: true
 })
 
 //Initialize structure starting vals
@@ -81,7 +93,9 @@ var fabrication_editor = new window.JSONEditor(document.getElementById('fabricat
   ajax: true,
   disable_array_reorder: true,
   schema: {$ref: 'json/schema/fabrication_schema.json'},
-  required_by_default: true
+  required_by_default: true,
+  remove_empty_properties: true,
+  show_opt_in: true
 })
 
 //Initialize fabrication starting values
@@ -91,7 +105,9 @@ var power_editor = new window.JSONEditor(document.getElementById('power'), {
   ajax: true,
   disable_array_reorder: true,
   schema: {$ref: 'json/schema/power_schema.json'},
-  required_by_default: true
+  required_by_default: true,
+  remove_empty_properties: true,
+  show_opt_in: true
 })
 
 //Initialize power starting values
@@ -101,7 +117,9 @@ var mobility_editor = new window.JSONEditor(document.getElementById('mobility'),
   ajax: true,
   disable_array_reorder: true,
   schema: {$ref: 'json/schema/mobility_schema.json'},
-  required_by_default: true
+  required_by_default: true,
+  remove_empty_properties: true,
+  show_opt_in: true
 })
 
 //Initialize mobility starting values
@@ -111,7 +129,9 @@ var communication_editor = new window.JSONEditor(document.getElementById('comms'
   ajax: true,
   disable_array_reorder: true,
   schema: {$ref: 'json/schema/communications_schema.json'},
-  required_by_default: true
+  required_by_default: true,
+  remove_empty_properties: true,
+  show_opt_in: true
 })
 
 //Initialize communications starting values
@@ -121,7 +141,9 @@ var storage_editor = new window.JSONEditor(document.getElementById('storage'), {
   ajax: true,
   disable_array_reorder: true,
   schema: {$ref: 'json/schema/storage_schema.json'},
-  required_by_default: true
+  required_by_default: true,
+  remove_empty_properties: true,
+  show_opt_in: true
 })
 
 //Initialize communications starting values

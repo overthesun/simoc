@@ -11,7 +11,7 @@
 			"options" :{"collapsed" : true},
 			"properties" : {
 				"data" : {
-					"$ref" : "json/schema/currency.json"
+					"$ref" : "./currency.json"
 				},
 				"description" : {"type" : "string", "title" : "Description"}
 			}
