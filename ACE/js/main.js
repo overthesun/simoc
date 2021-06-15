@@ -143,7 +143,7 @@ document.getElementById('restore').addEventListener('click', function () {
 // Function for restoring the starting values to SIMOC defaults
 document.getElementById('restore_defaults').addEventListener('click', function () {
   loadEditor(editor, startingValue)
-  $('#selectFiles').val('')
+  document.getElementById('selectFiles').value = ""
 })
 
 // Hook up import button

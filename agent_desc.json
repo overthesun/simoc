@@ -1,7 +1,6 @@
 {
   "schemas": {
     "currency" : {
-      "$schema": "http://json-schema.org/schema#",
       "title" : "Data",
       "type" : "object",
       "properties": {
@@ -295,7 +294,6 @@
       }	
     },
     "simulation_variables" : {
-      "$schema": "http://json-schema.org/schema#",
       "definitions": {},
       "title" : "Simulation Variables",
       "type" : "object",
@@ -362,7 +360,6 @@
       }
     },
     "inhabitants" : {
-      "$schema": "http://json-schema.org/schema#",
       "definitions" : {},
       "title" : "Inhabitants",
       "type" : "object",
@@ -489,7 +486,6 @@
       }
     },
     "plants" : {
-      "$schema": "http://json-schema.org/schema#",
       "definitions" : {},
       "title" : "Plants",
       "type" : "object",
@@ -741,7 +737,6 @@
       }
     },
     "isru" : {
-      "$schema": "http://json-schema.org/schema#",
       "definitions" : {},
       "title" : "ISRU",
       "type" : "object",
@@ -751,7 +746,6 @@
       }
     },
     "structures" : {
-      "$schema": "http://json-schema.org/schema#",
       "definitions" : {},
       "title" : "Structures",
       "type" : "object",
@@ -831,7 +825,6 @@
       }
     },
     "fabrication" : {
-      "$schema": "http://json-schema.org/schema#",
       "definitions" : {},
       "title" : "Fabrication",
       "type" : "object",
@@ -841,7 +834,6 @@
       }
     },
     "power_generation" : {
-      "$schema": "http://json-schema.org/schema#",
       "definitions" : {},
       "title" : "Power Generation",
       "type" : "object",
@@ -891,7 +883,6 @@
       }
     },
     "mobility" : {
-      "$schema": "http://json-schema.org/schema#",
       "definitions" : {},
       "title" : "Mobility",
       "type" : "object",
@@ -930,7 +921,6 @@
       }
     },
     "storage" : {
-      "$schema": "http://json-schema.org/schema#",
       "definitions" : {},
       "title" : "Storage",
       "type" : "object",
