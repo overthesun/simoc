@@ -6,7 +6,7 @@ var editor
 var downloadName = 'custom_config.json'
 
 //Load the starting json file
-  $.getJSON("json/starting_values/agent_desc.json", function( data ) { loadValues(data) });
+  $.getJSON("../../agent_desc.json", function( data ) { loadValues(data) });
 
 //Loading starting values file locations
 var simulation_variables, inhabitants, eclss, plants, isru, structures, fabrication, power_generation, mobility, communication, storage
