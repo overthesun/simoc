@@ -23,16 +23,16 @@
         <p><h3>Welcome to the SIMOC configuration editor. This interface enables modification of the seed data for SIMOC using customizable JSON files. </h3></p>
         <h4>Choose a section to configure</h4>
         <div class="buttons">
-          <button id="variablesButton" class="tablink" onclick="openTab(event, 'variables')">Simulation Variables</button>
+          <button id="variablesButton" class="tablink" onclick="openTab(event, 'simulation_variables')">Simulation Variables</button>
           <button id="inhabitantsButton" class="tablink" onclick="openTab(event, 'inhabitants')">Inhabitants</button>
           <button id="eclssButton" class="tablink" onclick="openTab(event, 'eclss')">ECLSS</button>
-          <button id="agButton" class="tablink" onclick="openTab(event, 'agriculture')">Plants</button>
+          <button id="agButton" class="tablink" onclick="openTab(event, 'plants')">Plants</button>
           <button id="isruButton" class="tablink" onclick="openTab(event, 'isru')">ISRU</button>
-          <button id="structureButton" class="tablink" onclick="openTab(event, 'structure')">Structures</button>
+          <button id="structureButton" class="tablink" onclick="openTab(event, 'structures')">Structures</button>
           <button id="fabricationButton" class="tablink" onclick="openTab(event, 'fabrication')">Fabrication</button>
-          <button id="powerButton" class="tablink" onclick="openTab(event, 'power')">Power Generation</button>
+          <button id="powerButton" class="tablink" onclick="openTab(event, 'power_generation')">Power Generation</button>
           <button id="mobilityButton" class="tablink" onclick="openTab(event, 'mobility')">Mobility</button>
-          <button id="commsButton" class="tablink" onclick="openTab(event, 'comms')">Communications</button>
+          <button id="commsButton" class="tablink" onclick="openTab(event, 'communication')">Communication</button>
           <button id="storageButton" class="tablink" onclick="openTab(event, 'storage')">Storage</button>
 
         </div>
@@ -60,16 +60,16 @@
         <span id='valid_indicator'></span>
       
         <!--divs for each editor-->
-        <div id='variables' class='editor'></div>
+        <div id='simulation_variables' class='editor'></div>
         <div id='inhabitants' class='editor'></div>
         <div id='eclss' class='editor'></div>
-        <div id='agriculture' class='editor'></div>
+        <div id='plants' class='editor'></div>
         <div id='isru' class='editor'></div>
-        <div id='structure' class='editor'></div>
+        <div id='structures' class='editor'></div>
         <div id='fabrication' class='editor'></div>
-        <div id='power' class='editor'></div>
+        <div id='power_generation' class='editor'></div>
         <div id='mobility' class='editor'></div>
-        <div id='comms' class='editor'></div>
+        <div id='communication' class='editor'></div>
         <div id='storage' class='editor'></div>
 
         <!--Downloads json file-->

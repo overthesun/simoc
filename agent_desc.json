@@ -1,4 +1,1000 @@
 {
+  "schemas": {
+    "currency" : {
+      "$schema": "http://json-schema.org/schema#",
+      "title" : "Data",
+      "type" : "object",
+      "properties": {
+        "input" : {
+          "type" : "array",
+          "title" : "Input",
+          "items" : {
+            "type" : "object",
+            "options" :{
+              "collapsed" : true
+            },
+            "headerTemplate" : "{{self.type}}",
+            "properties" : {
+              "type" : {
+                "type" : "string",
+                "propertyOrder" : 1
+              },
+              "value" : {
+                "type" : "number"
+              },
+              "flow_rate" : {
+                "type" : "object",
+                "title" : "Flow Rate",
+                "properties" : {
+                  "unit" : {
+                    "type" : "string",
+                    "title" : "Unit",
+                    "enum" : [
+                      "kg", "L", "J", "kWh"
+                    ]
+                  },
+                  "time" : {
+                    "type" : "string",
+                    "title" : "Time",
+                    "enum" : [
+                      "second", "minute", "hour", "day", "week", "month", "year"
+                    ]
+                  }
+                }
+              },
+              "required" : {
+                "type" : "string",
+                "title" : "Required",
+                "required" : false,
+                "enum" : [
+                  "", "mandatory", "desired"
+                ]
+              },
+              "deprive" : {
+                "type" : "object",
+                "title" : "Deprive",
+                "required" : false,
+                "properties" : {
+                  "value" : {
+                    "type" : "number",
+                    "title" : "Value"
+                  },
+                  "unit" : {
+                    "type" : "string",
+                    "title" : "Unit",
+                    "enum" : [
+                      "second", "minute", "hour", "day", "week", "month", "year"
+                    ]
+                  }
+                }
+              },
+              "criteria" : {
+                "type" : "object",
+                "title" : "Criteria",
+                "required" : false,
+                "properties" : {
+                  "name" : {
+                    "type" : "string",
+                    "title" : "Name"
+                  },
+                  "limit" : {
+                    "type" : "string",
+                    "title" : "Limit",
+                    "enum" : [
+                      ">", "<"
+                    ]
+                  },
+                  "value" : {
+                    "type" : "number",
+                    "title" : "Value"
+                  },
+                  "buffer" : {
+                    "type" : "number",
+                    "title" : "Buffer"
+                  }	
+                }
+              },
+              "growth" : {
+                "type" : "object",
+                "title" : "Growth Function",
+                "required" : false,
+                "properties" : {
+                  "lifetime" : {
+                    "type" : "object",
+                    "title" : "Lifetime",
+                    "properties" : {
+                      "type" : {
+                        "type" : "string",
+                        "enum" : [
+                          "", "norm", "linear", "logarithmic", "sigmoid"
+                        ]
+                      }
+                    }
+                  },
+                  "daily" : {
+                    "type" : "object",
+                    "title" : "Daily",
+                    "properties" : {
+                      "type" : {
+                        "type" : "string",
+                        "enum" : [
+                          "", "norm", "linear", "logarithmic", "sigmoid", "clipped", "switch"
+                        ]
+                      },
+                      "min_threshold": {
+                        "type" : "number",
+                        "options" : {
+                          "dependencies" : {
+                            "type" : "switch"
+                          }
+                        }
+                      },
+                      "max_threshold": {
+                        "type": "number",
+                        "options" : {
+                          "dependencies" : {
+                            "type" : "switch"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output" : {
+          "type" : "array",
+          "title" : "Output",
+          "items" : {
+            "type" : "object",
+            "options" :{"collapsed" : true},
+            "headerTemplate" : "{{self.type}}",
+            "properties" : {
+              "type" : {
+                "type" : "string",
+                "propertyOrder" : 1
+              },
+              "value" : {
+                "type" : "number"
+              },
+              "flow_rate" : {
+                "type" : "object",
+                "title" : "Flow Rate",
+                "properties" : {
+                  "unit" : {
+                    "type" : "string",
+                    "title" : "Unit",
+                    "enum" : [
+                      "kg", "L", "J", "kWh"
+                    ]
+                  },
+                  "time" : {
+                    "type" : "string",
+                    "title" : "Time",
+                    "enum" : [
+                      "second", "minute", "hour", "day", "week", "month", "year"
+                    ]
+                  }
+                }
+              },
+              "requires" : {
+                "type" : "array",
+                "title" : "Requires",
+                "required" : false,
+                "items" : {
+                  "type" : "string"
+                }
+              },
+              "weighted" : {
+                "type" : "string",
+                "title": "Weighted"
+              },
+              "criteria" : {
+                "type" : "object",
+                "title" : "Criteria",
+                "required" : false,
+                "properties" : {
+                  "name" : {
+                    "type" : "string",
+                    "title" : "Name"
+                  },
+                  "limit" : {
+                    "type" : "string",
+                    "title" : "Limit",
+                    "enum" : [
+                      ">", "<"
+                    ]
+                  },
+                  "value" : {
+                    "type" : "number",
+                    "title" : "Value"
+                  },
+                  "buffer" : {
+                    "type" : "number",
+                    "title" : "Buffer"
+                  }	
+                }
+              },
+              "growth" : {
+                "type" : "object",
+                "title" : "Growth Function",
+                "properties" : {
+                  "lifetime" : {
+                    "type" : "object",
+                    "title" : "Lifetime",
+                    "properties" : {
+                      "type" : {
+                        "type" : "string",
+                        "enum" : [
+                          "", "norm", "linear", "logarithmic", "sigmoid"
+                        ]
+                      }
+                    }
+                  },
+                  "daily" : {
+                    "type" : "object",
+                    "title" : "Daily",
+                    "properties" : {
+                      "type" : {
+                        "type" : "string",
+                        "enum" : [
+                          "", "norm", "linear", "logarithmic", "sigmoid", "clipped", "switch"
+                        ]
+                      },
+                      "min_threshold": {
+                        "type" : "number",
+                        "options" : {
+                          "dependencies" : {
+                            "type" : "switch"
+                          }
+                        }
+                      },
+                      "max_threshold": {
+                        "type": "number",
+                        "options" : {
+                          "dependencies" : {
+                            "type" : "switch"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "characteristics" : {
+          "type" : "array",
+          "title" : "Characteristics",
+          "items" : {
+            "type" : "object",
+            "options" :{"collapsed" : true},
+            "headerTemplate" : "{{self.type}}",
+            "properties" : {
+              "type" : {
+                "type" : "string"
+              },
+              "value" : {
+                "type" : [
+                  "number", "string"
+                ]
+              },
+              "unit" : {
+                "type" : "string",
+                "title" : "Unit",
+                "enum" : [
+                  "", "kg", "L", "J", "kWh", "m^3", "hour"
+                ]
+              }
+            }
+          }	
+        }
+      }	
+    },
+    "simulation_variables" : {
+      "$schema": "http://json-schema.org/schema#",
+      "definitions": {},
+      "title" : "Simulation Variables",
+      "type" : "object",
+      "id" : "simulation_variables",
+      "properties" : {
+        "currencies_of_exchange" : {
+          "type" : "object",
+          "title" : "Currencies of Exchange",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "atmo_o2": {"type" : "number"},
+            "atmo_co2": {"type" : "number"},
+            "atmo_h2" : {"type" : "number"},
+            "atmo_n2" : {"type" : "number"},
+            "atmo_h2o": {"type" : "number"},
+            "atmo_ch4": {"type" : "number"},
+            "atmo_cont": {"type" : "number"},
+    
+            "sold_n" : {"type" : "number"},
+            "sold_p" : {"type" : "number"},
+            "sold_k": {"type" : "number"},
+            "sold_wste" : {"type" : "number"},
+    
+            "food_stor" : {"type" : "number"},
+            "food_edbl" : {"type" : "number"},
+            "food_ined" : {"type" : "number"},
+            "food_legu" : {"type" : "number"},
+            "food_leaf" : {"type" : "number"},
+            "food_vegi" : {"type" : "number"}, 
+            "food_frut" : {"type" : "number"}, 
+            "food_cers" : {"type" : "number"}, 
+            "food_root" : {"type" : "number"}, 
+            "food_othr" : {"type" : "number"}, 
+            
+            "h2o_tret" : {"type" : "number"},
+            "h2o_potb" : {"type" : "number"}, 
+            "h2o_urin" : {"type" : "number"}, 
+            "h2o_wste" : {"type" : "number"}, 
+    
+            "enrg_kw" : {"type" : "number"},
+            "enrg_kwh" : {"type" : "number"},
+            "heat_cal" : {"type" : "number"}
+          }
+        },
+        "global_variables" : {
+          "type" : "object",
+          "title" : "Global Variables",
+          "id" : "global_variables",
+          "properties" : {
+            "temp_int" : {"type" : "number"},
+            "temp_ext" : {"type" : "number"},
+    
+            "sol_hrs" : {"type" : "number"},
+            "solr_hrs" : {"type" : "number"},
+            "solr_gain" : {"type" : "number"},
+    
+            "pres_hab" : {"type" : "number"},
+            "pres_gh" : {"type" : "number"},
+            "pres_ext" : {"type" : "number"},
+    
+            "grav_fld" : {"type" : "number"}
+          }
+        }
+      }
+    },
+    "inhabitants" : {
+      "$schema": "http://json-schema.org/schema#",
+      "definitions" : {},
+      "title" : "Inhabitants",
+      "type" : "object",
+      "options" : {"disable_collapse" : true, "disable_properties" : true},
+      "id" : "inhabitants",
+      "properties" : {
+        "human_agent" : {
+          "type" : "object",
+          "title" : "Human Agent",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        }	
+      }
+    },
+    "eclss" : {
+      "type" : "object",
+      "definitions" : {},
+      "title" : "ECLSS",	
+      "properties" : {
+        "solid_waste_aerobic_bioreactor" : {
+          "type" : "object",
+          "title" : "Solid Waste Aerobic Bioreactor",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "multifiltration_purifier_post_treatment" : {
+          "type" : "object",
+          "title" : "Multifiltration Purifier Post Treatment",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "urine_recycling_processor_VCD" : {
+          "type" : "object",
+          "title" : "Urine Recycling Processor VCD",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "oxygen_generation_SFWE" : {
+          "type" : "object",
+          "title" : "Oxygen Generation SFWE",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "co2_reduction_sabatier" : {
+          "type" : "object",
+          "title" : "CO2 Reduction Sabatier",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "co2_removal_SAWD" : {
+          "type" : "object",
+          "title" : "CO2 Removal SAWD",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "particulate_removal_TCCS" : {
+          "type" : "object",
+          "title" : "Particulate Removal TCCS",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "dehumidifier" : {
+          "type" : "object",
+          "title" : "Dehumidifier",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "ch4_removal_agent" : {
+          "type" : "object",
+          "title" : "CH4 Removal Agent",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        }
+      }
+    },
+    "plants" : {
+      "$schema": "http://json-schema.org/schema#",
+      "definitions" : {},
+      "title" : "Plants",
+      "type" : "object",
+      "options" :{"disable_collapse" : true},
+      "id" : "ag",
+      "properties" : {
+        "rice" : {
+          "type" : "object",
+          "title" : "Rice",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "wheat" : {
+          "type" : "object",
+          "title" : "Wheat",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "cabbage" : {
+          "type" : "object",
+          "title" : "Cabbage",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "chard" : {
+          "type" : "object",
+          "title" : "Chard",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "celery" : {
+          "type" : "object",
+          "title" : "Celery",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "lettuce" : {
+          "type" : "object",
+          "title" : "Lettuce",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "spinach" : {
+          "type" : "object",
+          "title" : "Spinach",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "dry_bean" : {
+          "type" : "object",
+          "title" : "Dry Bean",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "peanut" : {
+          "type" : "object",
+          "title" : "Peanut",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "soybean" : {
+          "type" : "object",
+          "title" : "Soybean",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "strawberry" : {
+          "type" : "object",
+          "title" : "Strawberry",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "tomato" : {
+          "type" : "object",
+          "title" : "Tomato",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "green_onion" : {
+          "type" : "object",
+          "title" : "Green Onion",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "onion" : {
+          "type" : "object",
+          "title" : "Onion",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "pea" : {
+          "type" : "object",
+          "title" : "Pea",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "pepper" : {
+          "type" : "object",
+          "title" : "Pepper",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "snap_bean" : {
+          "type" : "object",
+          "title" : "Snap Bean",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "radish" : {
+          "type" : "object",
+          "title" : "Radish",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "red_beet" : {
+          "type" : "object",
+          "title" : "Red Beet",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "carrot" : {
+          "type" : "object",
+          "title" : "Carrot",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "sweet_potato" : {
+          "type" : "object",
+          "title" : "Sweet Potato",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "white_potato" : {
+          "type" : "object",
+          "title" : "White Potato",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        }
+      }
+    },
+    "isru" : {
+      "$schema": "http://json-schema.org/schema#",
+      "definitions" : {},
+      "title" : "ISRU",
+      "type" : "object",
+      "options" : {"disable_collapse" : true, "disable_properties" : true},
+      "id" : "isru",
+      "properties" : {
+      }
+    },
+    "structures" : {
+      "$schema": "http://json-schema.org/schema#",
+      "definitions" : {},
+      "title" : "Structures",
+      "type" : "object",
+      "options" : {"disable_collapse" : true, "disable_properties" : true},
+      "id" : "structures",
+      "properties" : {
+        "crew_habitat_small" : {
+          "type" : "object",
+          "title" : "Small Crew Habitat",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        },
+        "crew_habitat_medium" : {
+          "type" : "object",
+          "title" : "Medium Crew Habitat",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        },
+        "crew_habitat_large" : {
+          "type" : "object",
+          "title" : "Large Crew Habitat",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        },
+        "greenhouse_small" : {
+          "type" : "object",
+          "title" : "Small Greenhouse",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        },
+        "greenhouse_medium" : {
+          "type" : "object",
+          "title" : "Medium Greenhouse",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        },
+        "greenhouse_large" : {
+          "type" : "object",
+          "title" : "Large Greenhouse",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        },
+        "airlock" : {
+          "type" : "object",
+          "title" : "Airlock",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        }
+      }
+    },
+    "fabrication" : {
+      "$schema": "http://json-schema.org/schema#",
+      "definitions" : {},
+      "title" : "Fabrication",
+      "type" : "object",
+      "options" : {"disable_collapse" : true, "disable_properties" : true},
+      "id" : "fabrication",
+      "properties" : {
+      }
+    },
+    "power_generation" : {
+      "$schema": "http://json-schema.org/schema#",
+      "definitions" : {},
+      "title" : "Power Generation",
+      "type" : "object",
+      "options" : {"disable_collapse" : true, "disable_properties" : true},
+      "id" : "power",
+      "properties" : {
+        "solar_pv_array_mars" : {
+          "type" : "object",
+          "title" : "Solar Array, Mars",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        },
+        "solar_pv_array_moon" : {
+          "type" : "object",
+          "title" : "Solar Array, Moon",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        },
+        "wind_turbine" : {
+          "type" : "object",
+          "title" : "Wind Turbine",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        },
+        "radioisotope_generator" : {
+          "type" : "object",
+          "title" : "Geothermal",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        }
+      }
+    },
+    "mobility" : {
+      "$schema": "http://json-schema.org/schema#",
+      "definitions" : {},
+      "title" : "Mobility",
+      "type" : "object",
+      "options" : {"disable_collapse" : true, "disable_properties" : true},
+      "id" : "mobility",
+      "properties" : {
+      }
+    },
+    "communication" : {
+      "title" : "Communications",
+      "definitions" : {},
+      "type" : "object",
+      "options" : {"disable_collapse" : true, "disable_properties" : true},
+      "id" : "communications",
+      "properties" : {
+        "radio" : {
+          "type" : "object",
+          "title" : "Radio",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        },
+        "lab_equipment" : {
+          "type" : "object",
+          "title" : "Lab Equipment",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            }
+          }
+        }
+      }
+    },
+    "storage" : {
+      "$schema": "http://json-schema.org/schema#",
+      "definitions" : {},
+      "title" : "Storage",
+      "type" : "object",
+      "options" : {"disable_collapse" : true, "disable_properties" : true},
+      "id" : "storage",
+      "properties" : {
+        "air_storage" : {
+          "type" : "object",
+          "title" : "Air Storage",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "water_storage" : {
+          "type" : "object",
+          "title" : "Water Storage",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "nutrient_storage" : {
+          "type" : "object",
+          "title" : "Nutrient Storage",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "food_storage" : {
+          "type" : "object",
+          "title" : "Food Storage",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        },
+        "power_storage" : {
+          "type" : "object",
+          "title" : "Power Storage",
+          "options" :{"collapsed" : true},
+          "properties" : {
+            "data" : {
+              "$ref" : "#/definitions/currency"
+            },
+            "description" : {"type" : "string", "title" : "Description"}
+          }
+        }	
+      }
+    }
+  },
   "simulation_variables": {
     "currencies_of_exchange": {
       "atmo_o2": 0,
