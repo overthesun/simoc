@@ -11,6 +11,7 @@ msgpack-python
 mysql-connector-python
 nose
 numpy
+pytest
 pytimeparse
 quantities
 redis
