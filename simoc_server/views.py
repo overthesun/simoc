@@ -546,21 +546,16 @@ def get_agents_by_category():
 @app.route("/get_agent_desc", methods=["GET"])
 def get_agent_desc():
     basedir = Path(app.root_path).resolve().parent
-
-    # Get default SIMOC agent parameters
     try:
         path = basedir.joinpath('agent_desc.json')
         agent_desc = json.loads(path.read_bytes())
-        app.logger.info(f'Sending agent_desc.json to frontend.')
     except:
         app.logger.exception(f'Failed to load agent_desc')
         agent_desc = {}
 
-    # Get schema for displaying/modifying agents in json-editor
     try:
         path = basedir.joinpath('agent_schema.json')
         agent_schema = json.loads(path.read_bytes())
-        app.logger.info(f'Sending agent_schema.json to frontend.')
     except:
         app.logger.exception(f'Failed to load agent_desc')
         agent_schema = {}
