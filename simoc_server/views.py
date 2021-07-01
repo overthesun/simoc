@@ -541,6 +541,33 @@ def get_agents_by_category():
         results.append(agent.AgentType.name)
     return json.dumps(results)
 
+
+# Return the default agent_desc.json file for ACE Agent Editor
+@app.route("/get_agent_desc", methods=["GET"])
+def get_agent_desc():
+    basedir = Path(app.root_path).resolve().parent
+
+    # Get default SIMOC agent parameters
+    try:
+        path = basedir.joinpath('agent_desc.json')
+        agent_desc = json.loads(path.read_bytes())
+        app.logger.info(f'Sending agent_desc.json to frontend.')
+    except:
+        app.logger.exception(f'Failed to load agent_desc')
+        agent_desc = {}
+
+    # Get schema for displaying/modifying agents in json-editor
+    try:
+        path = basedir.joinpath('agent_schema.json')
+        agent_schema = json.loads(path.read_bytes())
+        app.logger.info(f'Sending agent_schema.json to frontend.')
+    except:
+        app.logger.exception(f'Failed to load agent_desc')
+        agent_schema = {}
+
+    msg = "Sending agent_desc and agent_schema to frontend"
+    return status(msg, agent_desc=agent_desc, agent_schema=agent_schema)
+
 # TODO: This route needs to be re-designed since `worker_direct` is no longer activated
 # @app.route("/save_game", methods=["POST"])
 # @login_required
@@ -739,3 +766,4 @@ def get_standard_user_obj():
 @app.route("/ping", methods=["GET"])
 def ping():
     return '', 200
+
