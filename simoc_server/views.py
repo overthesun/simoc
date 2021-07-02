@@ -545,23 +545,26 @@ def get_agents_by_category():
 # Return the default agent_desc.json file for ACE Agent Editor
 @app.route("/get_agent_desc", methods=["GET"])
 def get_agent_desc():
+    agent_desc = load_from_basedir('agent_desc.json')
+    agent_schema = load_from_basedir('agent_schema.json')
+    return status("Agent editor data retrieved", 
+                  agent_desc=agent_desc, agent_schema=agent_schema)
+
+def load_from_basedir(fname):
     basedir = Path(app.root_path).resolve().parent
+    path = basedir / fname
+    result = {}
     try:
-        path = basedir.joinpath('agent_desc.json')
-        agent_desc = json.loads(path.read_bytes())
-    except:
-        app.logger.exception(f'Failed to load agent_desc')
-        agent_desc = {}
-
-    try:
-        path = basedir.joinpath('agent_schema.json')
-        agent_schema = json.loads(path.read_bytes())
-    except:
-        app.logger.exception(f'Failed to load agent_desc')
-        agent_schema = {}
-
-    msg = "Sending agent_desc and agent_schema to frontend"
-    return status(msg, agent_desc=agent_desc, agent_schema=agent_schema)
+        with path.open() as f:
+            result = json.load(f)
+    except OSError as e:
+        app.logger.exception(f'Error opening {fname}: {e}')
+    except ValueError as e:
+        app.logger.exception(f'Error reading {fname}: {e}')
+    except Exception as e:
+        app.logger.exception(f'Unexpected error handling {fname}: {e}')
+    finally:
+        return result
 
 # TODO: This route needs to be re-designed since `worker_direct` is no longer activated
 # @app.route("/save_game", methods=["POST"])
