@@ -5787,6 +5787,38 @@
   },
   "isru": {},
   "structures": {
+    "crew_habitat_sam": {
+      "description": "The crew module of SAM, the Space Analog of the Moon and Mars at Biosphere 2 in Oracle, Arizona",
+      "data": {
+        "input": [
+          {
+            "type": "enrg_kwh",
+            "value": 2.711,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "category",
+            "value": "habitat"
+          },
+          {
+            "type": "mass",
+            "value": 20000,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 272,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
     "crew_habitat_small": {
       "data": {
         "input": [
@@ -5875,6 +5907,38 @@
           {
             "type": "volume",
             "value": 4020,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "greenhouse_sam": {
+      "description": "The greenhouse of SAM, the Space Analog of the Moon and Mars at Biosphere 2 in Oracle, Arizona",
+      "data": {
+        "input": [
+          {
+            "type": "enrg_kwh",
+            "value": 1,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "category",
+            "value": "greenhouse"
+          },
+          {
+            "type": "mass",
+            "value": 453.59,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 494,
             "unit": "m^3"
           }
         ]
