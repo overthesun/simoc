@@ -11,6 +11,7 @@ SIMOC Developer's Guide
    :caption: Contents:
 
    architecture
+   deployment
 
 
 Indices and tables
