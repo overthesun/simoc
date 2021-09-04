@@ -8,31 +8,34 @@ from simoc_server import app
 from simoc_server.database import *
 from simoc_server.database.seed_data import seed_agents
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute,AgentTypeAttributeDetails,\
-    CurrencyType, AgentStateAttribute, AgentState
+    CurrencyType, AgentStateAttribute, AgentState, AgentModelState, SavedGame, AgentModelSnapshot
 
 
 def create(agent_conf):
     db.create_all()
-    for record in [*AgentStateAttribute.query.all(),
-                   *AgentState.query.all(),
-                   *AgentTypeAttributeDetails.query.all(),
-                   *AgentTypeAttribute.query.all(),
-                   *AgentType.query.all(),
-                   *CurrencyType.query.all()]:
-        db.session.delete(record)
+    # for record in [*AgentStateAttribute.query.all(),
+    #                *AgentState.query.all(),
+    #                *AgentTypeAttributeDetails.query.all(),
+    #                *AgentTypeAttribute.query.all(),
+    #                *AgentType.query.all(),
+    #                *CurrencyType.query.all()]:
+    #     db.session.delete(record)
     # This approach should be better, but benchmarks
     # show minimal differences, since the slow part
     # is the call to seed_agents.seed()
-    #models = [
-        #AgentStateAttribute,
-        #AgentState,
-        #AgentTypeAttributeDetails,
-        #AgentTypeAttribute,
-        #AgentType,
-        #CurrencyType,
-    #]
-    #for model in models:
-        #db.session.query(model).delete()
+    models = [
+        SavedGame,
+        AgentModelSnapshot,
+        AgentState,
+        AgentModelState,
+        AgentStateAttribute,
+        AgentTypeAttributeDetails,
+        AgentTypeAttribute,
+        AgentType,
+        CurrencyType,
+    ]
+    for model in models:
+        db.session.query(model).delete()
     db.session.commit()
     seed_agents.seed(agent_conf)
 

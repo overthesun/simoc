@@ -332,7 +332,7 @@ class GameRunnerManager(object):
             self.cleanup_thread.cancel()
             self.cleanup_thread.join()
             print("Cleanup thread closed.")
-            self.save_all(allow_repeat_save=False)
+            # self.save_all(allow_repeat_save=False)
 
         handler_partial = register_exit_handler(close)
         self.cleanup_thread = threading.Timer(self.cleanup_max_interval, cleanup_at_interval)
@@ -519,7 +519,7 @@ class GameRunnerManager(object):
         for user_id in marked_for_cleanup:
             try:
                 app.logger.info("Cleaning up save game for user with id {}".format(user_id))
-                self.save_game(user_id, allow_repeat_save=False)
+                # self.save_game(user_id, allow_repeat_save=False)
                 del self.game_runners[user_id]
             except KeyError as e:
                 app.logger.error("Session for user '{}' removed before it could be cleaned up."
