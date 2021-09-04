@@ -49,6 +49,12 @@ The branch you specify in step 3 can be:
 deployed on NGS.
 
 
+.. note::
+
+    For more informations regarding the initial GCP configuration
+    and deployment, see: :doc:`gcp-deployment`
+
+
 Workflow files
 ==============
 
