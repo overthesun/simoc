@@ -15,6 +15,7 @@ SIMOC Developer's Guide
    deployment
    docker-deployment
    gcp-deployment
+   local-deployment
 
 
 Indices and tables
