@@ -1,4 +1,7 @@
 __pycache__
 *.diff
 
+# Sphinx documentation
+docs/_build/
+
 certs/
