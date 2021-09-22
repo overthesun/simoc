@@ -63,7 +63,11 @@ services:
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
   celery-worker:
+    {% if use_dockerhub %}
     image: {{ docker_repo }}/simoc_celery:{{ version }}
+    {% else %}
+    image: simoc_celery:{{ version }}
+    {% endif %}
     restart: always
     networks:
       - simoc-net
@@ -87,7 +91,11 @@ services:
       - simoc-db
       - redis
   flask-app:
+    {% if use_dockerhub %}
     image: {{ docker_repo }}/simoc_flask:{{ version }}
+    {% else %}
+    image: simoc_flask:{{ version }}
+    {% endif %}
     restart: always
     ports:
       - 8080
