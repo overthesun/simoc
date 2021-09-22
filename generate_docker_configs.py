@@ -1,12 +1,13 @@
 import os
 from pathlib import Path
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 
 def main(env=os.environ):
     j2_env = Environment(loader=FileSystemLoader('./'),
-                         trim_blocks=True, lstrip_blocks=True)
+                         trim_blocks=True, lstrip_blocks=True,
+                         undefined=StrictUndefined)
     config = {
         "version": env.get('VERSION', 'latest'),
         "use_dockerhub": int(env.get('USE_DOCKERHUB', False)),
