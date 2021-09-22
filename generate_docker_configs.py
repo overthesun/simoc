@@ -9,6 +9,7 @@ def main(env=os.environ):
                          trim_blocks=True, lstrip_blocks=True)
     config = {
         "version": env.get('VERSION', 'latest'),
+        "use_dockerhub": int(env.get('USE_DOCKERHUB', False)),
         "docker_repo": env.get('DOCKER_REPO', ''),
         "server_name": env.get('SERVER_NAME', 'localhost'),
         "use_ssl": int(env.get('USE_SSL', False)),
