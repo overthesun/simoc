@@ -2,9 +2,9 @@ name: Publish to Beta
 
 on:
   #push:
-    #branches: [ staging ]
+    #branches: [ master ]
   #pull_request:
-    #branches: [ staging ]
+    #branches: [ master ]
   #repository_dispatch:
     #types: [frontend-update-staging]
   workflow_dispatch:
@@ -16,7 +16,7 @@ on:
       be_branch:
         description: 'Use this backend branch:'
         required: true
-        default: 'staging'
+        default: 'master'
       # This could be used to merge the two yml
       # files and conditionally push to beta/ngs
       # depending on the selected value
