@@ -113,6 +113,13 @@ def make_cert():
                 '-subj', f"/C=US/ST=Texas/L=Austin/O=SIMOC/CN={domain}"])
 
 @cmd
+def build_images():
+    """Build the flask and celery images locally."""
+    return (run(['docker', 'build', '-t', 'simoc_flask', '.']) and
+            run(['docker', 'build', '-f', 'Dockerfile-celery-worker',
+                 '-t', 'simoc_celery', '.']))
+
+@cmd
 def start_services():
     """Starts the services."""
     return docker_compose('up', '-d',
@@ -204,7 +211,7 @@ def flask_logs():
 @cmd
 def setup():
     """Run a complete setup of SIMOC."""
-    return (generate_scripts() and make_cert() and
+    return (generate_scripts() and make_cert() and build_images() and
             start_services() and init_db() and ps())
 
 @cmd
@@ -218,6 +225,12 @@ def reset():
     """Remove everything, then run a full setup."""
     return teardown() and setup()
 
+
+# debugging/testing
+@cmd
+def shell(container):
+    """Run an interactive shell in the specified container."""
+    return docker_compose('exec', container, '/bin/bash')
 
 # others
 @cmd
