@@ -12,17 +12,11 @@ you need to follow the following steps:
    ``git clone https://github.com/overthesun/simoc.git``
 2. Install ``docker`` and ``docker-compose``:
    ``apt install docker docker-compose``
-3. Log in on Docker Hub: ``docker login``
-4. Run ``python3 simoc.py setup``
-5. Access SIMOC at http://127.0.0.1:8000/
+3. Run ``python3 simoc.py setup``
+4. Access SIMOC at http://127.0.0.1:8000/
 
-
-In order to clone and install SIMOC, you will need access to:
-
-* The `SIMOC GitHub repository <https://github.com/overthesun/simoc>`_.
-* The `SIMOC Docker Hub repository <https://hub.docker.com/u/imilov>`_.
-
-.. TODO: update docker hub repo URL once we move it to overthesun
+To clone and install SIMOC, you will also need access to the
+`SIMOC GitHub repository <https://github.com/overthesun/simoc>`_.
 
 
 Using ``simoc.py``
