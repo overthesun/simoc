@@ -8,6 +8,7 @@
       "atmo_h2o": 0,
       "atmo_ch4": 0,
       "atmo_cont": 0,
+      "atmo_co2tank": 0,
       "sold_n": 0,
       "sold_p": 0,
       "sold_k": 0,
@@ -577,7 +578,20 @@
             }
           }
         ],
-        "output": [],
+        "output": [
+          {
+            "type": "atmo_co2tank",
+            "value": 0.085,
+            "required": "mandatory",
+            "requires": [
+              "atmo_co2"
+            ],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
         "characteristics": [
           {
             "type": "mass",
@@ -591,7 +605,55 @@
           }
         ]
       },
-      "description": "Vents carbon dioxide from the habitat, removing it from the system."
+      "description": "Moves carbon dioxide from the habitat atmosphere to storage tank."
+    },
+    "co2_makeup_valve": {
+      "data": {
+        "input": [
+          {
+            "type": "atmo_co2tank",
+            "value": 0.085,
+            "required": "mandatory",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_co2_ratio",
+              "limit": "<",
+              "value": 0.0002,
+              "buffer": 8
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "atmo_co2",
+            "value": 0.085,
+            "required": "mandatory",
+            "requires": [
+              "atmo_co2tank"
+            ],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "mass",
+            "value": 10,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0.1,
+            "unit": "m^3"
+          }
+        ]
+      },
+      "description": "Vents carbon dioxide from co2tank into the habitat atmosphere."
     },
     "particulate_removal_TCCS": {
       "data": {
@@ -6284,6 +6346,11 @@
           },
           {
             "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2tank",
             "value": 1000,
             "unit": "kg"
           },

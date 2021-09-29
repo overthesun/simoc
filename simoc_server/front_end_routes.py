@@ -205,6 +205,8 @@ def convert_configuration(game_config):
                                    'co2_removal_SAWD': [{'connections': {'air_storage': [],
                                                                          'power_storage': []},
                                                          'amount': eclss_amount}],
+                                   'co2_makeup_valve': [{'connections': {'air_storage': []},
+                                                         'amount': eclss_amount}],
                                    'co2_reduction_sabatier': [{'connections': {'air_storage': [],
                                                                                'power_storage': [],
                                                                                'water_storage': []},
