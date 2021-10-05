@@ -10,6 +10,7 @@ Note: the name of this script is misleading and should be changed
 import json
 import math
 import sys
+import os.path
 
 from flask import request
 
@@ -120,6 +121,56 @@ def calc_water_storage(volume):
     return dict({'h2o_potb': 0.9 * volume, 'h2o_tret': 0.1 * volume},
                 total_capacity=dict(value=volume, unit='kg'))
 
+
+def build_connections_from_agent_desc(fpath):
+    """Build connections.json file from the current agent_desc.json file.
+
+    """
+    with open(os.path.dirname(__file__) + '/../agent_desc.json', 'r') as f:
+        agent_desc = json.load(f)
+
+    currencies = agent_desc['simulation_variables']['currencies_of_exchange']
+    currency_dict = {}
+    for c in currencies:
+        group = c.split("_")[0]
+        if group == 'atmo':
+            currency_dict[c] = 'air_storage'
+        elif group in 'sold':
+            currency_dict[c] = 'nutrient_storage'
+        elif group == 'food':
+            currency_dict[c] = 'food_storage'
+        elif group == 'h2o':
+            currency_dict[c] = 'water_storage'
+        elif group == 'enrg':
+            currency_dict[c] = 'power_storage'
+    currency_dict['biomass_totl'] = 'nutrient_storage' # This one is odd
+
+    arrows = []
+    for agent_class, agents in agent_desc.items():
+        if agent_class in ['simulation_variables', 'storage']:
+            continue
+        for agent in agents:
+            data = agents[agent]['data']
+            for prefix in ['input', 'output']:
+                for flow in data[prefix]:
+                    c = flow['type']
+                    if c not in currency_dict:
+                        print(f"{c} not in currency_dict.")
+                        continue
+                    internal_conn = f"{agent}.{c}"
+                    external_conn = f"{currency_dict[c]}.{c}"
+                    if prefix == 'input':
+                        arrows.append({
+                            'from': external_conn,
+                            'to': internal_conn})
+                    elif prefix == 'output':
+                        arrows.append({
+                            'from': internal_conn,
+                            'to': external_conn})
+
+    with open(fpath, 'w') as f:
+        agent_desc = json.dump({'connections': arrows}, f)
+    return arrows
 
 def convert_configuration(game_config):
     """
