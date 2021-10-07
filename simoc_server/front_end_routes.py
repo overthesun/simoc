@@ -327,7 +327,7 @@ def convert_configuration(game_config):
             _add_agent(agent_type, 1)
 
     if 'human_agent' in game_config and isinstance(game_config['human_agent'], dict):
-        human_amount = game_config['human_agent'].get('amount', 0) or 0k
+        human_amount = game_config['human_agent'].get('amount', 0) or 0
         total_amount += 1 if single_agent else human_amount
         _add_agent('human_agent', human_amount)
 
