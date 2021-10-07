@@ -11,7 +11,7 @@ import json
 import math
 import sys
 import datetime
-import os.path
+import pathlib
 
 from flask import request
 
@@ -127,7 +127,8 @@ def build_connections_from_agent_desc(fpath):
     """Build connections.json file from the current agent_desc.json file.
 
     """
-    with open(os.path.dirname(__file__) + '/../agent_desc.json', 'r') as f:
+    agent_desc_path = pathlib.Path(__file__).parent.parent / 'agent_desc.json'
+    with open(agent_desc_path) as f:
         agent_desc = json.load(f)
 
     currencies = agent_desc['simulation_variables']['currencies_of_exchange']
@@ -161,16 +162,14 @@ def build_connections_from_agent_desc(fpath):
                     internal_conn = f"{agent}.{c}"
                     external_conn = f"{currency_dict[c]}.{c}"
                     if prefix == 'input':
-                        arrows.append({
-                            'from': external_conn,
-                            'to': internal_conn})
+                        arrows.append({'from': external_conn,
+                                       'to': internal_conn})
                     elif prefix == 'output':
-                        arrows.append({
-                            'from': internal_conn,
-                            'to': external_conn})
+                        arrows.append({'from': internal_conn,
+                                       'to': external_conn})
 
     with open(fpath, 'w') as f:
-        agent_desc = json.dump({'connections': arrows}, f)
+        agent_desc = json.dump(arrows, f)
     return arrows
 
 def convert_configuration(game_config):
@@ -187,13 +186,14 @@ def convert_configuration(game_config):
     format based on an object similar to the one created here or in the new game view.
 
     GRANT: This file is undergoing a major change as of October '21.
-      - In the first step, I load connections programmatically from 'connections.json', and do some
-        reorganization to make the function easier to read.
+      - In the first step, I load connections programmatically from
+        'connections.json', and do some reorganization to make the function
+        easier to read.
     """
 
     # 1. INITIALIZE WORKING VARIABLES
-    single_agent = game_config.get('single_agent', 0) or 0  # Whether a 1-agent simulation
-    total_amount = 0  # The total number of agents in the simulation; updated below, added at end
+    single_agent = game_config.get('single_agent', 0) or 0 # Whether a 1-agent sim
+    total_amount = 0  # Total agents in sim; update below, add to output at end
     full_game_config = {  # The object to be returned by this function.
         'agents': {},
         'storages': {},
@@ -239,11 +239,12 @@ def convert_configuration(game_config):
         game_config = _update_config(game_config, 'water_storage', calc_water_storage(total_volume))
 
     # 3. DETERMINE STORAGE INFO AND AMOUNTS
-    # Currently, all connections have to specify storage ids, and the number of storages per
-    # storage_type is determined by the game_config. We calculate these first to remove redundant
-    # code when adding connections below. **This stage will be removed in a later version.**
-    for storage_type in ['air_storage', 'water_storage', 'nutrient_storage', 'food_storage',
-                         'power_storage']:
+    # Currently, all connections have to specify storage ids, and the number
+    # of storages per storage_type is determined by the game_config. We
+    # calculate these first to remove redundant code when adding connections
+    # below. **This stage will be removed in a later version.**
+    for storage_type in ['air_storage', 'water_storage', 'nutrient_storage',
+                         'food_storage', 'power_storage']:
         storage = {}
         minimum_storage_amount = 0
         agent_type = AgentType.query.filter_by(name=storage_type).first()
@@ -274,12 +275,12 @@ def convert_configuration(game_config):
     # In the next iteration, make it point to agent.direction.currency.
     connections_dict = {}
 
-    fpath = os.path.dirname(__file__) + '/../connections.json'
-    if not os.path.isfile(fpath):
+    fpath = pathlib.Path(__file__).parent.parent / 'connections.json'
+    if not fpath.is_file():
         default_connections = build_connections_from_agent_desc(fpath)
     else:
-        with open(fpath, 'r') as f:
-            default_connections = json.load(f)['connections']
+        with open(fpath) as f:
+            default_connections = json.load(f)
 
     for conn in default_connections:
         from_agent, from_currency = conn['from'].split(".")
@@ -326,7 +327,7 @@ def convert_configuration(game_config):
             _add_agent(agent_type, 1)
 
     if 'human_agent' in game_config and isinstance(game_config['human_agent'], dict):
-        human_amount = game_config['human_agent'].get('amount', 0) or 0
+        human_amount = game_config['human_agent'].get('amount', 0) or 0k
         total_amount += 1 if single_agent else human_amount
         _add_agent('human_agent', human_amount)
 
@@ -343,9 +344,13 @@ def convert_configuration(game_config):
         'dehumidifier',
     ]
     eclss_amount = 0
+    agents_per_eclss = len(eclss_component_agents)
     if 'eclss' in game_config and isinstance(game_config['eclss'], dict):
         eclss_amount = game_config['eclss'].get('amount', 0) or 0
-        total_amount += 6 if single_agent else (eclss_amount * 6)
+        if single_agent:
+            total_amount += agents_per_eclss
+        else:
+            total_amount += agents_per_eclss * eclss_amount
     for agent_type in eclss_component_agents:
         _add_agent(agent_type, eclss_amount)
 
@@ -370,10 +375,10 @@ def convert_configuration(game_config):
     # 6. TIDY UP
     # If the front_end specifies an amount for this agent, overwrite any default values with the
     # specified value
-    for x, y in full_game_config['agents'].items():
-        if x in game_config and isinstance(game_config[x], dict):
-            y[0]['amount'] = game_config[x].get('amount', 0) or 0
-            total_amount += 1 if single_agent else y[0]['amount']
+    for k, v in full_game_config['agents'].items():
+        if k in game_config and isinstance(game_config[k], dict):
+            v[0]['amount'] = game_config[k].get('amount', 0) or 0
+            total_amount += 1 if single_agent else v[0]['amount']
     full_game_config['total_amount'] = total_amount
 
     # # Print result
