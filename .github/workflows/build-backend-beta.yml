@@ -2,9 +2,9 @@ name: Publish to Beta
 
 on:
   #push:
-    #branches: [ staging ]
+    #branches: [ master ]
   #pull_request:
-    #branches: [ staging ]
+    #branches: [ master ]
   #repository_dispatch:
     #types: [frontend-update-staging]
   workflow_dispatch:
@@ -16,7 +16,7 @@ on:
       be_branch:
         description: 'Use this backend branch:'
         required: true
-        default: 'staging'
+        default: 'master'
       # This could be used to merge the two yml
       # files and conditionally push to beta/ngs
       # depending on the selected value
@@ -56,6 +56,18 @@ jobs:
           mkdir simdata
           cd simdata
           wget -r -nH --cut-dirs=2 --no-parent --accept="*.json" -erobots=off -q --show-progress https://simoc.space/download/simdata/
+      - name: Download models
+        working-directory: simoc-web/src/assets
+        run: |
+          mkdir models
+          cd models
+          wget -r -nH --cut-dirs=2 --no-parent --accept="*.glb" -erobots=off -q --show-progress https://simoc.space/download/models/
+      - name: Download skybox
+        working-directory: simoc-web/src/assets
+        run: |
+          mkdir skybox
+          cd skybox
+          wget -r -nH --cut-dirs=2 --no-parent --accept="*.jpg" -erobots=off -q --show-progress https://simoc.space/download/skybox/
       - name: npm install and build
         working-directory: simoc-web
         run: |

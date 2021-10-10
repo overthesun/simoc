@@ -52,7 +52,7 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           path: simoc-web
       - name: Set up gcloud CLI
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@master
         with:
           version: '290.0.1'
           service_account_key: ${{ secrets.GKE_SA_KEY }}
@@ -67,6 +67,18 @@ jobs:
           mkdir simdata
           cd simdata
           wget -r -nH --cut-dirs=2 --no-parent --accept="*.json" -erobots=off -q --show-progress https://simoc.space/download/simdata/
+      - name: Download models
+        working-directory: simoc-web/src/assets
+        run: |
+          mkdir models
+          cd models
+          wget -r -nH --cut-dirs=2 --no-parent --accept="*.glb" -erobots=off -q --show-progress https://simoc.space/download/models/
+      - name: Download skybox
+        working-directory: simoc-web/src/assets
+        run: |
+          mkdir skybox
+          cd skybox
+          wget -r -nH --cut-dirs=2 --no-parent --accept="*.jpg" -erobots=off -q --show-progress https://simoc.space/download/skybox/
       - name: npm install and build
         working-directory: simoc-web
         run: |
@@ -114,7 +126,7 @@ jobs:
         with:
           python-version: 3.8
       - name: Set up gcloud CLI
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@master
         with:
           version: '290.0.1'
           service_account_key: ${{ secrets.GKE_SA_KEY }}
