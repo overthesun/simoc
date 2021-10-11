@@ -259,14 +259,13 @@ def convert_configuration(game_config):
                     storage[currency] = 0
                 minimum_storage_amount = max(minimum_storage_amount,
                                              math.ceil(storage[currency] / storage_capacity))
-        if storage_type not in full_game_config['storages']:
-            full_game_config['storages'][storage_type] = []
-        for i in range(minimum_storage_amount):
-            x = len(full_game_config['storages'][storage_type]) + 1
-            storage_info = {'id': x, **{k: v / minimum_storage_amount for k, v in storage.items()}}
-            if 'total_capacity' in game_config[storage_type]:
-                storage_info['total_capacity'] = game_config[storage_type]['total_capacity']
-            full_game_config['storages'][storage_type].append(storage_info)
+        storage_info = {
+            'id': 1,
+            'amount': minimum_storage_amount,
+            **{k: v for k, v in storage.items()}}
+        if 'total_capacity' in game_config[storage_type]:
+            storage_info['total_capacity'] = game_config[storage_type]['total_capacity']
+        full_game_config['storages'][storage_type] = storage_info
 
 
     # 4. BUILD CONNECTIONS FROM JSON FILE
@@ -294,10 +293,9 @@ def convert_configuration(game_config):
                     is_storage = True
             if not is_storage:
                 if agent not in connections_dict.keys():
-                    connections_dict[agent] = {}
+                    connections_dict[agent] = []
                 storage_agent = to_agent if agent == from_agent else from_agent
-                storage_ids = [s['id'] for s in full_game_config['storages'][storage_agent]]
-                connections_dict[agent][storage_agent] = storage_ids
+                connections_dict[agent].append(storage_agent)
 
         # # For the NEXT iteration
         # for agent in [from_agent, to_agent]:
@@ -315,10 +313,10 @@ def convert_configuration(game_config):
     # 5. ADD AGENTS
     # Helper function
     def _add_agent(agent_type, amount):
-        full_game_config['agents'][agent_type] = [{
+        full_game_config['agents'][agent_type] = {
             'connections': connections_dict[agent_type].copy(),
             'amount': amount
-        }]
+        }
 
     # These items' agent_type is different from the label and quantity is always = 1.
     for label in ['habitat', 'greenhouse']:
@@ -377,15 +375,15 @@ def convert_configuration(game_config):
     # specified value
     for k, v in full_game_config['agents'].items():
         if k in game_config and isinstance(game_config[k], dict):
-            v[0]['amount'] = game_config[k].get('amount', 0) or 0
-            total_amount += 1 if single_agent else v[0]['amount']
+            v['amount'] = game_config[k].get('amount', 0) or 0
+            total_amount += 1 if single_agent else v['amount']
     full_game_config['total_amount'] = total_amount
 
-    # # Print result
-    # timestamp = str(datetime.datetime.now().time())
-    # timestamp = "".join(ch for ch in timestamp if ch not in [':', '.'])
-    # with open(f"full_game_config_{timestamp}.json", "w") as f:
-    #     json.dump(full_game_config, f)
+    # Print result
+    timestamp = str(datetime.datetime.now().time())
+    timestamp = "".join(ch for ch in timestamp if ch not in [':', '.'])
+    with open(f"full_game_config_{timestamp}.json", "w") as f:
+        json.dump(full_game_config, f)
 
     return full_game_config
 

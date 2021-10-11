@@ -264,8 +264,6 @@ class GeneralAgent(EnclosedAgent):
                 if len(self.connections) > 0:
                     if storage.agent_type not in self.connections:
                         continue
-                    if storage.id not in self.connections[storage.agent_type]:
-                        continue
                 if currency in storage:
                     self.selected_storage[prefix][currency].append(storage)
 
@@ -618,6 +616,8 @@ class StorageAgent(EnclosedAgent):
                 initial_value = initial_value if initial_value is not None else 0
                 self._attr(currency, initial_value, is_client_attr=True, is_persisted_attr=True)
                 capacity = self.attrs[attr]
+                if self.amount:
+                    capacity *= self.amount
                 self._attr(attr, capacity, is_client_attr=True, is_persisted_attr=True)
 
     def step(self):

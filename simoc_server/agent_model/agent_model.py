@@ -772,23 +772,21 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         Returns:
           TODO
         """
-        for type_name, instances in self.STORAGES.items():
-            for instance in instances:
-                model.add_agent(StorageAgent(model=model,
-                                             agent_type=type_name,
-                                             **instance))
-        for type_name, instances in self.AGENTS.items():
-            for instance in instances:
-                connections, amount = instance["connections"], instance['amount']
-                if self.SINGLE_AGENT == 1:
+        for type_name, instance in self.STORAGES.items():
+            model.add_agent(StorageAgent(model=model,
+                                            agent_type=type_name,
+                                            **instance))
+        for type_name, instance in self.AGENTS.items():
+            connections, amount = instance["connections"], instance['amount']
+            if self.SINGLE_AGENT == 1:
+                model.add_agent(GeneralAgent(model=model,
+                                                agent_type=type_name,
+                                                connections=connections,
+                                                amount=amount))
+            else:
+                for i in range(amount):
                     model.add_agent(GeneralAgent(model=model,
-                                                 agent_type=type_name,
-                                                 connections=connections,
-                                                 amount=amount))
-                else:
-                    for i in range(amount):
-                        model.add_agent(GeneralAgent(model=model,
-                                                     agent_type=type_name,
-                                                     connections=connections,
-                                                     amount=1))
+                                                    agent_type=type_name,
+                                                    connections=connections,
+                                                    amount=1))
         return model
