@@ -124,7 +124,7 @@ def calc_water_storage(volume):
 
 
 def build_connections_from_agent_desc(fpath):
-    """Build connections.json file from the current agent_desc.json file.
+    """Build agent_conn.json file from the current agent_desc.json file.
 
     """
     agent_desc_path = pathlib.Path(__file__).parent.parent / 'agent_desc.json'
@@ -187,7 +187,7 @@ def convert_configuration(game_config):
 
     GRANT: This file is undergoing a major change as of October '21.
       - In the first step, I load connections programmatically from
-        'connections.json', and do some reorganization to make the function
+        'agent_conn.json', and do some reorganization to make the function
         easier to read.
     """
 
@@ -275,7 +275,7 @@ def convert_configuration(game_config):
     # In the next iteration, make it point to agent.direction.currency.
     connections_dict = {}
 
-    fpath = pathlib.Path(__file__).parent.parent / 'connections.json'
+    fpath = pathlib.Path(__file__).parent.parent / 'agent_conn.json'
     if not fpath.is_file():
         default_connections = build_connections_from_agent_desc(fpath)
     else:
