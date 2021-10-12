@@ -285,31 +285,17 @@ def convert_configuration(game_config):
         from_agent, from_currency = conn['from'].split(".")
         to_agent, to_currency = conn['to'].split(".")
 
-        # For the current iteration; will change
         for agent in [from_agent, to_agent]:
-            is_storage = False
-            for tag in agent.split("_"):
-                if tag == 'storage':
-                    is_storage = True
-            if not is_storage:
-                if agent not in connections_dict.keys():
-                    connections_dict[agent] = []
-                storage_agent = to_agent if agent == from_agent else from_agent
-                if storage_agent not in connections_dict[agent]:
-                    connections_dict[agent].append(storage_agent)
-
-        # # For the NEXT iteration
-        # for agent in [from_agent, to_agent]:
-        #     if agent not in connections_dict.keys():
-        #         connections_dict[agent] = {'in': {}, 'out': {}}
-        # if from_currency not in connections_dict[from_agent]['out']:
-        #     connections_dict[from_agent]['out'][from_currency] = [to_agent]
-        # else:
-        #     connections_dict[from_agent]['out'][from_currency].append(to_agent)
-        # if to_currency not in connections_dict[to_agent]['in']:
-        #     connections_dict[to_agent]['in'][to_currency] = [from_agent]
-        # else:
-        #     connections_dict[to_agent]['in'][to_currency].append(from_agent)
+            if agent not in connections_dict.keys():
+                connections_dict[agent] = {'in': {}, 'out': {}}
+        if from_currency not in connections_dict[from_agent]['out']:
+            connections_dict[from_agent]['out'][from_currency] = [to_agent]
+        else:
+            connections_dict[from_agent]['out'][from_currency].append(to_agent)
+        if to_currency not in connections_dict[to_agent]['in']:
+            connections_dict[to_agent]['in'][to_currency] = [from_agent]
+        else:
+            connections_dict[to_agent]['in'][to_currency].append(from_agent)
 
     # 5. ADD AGENTS
     # Helper function

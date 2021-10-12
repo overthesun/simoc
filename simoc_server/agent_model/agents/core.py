@@ -297,21 +297,29 @@ class GeneralAgent(StorageAgent):
             self.deprive[currency] = deprive_value * self.amount
 
     def _init_selected_storage(self):
-        storages = self.model.get_agents_by_class(agent_class=StorageAgent)
         self.selected_storage = {"in": {}, 'out': {}}
         self.currency_dict = {}
+        # NOTE: The 'agent_conn.json' file does not distinguish which agent
+        # initiates a flow; e.g. a connection between 'greenhouse.atmo_co2' and
+        # and 'rice.atmo_co2' could reference an INPUT of rice, or an OUTPUT of
+        # greenhouse. The present function does that; rather than add all
+        # the connections, we iterate through flows and add the appropriate
+        # connection. In the future, it may be useful for diagnostic purposes
+        # to copy all the connections (those initiated by an agent, and those
+        # initiated by another). This shouldn't break anything.
         for attr in self.attrs:
             prefix, currency = attr.split('_', 1)
             if prefix not in ['in', 'out']:
                 continue
             self.selected_storage[prefix][currency] = []
             self.currency_dict[currency] = CurrencyType.query.filter_by(name=currency).first()
-            for storage in storages:
-                if len(self.connections) > 0:
-                    if storage.agent_type not in self.connections:
-                        continue
-                if currency in storage:
-                    self.selected_storage[prefix][currency].append(storage)
+            connected_agents = self.connections[prefix][currency]
+            for agent_type in connected_agents:
+                storage_agent = self.model.get_agents_by_type(agent_type=agent_type)
+                # Function returns an array, but with the latest updates, there
+                # should only ever be one instance of an agent_type.
+                storage_agent = storage_agent[0]
+                self.selected_storage[prefix][currency].append(storage_agent)
 
     def _calculate_step_values(self):
         if self.lifetime > 0:
