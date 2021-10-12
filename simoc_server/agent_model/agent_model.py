@@ -776,19 +776,26 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         """
         for type_name, instance in self.STORAGES.items():
             model.add_agent(StorageAgent(model=model,
-                                            agent_type=type_name,
-                                            **instance))
+                                         agent_type=type_name,
+                                         **instance))
         for type_name, instance in self.AGENTS.items():
             connections, amount = instance["connections"], instance['amount']
             if self.SINGLE_AGENT == 1:
                 model.add_agent(GeneralAgent(model=model,
-                                                agent_type=type_name,
-                                                connections=connections,
-                                                amount=amount))
+                                             agent_type=type_name,
+                                             connections=connections,
+                                             amount=amount))
             else:
                 for i in range(amount):
                     model.add_agent(GeneralAgent(model=model,
-                                                    agent_type=type_name,
-                                                    connections=connections,
-                                                    amount=1))
+                                                 agent_type=type_name,
+                                                 connections=connections,
+                                                 amount=1))
+        # The '_init_selected_storage' method takes the connections dict,
+        # supplied above, and makes a connection to the actual agent object
+        # in the model. Because agents have connections to other agents, all
+        # must be initialized before connections can be made.
+        for agent in model.get_agents_by_class(agent_class=GeneralAgent):
+            agent._init_selected_storage()
+
         return model

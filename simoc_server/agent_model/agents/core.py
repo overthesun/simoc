@@ -236,7 +236,6 @@ class GeneralAgent(EnclosedAgent):
         self.buffer = kwargs.pop("buffer", {})
         self.deprive = kwargs.pop("deprive", None)
         super(GeneralAgent, self).__init__(*args, **kwargs)
-        self._init_selected_storage()
         self._calculate_step_values()
         if not self.deprive:
             self._init_deprive()
