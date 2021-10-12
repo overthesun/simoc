@@ -295,7 +295,8 @@ def convert_configuration(game_config):
                 if agent not in connections_dict.keys():
                     connections_dict[agent] = []
                 storage_agent = to_agent if agent == from_agent else from_agent
-                connections_dict[agent].append(storage_agent)
+                if storage_agent not in connections_dict[agent]:
+                    connections_dict[agent].append(storage_agent)
 
         # # For the NEXT iteration
         # for agent in [from_agent, to_agent]:

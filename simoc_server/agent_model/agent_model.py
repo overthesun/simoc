@@ -169,6 +169,7 @@ class AgentModel(Model, AttributeHolder):
                                                user_id=self.user_id,
                                                step_num=self.step_num,
                                                storage_id=storage['storage_id'],
+                                               storage_amount=storage['amount'],
                                                storage_agent_id=storage['storage_agent_id'],
                                                storage_type=storage['agent_type'],
                                                storage_type_id=storage['agent_type_id'],
@@ -214,6 +215,7 @@ class AgentModel(Model, AttributeHolder):
                       "agent_type_id": storage.agent_type_id,
                       "storage_agent_id": storage.unique_id,
                       "storage_id": storage.id,
+                      "amount": storage.amount,
                       "currencies": []}
             for attr in storage.attrs:
                 if attr.startswith('char_capacity'):
