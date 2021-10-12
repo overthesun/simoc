@@ -418,6 +418,7 @@ class AgentModel(Model, AttributeHolder):
         """
         self.time += self.timedelta_per_step()
         self.daytime = int(self.time.total_seconds() / 60) % self.day_length_minutes
+        # Check termination conditions; stop if true
         for cond in self.termination:
             if cond['condition'] == "time":
                 value = cond['value']
@@ -437,16 +438,18 @@ class AgentModel(Model, AttributeHolder):
                     self.is_terminated = True
                     self.termination_reason = 'time'
                     return
-        for storage in self.get_agents_by_class(agent_class=StorageAgent):
-            storage_id = '{}_{}'.format(storage.agent_type, storage.id)
+        # Update storage ratios
+        agents_with_storage = [agent for agent in self.scheduler.agents if agent.has_storage]
+        for storage_agent in agents_with_storage:
+            storage_id = storage_agent.agent_type
             if storage_id not in self.storage_ratios:
                 self.storage_ratios[storage_id] = {}
             temp, total = {}, None
-            for attr in storage.attrs:
+            for attr in storage_agent.attrs:
                 if attr.startswith('char_capacity'):
                     currency = attr.split('_', 2)[2]
-                    storage_unit = storage.attr_details[attr]['units']
-                    storage_value = pq.Quantity(float(storage[currency]), storage_unit)
+                    storage_unit = storage_agent.attr_details[attr]['units']
+                    storage_value = pq.Quantity(float(storage_agent[currency]), storage_unit)
                     if not total:
                         total = storage_value
                     else:

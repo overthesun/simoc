@@ -229,10 +229,13 @@ class StorageAgent(EnclosedAgent):
           id: TODO
           currency: TODO
         """
-        self.id = kwargs.pop("id", None)
+        self.id = kwargs.pop("id", None)  # This will be phased out
+        self.has_storage = False
         super(StorageAgent, self).__init__(*args, **kwargs)
         for attr in self.attrs:
             if attr.startswith('char_capacity'):
+                if not self.has_storage:
+                    self.has_storage = True
                 currency = attr.split('_', 2)[2]
                 initial_value = kwargs.get(currency, None)
                 initial_value = initial_value if initial_value is not None else 0
@@ -527,8 +530,8 @@ class GeneralAgent(StorageAgent):
                 currency = attr.split('_', 3)[3]
                 for prefix in ['in', 'out']:
                     if currency in self.selected_storage[prefix]:
-                        for storage in self.selected_storage[prefix][currency]:
-                            agent_id = '{}_{}'.format(storage.agent_type, storage.id)
+                        for storage_agent in self.selected_storage[prefix][currency]:
+                            agent_id = storage_agent.agent_type
                             if threshold_type == 'lower' and self.model.storage_ratios[agent_id][
                                 currency + '_ratio'] < threshold_value:
                                 self.kill('Threshold {} met for {}. Killing the agent'.format(
