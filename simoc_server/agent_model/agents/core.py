@@ -209,7 +209,54 @@ class EnclosedAgent(BaseAgent):
         super().destroy()
 
 
-class GeneralAgent(EnclosedAgent):
+class StorageAgent(EnclosedAgent):
+    """TODO
+
+    TODO
+
+    Attributes:
+          agent_type: TODO
+          id: TODO
+    """
+
+    def __init__(self, *args, **kwargs):
+        """Creates an Agent Initializer object.
+
+        TODO
+
+        Args:
+          agent_type: TODO
+          id: TODO
+          currency: TODO
+        """
+        self.id = kwargs.pop("id", None)
+        super(StorageAgent, self).__init__(*args, **kwargs)
+        for attr in self.attrs:
+            if attr.startswith('char_capacity'):
+                currency = attr.split('_', 2)[2]
+                initial_value = kwargs.get(currency, None)
+                initial_value = initial_value if initial_value is not None else 0
+                self._attr(currency, initial_value, is_client_attr=True, is_persisted_attr=True)
+                # Actual capacity (storage_net_cap in GeneralAgent.step()) is
+                # the capacity multiplied by the amount. We record the
+                # individual capacity in case amount is decremented later.
+                capacity = self.attrs[attr]
+                self._attr(attr, capacity, is_client_attr=True, is_persisted_attr=True)
+
+    def step(self):
+        """TODO"""
+        super().step()
+
+    def kill(self, reason):
+        """Destroys the agent and removes it from the model
+
+        Args:
+          reason: str, cause of death
+        """
+        self.destroy(reason)
+
+
+class GeneralAgent(StorageAgent):
     """TODO
 
     TODO
@@ -638,53 +685,6 @@ class GeneralAgent(EnclosedAgent):
                                   "storage_agent_id": storage.unique_id,
                                   "storage_id": storage.id}
                         self.model.step_records_buffer.append(record)
-
-    def kill(self, reason):
-        """Destroys the agent and removes it from the model
-
-        Args:
-          reason: str, cause of death
-        """
-        self.destroy(reason)
-
-
-class StorageAgent(EnclosedAgent):
-    """TODO
-
-    TODO
-
-    Attributes:
-          agent_type: TODO
-          id: TODO
-    """
-
-    def __init__(self, *args, **kwargs):
-        """Creates an Agent Initializer object.
-
-        TODO
-
-        Args:
-          agent_type: TODO
-          id: TODO
-          currency: TODO
-        """
-        self.id = kwargs.pop("id", None)
-        super(StorageAgent, self).__init__(*args, **kwargs)
-        for attr in self.attrs:
-            if attr.startswith('char_capacity'):
-                currency = attr.split('_', 2)[2]
-                initial_value = kwargs.get(currency, None)
-                initial_value = initial_value if initial_value is not None else 0
-                self._attr(currency, initial_value, is_client_attr=True, is_persisted_attr=True)
-                # Actual capacity (storage_net_cap in GeneralAgent.step()) is
-                # the capacity multiplied by the amount. We record the
-                # individual capacity in case amount is decremented later.
-                capacity = self.attrs[attr]
-                self._attr(attr, capacity, is_client_attr=True, is_persisted_attr=True)
-
-    def step(self):
-        """TODO"""
-        super().step()
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model
