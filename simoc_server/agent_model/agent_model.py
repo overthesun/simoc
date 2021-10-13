@@ -190,7 +190,7 @@ class AgentModel(Model, AttributeHolder):
           TODO
         """
         counter = {}
-        self.agents_list = self.get_agents_by_class(agent_class=GeneralAgent)
+        self.agents_list = self.get_agents_by_role(role="flows")
         for agent in self.agents_list:
             agent_type = agent.agent_type
             agent_type_id = agent.agent_type_id
@@ -209,7 +209,7 @@ class AgentModel(Model, AttributeHolder):
           A dictionary of the storages information for this step
         """
         storages = []
-        self.storage_list = self.get_agents_by_class(agent_class=StorageAgent)
+        self.storage_list = self.get_agents_by_role(role="storage")
         for storage in self.storage_list:
             entity = {"agent_type": storage.agent_type,
                       "agent_type_id": storage.agent_type_id,
@@ -345,9 +345,9 @@ class AgentModel(Model, AttributeHolder):
         """
         self.scheduler.add(agent)
 
-    def num_agents(self):
-        """Returns total number of agents in the models."""
-        return len(self.schedule.agents)
+    # def num_agents(self):
+    #     """Returns total number of agents in the models."""
+    #     return len(self.schedule.agents)
 
     def _branch(self):
         """TODO"""
@@ -439,8 +439,7 @@ class AgentModel(Model, AttributeHolder):
                     self.termination_reason = 'time'
                     return
         # Update storage ratios
-        agents_with_storage = [agent for agent in self.scheduler.agents if agent.has_storage]
-        for storage_agent in agents_with_storage:
+        for storage_agent in self.get_agents_by_role(role="storage"):
             storage_id = storage_agent.agent_type
             if storage_id not in self.storage_ratios:
                 self.storage_ratios[storage_id] = {}
@@ -489,38 +488,43 @@ class AgentModel(Model, AttributeHolder):
         else:
             return [agent for agent in self.scheduler.agents if agent.agent_type == agent_type]
 
-    def get_agents_by_class(self, agent_class=None):
-        """TODO
+    # def get_agents_by_class(self, agent_class=None):
+    #     """TODO
 
-        TODO
+    #     TODO
 
-        Args:
-            agent_class: TODO
+    #     Args:
+    #         agent_class: TODO
 
-        Returns:
-          TODO
-        """
-        if agent_class is None:
-            return self.scheduler.agents
-        else:
-            return [agent for agent in self.scheduler.agents if isinstance(agent, agent_class)]
+    #     Returns:
+    #       TODO
+    #     """
+    #     if agent_class is None:
+    #         return self.scheduler.agents
+    #     else:
+    #         return [agent for agent in self.scheduler.agents if isinstance(agent, agent_class)]
 
-    def agent_by_id(self, id):
-        """TODO
+    # def agent_by_id(self, id):
+    #     """TODO
 
-        TODO
+    #     TODO
 
-        Args:
-            id: TODO
+    #     Args:
+    #         id: TODO
 
-        Returns:
-          TODO
-        """
-        for agent in self.get_agents_by_type():
-            if agent.id == id:
-                return agent
-        return None
+    #     Returns:
+    #       TODO
+    #     """
+    #     for agent in self.get_agents_by_type():
+    #         if agent.id == id:
+    #             return agent
+    #     return None
 
+    def get_agents_by_role(self, role=None):
+        if role == 'storage':
+            return [agent for agent in self.scheduler.agents if agent.has_storage]
+        elif role == 'flows':
+            return [agent for agent in self.scheduler.agents if agent.has_flows]
 
 class AgentModelInitializationParams(object):
     """TODO
@@ -778,7 +782,7 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
           TODO
         """
         for type_name, instance in self.STORAGES.items():
-            model.add_agent(StorageAgent(model=model,
+            model.add_agent(GeneralAgent(model=model,
                                          agent_type=type_name,
                                          **instance))
         for type_name, instance in self.AGENTS.items():
@@ -798,7 +802,7 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         # supplied above, and makes a connection to the actual agent object
         # in the model. Because agents have connections to other agents, all
         # must be initialized before connections can be made.
-        for agent in model.get_agents_by_class(agent_class=GeneralAgent):
+        for agent in model.get_agents_by_role(role="flows"):
             agent._init_selected_storage()
 
         return model

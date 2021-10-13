@@ -285,6 +285,7 @@ class GeneralAgent(StorageAgent):
         self.connections = kwargs.pop("connections", [])
         self.buffer = kwargs.pop("buffer", {})
         self.deprive = kwargs.pop("deprive", None)
+        self.has_flows = False
         super(GeneralAgent, self).__init__(*args, **kwargs)
         self._calculate_step_values()
         if not self.deprive:
@@ -343,7 +344,8 @@ class GeneralAgent(StorageAgent):
             prefix, currency = attr.split('_', 1)
             if prefix not in ['in', 'out']:
                 continue
-
+            if not self.has_flows:
+                self.has_flows = True
             agent_flow_time = self.attr_details[attr]['flow_time']
             lifetime_growth_type = self.attr_details[attr]['lifetime_growth_type']
             lifetime_growth_center = self.attr_details[attr]['lifetime_growth_center']
@@ -517,12 +519,14 @@ class GeneralAgent(StorageAgent):
         Exception: TODO
         """
         super().step()
+        # If agent doesn't have flows (i.e. is storage agent), skip this step
+        if not self.has_flows:
+            return
         timedelta_per_step = self.model.timedelta_per_step()
         hours_per_step = timedelta_to_hours(timedelta_per_step)
-        # Step 1: If agent has lifetime characteristic, check if grown
         if self.age + hours_per_step >= self.lifetime > 0:
             self.grown = True
-        # Step 2: If agent has threshold characteristic, check value and kill if met.
+        # If agent has threshold characteristic, check value and kill if met.
         for attr in self.attrs:
             if attr.startswith('char_threshold_'):
                 threshold_value = self.attrs[attr]
