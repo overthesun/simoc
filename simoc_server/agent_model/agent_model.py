@@ -438,29 +438,7 @@ class AgentModel(Model, AttributeHolder):
                     self.is_terminated = True
                     self.termination_reason = 'time'
                     return
-        # Update storage ratios
-        for storage_agent in self.get_agents_by_role(role="storage"):
-            storage_id = storage_agent.agent_type
-            if storage_id not in self.storage_ratios:
-                self.storage_ratios[storage_id] = {}
-            temp, total = {}, None
-            for attr in storage_agent.attrs:
-                if attr.startswith('char_capacity'):
-                    currency = attr.split('_', 2)[2]
-                    storage_unit = storage_agent.attr_details[attr]['units']
-                    storage_value = pq.Quantity(float(storage_agent[currency]), storage_unit)
-                    if not total:
-                        total = storage_value
-                    else:
-                        storage_value.units = total.units
-                        total += storage_value
-                    temp[currency] = storage_value.magnitude.tolist()
-            for currency in temp:
-                if temp[currency] > 0:
-                    self.storage_ratios[storage_id][currency + '_ratio'] = \
-                        temp[currency] / total.magnitude.tolist()
-                else:
-                    self.storage_ratios[storage_id][currency + '_ratio'] = 0
+        # Step agents
         self.scheduler.step()
         app.logger.info("{0} step_num {1}".format(self, self.step_num))
 

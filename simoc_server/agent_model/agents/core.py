@@ -248,6 +248,29 @@ class StorageAgent(EnclosedAgent):
 
     def step(self):
         """TODO"""
+        # Moved from agent_model to storages
+        if self.has_storage:
+            storage_id = self.agent_type
+            if storage_id not in self.model.storage_ratios:
+                self.model.storage_ratios[storage_id] = {}
+            temp, total = {}, None
+            for attr in self.attrs:
+                if attr.startswith('char_capacity'):
+                    currency = attr.split('_', 2)[2]
+                    storage_unit = self.attr_details[attr]['units']
+                    storage_value = pq.Quantity(float(self[currency]), storage_unit)
+                    if not total:
+                        total = storage_value
+                    else:
+                        storage_value.units = total.units
+                        total += storage_value
+                    temp[currency] = storage_value.magnitude.tolist()
+            for currency in temp:
+                if temp[currency] > 0:
+                    self.model.storage_ratios[storage_id][currency + '_ratio'] = \
+                        temp[currency] / total.magnitude.tolist()
+                else:
+                    self.model.storage_ratios[storage_id][currency + '_ratio'] = 0
         super().step()
 
     def kill(self, reason):
