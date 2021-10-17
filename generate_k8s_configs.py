@@ -15,6 +15,7 @@ if __name__ == "__main__":
               "min_celery_replicas": os.environ.get('MIN_CELERY_REPLICAS', ''),
               "max_celery_replicas": os.environ.get('MAX_CELERY_REPLICAS', ''),
               "server_name": os.environ.get('SERVER_NAME', ''),
+              "tls_mode": os.environ.get('TLS_MODE', ''),
               "acme_email": os.environ.get('ACME_EMAIL', ''),
               "acme_staging": int(os.environ.get('ACME_STAGING', True)),
               "basic_auth": int(os.environ.get('BASIC_AUTH', False)),

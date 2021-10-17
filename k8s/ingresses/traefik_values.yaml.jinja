@@ -6,11 +6,16 @@ additionalArguments:
   - "--accesslog"
   - "--log.level=INFO"
   - "--providers.kubernetescrd"
+{% if tls_mode == 'letsencrypt' %}
   - "--certificatesresolvers.le.acme.tlsChallenge=true"
   - "--certificatesresolvers.le.acme.email={{ acme_email }}"
   - "--certificatesresolvers.le.acme.storage=/data/acme.json"
 {% if acme_staging %}
   - "--certificatesresolvers.le.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+{% endif %}
+{% endif %}
+{% if tls_mode == 'custom' %}
+  - "--providers.file.filename=/config/dynamic.yml"
 {% endif %}
 
 ports:
@@ -22,12 +27,10 @@ ports:
     port: 8000
     expose: true
     exposedPort: 80
-    nodePort: 32080
   websecure:
     port: 8443
     expose: true
     exposedPort: 443
-    nodePort: 32443
 
 service:
   enabled: true
@@ -37,6 +40,16 @@ service:
      loadBalancerIP: "{{ public_ip }}"
   externalIPs:
    - "{{ public_ip }}"
+
+{% if tls_mode == 'custom' %}
+volumes:
+ - name: ngs-tls-secret
+   mountPath: "/certs"
+   type: secret
+ - name: traefik-dynamic
+   mountPath: "/config"
+   type: configMap
+{% endif %}
 
 persistence:
   enabled: true
