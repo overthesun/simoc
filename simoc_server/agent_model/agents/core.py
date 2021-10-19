@@ -504,10 +504,22 @@ class GeneralAgent(StorageAgent):
             if cr_name in self:
                 source = self[cr_name]
             else:
+                # For co2 management, criteria need to be evaluated against
+                # specific storages; not all storages, as was done before.
+                # I added '_in' or '_out' to the criteria name so that it can
+                # be evaluated against a selected storage.
                 source = 0
-                for storage_id in self.model.storage_ratios:
-                    if cr_name in self.model.storage_ratios[storage_id]:
-                        source += self.model.storage_ratios[storage_id][cr_name]
+                direction = cr_name.split('_')[-1]
+                if direction in ['in', 'out']:
+                    elements = cr_name.split('_')
+                    currency = '_'.join(elements[:2])
+                    cr_actual = '_'.join(elements[:3])
+                    storage_id = self.selected_storage[direction][currency][0].agent_type
+                    source += self.model.storage_ratios[storage_id][cr_actual]
+                else:
+                    for storage_id in self.model.storage_ratios:
+                        if cr_name in self.model.storage_ratios[storage_id]:
+                            source += self.model.storage_ratios[storage_id][cr_name]
             cr_id = '{}_{}_{}'.format(prefix, currency, cr_name)
             if cr_limit == '>':
                 opp = operator.gt

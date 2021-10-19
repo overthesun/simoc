@@ -8,7 +8,6 @@
       "atmo_h2o": 0,
       "atmo_ch4": 0,
       "atmo_cont": 0,
-      "atmo_co2tank": 0,
       "sold_n": 0,
       "sold_p": 0,
       "sold_k": 0,
@@ -581,7 +580,7 @@
         ],
         "output": [
           {
-            "type": "atmo_co2tank",
+            "type": "atmo_co2",
             "value": 0.085,
             "required": "mandatory",
             "requires": [
@@ -606,13 +605,13 @@
           }
         ]
       },
-      "description": "Moves carbon dioxide from the habitat atmosphere to storage tank."
+      "description": "Moves carbon dioxide from the habitat atmosphere to co2_storage."
     },
     "co2_makeup_valve": {
       "data": {
         "input": [
           {
-            "type": "atmo_co2tank",
+            "type": "atmo_co2",
             "value": 0.085,
             "required": "mandatory",
             "flow_rate": {
@@ -633,7 +632,7 @@
             "value": 0.085,
             "required": "mandatory",
             "requires": [
-              "atmo_co2tank"
+              "atmo_co2"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -654,7 +653,7 @@
           }
         ]
       },
-      "description": "Vents carbon dioxide from co2tank into the habitat atmosphere."
+      "description": "Vents carbon dioxide from co2_storage into the habitat atmosphere."
     },
     "particulate_removal_TCCS": {
       "data": {
@@ -5880,11 +5879,6 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2tank",
-            "value": 10000,
-            "unit": "kg"
-          },
-          {
             "type": "capacity_atmo_n2",
             "value": 10000,
             "unit": "kg"
@@ -5942,11 +5936,6 @@
           },
           {
             "type": "capacity_atmo_co2",
-            "value": 10000,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_atmo_co2tank",
             "value": 10000,
             "unit": "kg"
           },
@@ -6012,11 +6001,6 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2tank",
-            "value": 10000,
-            "unit": "kg"
-          },
-          {
             "type": "capacity_atmo_n2",
             "value": 10000,
             "unit": "kg"
@@ -6074,11 +6058,6 @@
           },
           {
             "type": "capacity_atmo_co2",
-            "value": 10000,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_atmo_co2tank",
             "value": 10000,
             "unit": "kg"
           },
@@ -6155,11 +6134,6 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2tank",
-            "value": 10000,
-            "unit": "kg"
-          },
-          {
             "type": "capacity_atmo_n2",
             "value": 10000,
             "unit": "kg"
@@ -6217,11 +6191,6 @@
           },
           {
             "type": "capacity_atmo_co2",
-            "value": 10000,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_atmo_co2tank",
             "value": 10000,
             "unit": "kg"
           },
@@ -6287,11 +6256,6 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2tank",
-            "value": 10000,
-            "unit": "kg"
-          },
-          {
             "type": "capacity_atmo_n2",
             "value": 10000,
             "unit": "kg"
@@ -6349,11 +6313,6 @@
           },
           {
             "type": "capacity_atmo_co2",
-            "value": 10000,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_atmo_co2tank",
             "value": 10000,
             "unit": "kg"
           },
@@ -6631,11 +6590,6 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2tank",
-            "value": 1000,
-            "unit": "kg"
-          },
-          {
             "type": "mass",
             "value": 4348.5,
             "unit": "kg"
@@ -6775,6 +6729,29 @@
           {
             "type": "volume",
             "value": 0.368,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "co2_storage": {
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "mass",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 1,
             "unit": "m^3"
           }
         ]

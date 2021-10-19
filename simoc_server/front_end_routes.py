@@ -126,6 +126,9 @@ def calc_water_storage(volume):
 def build_connections_from_agent_desc(fpath):
     """Build agent_conn.json file from the current agent_desc.json file.
 
+    DEPRECATED 19 October:
+      - co2_removal_SAWD and co2_makeup_valve connect to co2_storage
+
     """
     agent_desc_path = pathlib.Path(__file__).parent.parent / 'agent_desc.json'
     with open(agent_desc_path) as f:
@@ -225,16 +228,7 @@ def convert_configuration(game_config):
     # then add everything in game_config, validating based on whether they're
     # in the database.
 
-    # Plants
-    if 'plants' in game_config and isinstance(game_config['plants'], list):
-        plants = game_config.pop('plants')
-        for plant in plants:
-            if isinstance(plant, dict):
-                amount = plant.get('amount', 0) or 0
-                plant_type = plant.get('species', None)
-                if plant_type and amount:
-                    game_config[plant_type] = dict(amount=amount)
-    # Structures
+    # Structures: A string under 'habitat' and 'greenhouse' with selected type.
     structures_dict = {}  # Used to replace generic connections
     total_volume = 0  # Used to calcualte starting water_storage
     if 'habitat' in game_config or 'greenhouse' in game_config:
@@ -255,17 +249,7 @@ def convert_configuration(game_config):
             total_volume += volume  # Used below to calculate starting water
             atmosphere = calc_air_storage(volume)  # Fill with earth-normal atmosphere
             game_config[structure_type] = dict(id=1, amount=1, **atmosphere)
-    # ECLSS
-    eclss_agents = ['solid_waste_aerobic_bioreactor', 'multifiltration_purifier_post_treatment',
-                    'oxygen_generation_SFWE', 'urine_recycling_processor_VCD', 'co2_removal_SAWD',
-                    'co2_makeup_valve', 'co2_reduction_sabatier', 'ch4_removal_agent', 'dehumidifier']
-    if 'eclss' in game_config and isinstance(game_config['eclss'], dict):
-        eclss = game_config.pop('eclss')
-        amount = eclss.get('amount', 0) or 0
-        if amount:
-            for eclss_agent in eclss_agents:
-                game_config[eclss_agent] = dict(amount=amount)
-    # Default Storages
+    # Default Storages: Some listed, some not. Need to calculate amount.
     for storage_type in ['water_storage', 'nutrient_storage', 'food_storage', 'power_storage']:
         if storage_type in game_config and isinstance(game_config[storage_type], dict):
             storage = game_config.pop(storage_type)
@@ -288,6 +272,26 @@ def convert_configuration(game_config):
                 capacity = int(attr.value)
                 amount = max(amount, math.ceil(storage[currency] / capacity))
         game_config[storage_type] = dict(id=1, amount=amount, **storage)
+    # ECLSS: A single item with an amount; needs to be broken into component agents
+    eclss_agents = ['solid_waste_aerobic_bioreactor', 'multifiltration_purifier_post_treatment',
+                    'oxygen_generation_SFWE', 'urine_recycling_processor_VCD', 'co2_removal_SAWD',
+                    'co2_makeup_valve', 'co2_storage', 'co2_reduction_sabatier',
+                    'ch4_removal_agent', 'dehumidifier']
+    if 'eclss' in game_config and isinstance(game_config['eclss'], dict):
+        eclss = game_config.pop('eclss')
+        amount = eclss.get('amount', 0) or 0
+        if amount:
+            for eclss_agent in eclss_agents:
+                game_config[eclss_agent] = dict(id=1, amount=amount)
+    # Plants: A list of objects with 'species' and 'amount'
+    if 'plants' in game_config and isinstance(game_config['plants'], list):
+        plants = game_config.pop('plants')
+        for plant in plants:
+            if isinstance(plant, dict):
+                amount = plant.get('amount', 0) or 0
+                plant_type = plant.get('species', None)
+                if plant_type and amount:
+                    game_config[plant_type] = dict(amount=amount)
     # 'human_agent' and 'solar_pv...' are already in the correct format.
 
     ###########################################################################
@@ -307,11 +311,12 @@ def convert_configuration(game_config):
         return agent_type
     # Load connections file
     fpath = pathlib.Path(__file__).parent.parent / 'agent_conn.json'
-    if not fpath.is_file():
-        default_connections = build_connections_from_agent_desc(fpath)
-    else:
-        with open(fpath) as f:
-            default_connections = json.load(f)
+    # if not fpath.is_file():
+    #     default_connections = build_connections_from_agent_desc(fpath)
+    # else:
+    with open(fpath) as f:
+        default_connections = json.load(f)
+
     # Parse connections file in to dict
     connections_dict = {}
     for conn in default_connections:
