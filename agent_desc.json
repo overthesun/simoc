@@ -559,7 +559,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_co2_ratio",
+              "name": "atmo_co2_ratio_in",
               "limit": ">",
               "value": 0.001,
               "buffer": 8
@@ -619,7 +619,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_co2_ratio",
+              "name": "atmo_co2_ratio_out",
               "limit": "<",
               "value": 0.0002,
               "buffer": 8
