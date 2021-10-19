@@ -745,7 +745,6 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
           config: Dict, TODO
         """
         self.AGENTS = config['agents']
-        self.STORAGES = config['storages']
         self.SINGLE_AGENT = config['single_agent']
 
     def init_agents(self, model):
@@ -759,23 +758,23 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         Returns:
           TODO
         """
-        for type_name, instance in self.STORAGES.items():
-            model.add_agent(GeneralAgent(model=model,
-                                         agent_type=type_name,
-                                         **instance))
         for type_name, instance in self.AGENTS.items():
-            connections, amount = instance["connections"], instance['amount']
+            connections = instance.pop('connections') if 'connections' in instance else {}
+            amount = instance.pop('amount') if 'amount' in instance else 1
             if self.SINGLE_AGENT == 1:
                 model.add_agent(GeneralAgent(model=model,
-                                             agent_type=type_name,
-                                             connections=connections,
-                                             amount=amount))
+                                            agent_type=type_name,
+                                            connections=connections,
+                                            amount=amount,
+                                            **instance))
             else:
                 for i in range(amount):
                     model.add_agent(GeneralAgent(model=model,
-                                                 agent_type=type_name,
-                                                 connections=connections,
-                                                 amount=1))
+                                    agent_type=type_name,
+                                    connections=connections,
+                                    amount=1,
+                                    **instance))
+
         # The '_init_selected_storage' method takes the connections dict,
         # supplied above, and makes a connection to the actual agent object
         # in the model. Because agents have connections to other agents, all

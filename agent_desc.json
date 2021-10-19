@@ -142,6 +142,7 @@
           },
           {
             "type": "threshold_lower_atmo_o2",
+            "connection": "in.atmo_o2",
             "value": 0.08
           },
           {
@@ -5869,6 +5870,41 @@
             "value": "habitat"
           },
           {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2tank",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
             "type": "mass",
             "value": 20000,
             "unit": "kg"
@@ -5898,6 +5934,41 @@
           {
             "type": "category",
             "value": "habitat"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2tank",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           },
           {
             "type": "mass",
@@ -5931,6 +6002,41 @@
             "value": "habitat"
           },
           {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2tank",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
             "type": "mass",
             "value": 45200,
             "unit": "kg"
@@ -5960,6 +6066,41 @@
           {
             "type": "category",
             "value": "habitat"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2tank",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           },
           {
             "type": "mass",
@@ -6002,6 +6143,41 @@
             "type": "volume",
             "value": 494,
             "unit": "m^3"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2tank",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           }
         ]
       }
@@ -6033,6 +6209,41 @@
             "type": "volume",
             "value": 490,
             "unit": "m^3"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2tank",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           }
         ]
       }
@@ -6064,6 +6275,41 @@
             "type": "volume",
             "value": 2454,
             "unit": "m^3"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2tank",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           }
         ]
       }
@@ -6095,6 +6341,41 @@
             "type": "volume",
             "value": 5610,
             "unit": "m^3"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2tank",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           }
         ]
       }
