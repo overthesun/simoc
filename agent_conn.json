@@ -176,7 +176,7 @@
         "to": "ch4_removal_agent.enrg_kwh"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "rice.atmo_co2"
     },
     {
@@ -205,11 +205,11 @@
     },
     {
         "from": "rice.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "rice.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "rice.food_edbl",
@@ -220,7 +220,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "wheat.atmo_co2"
     },
     {
@@ -249,11 +249,11 @@
     },
     {
         "from": "wheat.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "wheat.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "wheat.food_edbl",
@@ -264,7 +264,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "cabbage.atmo_co2"
     },
     {
@@ -293,11 +293,11 @@
     },
     {
         "from": "cabbage.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "cabbage.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "cabbage.food_edbl",
@@ -308,7 +308,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "chard.atmo_co2"
     },
     {
@@ -337,11 +337,11 @@
     },
     {
         "from": "chard.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "chard.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "chard.food_edbl",
@@ -352,7 +352,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "celery.atmo_co2"
     },
     {
@@ -381,11 +381,11 @@
     },
     {
         "from": "celery.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "celery.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "celery.food_edbl",
@@ -396,7 +396,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "lettuce.atmo_co2"
     },
     {
@@ -425,11 +425,11 @@
     },
     {
         "from": "lettuce.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "lettuce.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "lettuce.food_edbl",
@@ -440,7 +440,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "spinach.atmo_co2"
     },
     {
@@ -469,11 +469,11 @@
     },
     {
         "from": "spinach.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "spinach.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "spinach.food_edbl",
@@ -484,7 +484,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "dry_bean.atmo_co2"
     },
     {
@@ -513,11 +513,11 @@
     },
     {
         "from": "dry_bean.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "dry_bean.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "dry_bean.food_edbl",
@@ -528,7 +528,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "peanut.atmo_co2"
     },
     {
@@ -557,11 +557,11 @@
     },
     {
         "from": "peanut.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "peanut.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "peanut.food_edbl",
@@ -572,7 +572,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "soybean.atmo_co2"
     },
     {
@@ -601,11 +601,11 @@
     },
     {
         "from": "soybean.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "soybean.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "soybean.food_edbl",
@@ -616,7 +616,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "strawberry.atmo_co2"
     },
     {
@@ -645,11 +645,11 @@
     },
     {
         "from": "strawberry.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "strawberry.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "strawberry.food_edbl",
@@ -660,7 +660,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "tomato.atmo_co2"
     },
     {
@@ -689,11 +689,11 @@
     },
     {
         "from": "tomato.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "tomato.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "tomato.food_edbl",
@@ -704,7 +704,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "green_onion.atmo_co2"
     },
     {
@@ -733,11 +733,11 @@
     },
     {
         "from": "green_onion.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "green_onion.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "green_onion.food_edbl",
@@ -748,7 +748,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "onion.atmo_co2"
     },
     {
@@ -777,11 +777,11 @@
     },
     {
         "from": "onion.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "onion.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "onion.food_edbl",
@@ -792,7 +792,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "pea.atmo_co2"
     },
     {
@@ -821,11 +821,11 @@
     },
     {
         "from": "pea.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "pea.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "pea.food_edbl",
@@ -836,7 +836,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "pepper.atmo_co2"
     },
     {
@@ -865,11 +865,11 @@
     },
     {
         "from": "pepper.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "pepper.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "pepper.food_edbl",
@@ -880,7 +880,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "snap_bean.atmo_co2"
     },
     {
@@ -909,11 +909,11 @@
     },
     {
         "from": "snap_bean.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "snap_bean.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "snap_bean.food_edbl",
@@ -924,7 +924,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "radish.atmo_co2"
     },
     {
@@ -953,11 +953,11 @@
     },
     {
         "from": "radish.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "radish.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "radish.food_edbl",
@@ -968,7 +968,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "red_beet.atmo_co2"
     },
     {
@@ -997,11 +997,11 @@
     },
     {
         "from": "red_beet.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "red_beet.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "red_beet.food_edbl",
@@ -1012,7 +1012,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "carrot.atmo_co2"
     },
     {
@@ -1041,11 +1041,11 @@
     },
     {
         "from": "carrot.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "carrot.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "carrot.food_edbl",
@@ -1056,7 +1056,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "sweet_potato.atmo_co2"
     },
     {
@@ -1085,11 +1085,11 @@
     },
     {
         "from": "sweet_potato.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "sweet_potato.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "sweet_potato.food_edbl",
@@ -1100,7 +1100,7 @@
         "to": "nutrient_storage.biomass_totl"
     },
     {
-        "from": "habitat.atmo_co2",
+        "from": "greenhouse.atmo_co2",
         "to": "white_potato.atmo_co2"
     },
     {
@@ -1129,11 +1129,11 @@
     },
     {
         "from": "white_potato.atmo_o2",
-        "to": "habitat.atmo_o2"
+        "to": "greenhouse.atmo_o2"
     },
     {
         "from": "white_potato.atmo_h2o",
-        "to": "habitat.atmo_h2o"
+        "to": "greenhouse.atmo_h2o"
     },
     {
         "from": "white_potato.food_edbl",
@@ -1145,39 +1145,31 @@
     },
     {
         "from": "power_storage.enrg_kwh",
-        "to": "crew_habitat_sam.enrg_kwh"
+        "to": "habitat.enrg_kwh"
     },
     {
         "from": "power_storage.enrg_kwh",
-        "to": "crew_habitat_small.enrg_kwh"
-    },
-    {
-        "from": "power_storage.enrg_kwh",
-        "to": "crew_habitat_medium.enrg_kwh"
-    },
-    {
-        "from": "power_storage.enrg_kwh",
-        "to": "crew_habitat_large.enrg_kwh"
-    },
-    {
-        "from": "power_storage.enrg_kwh",
-        "to": "greenhouse_sam.enrg_kwh"
-    },
-    {
-        "from": "power_storage.enrg_kwh",
-        "to": "greenhouse_small.enrg_kwh"
-    },
-    {
-        "from": "power_storage.enrg_kwh",
-        "to": "greenhouse_medium.enrg_kwh"
-    },
-    {
-        "from": "power_storage.enrg_kwh",
-        "to": "greenhouse_large.enrg_kwh"
+        "to": "greenhouse.enrg_kwh"
     },
     {
         "from": "power_storage.enrg_kwh",
         "to": "airlock.enrg_kwh"
+    },
+    {
+        "from": "habitat.atmo",
+        "to": "atmosphere_equalizer.atmo"
+    },
+    {
+        "from": "greenhouse.atmo",
+        "to": "atmosphere_equalizer.atmo"
+    },
+    {
+        "from": "atmosphere_equalizer.atmo",
+        "to": "habitat.atmo"
+    },
+    {
+        "from": "atmosphere_equalizer.atmo",
+        "to": "greenhouse.atmo"
     },
     {
         "from": "solar_pv_array_mars.enrg_kwh",

@@ -17,6 +17,7 @@ from simoc_server.util import load_db_attributes_into_dict
 from simoc_server.util import timedelta_to_hours
 from simoc_server.agent_model.agents import growth_func
 from simoc_server.exceptions import ServerError
+from simoc_server.agent_model.agents import ext_func
 
 
 class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
@@ -56,6 +57,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
 
         self._load_agent_type_attributes()
         AttributeHolder.__init__(self)
+        self.currency_dict = {}
         super().__init__(self.unique_id, self.model)
 
     def _load_agent_type_attributes(self):
@@ -86,6 +88,10 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
           The value of the agent attribute with the given name
         """
         return self.attrs[name]
+
+    def add_currency_to_dict(self, currency):
+        if currency not in self.currency_dict:
+            self.currency_dict[currency] = CurrencyType.query.filter_by(name=currency).first()
 
     def snapshot(self, agent_model_state):
         """TODO
@@ -237,6 +243,7 @@ class StorageAgent(EnclosedAgent):
                 if not self.has_storage:
                     self.has_storage = True
                 currency = attr.split('_', 2)[2]
+                self.add_currency_to_dict(currency)
                 initial_value = kwargs.get(currency, None)
                 initial_value = initial_value if initial_value is not None else 0
                 self._attr(currency, initial_value, is_client_attr=True, is_persisted_attr=True)
@@ -272,6 +279,14 @@ class StorageAgent(EnclosedAgent):
                 else:
                     self.model.storage_ratios[storage_id][currency + '_ratio'] = 0
         super().step()
+
+    def views(self, view=None):
+        if not view:
+            return {}
+        currency_classes = ['atmo', 'sold', 'food', 'h2o', 'enrg']
+        if view in currency_classes:
+            currencies = [c for c in self.currency_dict if c.split('_')[0] == view]
+            return {currency: self[currency] for currency in currencies}
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model
@@ -325,7 +340,6 @@ class GeneralAgent(StorageAgent):
 
     def _init_selected_storage(self):
         self.selected_storage = {"in": {}, 'out': {}}
-        self.currency_dict = {}
         # NOTE: The 'agent_conn.json' file does not distinguish which agent
         # initiates a flow; e.g. a connection between 'greenhouse.atmo_co2' and
         # and 'rice.atmo_co2' could reference an INPUT of rice, or an OUTPUT of
@@ -339,7 +353,8 @@ class GeneralAgent(StorageAgent):
             if prefix not in ['in', 'out']:
                 continue
             self.selected_storage[prefix][currency] = []
-            self.currency_dict[currency] = CurrencyType.query.filter_by(name=currency).first()
+            if len(currency.split('_')) > 1:
+                self.add_currency_to_dict(currency)
             connected_agents = self.connections[prefix][currency]
             for agent_type in connected_agents:
                 storage_agent = self.model.get_agents_by_type(agent_type=agent_type)
@@ -581,6 +596,12 @@ class GeneralAgent(StorageAgent):
                                 self.kill('Threshold {} met for {}. Killing the agent'.format(
                                     currency, self.agent_type))
                                 return
+            # If agent has an extension function, e.g. 'atmosphere_equalizer', call it here.
+            if attr == 'char_ext_function':
+                ext_function_type = self.attrs[attr]
+                ext_function = getattr(ext_func, ext_function_type)
+                if ext_function:
+                    ext_function(self)
         influx = set()
         skip_step = False
         # Iterate through all agent flows, starting with inputs
@@ -616,6 +637,8 @@ class GeneralAgent(StorageAgent):
                     continue
                 # Get VALUE based on values calculated by growth function
                 step_value = self.get_step_value(attr)
+                if step_value == 0:
+                    continue
 
                 # NOTE Grant Oct 12'21: The old version assumed that flows were
                 # split evenly between selected storages. Storages now use the

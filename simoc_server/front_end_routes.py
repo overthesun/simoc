@@ -249,6 +249,8 @@ def convert_configuration(game_config):
             total_volume += volume  # Used below to calculate starting water
             atmosphere = calc_air_storage(volume)  # Fill with earth-normal atmosphere
             game_config[structure_type] = dict(id=1, amount=1, **atmosphere)
+    if 'habitat' in structures_dict and 'greenhouse' in structures_dict:
+        game_config['atmosphere_equalizer'] = dict(id=1, amount=1)
     # Default Storages: Some listed, some not. Need to calculate amount.
     for storage_type in ['water_storage', 'nutrient_storage', 'food_storage', 'power_storage']:
         if storage_type in game_config and isinstance(game_config[storage_type], dict):
