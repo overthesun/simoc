@@ -145,7 +145,7 @@
     },
     {
         "from": "co2_makeup_valve.atmo_co2",
-        "to": "habitat.atmo_co2"
+        "to": "greenhouse.atmo_co2"
     },
     {
         "from": "habitat.atmo_cont",

@@ -345,6 +345,7 @@ class AgentModel(Model, AttributeHolder):
         """
         self.scheduler.add(agent)
 
+    # NOTE: unused
     # def num_agents(self):
     #     """Returns total number of agents in the models."""
     #     return len(self.schedule.agents)
@@ -466,6 +467,7 @@ class AgentModel(Model, AttributeHolder):
         else:
             return [agent for agent in self.scheduler.agents if agent.agent_type == agent_type]
 
+    # NOTE: unused
     # def get_agents_by_class(self, agent_class=None):
     #     """TODO
 
@@ -482,6 +484,7 @@ class AgentModel(Model, AttributeHolder):
     #     else:
     #         return [agent for agent in self.scheduler.agents if isinstance(agent, agent_class)]
 
+    # NOTE: unused
     # def agent_by_id(self, id):
     #     """TODO
 

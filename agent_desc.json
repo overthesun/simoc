@@ -621,7 +621,7 @@
             "criteria": {
               "name": "atmo_co2_ratio_out",
               "limit": "<",
-              "value": 0.0002,
+              "value": 0.0005,
               "buffer": 8
             }
           }
@@ -6390,11 +6390,12 @@
         ],
         "characteristics": [
           {
-            "type": "ext_function",
+            "type": "custom_function",
             "value": "atmosphere_equalizer"
           }
         ]
-      }
+      },
+      "description": "Balances the atmosphere elements of habitat & greenhouse every step."
     }
   },
   "fabrication": {},
@@ -6785,7 +6786,8 @@
             "unit": "m^3"
           }
         ]
-      }
+      },
+      "description": "Stores co2 from co2_removal_sawd, released by co2_makeup_valve"
     }
   }
 }

@@ -152,7 +152,7 @@ def build_connections_from_agent_desc(fpath):
 
     arrows = []
     for agent_class, agents in agent_desc.items():
-        if agent_class in ['simulation_variables', 'storage']:
+        if agent_class in {'simulation_variables', 'storage'}:
             continue
         for agent in agents:
             data = agents[agent]['data']

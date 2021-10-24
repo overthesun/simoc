@@ -17,7 +17,7 @@ from simoc_server.util import load_db_attributes_into_dict
 from simoc_server.util import timedelta_to_hours
 from simoc_server.agent_model.agents import growth_func
 from simoc_server.exceptions import ServerError
-from simoc_server.agent_model.agents import ext_func
+from simoc_server.agent_model.agents import custom_funcs
 
 
 class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
@@ -90,6 +90,11 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         return self.attrs[name]
 
     def add_currency_to_dict(self, currency):
+        """Adds a reference to the currency's database object.
+
+        Args:
+          currency: str, match currency naming convention
+        """
         if currency not in self.currency_dict:
             self.currency_dict[currency] = CurrencyType.query.filter_by(name=currency).first()
 
@@ -280,13 +285,14 @@ class StorageAgent(EnclosedAgent):
                     self.model.storage_ratios[storage_id][currency + '_ratio'] = 0
         super().step()
 
-    def views(self, view=None):
-        if not view:
-            return {}
+    def view(self, view=None):
         currency_classes = ['atmo', 'sold', 'food', 'h2o', 'enrg']
         if view in currency_classes:
             currencies = [c for c in self.currency_dict if c.split('_')[0] == view]
             return {currency: self[currency] for currency in currencies}
+        if view == 'nutrition':
+            currencies = self.view('food')
+            nutrition = [self.currency_dict[f] for f in currencies]
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model
@@ -358,7 +364,7 @@ class GeneralAgent(StorageAgent):
             connected_agents = self.connections[prefix][currency]
             for agent_type in connected_agents:
                 storage_agent = self.model.get_agents_by_type(agent_type=agent_type)
-                # Function returns an array, but with the latest updates, there
+                # Function returns a list, but with the latest updates, there
                 # should only ever be one instance of an agent_type.
                 storage_agent = storage_agent[0]
                 self.selected_storage[prefix][currency].append(storage_agent)
@@ -597,11 +603,11 @@ class GeneralAgent(StorageAgent):
                                     currency, self.agent_type))
                                 return
             # If agent has an extension function, e.g. 'atmosphere_equalizer', call it here.
-            if attr == 'char_ext_function':
-                ext_function_type = self.attrs[attr]
-                ext_function = getattr(ext_func, ext_function_type)
-                if ext_function:
-                    ext_function(self)
+            if attr == 'char_custom_function':
+                custom_function_type = self.attrs[attr]
+                custom_function = getattr(custom_funcs, custom_function_type)
+                if custom_function:
+                    custom_function(self)
         influx = set()
         skip_step = False
         # Iterate through all agent flows, starting with inputs
@@ -609,6 +615,11 @@ class GeneralAgent(StorageAgent):
             # Iterate through all currencies for current flow direction
             for currency in self.selected_storage[prefix]:
                 attr = '{}_{}'.format(prefix, currency)
+                # TODO: Skip step if input/output value is set to 0. This was
+                # added for atmosphere_equalizer, which uses 'dummy' in/outs to
+                # trigger _init_selected_storage.
+                if self.attrs[attr] == 0:
+                    continue
                 # Get the storages associated with this direction/currency
                 num_of_storages = len(self.selected_storage[prefix][currency])
                 if num_of_storages == 0:
@@ -637,9 +648,6 @@ class GeneralAgent(StorageAgent):
                     continue
                 # Get VALUE based on values calculated by growth function
                 step_value = self.get_step_value(attr)
-                if step_value == 0:
-                    continue
-
                 # NOTE Grant Oct 12'21: The old version assumed that flows were
                 # split evenly between selected storages. Storages now use the
                 # amount field rather than instances, so this calc is no longer
