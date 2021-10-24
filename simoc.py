@@ -226,11 +226,22 @@ def reset():
     return teardown() and setup()
 
 
-# debugging/testing
+# testing/debugging
 @cmd
-def shell(container):
-    """Run an interactive shell in the specified container."""
-    return docker_compose('exec', container, '/bin/bash')
+def test(*args):
+    """Run the tests in the container."""
+    return (up() and
+            # TODO: installing pytest shouldn't be necessary
+            docker_compose('exec', 'flask-app', 'pip3', 'install', 'pytest') and
+            docker_compose('exec', 'flask-app',
+                                   'pytest', '-v', '--pyargs',
+                                   'simoc_server', *args))
+
+@cmd
+def shell(container, *args):
+    """Start a shell in the given container."""
+    return docker_compose('exec', container, '/bin/bash', *args)
+
 
 # others
 @cmd
@@ -244,7 +255,7 @@ def format_agent_desc(fname=AGENT_DESC):
     print('done.')
 
 
-
+# create the list of commands
 def create_help(cmds):
     help = ['Full list of available commands:']
     for cmd, func in cmds.items():
