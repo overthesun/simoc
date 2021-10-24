@@ -12,6 +12,7 @@ import math
 import sys
 import datetime
 import pathlib
+import copy
 
 from flask import request
 
@@ -160,7 +161,7 @@ def build_connections_from_agent_desc(fpath):
                 for flow in data[prefix]:
                     c = flow['type']
                     if c not in currency_dict:
-                        print(f"{c} not in currency_dict.")
+                        print(f"{c!r} not in currency_dict.")
                         continue
                     internal_conn = f"{agent}.{c}"
                     external_conn = f"{currency_dict[c]}.{c}"
@@ -191,28 +192,31 @@ def convert_configuration(game_config):
         'agents': {},
         'termination': [],
     }
+    # Create a working_config which will be modified by this function, so as
+    # not to modify the original.
+    working_config = copy.deepcopy(game_config)
 
     ###########################################################################
     #                   STEP 1: Add non-agent fields                          #
     ###########################################################################
 
     # Determines if multi-instance agents are independent agents or a group
-    if 'single_agent' in game_config:
-        single_agent = game_config.pop('single_agent')
+    if 'single_agent' in working_config:
+        single_agent = working_config.pop('single_agent')
     else:
         single_agent = 0
     full_game_config['single_agent'] = single_agent
     # Sets the length of the simulation
-    if 'duration' in game_config and isinstance(game_config['duration'], dict):
-        duration = game_config.pop('duration')
+    if 'duration' in working_config and isinstance(working_config['duration'], dict):
+        duration = working_config.pop('duration')
         full_game_config['termination'].append({
             'condition': 'time',
             'value': duration.get('value', 0) or 0,
             'unit': duration.get('type', 'day')})
     # Optional fields
     for label in ['priorities', 'minutes_per_step', 'location']:
-        if label in game_config and isinstance(game_config[label], dict):
-            full_game_config[label] = game_config.pop(label)
+        if label in working_config and isinstance(working_config[label], dict):
+            full_game_config[label] = working_config.pop(label)
     # Structures MUST step before other agents so that the `.._ratio` fields
     # are availble for threshold tests.
     if 'priorities' not in full_game_config:
@@ -220,24 +224,24 @@ def convert_configuration(game_config):
                                           'inhabitants', 'eclss', 'plants']
 
     ###########################################################################
-    #               STEP 2: Flatten the game_config object                    #
+    #             STEP 2: Flatten the working_config object                   #
     ###########################################################################
     # The game_config object sent by the frontend has some irregularities. In
     # order to accomodate user-created agents in the future, we first flatten
     # items that are known to be irregular, add some custom information, and
-    # then add everything in game_config, validating based on whether they're
-    # in the database.
+    # then add everything in working_config, validating based on whether
+    # they're in the database.
 
     # Structures: A string under 'habitat' and 'greenhouse' with selected type.
     structures_dict = {}  # Used to replace generic connections
     total_volume = 0  # Used to calcualte starting water_storage
-    if 'habitat' in game_config or 'greenhouse' in game_config:
+    if 'habitat' in working_config or 'greenhouse' in working_config:
         structures = db.session.query(AgentType).filter_by(agent_class='structures').all()
         structures = [agent.name for agent in structures]
         for structure in ['habitat', 'greenhouse']:
-            if structure not in game_config or not isinstance(game_config[structure], str):
+            if structure not in working_config or not isinstance(working_config[structure], str):
                 continue
-            structure_type = game_config.pop(structure)
+            structure_type = working_config.pop(structure)
             if structure_type not in structures:
                 continue
             structures_dict[structure] = structure_type
@@ -248,13 +252,13 @@ def convert_configuration(game_config):
             volume = float(type_attribute.value)
             total_volume += volume  # Used below to calculate starting water
             atmosphere = calc_air_storage(volume)  # Fill with earth-normal atmosphere
-            game_config[structure_type] = dict(id=1, amount=1, **atmosphere)
+            working_config[structure_type] = dict(id=1, amount=1, **atmosphere)
     if 'habitat' in structures_dict and 'greenhouse' in structures_dict:
-        game_config['atmosphere_equalizer'] = dict(id=1, amount=1)
+        working_config['atmosphere_equalizer'] = dict(id=1, amount=1)
     # Default Storages: Some listed, some not. Need to calculate amount.
     for storage_type in ['water_storage', 'nutrient_storage', 'food_storage', 'power_storage']:
-        if storage_type in game_config and isinstance(game_config[storage_type], dict):
-            storage = game_config.pop(storage_type)
+        if storage_type in working_config and isinstance(working_config[storage_type], dict):
+            storage = working_config.pop(storage_type)
         else:
             storage = {}
         # Preload water based on habitat & greenhouse volume
@@ -273,27 +277,27 @@ def convert_configuration(game_config):
                     storage[currency] = 0
                 capacity = int(attr.value)
                 amount = max(amount, math.ceil(storage[currency] / capacity))
-        game_config[storage_type] = dict(id=1, amount=amount, **storage)
+        working_config[storage_type] = dict(id=1, amount=amount, **storage)
     # ECLSS: A single item with an amount; needs to be broken into component agents
     eclss_agents = ['solid_waste_aerobic_bioreactor', 'multifiltration_purifier_post_treatment',
                     'oxygen_generation_SFWE', 'urine_recycling_processor_VCD', 'co2_removal_SAWD',
                     'co2_makeup_valve', 'co2_storage', 'co2_reduction_sabatier',
                     'ch4_removal_agent', 'dehumidifier']
-    if 'eclss' in game_config and isinstance(game_config['eclss'], dict):
-        eclss = game_config.pop('eclss')
+    if 'eclss' in working_config and isinstance(working_config['eclss'], dict):
+        eclss = working_config.pop('eclss')
         amount = eclss.get('amount', 0) or 0
         if amount:
             for eclss_agent in eclss_agents:
-                game_config[eclss_agent] = dict(id=1, amount=amount)
+                working_config[eclss_agent] = dict(id=1, amount=amount)
     # Plants: A list of objects with 'species' and 'amount'
-    if 'plants' in game_config and isinstance(game_config['plants'], list):
-        plants = game_config.pop('plants')
+    if 'plants' in working_config and isinstance(working_config['plants'], list):
+        plants = working_config.pop('plants')
         for plant in plants:
             if isinstance(plant, dict):
                 amount = plant.get('amount', 0) or 0
                 plant_type = plant.get('species', None)
                 if plant_type and amount:
-                    game_config[plant_type] = dict(amount=amount)
+                    working_config[plant_type] = dict(amount=amount)
     # 'human_agent' and 'solar_pv...' are already in the correct format.
 
     ###########################################################################
@@ -326,7 +330,7 @@ def convert_configuration(game_config):
         to_agent, to_currency = conn['to'].split(".")
         from_agent = _substitute_structures(from_agent)
         to_agent = _substitute_structures(to_agent)
-        if from_agent not in game_config or to_agent not in game_config:
+        if from_agent not in working_config or to_agent not in working_config:
             continue
         # Add agents to dict
         for agent in [from_agent, to_agent]:
@@ -347,7 +351,7 @@ def convert_configuration(game_config):
     ###########################################################################
 
     db_agents = [agent.name for agent in db.session.query(AgentType).all()]
-    for agent_type, attrs in game_config.items():
+    for agent_type, attrs in working_config.items():
         if not isinstance(attrs, dict):
             print(f"Attributes for agent type {agent} must be a dict")
             continue
@@ -366,8 +370,8 @@ def convert_configuration(game_config):
             sum([agent.get('amount', 1) for agent in full_game_config['agents']])
 
     # Print result
-    timestamp = str(datetime.datetime.now().time())
-    timestamp = "".join(ch for ch in timestamp if ch not in [':', '.'])
+    timestamp = datetime.datetime.now()
+    timestamp = timestamp.strftime("%m%d%H%M%S")
     with open(f"full_game_config_{timestamp}.json", "w") as f:
         json.dump(full_game_config, f)
 
