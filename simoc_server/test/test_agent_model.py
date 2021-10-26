@@ -2,6 +2,7 @@ import datetime
 import time
 import random
 import json
+import copy
 
 import pytest
 
@@ -19,7 +20,7 @@ class AgentModelInstance():
 
     """
     def __init__(self, game_config):
-        self.game_config = game_config
+        self.game_config = copy.deepcopy(game_config)
 
         # Setup model records storages
         self.model_records = []
@@ -86,12 +87,13 @@ class AgentModelInstance():
         flows_agents = [a.agent_type for a in self.agent_model.get_agents_by_role(role="flows")]
         single_agent = self.game_config.get('single_agent', 0)
 
-        for agent, agent_config_data in self.game_config['agents'].items():
+        for agent in self.game_config['agents']:
+            agent_config_data = self.game_config['agents'][agent]
             # Agents were added to model with correct amount
             amount = 1 if single_agent else agent_config_data.get(amount, 1)
             agent_instances = self.agent_model.get_agents_by_type(agent_type=agent)
             assert len(agent_instances) == amount
-            # All inputs, outputs and characteristics were added to model agents
+
             instance = agent_instances[0]
             agent_desc_data = agent_desc[agent_class_dict[agent]][agent]['data']
             for direction in ['input', 'output']:
@@ -99,14 +101,28 @@ class AgentModelInstance():
                     assert agent in flows_agents
                     flows = agent_desc_data[direction]
                     for flow in flows:
-                        attr_name = dir_dict[direction] + '_' + flow['type']
+                        currency = flow['type']
+                        prefix = dir_dict[direction]
+                        # Inputs and Outputs loaded to Agents
+                        attr_name = prefix + '_' + currency
                         assert attr_name in instance['attrs']
+                        # No duliicate connections
+                        instance_connections = [a.agent_type for a in instance.selected_storage[prefix][currency]]
+                        assert len(instance_connections) == len(set(instance_connections))
+                        # Connections match config file
+                        assert 'connections' in agent_config_data
+                        expected_connections = agent_config_data['connections'][prefix][currency]
+                        assert expected_connections == instance_connections
+
+
             if 'characteristics' in agent_desc_data and len(agent_desc_data['characteristics']) > 0:
                 for char in agent_desc_data['characteristics']:
-                    if 'capacity' in char['type']:
-                        assert agent in storage_agents
+                    # Characteristics are loaded ot agents
                     attr_name = 'char_' + char['type']
                     assert attr_name in instance['attrs']
+                    # Storages are loaded to Agents
+                    if 'capacity' in char['type']:
+                        assert agent in storage_agents
 
 
 def test_model_one_human(one_human, agent_desc, agent_class_dict):
@@ -133,7 +149,3 @@ def test_model_four_humans_garden(four_humans_garden, agent_desc, agent_class_di
     # records = model.all_records()
     # with open('four_humans_garden_records.json', 'w') as f:
     #     json.dump(records, f)
-
-
-
-

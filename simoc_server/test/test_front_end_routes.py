@@ -72,11 +72,15 @@ class GameConfig:
                 if direction not in agent_data:
                     continue
                 for flow in agent_data[direction]:
+                    # Each flow has a connection
                     currency = flow['type']
                     dir = dir_dict[direction]
                     assert currency in agent_connections[dir]
                     connections = agent_connections[dir][currency]
                     assert len(connections) > 0
+                    # Connections are all to active agents
+                    for conn in connections:
+                        assert conn in self.agents()
 
 # Test basic fields
 def test_convert_one_human(one_human, agent_desc, agent_class_dict):

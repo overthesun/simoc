@@ -176,7 +176,7 @@ def build_connections_from_agent_desc(fpath):
         agent_desc = json.dump(arrows, f)
     return arrows
 
-def convert_configuration(game_config):
+def convert_configuration(game_config, save_output=False):
     """
     This method converts the json configuration from a post into a more complete configuration
     with connections.
@@ -314,11 +314,6 @@ def convert_configuration(game_config):
     def _substitute_structures(agent_type):
         if agent_type in structures_dict:
             return structures_dict[agent_type]
-        # TODO: co2_makeup_valve is connected to greenhouse by default. If
-        # game_config doesn't specify a greenhouse, it should connect to
-        # habitat instead. Should find a cleaner way to do this.
-        elif agent_type == 'greenhouse' and 'habitat' in structures_dict:
-            return structures_dict['habitat']
         return agent_type
     # Load connections file
     fpath = pathlib.Path(__file__).parent.parent / 'agent_conn.json'
@@ -374,11 +369,12 @@ def convert_configuration(game_config):
         full_game_config['total_amount'] = \
             sum([agent.get('amount', 1) for agent in full_game_config['agents']])
 
-    # # Print result
-    # timestamp = datetime.datetime.now()
-    # timestamp = timestamp.strftime("%m%d%H%M%S")
-    # with open(f"full_game_config_{timestamp}.json", "w") as f:
-    #     json.dump(full_game_config, f)
+    # Print result
+    if save_output:
+        timestamp = datetime.datetime.now()
+        timestamp = timestamp.strftime("%m%d%H%M%S")
+        with open(f"full_game_config_{timestamp}.json", "w") as f:
+            json.dump(full_game_config, f)
 
     return full_game_config
 
