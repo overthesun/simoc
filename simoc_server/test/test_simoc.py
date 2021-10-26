@@ -23,6 +23,10 @@ def register(client, username, password):
     data = json.dumps(dict(username=username, password=password))
     return client.post('/register', data=data, follow_redirects=True)
 
+def unregister(client, username, password):
+    data = json.dumps(dict(username=username, password=password))
+    return client.post('/unregister', data=data, follow_redirects=True)
+
 def login(client, username, password):
     data = json.dumps(dict(username=username, password=password))
     return client.post('/login', data=data, follow_redirects=True)
@@ -37,16 +41,27 @@ def test_login_logout(client):
     username = 'testuser' + str(random.randrange(1000000))
     password = 'testpassword'
 
+    # register user
     rv = register(client, username, password)
     assert b'Registration complete.' in rv.data
 
+    # log out and log in again
     rv = logout(client)
     assert b'Logged out' in rv.data
-
     rv = login(client, username, password)
     assert b'Logged in' in rv.data
 
-    # invalid logins
+    # log out and delete the account
+    rv = logout(client)
+    assert b'Logged out' in rv.data
+    rv = unregister(client, username, password)
+    assert b'User deleted' in rv.data
+
+    # check that the account has been deleted
+    rv = login(client, username, password)
+    assert b'Invalid username' in rv.data
+
+    # try more invalid logins
     rv = login(client, f"{username}x", password)
     assert b'Invalid username' in rv.data
 
