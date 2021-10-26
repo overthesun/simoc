@@ -1,4 +1,19 @@
+import json
+
 import pytest
+
+@pytest.fixture(autouse=True, scope="session")
+def agent_desc():
+    with open('agent_desc.json') as f:
+        yield json.load(f)
+
+@pytest.fixture(autouse=True, scope="session")
+def agent_class_dict(agent_desc):
+    output = {}
+    for agent_class, agents in agent_desc.items():
+        for agent in agents:
+            output[agent] = agent_class
+    return output
 
 # Matches the 'One Human' preset
 @pytest.fixture()

@@ -1,6 +1,8 @@
 import datetime
 import time
 import random
+import json
+
 import pytest
 
 from simoc_server.front_end_routes import convert_configuration
@@ -17,6 +19,7 @@ class AgentModelInstance():
 
     """
     def __init__(self, game_config):
+        self.game_config = game_config
 
         # Setup model records storages
         self.model_records = []
@@ -50,44 +53,87 @@ class AgentModelInstance():
         self.agent_model.game_id = self.game_id
         self.agent_model.start_time = self.start_time
 
-    def step_to(self, max_step_num, buffer_size=10):
-        model_records_buffer = []
-        agent_type_counts_buffer = []
-        storage_capacities_buffer = []
-        while self.agent_model.step_num <= max_step_num and not self.agent_model.is_terminated:
+    def step_to(self, max_step_num):
+        """Advances the agent model by max_step_num steps.
+
+        """
+        while self.agent_model.step_num < max_step_num and not self.agent_model.is_terminated:
             self.agent_model.step()
+            # Log step data
             model_record, agent_type_counts, storage_capacities = self.agent_model.get_step_logs()
-            model_records_buffer.append(model_record)
-            agent_type_counts_buffer += agent_type_counts
-            storage_capacities_buffer += storage_capacities
-            if self.agent_model.step_num % buffer_size == 0:
-                self.save_records(model_records_buffer,
-                                  agent_type_counts_buffer,
-                                  storage_capacities_buffer,
-                                  self.agent_model.step_records_buffer)
-                model_records_buffer = []
-                agent_type_counts_buffer = []
-                storage_capacities_buffer = []
-                self.agent_model.step_records_buffer = []
-        self.save_records(model_records_buffer,
-                          agent_type_counts_buffer,
-                          storage_capacities_buffer,
-                          self.agent_model.step_records_buffer)
+            self.model_records.append(model_record)
+            self.agent_type_counts.append(agent_type_counts)
+            self.storage_capacities.append(storage_capacities)
+        self.step_records.append(self.agent_model.step_records_buffer)
 
-    def save_records(self, model_records, agent_type_counts, storage_capacities, step_records):
-        self.model_records.append(model_records)
-        self.agent_type_counts.append(agent_type_counts)
-        self.storage_capacities.append(storage_capacities)
-        self.step_records.append(step_records)
+    def all_records(self):
+        """Return all records associated with model
 
-def test_model_one_human(one_human):
+        """
+        return {
+            'model_records': self.model_records,
+            'agent_type_counts': self.agent_type_counts,
+            'storage_capacities': self.storage_capacities,
+            'step_records': self.step_records
+        }
+
+    def check_agents(self, agent_desc, agent_class_dict):
+        """Verify that everything from game_config was added correctly
+
+        """
+        dir_dict = dict(input='in', output='out')
+        storage_agents = [a.agent_type for a in self.agent_model.get_agents_by_role(role="storage")]
+        flows_agents = [a.agent_type for a in self.agent_model.get_agents_by_role(role="flows")]
+        single_agent = self.game_config.get('single_agent', 0)
+
+        for agent, agent_config_data in self.game_config['agents'].items():
+            # Agents were added to model with correct amount
+            amount = 1 if single_agent else agent_config_data.get(amount, 1)
+            agent_instances = self.agent_model.get_agents_by_type(agent_type=agent)
+            assert len(agent_instances) == amount
+            # All inputs, outputs and characteristics were added to model agents
+            instance = agent_instances[0]
+            agent_desc_data = agent_desc[agent_class_dict[agent]][agent]['data']
+            for direction in ['input', 'output']:
+                if direction in agent_desc_data and len(agent_desc_data[direction]) > 0:
+                    assert agent in flows_agents
+                    flows = agent_desc_data[direction]
+                    for flow in flows:
+                        attr_name = dir_dict[direction] + '_' + flow['type']
+                        assert attr_name in instance['attrs']
+            if 'characteristics' in agent_desc_data and len(agent_desc_data['characteristics']) > 0:
+                for char in agent_desc_data['characteristics']:
+                    if 'capacity' in char['type']:
+                        assert agent in storage_agents
+                    attr_name = 'char_' + char['type']
+                    assert attr_name in instance['attrs']
+
+
+def test_model_one_human(one_human, agent_desc, agent_class_dict):
     one_human_converted = convert_configuration(one_human)
     model = AgentModelInstance(one_human_converted)
-    assert model.agent_model.step_num == 0
+    model.check_agents(agent_desc, agent_class_dict)
 
-def test_model_four_humans_garden(four_humans_garden):
+    model.step_to(5)
+    assert model.agent_model.step_num == 5
+
+    # records = model.all_records()
+    # with open('one_human_records.json', 'w') as f:
+    #     json.dump(records, f)
+
+
+def test_model_four_humans_garden(four_humans_garden, agent_desc, agent_class_dict):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
     model = AgentModelInstance(four_humans_garden_converted)
-    assert model.agent_model.step_num == 0
+    model.check_agents(agent_desc, agent_class_dict)
+
+    model.step_to(5)
+    assert model.agent_model.step_num == 5
+
+    # records = model.all_records()
+    # with open('four_humans_garden_records.json', 'w') as f:
+    #     json.dump(records, f)
+
+
 
 

@@ -8,19 +8,6 @@ eclss_agents = ['solid_waste_aerobic_bioreactor', 'multifiltration_purifier_post
                 'co2_makeup_valve', 'co2_storage', 'co2_reduction_sabatier',
                 'ch4_removal_agent', 'dehumidifier']
 
-@pytest.fixture(autouse=True, scope="module")
-def agent_desc():
-    with open('agent_desc.json') as f:
-        yield json.load(f)
-
-@pytest.fixture(autouse=True, scope="module")
-def agent_class_dict(agent_desc):
-    output = {}
-    for agent_class, agents in agent_desc.items():
-        for agent in agents:
-            output[agent] = agent_class
-    return output
-
 class GameConfig:
     def __init__(self, game_config):
         self.game_config = front_end_routes.convert_configuration(game_config)
