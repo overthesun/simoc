@@ -1,3 +1,4 @@
+import json
 import pytest
 
 from simoc_server import front_end_routes
@@ -7,6 +8,18 @@ eclss_agents = ['solid_waste_aerobic_bioreactor', 'multifiltration_purifier_post
                 'co2_makeup_valve', 'co2_storage', 'co2_reduction_sabatier',
                 'ch4_removal_agent', 'dehumidifier']
 
+@pytest.fixture(autouse=True, scope="module")
+def agent_desc():
+    with open('agent_desc.json') as f:
+        yield json.load(f)
+
+@pytest.fixture(autouse=True, scope="module")
+def agent_class_dict(agent_desc):
+    output = {}
+    for agent_class, agents in agent_desc.items():
+        for agent in agents:
+            output[agent] = agent_class
+    return output
 
 class GameConfig:
     def __init__(self, game_config):
@@ -29,6 +42,9 @@ class GameConfig:
 
     def check_agent(self, agent_type, id=None, amount=None, currencies=None,
                     in_conn=None, out_conn=None):
+        """Tests whether game_config contains details for a particular agent
+
+        """
         agents = self.agents()
         assert agent_type in agents
         agent = agents[agent_type]
@@ -53,9 +69,30 @@ class GameConfig:
                 for conn in conns:
                     assert conn in agent['connections']['out'][curr]
 
+    def check_connections(self, agent_desc, agent_class_dict):
+        """Tests that each input/output specified in agent_desc has an associated connection
+
+        """
+        dir_dict = dict(input="in", output="out")
+        for agent in self.agents():
+            # Agent exists in agent_desc
+            assert agent in agent_class_dict
+            assert agent in agent_desc[agent_class_dict[agent]]
+
+            agent_data = agent_desc[agent_class_dict[agent]][agent]['data']
+            agent_connections = self.game_config['agents'][agent]['connections']
+            for direction in ['input', 'output']:
+                if direction not in agent_data:
+                    continue
+                for flow in agent_data[direction]:
+                    currency = flow['type']
+                    dir = dir_dict[direction]
+                    assert currency in agent_connections[dir]
+                    connections = agent_connections[dir][currency]
+                    assert len(connections) > 0
 
 # Test basic fields
-def test_convert_one_human(one_human):
+def test_convert_one_human(one_human, agent_desc, agent_class_dict):
     gc = GameConfig(one_human)
 
     # Game Variables
@@ -72,6 +109,9 @@ def test_convert_one_human(one_human):
                            'inhabitants', 'eclss', 'plants']
     for i, agent_class in enumerate(expected_priorities):
         assert priorities[i] == agent_class
+
+    # Connections
+    gc.check_connections(agent_desc, agent_class_dict)
 
     # Humans
     human_in = dict(atmo_o2=['crew_habitat_small'], h2o_potb=['water_storage'],
@@ -102,8 +142,11 @@ def test_convert_one_human(one_human):
         gc.check_agent(agent, id=1, amount=1)
 
 # Test with greenhouse and plants
-def test_convert_four_humans_garden(four_humans_garden):
+def test_convert_four_humans_garden(four_humans_garden, agent_desc, agent_class_dict):
     gc = GameConfig(four_humans_garden)
+
+    # Connections
+    gc.check_connections(agent_desc, agent_class_dict)
 
     # Structures
     habitat_currencies = {
