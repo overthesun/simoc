@@ -20,6 +20,7 @@ COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_FE_COMPOSE_FILE = 'docker-compose.dev-fe.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
 AGENT_DESC_COMPOSE_FILE = 'docker-compose.agent-desc.yml'
+TESTING_COMPOSE_FILE = 'docker-compose.testing.yml'
 DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
 
 
@@ -230,7 +231,19 @@ def reset():
 @cmd
 def test(*args):
     """Run the tests in the container."""
-    return (up() and
+    # add the testing yml that replaces the db
+    DOCKER_COMPOSE_CMD.extend(['-f', TESTING_COMPOSE_FILE])
+    # check if the volume already exists
+    cp = subprocess.run(['docker', 'volume', 'inspect', 'simoc_db-testing'],
+                        capture_output=True)
+    vol_info = json.loads(cp.stdout)
+    if not vol_info:
+        # volume doesn't exist -- create it and init the db
+        init_test_db = init_db
+    else:
+        # volume exist and should be Initialized -- do nothing
+        init_test_db = lambda: True
+    return (up() and init_test_db() and
             # TODO: installing pytest shouldn't be necessary
             docker_compose('exec', 'flask-app', 'pip3', 'install', 'pytest') and
             docker_compose('exec', 'flask-app',

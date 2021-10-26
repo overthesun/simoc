@@ -206,6 +206,39 @@ def register():
     return status("Registration complete.")
 
 
+@app.route("/unregister", methods=["POST"])
+def unregister():
+    """
+    Deletes the user with the provided user name and password.
+    Mainly used for testing.
+
+    Returns
+    -------
+    str: A success message.
+
+    Raises
+    ------
+    simoc_server.exceptions.InvalidLogin
+        If the user with the given username or password cannot
+        be found.
+    """
+    userinfo = json.loads(request.data.decode('utf-8'))
+    username = userinfo["username"]
+    password = userinfo["password"]
+    user = User.query.filter_by(username=username).first()
+    if user and user.validate_password(password):
+        try:
+            db.session.delete(user)
+            db.session.commit()
+        except:
+            app.logger.exception(f'Failed to delete the user "{username}".')
+            db.session.rollback()
+        finally:
+            db.session.close()
+        return status("User deleted.")
+    raise InvalidLogin("Invalid username or password.")
+
+
 @app.route("/logout")
 @login_required
 def logout():

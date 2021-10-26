@@ -1,0 +1,18 @@
+version: '3.6'
+services:
+  simoc-db:
+    image: mysql/mysql-server
+    restart: always
+    volumes:
+      - db-testing:/var/lib/mysql
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+    networks:
+      - simoc-net
+    environment:
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+
+volumes:
+  db-testing: {}
