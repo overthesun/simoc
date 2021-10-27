@@ -74,10 +74,10 @@ def get_user(username, num_retries=30, interval=1):
 
 
 @app.task
-def new_game(username, game_config, num_steps, expire=3600):
+def new_game(username, game_config, currencies, num_steps, expire=3600):
     global game_runner_manager
     user = get_user(username)
-    game_runner_init_params = GameRunnerInitializationParams(game_config)
+    game_runner_init_params = GameRunnerInitializationParams(game_config, currencies)
     try:
         game_runner_manager.new_game(user, game_runner_init_params)
     except:

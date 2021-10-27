@@ -15,6 +15,11 @@ def agent_class_dict(agent_desc):
             output[agent] = agent_class
     return output
 
+@pytest.fixture(autouse=True, scope="session")
+def currency_desc():
+    with open('data_files/currency_desc.json') as f:
+        yield json.load(f)
+
 # Matches the 'One Human' preset
 @pytest.fixture()
 def one_human():

@@ -96,6 +96,7 @@ class AgentModel(Model, AttributeHolder):
         self.start_time = None
         self.game_id = None
         self.user_id = None
+        self.currency_ref = init_params.currencies
         self.grid_width = init_params.grid_width
         self.grid_height = init_params.grid_height
         self.snapshot_branch = init_params.snapshot_branch
@@ -520,6 +521,7 @@ class AgentModelInitializationParams(object):
           priorities: TODO
           location: TODO
           config: TODO
+          currencies: TODO
     """
     snapshot_branch = None
     seed = None
@@ -531,6 +533,12 @@ class AgentModelInitializationParams(object):
     priorities = []
     location = 'mars'
     config = {}
+    currencies = {}
+
+    def set_currencies(self, currencies):
+        """Load currencies to be used in model"""
+        self.currencies = currencies
+        return self
 
     def set_grid_width(self, grid_width):
         """TODO

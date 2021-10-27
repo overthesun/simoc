@@ -19,8 +19,9 @@ class AgentModelInstance():
     game_runner.py.
 
     """
-    def __init__(self, game_config):
+    def __init__(self, game_config, currencies):
         self.game_config = copy.deepcopy(game_config)
+        self.currencies = currencies
 
         # Setup model records storages
         self.model_records = []
@@ -30,6 +31,7 @@ class AgentModelInstance():
 
         # Build model initialization objects
         self.model_init_params = AgentModelInitializationParams()
+        self.model_init_params.set_currencies(currencies)
         self.model_init_params.set_grid_width(100) \
             .set_grid_height(100) \
             .set_starting_model_time(datetime.timedelta())
@@ -119,22 +121,25 @@ class AgentModelInstance():
                         assert agent in storage_agents
 
 
-def test_model_one_human(one_human, agent_desc, agent_class_dict):
+def test_model_one_human(one_human, agent_desc, agent_class_dict, currency_desc):
     one_human_converted = convert_configuration(one_human)
-    model = AgentModelInstance(one_human_converted)
+    model = AgentModelInstance(one_human_converted, currency_desc)
     model.check_agents(agent_desc, agent_class_dict)
 
     model.step_to(5)
     assert model.agent_model.step_num == 5
+
+    currency_classes = model.agent_model.currency_ref.keys()
+    assert len(currency_classes) > 1
 
     # records = model.all_records()
     # with open('one_human_records.json', 'w') as f:
     #     json.dump(records, f)
 
 
-def test_model_four_humans_garden(four_humans_garden, agent_desc, agent_class_dict):
+def test_model_four_humans_garden(four_humans_garden, agent_desc, agent_class_dict, currency_desc):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
-    model = AgentModelInstance(four_humans_garden_converted)
+    model = AgentModelInstance(four_humans_garden_converted, currency_desc)
     model.check_agents(agent_desc, agent_class_dict)
 
     model.step_to(5)

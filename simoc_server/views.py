@@ -1,9 +1,9 @@
-import functools
-import itertools
 import json
 import copy
 import time
 import traceback
+import itertools
+import functools
 from pathlib import Path
 
 
@@ -249,7 +249,9 @@ def new_game():
         raise BadRequest("Too many steps requested.")
     user = get_standard_user_obj()
     user_cleanup(user)
-    tasks.new_game.apply_async(args=[user.username, game_config, step_num])
+    # Import and load default currencies list
+    default_currencies = load_from_basedir('currency_desc.json')
+    tasks.new_game.apply_async(args=[user.username, game_config, default_currencies, step_num])
     while True:
         time.sleep(0.5)
         game_id = get_user_game_id(user)
@@ -547,7 +549,7 @@ def get_agents_by_category():
 def get_agent_desc():
     agent_desc = load_from_basedir('agent_desc.json')
     agent_schema = load_from_basedir('agent_schema.json')
-    return status("Agent editor data retrieved", 
+    return status("Agent editor data retrieved",
                   agent_desc=agent_desc, agent_schema=agent_schema)
 
 def load_from_basedir(fname):
