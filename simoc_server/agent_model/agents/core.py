@@ -290,9 +290,6 @@ class StorageAgent(EnclosedAgent):
         if view in currency_classes:
             currencies = [c for c in self.currency_dict if c.split('_')[0] == view]
             return {currency: self[currency] for currency in currencies}
-        if view == 'nutrition':
-            currencies = self.view('food')
-            nutrition = [self.currency_dict[f] for f in currencies]
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model
@@ -608,6 +605,9 @@ class GeneralAgent(StorageAgent):
                 custom_function = getattr(custom_funcs, custom_function_type)
                 if custom_function:
                     custom_function(self)
+                else:
+                    raise Exception('Unknown custom function: f{custom_function}.')
+
         influx = set()
         skip_step = False
         # Iterate through all agent flows, starting with inputs

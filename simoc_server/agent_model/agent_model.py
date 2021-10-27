@@ -345,10 +345,9 @@ class AgentModel(Model, AttributeHolder):
         """
         self.scheduler.add(agent)
 
-    # NOTE: unused
-    # def num_agents(self):
-    #     """Returns total number of agents in the models."""
-    #     return len(self.schedule.agents)
+    def num_agents(self):
+        """Returns total number of agents in the models."""
+        return len(self.schedule.agents)
 
     def _branch(self):
         """TODO"""
@@ -467,39 +466,37 @@ class AgentModel(Model, AttributeHolder):
         else:
             return [agent for agent in self.scheduler.agents if agent.agent_type == agent_type]
 
-    # NOTE: unused
-    # def get_agents_by_class(self, agent_class=None):
-    #     """TODO
+    def get_agents_by_class(self, agent_class=None):
+        """TODO
 
-    #     TODO
+        TODO
 
-    #     Args:
-    #         agent_class: TODO
+        Args:
+            agent_class: TODO
 
-    #     Returns:
-    #       TODO
-    #     """
-    #     if agent_class is None:
-    #         return self.scheduler.agents
-    #     else:
-    #         return [agent for agent in self.scheduler.agents if isinstance(agent, agent_class)]
+        Returns:
+          TODO
+        """
+        if agent_class is None:
+            return self.scheduler.agents
+        else:
+            return [agent for agent in self.scheduler.agents if isinstance(agent, agent_class)]
 
-    # NOTE: unused
-    # def agent_by_id(self, id):
-    #     """TODO
+    def agent_by_id(self, id):
+        """TODO
 
-    #     TODO
+        TODO
 
-    #     Args:
-    #         id: TODO
+        Args:
+            id: TODO
 
-    #     Returns:
-    #       TODO
-    #     """
-    #     for agent in self.get_agents_by_type():
-    #         if agent.id == id:
-    #             return agent
-    #     return None
+        Returns:
+          TODO
+        """
+        for agent in self.get_agents_by_type():
+            if agent.id == id:
+                return agent
+        return None
 
     def get_agents_by_role(self, role=None):
         if role == 'storage':

@@ -1,8 +1,8 @@
-import datetime
 import time
-import random
 import json
 import copy
+import random
+import datetime
 
 import pytest
 
@@ -55,9 +55,7 @@ class AgentModelInstance():
         self.agent_model.start_time = self.start_time
 
     def step_to(self, max_step_num):
-        """Advances the agent model by max_step_num steps.
-
-        """
+        """Advances the agent model by max_step_num steps."""
         while self.agent_model.step_num < max_step_num and not self.agent_model.is_terminated:
             self.agent_model.step()
             # Log step data
@@ -68,9 +66,7 @@ class AgentModelInstance():
         self.step_records.append(self.agent_model.step_records_buffer)
 
     def all_records(self):
-        """Return all records associated with model
-
-        """
+        """Return all records associated with model"""
         return {
             'model_records': self.model_records,
             'agent_type_counts': self.agent_type_counts,
@@ -79,9 +75,7 @@ class AgentModelInstance():
         }
 
     def check_agents(self, agent_desc, agent_class_dict):
-        """Verify that everything from game_config was added correctly
-
-        """
+        """Verify that everything from game_config was added correctly"""
         dir_dict = dict(input='in', output='out')
         storage_agents = [a.agent_type for a in self.agent_model.get_agents_by_role(role="storage")]
         flows_agents = [a.agent_type for a in self.agent_model.get_agents_by_role(role="flows")]
