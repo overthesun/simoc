@@ -244,8 +244,6 @@ def test(*args):
         # volume exist and should be Initialized -- do nothing
         init_test_db = lambda: True
     return (up() and init_test_db() and
-            # TODO: installing pytest shouldn't be necessary
-            docker_compose('exec', 'flask-app', 'pip3', 'install', 'pytest') and
             docker_compose('exec', 'flask-app',
                                    'pytest', '-v', '--pyargs',
                                    'simoc_server', *args))
