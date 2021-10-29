@@ -109,8 +109,8 @@ def test_convert_one_human(one_human, agent_desc, agent_class_dict):
     # Storages
     water_curr = dict(h2o_potb=900, h2o_tret=100, h2o_urin=0, h2o_wste=0)
     gc.check_agent('water_storage', id=1, amount=1, currencies=water_curr)
-    nutrient_curr = dict(sold_n=100, sold_p=100, sold_k=100, biomass_totl=0,
-                         biomass_edible=0, sold_wste=0)
+    nutrient_curr = dict(sold_fertilizer=300, biomass_totl=0, biomass_edible=0,
+                         sold_wste=0)
     gc.check_agent('nutrient_storage', id=1, amount=1, currencies=nutrient_curr)
     gc.check_agent('food_storage', id=1, amount=1, currencies=dict(food_edbl=100))
     gc.check_agent('power_storage', id=1, amount=1, currencies=dict(enrg_kwh=1000))
@@ -142,8 +142,7 @@ def test_convert_four_humans_garden(four_humans_garden, agent_desc, agent_class_
     # Plants
     greenhouse = 'greenhouse_small'
     plant_in = dict(atmo_co2=[greenhouse], h2o_potb=['water_storage'],
-                    sold_n=['nutrient_storage'], sold_p=['nutrient_storage'],
-                    sold_k=['nutrient_storage'], enrg_kwh=['power_storage'],
+                    sold_fertilizer=['nutrient_storage'], enrg_kwh=['power_storage'],
                     biomass_totl=['nutrient_storage'])
     plant_out = dict(atmo_o2=[greenhouse], atmo_h2o=[greenhouse],
                      food_edbl=['food_storage'], biomass_totl=['nutrient_storage'])

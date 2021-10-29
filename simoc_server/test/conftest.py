@@ -30,7 +30,7 @@ def one_human():
         'eclss': {'amount': 1},
         'solar_pv_array_mars': {'amount': 30},
         'power_storage': {'enrg_kwh': 1000},
-        'nutrient_storage': {'sold_n': 100, 'sold_p': 100, 'sold_k': 100},
+        'nutrient_storage': {'sold_fertilizer': 300},
         'single_agent': 1,
         'habitat': 'crew_habitat_small',
     }
@@ -45,7 +45,7 @@ def four_humans_garden():
         'eclss': {'amount': 1},
         'solar_pv_array_mars': {'amount': 400},
         'power_storage': {'enrg_kwh': 2000},
-        'nutrient_storage': {'sold_n': 100, 'sold_p': 100, 'sold_k': 100},
+        'nutrient_storage': {'sold_fertilizer': 300},
         'single_agent': 1,
         'greenhouse': 'greenhouse_small',
         'habitat': 'crew_habitat_medium',

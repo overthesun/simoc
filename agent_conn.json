@@ -40,16 +40,8 @@
         "to": "solid_waste_aerobic_bioreactor.enrg_kwh"
     },
     {
-        "from": "solid_waste_aerobic_bioreactor.sold_n",
-        "to": "nutrient_storage.sold_n"
-    },
-    {
-        "from": "solid_waste_aerobic_bioreactor.sold_p",
-        "to": "nutrient_storage.sold_p"
-    },
-    {
-        "from": "solid_waste_aerobic_bioreactor.sold_k",
-        "to": "nutrient_storage.sold_k"
+        "from": "solid_waste_aerobic_bioreactor.sold_fertilizer",
+        "to": "nutrient_storage.sold_fertilizer"
     },
     {
         "from": "solid_waste_aerobic_bioreactor.h2o_urin",
@@ -184,16 +176,8 @@
         "to": "rice.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "rice.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "rice.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "rice.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "rice.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -228,16 +212,8 @@
         "to": "wheat.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "wheat.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "wheat.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "wheat.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "wheat.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -272,16 +248,8 @@
         "to": "cabbage.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "cabbage.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "cabbage.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "cabbage.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "cabbage.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -316,16 +284,8 @@
         "to": "chard.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "chard.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "chard.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "chard.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "chard.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -360,16 +320,8 @@
         "to": "celery.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "celery.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "celery.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "celery.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "celery.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -404,16 +356,8 @@
         "to": "lettuce.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "lettuce.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "lettuce.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "lettuce.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "lettuce.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -448,16 +392,8 @@
         "to": "spinach.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "spinach.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "spinach.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "spinach.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "spinach.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -492,16 +428,8 @@
         "to": "dry_bean.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "dry_bean.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "dry_bean.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "dry_bean.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "dry_bean.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -536,16 +464,8 @@
         "to": "peanut.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "peanut.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "peanut.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "peanut.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "peanut.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -580,16 +500,8 @@
         "to": "soybean.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "soybean.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "soybean.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "soybean.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "soybean.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -624,16 +536,8 @@
         "to": "strawberry.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "strawberry.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "strawberry.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "strawberry.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "strawberry.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -668,16 +572,8 @@
         "to": "tomato.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "tomato.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "tomato.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "tomato.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "tomato.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -712,16 +608,8 @@
         "to": "green_onion.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "green_onion.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "green_onion.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "green_onion.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "green_onion.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -756,16 +644,8 @@
         "to": "onion.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "onion.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "onion.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "onion.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "onion.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -800,16 +680,8 @@
         "to": "pea.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "pea.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "pea.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "pea.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "pea.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -844,16 +716,8 @@
         "to": "pepper.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "pepper.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "pepper.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "pepper.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "pepper.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -888,16 +752,8 @@
         "to": "snap_bean.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "snap_bean.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "snap_bean.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "snap_bean.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "snap_bean.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -932,16 +788,8 @@
         "to": "radish.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "radish.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "radish.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "radish.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "radish.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -976,16 +824,8 @@
         "to": "red_beet.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "red_beet.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "red_beet.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "red_beet.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "red_beet.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -1020,16 +860,8 @@
         "to": "carrot.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "carrot.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "carrot.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "carrot.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "carrot.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -1064,16 +896,8 @@
         "to": "sweet_potato.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "sweet_potato.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "sweet_potato.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "sweet_potato.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "sweet_potato.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",
@@ -1108,16 +932,8 @@
         "to": "white_potato.h2o_potb"
     },
     {
-        "from": "nutrient_storage.sold_n",
-        "to": "white_potato.sold_n"
-    },
-    {
-        "from": "nutrient_storage.sold_p",
-        "to": "white_potato.sold_p"
-    },
-    {
-        "from": "nutrient_storage.sold_k",
-        "to": "white_potato.sold_k"
+        "from": "nutrient_storage.sold_fertilizer",
+        "to": "white_potato.sold_fertilizer"
     },
     {
         "from": "power_storage.enrg_kwh",

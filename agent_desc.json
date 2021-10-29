@@ -8,9 +8,7 @@
       "atmo_h2o": 0,
       "atmo_ch4": 0,
       "atmo_cont": 0,
-      "sold_n": 0,
-      "sold_p": 0,
-      "sold_k": 0,
+      "sold_fertilizer": 0,
       "sold_wste": 0,
       "food_stor": 0,
       "food_edbl": 0,
@@ -190,32 +188,8 @@
         ],
         "output": [
           {
-            "type": "sold_n",
-            "value": 0.002175,
-            "requires": [
-              "h2o_wste",
-              "atmo_o2"
-            ],
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 0.000261,
-            "requires": [
-              "h2o_wste",
-              "atmo_o2"
-            ],
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 0.000615,
+            "type": "sold_fertilizer",
+            "value": 0.003051,
             "requires": [
               "h2o_wste",
               "atmo_o2"
@@ -854,50 +828,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 2.06755062e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 3.270886e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.466768e-06,
+            "type": "sold_fertilizer",
+            "value": 2.347e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -1083,50 +1015,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 3.4197e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 5.41e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 4.08e-06,
+            "type": "sold_fertilizer",
+            "value": 3.882e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -1312,50 +1202,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 9.8276438e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 3.632356e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.7380959e-06,
+            "type": "sold_fertilizer",
+            "value": 1.293e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -1541,50 +1389,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.57271507e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 2.493329e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.878111e-06,
+            "type": "sold_fertilizer",
+            "value": 1.785e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -1770,50 +1576,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.67639452e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 2.657699e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.0019233e-06,
+            "type": "sold_fertilizer",
+            "value": 1.903e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -1999,50 +1763,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.066e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 1.69e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.273e-06,
+            "type": "sold_fertilizer",
+            "value": 1.21e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -2228,50 +1950,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.066e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 1.69e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.273e-06,
+            "type": "sold_fertilizer",
+            "value": 1.21e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -2457,50 +2137,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 3.00195313e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 5.058594e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 3.8085938e-06,
+            "type": "sold_fertilizer",
+            "value": 3.433e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -2686,50 +2324,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 2.70295859e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 4.554758e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 3.4292578e-06,
+            "type": "sold_fertilizer",
+            "value": 3.091e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -2915,50 +2511,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.537e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 2.59e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.95e-06,
+            "type": "sold_fertilizer",
+            "value": 1.758e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -3144,50 +2698,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.84122632e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 2.913426e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.1961615e-06,
+            "type": "sold_fertilizer",
+            "value": 2.09e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -3373,50 +2885,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.9173579e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 3.03389e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.286969e-06,
+            "type": "sold_fertilizer",
+            "value": 2.176e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -3602,50 +3072,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.46027397e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 2.315068e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.7438356e-06,
+            "type": "sold_fertilizer",
+            "value": 1.658e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -3831,50 +3259,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.64280822e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 2.604452e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.9618151e-06,
+            "type": "sold_fertilizer",
+            "value": 1.865e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -4060,50 +3446,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 3.91791507e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 6.211329e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 4.678711e-06,
+            "type": "sold_fertilizer",
+            "value": 4.448e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -4289,50 +3633,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 3.38345479e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 5.364014e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 4.0404671e-06,
+            "type": "sold_fertilizer",
+            "value": 3.841e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -4518,50 +3820,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 0.00043370137,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 6.875753e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 5.1791918e-06,
+            "type": "sold_fertilizer",
+            "value": 0.00043957,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -4747,50 +4007,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 9.1026919e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 1.440346e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.0857428e-06,
+            "type": "sold_fertilizer",
+            "value": 1.033e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -4976,50 +4194,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 8.2751745e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 9.870389e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 9.870389e-07,
+            "type": "sold_fertilizer",
+            "value": 1.025e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -5205,50 +4381,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.23879362e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 1.960179e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.4775972e-06,
+            "type": "sold_fertilizer",
+            "value": 1.406e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -5434,50 +4568,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 3.1031904e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 4.91027e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 3.701396e-06,
+            "type": "sold_fertilizer",
+            "value": 3.522e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -5663,50 +4755,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 2.49e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_p",
-            "value": 3.94e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.97e-06,
+            "type": "sold_fertilizer",
+            "value": 2.826e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -6687,17 +5737,7 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_sold_n",
-            "value": 1000,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_sold_p",
-            "value": 1000,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_sold_k",
+            "type": "capacity_sold_fertilizer",
             "value": 1000,
             "unit": "kg"
           },
