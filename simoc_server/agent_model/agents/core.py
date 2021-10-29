@@ -96,7 +96,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
           currency: str, match currency naming convention
         """
         if currency not in self.currency_dict:
-            self.currency_dict[currency] = CurrencyType.query.filter_by(name=currency).first()
+            self.currency_dict[currency] = self.model.get_currency(currency)
 
     def snapshot(self, agent_model_state):
         """TODO
@@ -740,7 +740,7 @@ class GeneralAgent(StorageAgent):
                     if value > value_eps:
                         if prefix == 'in' and currency not in influx:
                             influx.add(currency)
-                        currency_type = self.currency_dict[currency]
+                        currency_data = self.currency_dict[currency]
                         # Growth criteria updates the percentage grown, which
                         # is used at the end of life to calcuate outputs.
                         if attr == self.growth_criteria:
@@ -757,8 +757,8 @@ class GeneralAgent(StorageAgent):
                                   "agent_id": self.unique_id,
                                   "direction": prefix,
                                   "agent_amount": agent_amount,
-                                  "currency_type": currency_type.name,
-                                  "currency_type_id": currency_type.id,
+                                  "currency_type": currency_data['name'],
+                                  "currency_type_id": currency_data['id'],
                                   "value": round(value, value_round),
                                   "growth": growth,
                                   "unit": str(step_value.units),

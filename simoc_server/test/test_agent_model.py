@@ -129,8 +129,8 @@ def test_model_one_human(one_human, agent_desc, agent_class_dict, currency_desc)
     model.step_to(5)
     assert model.agent_model.step_num == 5
 
-    currency_classes = model.agent_model.currency_ref.keys()
-    assert len(currency_classes) > 1
+    currencies = model.agent_model.currency_dict.keys()
+    assert len(currencies) > 1
 
     # records = model.all_records()
     # with open('one_human_records.json', 'w') as f:
