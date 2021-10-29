@@ -528,16 +528,17 @@ class GeneralAgent(StorageAgent):
                 # be evaluated against a selected storage.
                 source = 0
                 direction = cr_name.split('_')[-1]
+                storage_ratios = self.model.storage_ratios
                 if direction in ['in', 'out']:
                     elements = cr_name.split('_')
                     currency = '_'.join(elements[:2])
                     cr_actual = '_'.join(elements[:3])
                     storage_id = self.selected_storage[direction][currency][0].agent_type
-                    source += self.model.storage_ratios[storage_id][cr_actual]
+                    source += storage_ratios[storage_id][cr_actual]
                 else:
-                    for storage_id in self.model.storage_ratios:
-                        if cr_name in self.model.storage_ratios[storage_id]:
-                            source += self.model.storage_ratios[storage_id][cr_name]
+                    for storage_id in storage_ratios:
+                        if cr_name in storage_ratios[storage_id]:
+                            source += storage_ratios[storage_id][cr_name]
             cr_id = '{}_{}_{}'.format(prefix, currency, cr_name)
             if cr_limit == '>':
                 opp = operator.gt
