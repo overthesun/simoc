@@ -17,9 +17,6 @@
         },
         "ch4": {
             "label": "Methane"
-        },
-        "cont": {
-            "label": "Contaminants"
         }
     },
     "nutrients": {

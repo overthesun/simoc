@@ -125,9 +125,8 @@ def test_model_one_human(one_human, agent_desc, agent_class_dict, currency_desc)
     one_human_converted = convert_configuration(one_human)
     model = AgentModelInstance(one_human_converted, currency_desc)
     model.check_agents(agent_desc, agent_class_dict)
-
-    model.step_to(5)
-    assert model.agent_model.step_num == 5
+    model.step_to(2)
+    assert model.agent_model.step_num == 2
 
     currencies = model.agent_model.currency_dict.keys()
     assert len(currencies) > 1
@@ -141,9 +140,8 @@ def test_model_four_humans_garden(four_humans_garden, agent_desc, agent_class_di
     four_humans_garden_converted = convert_configuration(four_humans_garden)
     model = AgentModelInstance(four_humans_garden_converted, currency_desc)
     model.check_agents(agent_desc, agent_class_dict)
-
-    model.step_to(5)
-    assert model.agent_model.step_num == 5
+    model.step_to(2)
+    assert model.agent_model.step_num == 2
 
     # records = model.all_records()
     # with open('four_humans_garden_records.json', 'w') as f:
