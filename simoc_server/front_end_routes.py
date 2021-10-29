@@ -66,24 +66,24 @@ def get_energy():
 
     agent_name = request.args.get('agent_name', type=str)
     agent_quantity = request.args.get('quantity', 1, type=int) or 1
-    attribute_name = 'in_enrg_kwh'
+    attribute_name = 'in_kwh'
     value_type = 'energy_input'
     total = {}
     if agent_name == 'eclss':
         total_eclss = 0
         for agent in db.session.query(AgentType, AgentTypeAttribute) \
           .filter(AgentType.id == AgentTypeAttribute.agent_type_id) \
-          .filter(AgentTypeAttribute.name == 'in_enrg_kwh') \
+          .filter(AgentTypeAttribute.name == 'in_kwh') \
           .filter(AgentType.agent_class == 'eclss').all():
             total_eclss += float(agent.AgentTypeAttribute.value)
         value = total_eclss * agent_quantity
         total = {value_type : value}
     else:
         if agent_name == 'solar_pv_array_mars':
-            attribute_name = 'out_enrg_kwh'
+            attribute_name = 'out_kwh'
             value_type = 'energy_output'
         elif agent_name == 'power_storage':
-            attribute_name = 'char_capacity_enrg_kwh'
+            attribute_name = 'char_capacity_kwh'
             value_type = 'energy_capacity'
         for agent in db.session.query(AgentType, AgentTypeAttribute) \
           .filter(AgentType.id == AgentTypeAttribute.agent_type_id) \
@@ -101,12 +101,12 @@ def calc_air_storage(volume):
     mass = volume * AIR_DENSITY
     # atmosphere component breakdown (see PRD)
     percentages = {
-        "atmo_n2": 78.084,  # nitrogen
-        "atmo_o2": 20.946,  # oxygen
-        "atmo_co2": 0.041332,  # carbon dioxide
-        "atmo_ch4": 0.000187,  # methane
-        "atmo_h2": 0.000055,  # hydrogen
-        "atmo_h2o": 1,  # water vapor
+        "n2": 78.084,  # nitrogen
+        "o2": 20.946,  # oxygen
+        "co2": 0.041332,  # carbon dioxide
+        "ch4": 0.000187,  # methane
+        "h2": 0.000055,  # hydrogen
+        "h2o": 1,  # water vapor
         # the followings are not included
         #"atmo_ar": 0.9340,  # argon
         #"atmo_ne": 0.001818,  # neon
@@ -120,7 +120,7 @@ def calc_air_storage(volume):
 
 def calc_water_storage(volume):
     # the total_capacity is in kg, and it's equal to the volume'
-    return dict({'h2o_potb': 0.9 * volume, 'h2o_tret': 0.1 * volume},
+    return dict({'potable': 0.9 * volume, 'treated': 0.1 * volume},
                 total_capacity=dict(value=volume, unit='kg'))
 
 
@@ -316,7 +316,7 @@ def convert_configuration(game_config, save_output=False):
             return structures_dict[agent_type]
         return agent_type
     # Load connections file
-    fpath = pathlib.Path(__file__).parent.parent / 'agent_conn.json'
+    fpath = pathlib.Path(__file__).parent.parent / 'data_files/agent_conn.json'
     # if not fpath.is_file():
     #     default_connections = build_connections_from_agent_desc(fpath)
     # else:

@@ -93,6 +93,7 @@ class AgentModel(Model, AttributeHolder):
         """
         super(Model, self).__init__()
         self.load_params()
+        self._init_currencies(init_params.currencies)
         self.start_time = None
         self.game_id = None
         self.user_id = None
@@ -128,15 +129,23 @@ class AgentModel(Model, AttributeHolder):
         self.storage_list = None
         self.agents_list = None
 
-        # Grant Oct '21: With the ABM redesign, we define a `currency class`
-        # attribute and no longer use the database for currency data.
-        # Currencies data is stored in `currency_desc.json`, loaded in
-        # `views.py` and stored here for reference by model/agents. The
-        # `currency_ref` is a dict of classes / currencies / currency_data,
-        # mirroring the json file. We also intinialize currency_class_ref to
-        # store/return the class, given a currency, to speed up queries.
-        self.currency_ref = {}      # TODO: Initialize to `init_params.currencies`
-        self.currency_dict = {}     # Stores data for currencies and classes
+    def _init_currencies(self, currency_desc):
+        """Copies the list of currencies and parses into the currency dict."""
+        self.currency_ref = currency_desc
+        self.currency_dict = {}
+        for currency_class, currencies in currency_desc.items():
+            currency_class_record = {'name': currency_class,
+                                     'id': random.getrandbits(32),
+                                     'type': 'currency_class',
+                                     'currencies': currencies.keys()}
+            self.currency_dict[currency_class] = currency_class_record
+            for currency, currency_data in currencies.items():
+                currency_record = {'name': currency,
+                                   'id': random.getrandbits(32),
+                                   'type': 'currency',
+                                   'class': currency_class,
+                                   **currency_data}
+                self.currency_dict[currency] = currency_record
 
     @property
     def logger(self):
@@ -190,19 +199,6 @@ class AgentModel(Model, AttributeHolder):
                 storage_capacities.append(storage_capacity_record)
         return model_record, agent_type_counts, storage_capacities
 
-    # Temporary: currency_dict should be built on init, and referenced directly.
-    def get_currency(self, item):
-        """Returns a currency object. Can be a currency OR a currency_class."""
-        if item in self.currency_dict:
-            return self.currency_dict[item]
-        elif item:
-            currency_record = {'name': item,
-                               'id': random.getrandbits(32)}
-            self.currency_dict[item] = currency_record
-            return currency_record
-        else:
-            raise ValueError(f"No currency data found for '{item}'.")
-
     def get_agent_type_counts(self):
         """TODO
 
@@ -242,7 +238,7 @@ class AgentModel(Model, AttributeHolder):
             for attr in storage.attrs:
                 if attr.startswith('char_capacity'):
                     currency_name = attr.split('_', 2)[2]
-                    currency_data = self.get_currency(currency_name)
+                    currency_data = self.currency_dict[currency_name]
                     entity["currencies"].append({"currency_type": currency_data['name'],
                                                  "currency_type_id": currency_data['id'],
                                                  "value": round(storage[currency_name], value_round),

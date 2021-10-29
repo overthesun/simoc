@@ -96,7 +96,10 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
           currency: str, match currency naming convention
         """
         if currency not in self.currency_dict:
-            self.currency_dict[currency] = self.model.get_currency(currency)
+            currency_data = self.model.currency_dict[currency]
+            self.currency_dict[currency] = currency_data
+            if currency_data['type'] == 'currency':
+                self.add_currency_to_dict(currency_data['class'])
 
     def snapshot(self, agent_model_state):
         """TODO
@@ -286,10 +289,19 @@ class StorageAgent(EnclosedAgent):
         super().step()
 
     def view(self, view=None):
-        currency_classes = ['atmo', 'sold', 'food', 'h2o', 'enrg']
-        if view in currency_classes:
-            currencies = [c for c in self.currency_dict if c.split('_')[0] == view]
-            return {currency: self[currency] for currency in currencies}
+        if view in self.currency_dict:
+            currency_data = self.currency_dict[view]
+            if currency_data['type'] == 'currency':
+                currency = view
+                return {currency: self[currency]}
+            elif currency_data['type'] == 'currency_class':
+                currencies = currency_data['currencies']
+                return {c: self[c] for c in currencies}
+            else:
+                raise KeyError(f"Currency {currency_data['name']} type not recognized by view.")
+        else:
+            raise KeyError(f"{view} is not a recognized view.")
+
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model
@@ -356,8 +368,7 @@ class GeneralAgent(StorageAgent):
             if prefix not in ['in', 'out']:
                 continue
             self.selected_storage[prefix][currency] = []
-            if len(currency.split('_')) > 1:
-                self.add_currency_to_dict(currency)
+            self.add_currency_to_dict(currency)
             connected_agents = self.connections[prefix][currency]
             for agent_type in connected_agents:
                 storage_agent = self.model.get_agents_by_type(agent_type=agent_type)
@@ -531,8 +542,8 @@ class GeneralAgent(StorageAgent):
                 storage_ratios = self.model.storage_ratios
                 if direction in ['in', 'out']:
                     elements = cr_name.split('_')
-                    currency = '_'.join(elements[:2])
-                    cr_actual = '_'.join(elements[:3])
+                    currency = elements[0]
+                    cr_actual = '_'.join(elements[:2])
                     storage_id = self.selected_storage[direction][currency][0].agent_type
                     source += storage_ratios[storage_id][cr_actual]
                 else:

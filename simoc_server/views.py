@@ -283,7 +283,7 @@ def new_game():
     user = get_standard_user_obj()
     user_cleanup(user)
     # Import and load default currencies list
-    default_currencies = load_from_basedir('currency_desc.json')
+    default_currencies = load_from_basedir('data_files/currency_desc.json')
     tasks.new_game.apply_async(args=[user.username, game_config, default_currencies, step_num])
     while True:
         time.sleep(0.5)
@@ -296,7 +296,7 @@ def new_game():
             raise ServerError(f"Cannot create a new game.")
     redis_conn.set('game_config:{}'.format(game_id), json.dumps(game_config))
     return status("New game starts.", game_id=format(int(game_id), 'X'),
-                  game_config=game_config)
+                  game_config=game_config, currency_desc=default_currencies)
 
 
 @app.route("/get_steps", methods=["POST"])
