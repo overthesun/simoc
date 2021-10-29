@@ -77,9 +77,16 @@ spec:
           httpOnly: true
           secure: true
   tls:
-    certResolver: "le"
     domains:
       - main: "{{ server_name }}"
+    {% if tls_mode == 'letsencrypt' %}
+    certResolver: "le"
+    {% endif %}
+    {% if tls_mode == 'custom' %}
+    certificates:
+      - certFile: /certs/tls.crt
+        keyFile: /certs/tls.key
+    {% endif %}
   sticky:
     cookie:
       name: cookie

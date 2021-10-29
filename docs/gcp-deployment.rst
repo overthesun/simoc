@@ -98,6 +98,7 @@ Update the following variables in the default deployment configuration:
 * ``MIN_CELERY_REPLICAS`` - minimum number of Celery worker containers
 * ``MAX_CELERY_REPLICAS`` - maximum number of Celery worker containers (auto-scaling)
 * ``SERVER_NAME`` - DNS hostname for the SIMOC application
+* ``TLS_MODE`` - whether to use ``letsencrypt`` or ``custom`` SSL configuration
 * ``ACME_EMAIL`` - email address for the SSL certificate from LetsEncrypt
 * ``ACME_STAGING`` - ``1`` to use testing LetsEncrypt servers, ``0`` to use production servers instead (default: ``1``)
 * ``BASIC_AUTH`` - ``1`` to use Basic HTTP Authentication (default: ``0``)
@@ -124,6 +125,7 @@ Update the following variables in the default deployment configuration:
     export MIN_CELERY_REPLICAS=2
     export MAX_CELERY_REPLICAS=4
     export SERVER_NAME=www.example.com
+    export TLS_MODE=letsencrypt
     export ACME_EMAIL=admin@example.com
     export ACME_STAGING=1
     export BASIC_AUTH=1
@@ -269,10 +271,23 @@ Deploy ``SIMOC`` backend to the ``Kubernetes`` cluster::
     kubectl apply -f k8s/autoscalers/simoc_celery_autoscaler.yaml
     kubectl apply -f k8s/services/simoc_flask_service.yaml
 
+[``TLS_MODE=custom``] To manually configure SSL encryption, create ``Kubernetes secret`` to store your ``.crt`` and the ``.key`` files::
+
+    kubectl create secret tls ngs-tls-secret \
+      --cert=./certs/ngs_simoc_space.crt \
+      --key=./certs/ngs_simoc_space.key
+
+[``TLS_MODE=custom``] Then, create ``ConfigMap`` to store custom TLS configuration::
+
+    kubectl apply -f k8s/ingresses/traefik_dynamic.yaml
+
 Deploy ``Traefik`` router component::
 
     helm install traefik --values k8s/ingresses/traefik_values.yaml traefik/traefik
-    kubectl applly -f k8s/ingresses/traefik.yaml
+    kubectl apply -f k8s/ingresses/traefik.yaml
+
+[``TLS_MODE=letsencrypt``] If ``LetsEncrypt`` is used, you should also patch the access rights on the ACME config file::
+
     kubectl patch deployment/traefik -p '{"spec": {"template": {"spec": {"initContainers": [{"name": "fix-acme", "image": "alpine:3.6", "command": ["chmod", "600", "/data/acme.json"], "volumeMounts": [{"name": "data", "mountPath": "/data"}]}]}}}}'
 
 

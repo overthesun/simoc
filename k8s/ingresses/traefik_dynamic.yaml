@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-dynamic
+data:
+  dynamic.yml: |
+    api:
+      dashboard: true
+      insecure: true
+    global:
+      checkNewVersion: false
+      sendAnonymousUsage: false
+    ping: {}
+    tls:
+      stores:
+        default:
+          defaultCertificate:
+            certFile: /certs/tls.crt
+            keyFile: /certs/tls.key
+      options:
+        default:
+          minVersion: VersionTLS12
+          sniStrict: false
+      certificates:
+        - certFile: /certs/tls.crt
+          keyFile: /certs/tls.key

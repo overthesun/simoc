@@ -244,8 +244,6 @@ def test(*args):
         # volume exist and should be Initialized -- do nothing
         init_test_db = lambda: True
     return (up() and init_test_db() and
-            # TODO: installing pytest shouldn't be necessary
-            docker_compose('exec', 'flask-app', 'pip3', 'install', 'pytest') and
             docker_compose('exec', 'flask-app',
                                    'pytest', '-v', '--pyargs',
                                    'simoc_server', *args))
@@ -254,6 +252,25 @@ def test(*args):
 def shell(container, *args):
     """Start a shell in the given container."""
     return docker_compose('exec', container, '/bin/bash', *args)
+
+@cmd
+def adminer(db=None):
+    """Start an adminer container to inspect the DB."""
+    if db and 'testing' in db:
+        # mount the 'simoc_db-testing' volume instead of the
+        # default 'simoc_db-data' if 'testing' is passed as arg
+        DOCKER_COMPOSE_CMD.extend(['-f', TESTING_COMPOSE_FILE])
+    def show_info():
+        # show the volume that is currently connected to the db container
+        cp = subprocess.run(['docker', 'inspect', '-f',
+                             '{{range .Mounts}}{{.Name}}{{end}}',
+                             'simoc_simoc-db_1'], capture_output=True)
+        print('* Starting adminer at: http://localhost:8081/')
+        print('* Connecting to:', cp.stdout.decode('utf-8'))
+        return True
+    cmd = ['docker', 'run', '--network', 'simoc_simoc-net',
+           '--link', 'simoc_simoc-db_1:db', '-p', '8081:8080', 'adminer']
+    return up() and show_info() and run(cmd)
 
 
 # others
