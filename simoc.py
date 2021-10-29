@@ -20,6 +20,7 @@ COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_FE_COMPOSE_FILE = 'docker-compose.dev-fe.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
 AGENT_DESC_COMPOSE_FILE = 'docker-compose.agent-desc.yml'
+TESTING_COMPOSE_FILE = 'docker-compose.testing.yml'
 DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
 
 
@@ -226,11 +227,51 @@ def reset():
     return teardown() and setup()
 
 
-# debugging/testing
+# testing/debugging
 @cmd
-def shell(container):
-    """Run an interactive shell in the specified container."""
-    return docker_compose('exec', container, '/bin/bash')
+def test(*args):
+    """Run the tests in the container."""
+    # add the testing yml that replaces the db
+    DOCKER_COMPOSE_CMD.extend(['-f', TESTING_COMPOSE_FILE])
+    # check if the volume already exists
+    cp = subprocess.run(['docker', 'volume', 'inspect', 'simoc_db-testing'],
+                        capture_output=True)
+    vol_info = json.loads(cp.stdout)
+    if not vol_info:
+        # volume doesn't exist -- create it and init the db
+        init_test_db = init_db
+    else:
+        # volume exist and should be Initialized -- do nothing
+        init_test_db = lambda: True
+    return (up() and init_test_db() and
+            docker_compose('exec', 'flask-app',
+                                   'pytest', '-v', '--pyargs',
+                                   'simoc_server', *args))
+
+@cmd
+def shell(container, *args):
+    """Start a shell in the given container."""
+    return docker_compose('exec', container, '/bin/bash', *args)
+
+@cmd
+def adminer(db=None):
+    """Start an adminer container to inspect the DB."""
+    if db and 'testing' in db:
+        # mount the 'simoc_db-testing' volume instead of the
+        # default 'simoc_db-data' if 'testing' is passed as arg
+        DOCKER_COMPOSE_CMD.extend(['-f', TESTING_COMPOSE_FILE])
+    def show_info():
+        # show the volume that is currently connected to the db container
+        cp = subprocess.run(['docker', 'inspect', '-f',
+                             '{{range .Mounts}}{{.Name}}{{end}}',
+                             'simoc_simoc-db_1'], capture_output=True)
+        print('* Starting adminer at: http://localhost:8081/')
+        print('* Connecting to:', cp.stdout.decode('utf-8'))
+        return True
+    cmd = ['docker', 'run', '--network', 'simoc_simoc-net',
+           '--link', 'simoc_simoc-db_1:db', '-p', '8081:8080', 'adminer']
+    return up() and show_info() and run(cmd)
+
 
 # others
 @cmd
@@ -244,7 +285,7 @@ def format_agent_desc(fname=AGENT_DESC):
     print('done.')
 
 
-
+# create the list of commands
 def create_help(cmds):
     help = ['Full list of available commands:']
     for cmd, func in cmds.items():
