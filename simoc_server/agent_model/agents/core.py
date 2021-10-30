@@ -398,6 +398,8 @@ class GeneralAgent(StorageAgent):
                 continue
             if not self.has_flows:
                 self.has_flows = True
+                self.last_flow = {}
+            self.last_flow[currency] = 0
             agent_flow_time = self.attr_details[attr]['flow_time']
             lifetime_growth_type = self.attr_details[attr]['lifetime_growth_type']
             lifetime_growth_center = self.attr_details[attr]['lifetime_growth_center']
@@ -760,6 +762,7 @@ class GeneralAgent(StorageAgent):
                             growth = self.growth_rate
                         else:
                             growth = None
+                        self.last_flow[currency] = value
                         record = {"step_num": self.model.step_num + 1,
                                   'game_id': self.model.game_id,
                                   "user_id": self.model.user_id,
