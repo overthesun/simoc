@@ -351,7 +351,7 @@ class GeneralAgent(StorageAgent):
             if prefix not in ['in', 'out']:
                 continue
             deprive_value = self.attr_details[attr]['deprive_value'] or 0.0
-            self.deprive[currency] = deprive_value * self.amount
+            self.deprive[currency] = deprive_value
 
     def _init_selected_storage(self):
         self.selected_storage = {"in": {}, 'out': {}}
@@ -728,7 +728,7 @@ class GeneralAgent(StorageAgent):
                                 # deprive value * amount, which doesn't seem
                                 # to make sense?
                                 if deprive_value > 0:
-                                    self.deprive[currency] = min(deprive_value * self.amount,
+                                    self.deprive[currency] = min(deprive_value,
                                                                  self.deprive[currency] +
                                                                  deprive_value)
                                 agent_amount = i # NOTE: Redundant
