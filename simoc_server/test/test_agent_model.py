@@ -7,9 +7,8 @@ import datetime
 import pytest
 
 from simoc_server.front_end_routes import convert_configuration
-from simoc_server.agent_model import (AgentModel,
-                                      AgentModelInitializationParams,
-                                      BaseLineAgentInitializerRecipe)
+from simoc_server.agent_model import AgentModel
+from simoc_server.game_runner import GameRunnerInitializationParams
 
 class AgentModelInstance():
     """An individual instance of an Agent Model
@@ -21,40 +20,16 @@ class AgentModelInstance():
     """
     def __init__(self, game_config, currencies):
         self.game_config = copy.deepcopy(game_config)
-        self.currencies = currencies
+        self.currencies = copy.deepcopy(currencies)
+        grips = GameRunnerInitializationParams(game_config, currencies)
+        self.agent_model = AgentModel.create_new(grips.model_init_params,
+                                                 grips.agent_init_recipe)
 
         # Setup model records storages
         self.model_records = []
         self.agent_type_counts = []
         self.storage_capacities = []
         self.step_records = []
-
-        # Build model initialization objects
-        self.model_init_params = AgentModelInitializationParams()
-        self.model_init_params.set_currencies(currencies)
-        self.model_init_params.set_grid_width(100) \
-            .set_grid_height(100) \
-            .set_starting_model_time(datetime.timedelta())
-        if 'termination' in game_config:
-            self.model_init_params.set_termination(game_config['termination'])
-        if 'minutes_per_step' in game_config:
-            self.model_init_params.set_minutes_per_step(game_config['minutes_per_step'])
-        if 'priorities' in game_config:
-            self.model_init_params.set_priorities(game_config['priorities'])
-        if 'location' in game_config:
-            self.model_init_params.set_location(game_config['location'])
-        self.model_init_params.set_config(game_config)
-        if 'single_agent' in game_config and game_config['single_agent'] == 1:
-            self.model_init_params.set_single_agent(1)
-        self.agent_init_recipe = BaseLineAgentInitializerRecipe(game_config)
-
-        # Build the agent model
-        self.game_id = random.getrandbits(63)
-        self.start_time = int(time.time())
-        self.agent_model = AgentModel.create_new(self.model_init_params,
-                                                 self.agent_init_recipe)
-        self.agent_model.game_id = self.game_id
-        self.agent_model.start_time = self.start_time
 
     def step_to(self, max_step_num):
         """Advances the agent model by max_step_num steps."""
