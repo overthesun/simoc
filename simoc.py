@@ -14,7 +14,7 @@ import subprocess
 import generate_docker_configs
 
 ENV_FILE = 'simoc_docker.env'
-AGENT_DESC = 'agent_desc.json'
+AGENT_DESC = 'data_files/agent_desc.json'
 
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_FE_COMPOSE_FILE = 'docker-compose.dev-fe.yml'

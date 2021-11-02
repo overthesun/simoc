@@ -5,7 +5,7 @@ version: '3.6'
 services:
   flask-app:
     volumes:
-      - ${AGENT_DESC}:/simoc/agent_desc.json
+      - ${AGENT_DESC}:/simoc/data_files/agent_desc.json
   celery-worker:
     volumes:
-      - ${AGENT_DESC}:/simoc/agent_desc.json
+      - ${AGENT_DESC}:/simoc/data_files/agent_desc.json
