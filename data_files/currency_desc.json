@@ -1,0 +1,66 @@
+{
+    "atmo": {
+        "o2": {
+            "label": "Oxygen"
+        },
+        "co2": {
+            "label": "Carbon Dioxide"
+        },
+        "h2": {
+            "label": "Hydrogen"
+        },
+        "n2": {
+            "label": "Nitrogen"
+        },
+        "h2o": {
+            "label": "Water Vapor"
+        },
+        "ch4": {
+            "label": "Methane"
+        },
+        "cont": {
+            "label": "Contaminants"
+        }
+    },
+    "sold": {
+        "n": {
+            "label": "Nitrogen"
+        },
+        "p": {
+            "label": "Phosphorus"
+        },
+        "k": {
+            "label": "Potassium"
+        },
+        "wste": {
+            "label": "Waste"
+        },
+        "biomass": {
+            "label": "Biomass"
+        }
+    },
+    "food": {
+        "edbl": {
+            "label": "Edible Food"
+        }
+    },
+    "h2o": {
+        "tret": {
+            "label": "Treated Water"
+        },
+        "potb": {
+            "label": "Potable Water"
+        },
+        "urin": {
+            "label": "Urine"
+        },
+        "wste": {
+            "label": "Waste"
+        }
+    },
+    "enrg": {
+        "kwh": {
+            "label": "Kilowatt-Hours"
+        }
+    }
+}

@@ -1,0 +1,1198 @@
+[
+    {
+        "from": "habitat.atmo_o2",
+        "to": "human_agent.atmo_o2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "human_agent.h2o_potb"
+    },
+    {
+        "from": "food_storage.food_edbl",
+        "to": "human_agent.food_edbl"
+    },
+    {
+        "from": "human_agent.atmo_co2",
+        "to": "habitat.atmo_co2"
+    },
+    {
+        "from": "human_agent.atmo_h2o",
+        "to": "habitat.atmo_h2o"
+    },
+    {
+        "from": "human_agent.h2o_urin",
+        "to": "water_storage.h2o_urin"
+    },
+    {
+        "from": "human_agent.h2o_wste",
+        "to": "water_storage.h2o_wste"
+    },
+    {
+        "from": "water_storage.h2o_wste",
+        "to": "solid_waste_aerobic_bioreactor.h2o_wste"
+    },
+    {
+        "from": "habitat.atmo_o2",
+        "to": "solid_waste_aerobic_bioreactor.atmo_o2"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "solid_waste_aerobic_bioreactor.enrg_kwh"
+    },
+    {
+        "from": "solid_waste_aerobic_bioreactor.sold_n",
+        "to": "nutrient_storage.sold_n"
+    },
+    {
+        "from": "solid_waste_aerobic_bioreactor.sold_p",
+        "to": "nutrient_storage.sold_p"
+    },
+    {
+        "from": "solid_waste_aerobic_bioreactor.sold_k",
+        "to": "nutrient_storage.sold_k"
+    },
+    {
+        "from": "solid_waste_aerobic_bioreactor.h2o_urin",
+        "to": "water_storage.h2o_urin"
+    },
+    {
+        "from": "solid_waste_aerobic_bioreactor.atmo_co2",
+        "to": "habitat.atmo_co2"
+    },
+    {
+        "from": "solid_waste_aerobic_bioreactor.atmo_ch4",
+        "to": "habitat.atmo_ch4"
+    },
+    {
+        "from": "water_storage.h2o_urin",
+        "to": "urine_recycling_processor_VCD.h2o_urin"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "urine_recycling_processor_VCD.enrg_kwh"
+    },
+    {
+        "from": "urine_recycling_processor_VCD.h2o_tret",
+        "to": "water_storage.h2o_tret"
+    },
+    {
+        "from": "urine_recycling_processor_VCD.sold_wste",
+        "to": "nutrient_storage.sold_wste"
+    },
+    {
+        "from": "water_storage.h2o_tret",
+        "to": "multifiltration_purifier_post_treatment.h2o_tret"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "multifiltration_purifier_post_treatment.enrg_kwh"
+    },
+    {
+        "from": "multifiltration_purifier_post_treatment.h2o_potb",
+        "to": "water_storage.h2o_potb"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "oxygen_generation_SFWE.h2o_potb"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "oxygen_generation_SFWE.enrg_kwh"
+    },
+    {
+        "from": "oxygen_generation_SFWE.atmo_h2",
+        "to": "habitat.atmo_h2"
+    },
+    {
+        "from": "oxygen_generation_SFWE.atmo_o2",
+        "to": "habitat.atmo_o2"
+    },
+    {
+        "from": "habitat.atmo_h2",
+        "to": "co2_reduction_sabatier.atmo_h2"
+    },
+    {
+        "from": "habitat.atmo_co2",
+        "to": "co2_reduction_sabatier.atmo_co2"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "co2_reduction_sabatier.enrg_kwh"
+    },
+    {
+        "from": "co2_reduction_sabatier.atmo_ch4",
+        "to": "habitat.atmo_ch4"
+    },
+    {
+        "from": "co2_reduction_sabatier.h2o_wste",
+        "to": "water_storage.h2o_wste"
+    },
+    {
+        "from": "habitat.atmo_co2",
+        "to": "co2_removal_SAWD.atmo_co2"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "co2_removal_SAWD.enrg_kwh"
+    },
+    {
+        "from": "co2_removal_SAWD.atmo_co2",
+        "to": "co2_storage.atmo_co2"
+    },
+    {
+        "from": "co2_storage.atmo_co2",
+        "to": "co2_makeup_valve.atmo_co2"
+    },
+    {
+        "from": "co2_makeup_valve.atmo_co2",
+        "to": "habitat.atmo_co2"
+    },
+    {
+        "from": "habitat.atmo_cont",
+        "to": "particulate_removal_TCCS.atmo_cont"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "particulate_removal_TCCS.enrg_kwh"
+    },
+    {
+        "from": "habitat.atmo_h2o",
+        "to": "dehumidifier.atmo_h2o"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "dehumidifier.enrg_kwh"
+    },
+    {
+        "from": "dehumidifier.h2o_tret",
+        "to": "water_storage.h2o_tret"
+    },
+    {
+        "from": "habitat.atmo_ch4",
+        "to": "ch4_removal_agent.atmo_ch4"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "ch4_removal_agent.enrg_kwh"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "rice.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "rice.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "rice.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "rice.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "rice.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "rice.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "rice.biomass_totl"
+    },
+    {
+        "from": "rice.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "rice.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "rice.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "rice.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "wheat.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "wheat.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "wheat.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "wheat.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "wheat.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "wheat.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "wheat.biomass_totl"
+    },
+    {
+        "from": "wheat.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "wheat.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "wheat.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "wheat.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "cabbage.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "cabbage.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "cabbage.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "cabbage.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "cabbage.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "cabbage.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "cabbage.biomass_totl"
+    },
+    {
+        "from": "cabbage.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "cabbage.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "cabbage.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "cabbage.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "chard.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "chard.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "chard.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "chard.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "chard.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "chard.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "chard.biomass_totl"
+    },
+    {
+        "from": "chard.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "chard.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "chard.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "chard.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "celery.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "celery.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "celery.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "celery.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "celery.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "celery.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "celery.biomass_totl"
+    },
+    {
+        "from": "celery.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "celery.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "celery.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "celery.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "lettuce.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "lettuce.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "lettuce.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "lettuce.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "lettuce.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "lettuce.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "lettuce.biomass_totl"
+    },
+    {
+        "from": "lettuce.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "lettuce.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "lettuce.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "lettuce.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "spinach.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "spinach.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "spinach.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "spinach.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "spinach.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "spinach.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "spinach.biomass_totl"
+    },
+    {
+        "from": "spinach.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "spinach.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "spinach.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "spinach.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "dry_bean.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "dry_bean.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "dry_bean.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "dry_bean.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "dry_bean.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "dry_bean.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "dry_bean.biomass_totl"
+    },
+    {
+        "from": "dry_bean.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "dry_bean.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "dry_bean.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "dry_bean.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "peanut.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "peanut.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "peanut.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "peanut.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "peanut.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "peanut.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "peanut.biomass_totl"
+    },
+    {
+        "from": "peanut.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "peanut.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "peanut.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "peanut.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "soybean.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "soybean.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "soybean.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "soybean.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "soybean.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "soybean.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "soybean.biomass_totl"
+    },
+    {
+        "from": "soybean.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "soybean.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "soybean.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "soybean.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "strawberry.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "strawberry.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "strawberry.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "strawberry.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "strawberry.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "strawberry.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "strawberry.biomass_totl"
+    },
+    {
+        "from": "strawberry.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "strawberry.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "strawberry.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "strawberry.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "tomato.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "tomato.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "tomato.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "tomato.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "tomato.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "tomato.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "tomato.biomass_totl"
+    },
+    {
+        "from": "tomato.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "tomato.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "tomato.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "tomato.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "green_onion.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "green_onion.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "green_onion.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "green_onion.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "green_onion.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "green_onion.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "green_onion.biomass_totl"
+    },
+    {
+        "from": "green_onion.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "green_onion.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "green_onion.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "green_onion.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "onion.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "onion.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "onion.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "onion.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "onion.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "onion.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "onion.biomass_totl"
+    },
+    {
+        "from": "onion.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "onion.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "onion.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "onion.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "pea.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "pea.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "pea.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "pea.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "pea.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "pea.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "pea.biomass_totl"
+    },
+    {
+        "from": "pea.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "pea.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "pea.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "pea.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "pepper.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "pepper.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "pepper.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "pepper.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "pepper.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "pepper.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "pepper.biomass_totl"
+    },
+    {
+        "from": "pepper.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "pepper.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "pepper.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "pepper.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "snap_bean.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "snap_bean.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "snap_bean.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "snap_bean.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "snap_bean.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "snap_bean.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "snap_bean.biomass_totl"
+    },
+    {
+        "from": "snap_bean.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "snap_bean.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "snap_bean.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "snap_bean.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "radish.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "radish.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "radish.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "radish.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "radish.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "radish.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "radish.biomass_totl"
+    },
+    {
+        "from": "radish.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "radish.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "radish.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "radish.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "red_beet.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "red_beet.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "red_beet.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "red_beet.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "red_beet.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "red_beet.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "red_beet.biomass_totl"
+    },
+    {
+        "from": "red_beet.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "red_beet.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "red_beet.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "red_beet.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "carrot.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "carrot.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "carrot.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "carrot.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "carrot.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "carrot.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "carrot.biomass_totl"
+    },
+    {
+        "from": "carrot.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "carrot.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "carrot.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "carrot.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "sweet_potato.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "sweet_potato.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "sweet_potato.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "sweet_potato.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "sweet_potato.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "sweet_potato.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "sweet_potato.biomass_totl"
+    },
+    {
+        "from": "sweet_potato.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "sweet_potato.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "sweet_potato.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "sweet_potato.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "greenhouse.atmo_co2",
+        "to": "white_potato.atmo_co2"
+    },
+    {
+        "from": "water_storage.h2o_potb",
+        "to": "white_potato.h2o_potb"
+    },
+    {
+        "from": "nutrient_storage.sold_n",
+        "to": "white_potato.sold_n"
+    },
+    {
+        "from": "nutrient_storage.sold_p",
+        "to": "white_potato.sold_p"
+    },
+    {
+        "from": "nutrient_storage.sold_k",
+        "to": "white_potato.sold_k"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "white_potato.enrg_kwh"
+    },
+    {
+        "from": "nutrient_storage.biomass_totl",
+        "to": "white_potato.biomass_totl"
+    },
+    {
+        "from": "white_potato.atmo_o2",
+        "to": "greenhouse.atmo_o2"
+    },
+    {
+        "from": "white_potato.atmo_h2o",
+        "to": "greenhouse.atmo_h2o"
+    },
+    {
+        "from": "white_potato.food_edbl",
+        "to": "food_storage.food_edbl"
+    },
+    {
+        "from": "white_potato.biomass_totl",
+        "to": "nutrient_storage.biomass_totl"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "habitat.enrg_kwh"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "greenhouse.enrg_kwh"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "airlock.enrg_kwh"
+    },
+    {
+        "from": "habitat.atmo",
+        "to": "atmosphere_equalizer.atmo"
+    },
+    {
+        "from": "greenhouse.atmo",
+        "to": "atmosphere_equalizer.atmo"
+    },
+    {
+        "from": "atmosphere_equalizer.atmo",
+        "to": "habitat.atmo"
+    },
+    {
+        "from": "atmosphere_equalizer.atmo",
+        "to": "greenhouse.atmo"
+    },
+    {
+        "from": "solar_pv_array_mars.enrg_kwh",
+        "to": "power_storage.enrg_kwh"
+    },
+    {
+        "from": "solar_pv_array_moon.enrg_kwh",
+        "to": "power_storage.enrg_kwh"
+    },
+    {
+        "from": "wind_turbine.enrg_kwh",
+        "to": "power_storage.enrg_kwh"
+    },
+    {
+        "from": "radioisotope_generator.enrg_kwh",
+        "to": "power_storage.enrg_kwh"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "radio.enrg_kwh"
+    },
+    {
+        "from": "power_storage.enrg_kwh",
+        "to": "lab_equipment.enrg_kwh"
+    }
+]

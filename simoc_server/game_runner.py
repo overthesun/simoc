@@ -252,8 +252,9 @@ s
 
 class GameRunnerInitializationParams(object):
 
-    def __init__(self, config):
+    def __init__(self, config, currencies):
         self.model_init_params = AgentModelInitializationParams()
+        self.model_init_params.set_currencies(currencies)
         self.model_init_params.set_grid_width(100) \
             .set_grid_height(100) \
             .set_starting_model_time(datetime.timedelta())

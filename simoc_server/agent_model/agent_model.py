@@ -96,6 +96,7 @@ class AgentModel(Model, AttributeHolder):
         self.start_time = None
         self.game_id = None
         self.user_id = None
+        self.currency_ref = init_params.currencies
         self.grid_width = init_params.grid_width
         self.grid_height = init_params.grid_height
         self.snapshot_branch = init_params.snapshot_branch
@@ -169,6 +170,7 @@ class AgentModel(Model, AttributeHolder):
                                                user_id=self.user_id,
                                                step_num=self.step_num,
                                                storage_id=storage['storage_id'],
+                                               storage_amount=storage['amount'],
                                                storage_agent_id=storage['storage_agent_id'],
                                                storage_type=storage['agent_type'],
                                                storage_type_id=storage['agent_type_id'],
@@ -189,7 +191,7 @@ class AgentModel(Model, AttributeHolder):
           TODO
         """
         counter = {}
-        self.agents_list = self.get_agents_by_class(agent_class=GeneralAgent)
+        self.agents_list = self.get_agents_by_role(role="flows")
         for agent in self.agents_list:
             agent_type = agent.agent_type
             agent_type_id = agent.agent_type_id
@@ -208,12 +210,13 @@ class AgentModel(Model, AttributeHolder):
           A dictionary of the storages information for this step
         """
         storages = []
-        self.storage_list = self.get_agents_by_class(agent_class=StorageAgent)
+        self.storage_list = self.get_agents_by_role(role="storage")
         for storage in self.storage_list:
             entity = {"agent_type": storage.agent_type,
                       "agent_type_id": storage.agent_type_id,
                       "storage_agent_id": storage.unique_id,
                       "storage_id": storage.id,
+                      "amount": storage.amount,
                       "currencies": []}
             for attr in storage.attrs:
                 if attr.startswith('char_capacity'):
@@ -416,6 +419,7 @@ class AgentModel(Model, AttributeHolder):
         """
         self.time += self.timedelta_per_step()
         self.daytime = int(self.time.total_seconds() / 60) % self.day_length_minutes
+        # Check termination conditions; stop if true
         for cond in self.termination:
             if cond['condition'] == "time":
                 value = cond['value']
@@ -435,28 +439,7 @@ class AgentModel(Model, AttributeHolder):
                     self.is_terminated = True
                     self.termination_reason = 'time'
                     return
-        for storage in self.get_agents_by_class(agent_class=StorageAgent):
-            storage_id = '{}_{}'.format(storage.agent_type, storage.id)
-            if storage_id not in self.storage_ratios:
-                self.storage_ratios[storage_id] = {}
-            temp, total = {}, None
-            for attr in storage.attrs:
-                if attr.startswith('char_capacity'):
-                    currency = attr.split('_', 2)[2]
-                    storage_unit = storage.attr_details[attr]['units']
-                    storage_value = pq.Quantity(float(storage[currency]), storage_unit)
-                    if not total:
-                        total = storage_value
-                    else:
-                        storage_value.units = total.units
-                        total += storage_value
-                    temp[currency] = storage_value.magnitude.tolist()
-            for currency in temp:
-                if temp[currency] > 0:
-                    self.storage_ratios[storage_id][currency + '_ratio'] = \
-                        temp[currency] / total.magnitude.tolist()
-                else:
-                    self.storage_ratios[storage_id][currency + '_ratio'] = 0
+        # Step agents
         self.scheduler.step()
         app.logger.info("{0} step_num {1}".format(self, self.step_num))
 
@@ -516,6 +499,11 @@ class AgentModel(Model, AttributeHolder):
                 return agent
         return None
 
+    def get_agents_by_role(self, role=None):
+        if role == 'storage':
+            return [agent for agent in self.scheduler.agents if agent.has_storage]
+        elif role == 'flows':
+            return [agent for agent in self.scheduler.agents if agent.has_flows]
 
 class AgentModelInitializationParams(object):
     """TODO
@@ -533,6 +521,7 @@ class AgentModelInitializationParams(object):
           priorities: TODO
           location: TODO
           config: TODO
+          currencies: TODO
     """
     snapshot_branch = None
     seed = None
@@ -544,6 +533,12 @@ class AgentModelInitializationParams(object):
     priorities = []
     location = 'mars'
     config = {}
+    currencies = {}
+
+    def set_currencies(self, currencies):
+        """Load currencies to be used in model"""
+        self.currencies = currencies
+        return self
 
     def set_grid_width(self, grid_width):
         """TODO
@@ -758,7 +753,6 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
           config: Dict, TODO
         """
         self.AGENTS = config['agents']
-        self.STORAGES = config['storages']
         self.SINGLE_AGENT = config['single_agent']
 
     def init_agents(self, model):
@@ -772,23 +766,28 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         Returns:
           TODO
         """
-        for type_name, instances in self.STORAGES.items():
-            for instance in instances:
-                model.add_agent(StorageAgent(model=model,
-                                             agent_type=type_name,
-                                             **instance))
-        for type_name, instances in self.AGENTS.items():
-            for instance in instances:
-                connections, amount = instance["connections"], instance['amount']
-                if self.SINGLE_AGENT == 1:
+        for type_name, instance in self.AGENTS.items():
+            connections = instance.pop('connections') if 'connections' in instance else {}
+            amount = instance.pop('amount') if 'amount' in instance else 1
+            if self.SINGLE_AGENT == 1:
+                model.add_agent(GeneralAgent(model=model,
+                                            agent_type=type_name,
+                                            connections=connections,
+                                            amount=amount,
+                                            **instance))
+            else:
+                for i in range(amount):
                     model.add_agent(GeneralAgent(model=model,
-                                                 agent_type=type_name,
-                                                 connections=connections,
-                                                 amount=amount))
-                else:
-                    for i in range(amount):
-                        model.add_agent(GeneralAgent(model=model,
-                                                     agent_type=type_name,
-                                                     connections=connections,
-                                                     amount=1))
+                                    agent_type=type_name,
+                                    connections=connections,
+                                    amount=1,
+                                    **instance))
+
+        # The '_init_selected_storage' method takes the connections dict,
+        # supplied above, and makes a connection to the actual agent object
+        # in the model. Because agents have connections to other agents, all
+        # must be initialized before connections can be made.
+        for agent in model.get_agents_by_role(role="flows"):
+            agent._init_selected_storage()
+
         return model

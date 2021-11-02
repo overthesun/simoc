@@ -141,6 +141,7 @@
           },
           {
             "type": "threshold_lower_atmo_o2",
+            "connection": "in.atmo_o2",
             "value": 0.08
           },
           {
@@ -399,7 +400,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_o2_ratio",
+              "name": "atmo_o2_ratio_out",
               "limit": "<",
               "value": 0.195
             }
@@ -468,7 +469,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_co2_ratio",
+              "name": "atmo_co2_ratio_in",
               "limit": ">",
               "value": 0.001,
               "buffer": 2
@@ -486,7 +487,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_co2_ratio",
+              "name": "atmo_co2_ratio_in",
               "limit": ">",
               "value": 0.001,
               "buffer": 2
@@ -558,7 +559,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_co2_ratio",
+              "name": "atmo_co2_ratio_in",
               "limit": ">",
               "value": 0.001,
               "buffer": 8
@@ -577,7 +578,20 @@
             }
           }
         ],
-        "output": [],
+        "output": [
+          {
+            "type": "atmo_co2",
+            "value": 0.085,
+            "required": "mandatory",
+            "requires": [
+              "atmo_co2"
+            ],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
         "characteristics": [
           {
             "type": "mass",
@@ -591,7 +605,55 @@
           }
         ]
       },
-      "description": "Vents carbon dioxide from the habitat, removing it from the system."
+      "description": "Moves carbon dioxide from the habitat atmosphere to co2_storage."
+    },
+    "co2_makeup_valve": {
+      "data": {
+        "input": [
+          {
+            "type": "atmo_co2",
+            "value": 0.085,
+            "required": "mandatory",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "atmo_co2_ratio_out",
+              "limit": "<",
+              "value": 0.0005,
+              "buffer": 8
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "atmo_co2",
+            "value": 0.085,
+            "required": "mandatory",
+            "requires": [
+              "atmo_co2"
+            ],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "mass",
+            "value": 10,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 0.1,
+            "unit": "m^3"
+          }
+        ]
+      },
+      "description": "Vents carbon dioxide from co2_storage into the habitat atmosphere."
     },
     "particulate_removal_TCCS": {
       "data": {
@@ -605,7 +667,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_cont_ratio",
+              "name": "atmo_cont_ratio_in",
               "limit": ">",
               "value": 0.001
             }
@@ -651,7 +713,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_h2o_ratio",
+              "name": "atmo_h2o_ratio_in",
               "limit": ">",
               "value": 0.01
             }
@@ -709,7 +771,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_ch4_ratio",
+              "name": "atmo_ch4_ratio_in",
               "limit": ">",
               "value": 0.01,
               "buffer": 6
@@ -5807,6 +5869,36 @@
             "value": "habitat"
           },
           {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
             "type": "mass",
             "value": 20000,
             "unit": "kg"
@@ -5836,6 +5928,36 @@
           {
             "type": "category",
             "value": "habitat"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           },
           {
             "type": "mass",
@@ -5869,6 +5991,36 @@
             "value": "habitat"
           },
           {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
             "type": "mass",
             "value": 45200,
             "unit": "kg"
@@ -5898,6 +6050,36 @@
           {
             "type": "category",
             "value": "habitat"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           },
           {
             "type": "mass",
@@ -5940,6 +6122,36 @@
             "type": "volume",
             "value": 494,
             "unit": "m^3"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           }
         ]
       }
@@ -5971,6 +6183,36 @@
             "type": "volume",
             "value": 490,
             "unit": "m^3"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           }
         ]
       }
@@ -6002,6 +6244,36 @@
             "type": "volume",
             "value": 2454,
             "unit": "m^3"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           }
         ]
       }
@@ -6033,6 +6305,36 @@
             "type": "volume",
             "value": 5610,
             "unit": "m^3"
+          },
+          {
+            "type": "capacity_atmo_o2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_n2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_ch4",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_atmo_h2o",
+            "value": 1000,
+            "unit": "kg"
           }
         ]
       }
@@ -6063,6 +6365,37 @@
           }
         ]
       }
+    },
+    "atmosphere_equalizer": {
+      "data": {
+        "input": [
+          {
+            "type": "atmo",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "atmo",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "custom_function",
+            "value": "atmosphere_equalizer"
+          }
+        ]
+      },
+      "description": "Balances the atmosphere elements of habitat & greenhouse every step."
     }
   },
   "fabrication": {},
@@ -6431,6 +6764,30 @@
           }
         ]
       }
+    },
+    "co2_storage": {
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "capacity_atmo_co2",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "mass",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 1,
+            "unit": "m^3"
+          }
+        ]
+      },
+      "description": "Stores co2 from co2_removal_sawd, released by co2_makeup_valve"
     }
   }
 }
