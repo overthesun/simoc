@@ -4,7 +4,7 @@ import pytest
 
 @pytest.fixture(autouse=True, scope="session")
 def agent_desc():
-    with open('agent_desc.json') as f:
+    with open('data_files/agent_desc.json') as f:
         yield json.load(f)
 
 @pytest.fixture(autouse=True, scope="session")
