@@ -14,7 +14,7 @@ import subprocess
 import generate_docker_configs
 
 ENV_FILE = 'simoc_docker.env'
-AGENT_DESC = 'agent_desc.json'
+AGENT_DESC = 'data_files/agent_desc.json'
 
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_FE_COMPOSE_FILE = 'docker-compose.dev-fe.yml'
@@ -269,7 +269,8 @@ def adminer(db=None):
         print('* Connecting to:', cp.stdout.decode('utf-8'))
         return True
     cmd = ['docker', 'run', '--network', 'simoc_simoc-net',
-           '--link', 'simoc_simoc-db_1:db', '-p', '8081:8080', 'adminer']
+           '--link', 'simoc_simoc-db_1:db', '-p', '8081:8080',
+           '-e', 'ADMINER_DESIGN=dracula', 'adminer']
     return up() and show_info() and run(cmd)
 
 
