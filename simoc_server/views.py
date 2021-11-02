@@ -580,8 +580,8 @@ def get_agents_by_category():
 # Return the default agent_desc.json file for ACE Agent Editor
 @app.route("/get_agent_desc", methods=["GET"])
 def get_agent_desc():
-    agent_desc = load_from_basedir('agent_desc.json')
-    agent_schema = load_from_basedir('agent_schema.json')
+    agent_desc = load_from_basedir('data_files/agent_desc.json')
+    agent_schema = load_from_basedir('data_files/agent_schema.json')
     return status("Agent editor data retrieved",
                   agent_desc=agent_desc, agent_schema=agent_schema)
 

@@ -131,7 +131,7 @@ def build_connections_from_agent_desc(fpath):
       - co2_removal_SAWD and co2_makeup_valve connect to co2_storage
 
     """
-    agent_desc_path = pathlib.Path(__file__).parent.parent / 'agent_desc.json'
+    agent_desc_path = pathlib.Path(__file__).parent.parent / 'data_files/agent_desc.json'
     with open(agent_desc_path) as f:
         agent_desc = json.load(f)
 
