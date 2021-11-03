@@ -45,10 +45,12 @@ class Record():
             # Flows
             if attr.startswith('in') or attr.startswith('out'):
                 if 'flows' not in self.snapshot_attrs:
-                    self.snapshot_attrs.append('flows')
+                    self.snapshot_attrs += ['flows', 'flow_records']
                     self.flows = {}
+                    self.flow_records = {}
                 currency = attr.split('_', 1)[1]
                 self.flows[currency] = [0]
+                self.flow_records[currency] = [{}]
                 # Buffer
                 cr_buffer = self.agent.attr_details[attr]['criteria_buffer']
                 if cr_buffer:
@@ -79,6 +81,8 @@ class Record():
         if 'flows' in self.snapshot_attrs:
             for currency, record in self.flows.items():
                 record.append(self.agent.last_flow[currency])
+            for currency, record in self.flow_records.items():
+                record.append(self.agent.flows[currency])
         if 'buffer' in self.snapshot_attrs:
             for cr_id, record in self.buffer.items():
                 record.append(self.agent.buffer.get(cr_id, 0))
@@ -126,8 +130,8 @@ def test_agent_one_human_radish(one_human_radish, currency_desc):
     model = AgentModelInstance(one_human_radish_converted, currency_desc)
     model.step_to(50)
     agent_records = model.get_agent_data()
-    # with open('agent_records_baseline.json', 'w') as f:
-    #     json.dump(agent_records, f)
+    with open('agent_records_baseline.json', 'w') as f:
+        json.dump(agent_records, f)
 
     # Storage
     assert agent_records['water_storage']['storage']['potable'][50] == 1484.7081036234254

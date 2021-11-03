@@ -93,7 +93,7 @@ def test_convert_one_human(one_human, agent_desc, agent_class_dict):
 
     # Humans
     human_in = dict(o2=['crew_habitat_small'], potable=['water_storage'],
-                    ration=['food_storage'])
+                    food=['food_storage'])
     human_out = dict(co2=['crew_habitat_small'], h2o=['crew_habitat_small'],
                      urine=['water_storage'], feces=['water_storage'])
     gc.check_agent('human_agent', amount=1, in_conn=human_in, out_conn=human_out)

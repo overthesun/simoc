@@ -28,7 +28,7 @@
             }
           },
           {
-            "type": "ration",
+            "type": "food",
             "value": 0.062917,
             "flow_rate": {
               "unit": "kg",
@@ -72,7 +72,7 @@
             "type": "feces",
             "value": 0.087083,
             "requires": [
-              "ration"
+              "food"
             ],
             "flow_rate": {
               "unit": "kg",

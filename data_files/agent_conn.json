@@ -8,8 +8,8 @@
         "to": "human_agent.potable"
     },
     {
-        "from": "food_storage.ration",
-        "to": "human_agent.ration"
+        "from": "food_storage.food",
+        "to": "human_agent.food"
     },
     {
         "from": "human_agent.co2",
