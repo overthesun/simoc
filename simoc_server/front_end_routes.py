@@ -256,7 +256,12 @@ def convert_configuration(game_config, save_output=False):
     if 'habitat' in structures_dict and 'greenhouse' in structures_dict:
         working_config['atmosphere_equalizer'] = dict(id=1, amount=1)
     # Default Storages: Some listed, some not. Need to calculate amount.
-    for storage_type in ['water_storage', 'nutrient_storage', 'food_storage', 'power_storage']:
+    # 'food_storage' now holds fresh food, and 'ration_storage' holds the rations. Rations are
+    # still pre-loaded to 'food_storage' on the front-end though, so need to change the label.
+    if 'food_storage' in working_config:
+        storage = working_config.pop('food_storage')
+        working_config['ration_storage'] = storage
+    for storage_type in ['water_storage', 'nutrient_storage', 'ration_storage', 'power_storage']:
         if storage_type in working_config and isinstance(working_config[storage_type], dict):
             storage = working_config.pop(storage_type)
         else:
@@ -290,6 +295,7 @@ def convert_configuration(game_config, save_output=False):
             for eclss_agent in eclss_agents:
                 working_config[eclss_agent] = dict(id=1, amount=amount)
     # Plants: A list of objects with 'species' and 'amount'
+    plants_in_config = []
     if 'plants' in working_config and isinstance(working_config['plants'], list):
         plants = working_config.pop('plants')
         for plant in plants:
@@ -297,7 +303,18 @@ def convert_configuration(game_config, save_output=False):
                 amount = plant.get('amount', 0) or 0
                 plant_type = plant.get('species', None)
                 if plant_type and amount:
+                    plants_in_config.append(plant_type)
                     working_config[plant_type] = dict(amount=amount)
+    if len(plants_in_config) > 0:
+        food_storage = {}
+        food_storage_data = AgentType.query.filter_by(name='food_storage').first()
+        for attr in food_storage_data.agent_type_attributes:
+            if attr.name.startswith('char_capacity'):
+                currency = attr.name.split('_', 2)[2]
+                if currency in plants_in_config:
+                    food_storage[currency] = 0
+        if len(food_storage.keys()) > 0:
+            working_config['food_storage'] = dict(id=1, amount=1, **food_storage)
     # 'human_agent' and 'solar_pv...' are already in the correct format.
 
     ###########################################################################
@@ -328,6 +345,7 @@ def convert_configuration(game_config, save_output=False):
     for conn in default_connections:
         from_agent, from_currency = conn['from'].split(".")
         to_agent, to_currency = conn['to'].split(".")
+        priority = int(conn.get('priority', 0))
         from_agent = _substitute_structures(from_agent)
         to_agent = _substitute_structures(to_agent)
         if from_agent not in working_config or to_agent not in working_config:
@@ -337,19 +355,28 @@ def convert_configuration(game_config, save_output=False):
             if agent not in connections_dict.keys():
                 connections_dict[agent] = {'in': {}, 'out': {}}
         # Add currencies/connections by agent
+        to_record = dict(agent_type=to_agent, priority=priority)
         if from_currency not in connections_dict[from_agent]['out']:
-            connections_dict[from_agent]['out'][from_currency] = [to_agent]
+            connections_dict[from_agent]['out'][from_currency] = [to_record]
         else:
-            connections_dict[from_agent]['out'][from_currency].append(to_agent)
+            connections_dict[from_agent]['out'][from_currency].append(to_record)
+        from_record = dict(agent_type=from_agent, priority=priority)
         if to_currency not in connections_dict[to_agent]['in']:
-            connections_dict[to_agent]['in'][to_currency] = [from_agent]
+            connections_dict[to_agent]['in'][to_currency] = [from_record]
         else:
-            connections_dict[to_agent]['in'][to_currency].append(from_agent)
+            connections_dict[to_agent]['in'][to_currency].append(from_record)
 
     ###########################################################################
     #                   STEP 4: Add all agents to output                      #
     ###########################################################################
 
+    def _connections(agent_type):
+        connections = connections_dict[agent_type].copy()
+        for prefix in ['in', 'out']:
+            for currency, conns in connections[prefix].items():
+                _sorted = sorted(conns, key=lambda c: c['priority'])
+                connections[prefix][currency] = [c['agent_type'] for c in _sorted]
+        return connections
     db_agents = [agent.name for agent in db.session.query(AgentType).all()]
     for agent_type, attrs in working_config.items():
         if not isinstance(attrs, dict):
@@ -359,7 +386,7 @@ def convert_configuration(game_config, save_output=False):
             print(f"Agent type {agent} not found in database")
             continue
         if agent_type in connections_dict:
-            attrs['connections'] = connections_dict[agent_type].copy()
+            attrs['connections'] = _connections(agent_type)
         full_game_config['agents'][agent_type] = attrs
     # Calculate the total number of agents. Used in `views.py` to enforce a
     # maximum number of agents per simulation (currently 50).

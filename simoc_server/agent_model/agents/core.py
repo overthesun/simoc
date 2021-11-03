@@ -786,6 +786,8 @@ class GeneralAgent(StorageAgent):
                                     flow = storage.increment(currency, conn_delta)
                                 remaining_value -= conn_delta
                                 for k, v in flow.items():
+                                    if v == 0:
+                                        continue
                                     flows.append({"storage_type": storage.agent_type,
                                                   "storage_type_id": storage.agent_type_id,
                                                   "storage_agent_id": storage.unique_id,

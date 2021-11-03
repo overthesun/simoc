@@ -9,7 +9,13 @@
     },
     {
         "from": "food_storage.food",
-        "to": "human_agent.food"
+        "to": "human_agent.food",
+        "priority": 0
+    },
+    {
+        "from": "ration_storage.food",
+        "to": "human_agent.food",
+        "priority": 1
     },
     {
         "from": "human_agent.co2",
@@ -196,8 +202,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "rice.ration",
-        "to": "food_storage.ration"
+        "from": "rice.rice",
+        "to": "food_storage.rice"
     },
     {
         "from": "rice.biomass",
@@ -232,8 +238,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "wheat.ration",
-        "to": "food_storage.ration"
+        "from": "wheat.wheat",
+        "to": "food_storage.wheat"
     },
     {
         "from": "wheat.biomass",
@@ -268,8 +274,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "cabbage.ration",
-        "to": "food_storage.ration"
+        "from": "cabbage.cabbage",
+        "to": "food_storage.cabbage"
     },
     {
         "from": "cabbage.biomass",
@@ -304,8 +310,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "chard.ration",
-        "to": "food_storage.ration"
+        "from": "chart.chard",
+        "to": "food_storage.chard"
     },
     {
         "from": "chard.biomass",
@@ -340,8 +346,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "celery.ration",
-        "to": "food_storage.ration"
+        "from": "celery.celery",
+        "to": "food_storage.celery"
     },
     {
         "from": "celery.biomass",
@@ -376,8 +382,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "lettuce.ration",
-        "to": "food_storage.ration"
+        "from": "lettuce.lettuce",
+        "to": "food_storage.lettuce"
     },
     {
         "from": "lettuce.biomass",
@@ -412,8 +418,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "spinach.ration",
-        "to": "food_storage.ration"
+        "from": "spinach.spinach",
+        "to": "food_storage.spinach"
     },
     {
         "from": "spinach.biomass",
@@ -448,8 +454,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "dry_bean.ration",
-        "to": "food_storage.ration"
+        "from": "dry_bean.dry_bean",
+        "to": "food_storage.dry_bean"
     },
     {
         "from": "dry_bean.biomass",
@@ -484,8 +490,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "peanut.ration",
-        "to": "food_storage.ration"
+        "from": "peanut.peanut",
+        "to": "food_storage.peanut"
     },
     {
         "from": "peanut.biomass",
@@ -520,8 +526,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "soybean.ration",
-        "to": "food_storage.ration"
+        "from": "soybean.soybean",
+        "to": "food_storage.soybean"
     },
     {
         "from": "soybean.biomass",
@@ -556,8 +562,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "strawberry.ration",
-        "to": "food_storage.ration"
+        "from": "strawberry.strawberry",
+        "to": "food_storage.strawberry"
     },
     {
         "from": "strawberry.biomass",
@@ -592,8 +598,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "tomato.ration",
-        "to": "food_storage.ration"
+        "from": "tomato.tomato",
+        "to": "food_storage.tomato"
     },
     {
         "from": "tomato.biomass",
@@ -628,8 +634,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "green_onion.ration",
-        "to": "food_storage.ration"
+        "from": "green_onion.green_onion",
+        "to": "food_storage.green_onion"
     },
     {
         "from": "green_onion.biomass",
@@ -664,8 +670,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "onion.ration",
-        "to": "food_storage.ration"
+        "from": "onion.onion",
+        "to": "food_storage.onion"
     },
     {
         "from": "onion.biomass",
@@ -700,8 +706,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "pea.ration",
-        "to": "food_storage.ration"
+        "from": "pea.pea",
+        "to": "food_storage.pea"
     },
     {
         "from": "pea.biomass",
@@ -736,8 +742,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "pepper.ration",
-        "to": "food_storage.ration"
+        "from": "pepper.pepper",
+        "to": "food_storage.pepper"
     },
     {
         "from": "pepper.biomass",
@@ -772,8 +778,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "snap_bean.ration",
-        "to": "food_storage.ration"
+        "from": "snap_bean.snap_bean",
+        "to": "food_storage.snap_bean"
     },
     {
         "from": "snap_bean.biomass",
@@ -808,8 +814,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "radish.ration",
-        "to": "food_storage.ration"
+        "from": "radish.radish",
+        "to": "food_storage.radish"
     },
     {
         "from": "radish.biomass",
@@ -844,8 +850,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "red_beet.ration",
-        "to": "food_storage.ration"
+        "from": "red_beet.red_beet",
+        "to": "food_storage.red_beet"
     },
     {
         "from": "red_beet.biomass",
@@ -880,8 +886,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "carrot.ration",
-        "to": "food_storage.ration"
+        "from": "carrot.carrot",
+        "to": "food_storage.carrot"
     },
     {
         "from": "carrot.biomass",
@@ -916,8 +922,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "sweet_potato.ration",
-        "to": "food_storage.ration"
+        "from": "sweet_potato.sweet_potato",
+        "to": "food_storage.sweet_potato"
     },
     {
         "from": "sweet_potato.biomass",
@@ -952,8 +958,8 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "white_potato.ration",
-        "to": "food_storage.ration"
+        "from": "white_potato.white_potato",
+        "to": "food_storage.white_potato"
     },
     {
         "from": "white_potato.biomass",

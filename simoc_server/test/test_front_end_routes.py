@@ -93,7 +93,7 @@ def test_convert_one_human(one_human, agent_desc, agent_class_dict):
 
     # Humans
     human_in = dict(o2=['crew_habitat_small'], potable=['water_storage'],
-                    food=['food_storage'])
+                    food=['ration_storage'])
     human_out = dict(co2=['crew_habitat_small'], h2o=['crew_habitat_small'],
                      urine=['water_storage'], feces=['water_storage'])
     gc.check_agent('human_agent', amount=1, in_conn=human_in, out_conn=human_out)
@@ -111,8 +111,9 @@ def test_convert_one_human(one_human, agent_desc, agent_class_dict):
     gc.check_agent('water_storage', id=1, amount=1, currencies=water_curr)
     nutrient_curr = dict(fertilizer=300, biomass=0, waste=0)
     gc.check_agent('nutrient_storage', id=1, amount=1, currencies=nutrient_curr)
-    gc.check_agent('food_storage', id=1, amount=1, currencies=dict(ration=100))
+    gc.check_agent('ration_storage', id=1, amount=1, currencies=dict(ration=100))
     gc.check_agent('power_storage', id=1, amount=1, currencies=dict(kwh=1000))
+    assert 'food_storage' not in gc.agents
 
     # ECLSS
     for agent in eclss_agents:
@@ -125,6 +126,11 @@ def test_convert_four_humans_garden(four_humans_garden, agent_desc, agent_class_
     # Connections
     gc.check_connections(agent_desc, agent_class_dict)
 
+    # Humans
+    human_in = dict(o2=['crew_habitat_medium'], potable=['water_storage'],
+                    food=['ration_storage', 'food_storage'])
+    gc.check_agent('human_agent', amount=4, in_conn=human_in)
+
     # Structures
     habitat_curr = dict(n2=2205.873, o2=591.7245, co2=1.167629, ch4=0.00528275,
                         h2=0.00155375, h2o=28.25)
@@ -135,16 +141,18 @@ def test_convert_four_humans_garden(four_humans_garden, agent_desc, agent_class_
     eq_conn = dict(atmosphere=['crew_habitat_medium', 'greenhouse_small'])
     gc.check_agent('atmosphere_equalizer', id=1, amount=1, in_conn=eq_conn, out_conn=eq_conn)
 
-    # Power Storage
+    # Storages
     gc.check_agent('power_storage', amount=2)
+    fs_curr = dict(wheat=0, cabbage=0, strawberry=0, radish=0, red_beet=0, onion=0)
+    gc.check_agent('food_storage', id=1, amount=1, currencies=fs_curr)
 
     # Plants
     greenhouse = 'greenhouse_small'
     plant_in = dict(co2=[greenhouse], potable=['water_storage'],
                     fertilizer=['nutrient_storage'], kwh=['power_storage'],
                     biomass=['nutrient_storage'])
-    plant_out = dict(o2=[greenhouse], h2o=[greenhouse], ration=['food_storage'],
-                     biomass=['nutrient_storage'])
+    plant_out = dict(o2=[greenhouse], h2o=[greenhouse], biomass=['nutrient_storage'])
     garden = dict(wheat=20, cabbage=30, strawberry=10, radish=50, red_beet=50, onion=50)
     for plant, amount in garden.items():
-        gc.check_agent(plant, amount=amount, in_conn=plant_in, out_conn=plant_out)
+        gc.check_agent(plant, amount=amount, in_conn=plant_in,
+                       out_conn={**plant_out, plant: ['food_storage']})

@@ -127,6 +127,7 @@ class AgentModelInstance():
 
 def test_agent_one_human_radish(one_human_radish, currency_desc):
     one_human_radish_converted = convert_configuration(one_human_radish)
+    one_human_radish_converted['agents']['food_storage']['wheat'] = 2
     model = AgentModelInstance(one_human_radish_converted, currency_desc)
     model.step_to(50)
     agent_records = model.get_agent_data()
@@ -138,6 +139,11 @@ def test_agent_one_human_radish(one_human_radish, currency_desc):
     assert agent_records['water_storage']['storage']['urine'][50] == approx(1.523082)
     assert agent_records['water_storage']['storage']['feces'][50] == approx(1.354150)
     assert agent_records['water_storage']['storage']['treated'][50] == approx(1.42)
+
+    assert agent_records['food_storage']['storage']['wheat'][30] == approx(0.11249)
+    assert agent_records['food_storage']['storage']['wheat'][40] == 0
+    assert agent_records['ration_storage']['storage']['ration'][30] == 100
+    assert agent_records['ration_storage']['storage']['ration'][40] == approx(99.48332)
 
     # Growth
     assert agent_records['radish']['growth']['current_growth'][50] == approx(3.0096386e-06)
@@ -153,7 +159,7 @@ def test_agent_one_human_radish(one_human_radish, currency_desc):
     assert agent_records['radish']['flows']['biomass'][30] == approx(3.6055921e-06)
     assert agent_records['radish']['flows']['o2'][30] == approx(1.9695400e-06)
     assert agent_records['radish']['flows']['h2o'][30] == approx(6.6478915e-06)
-    assert agent_records['radish']['flows']['ration'][30] == 0
+    assert agent_records['radish']['flows']['radish'][30] == 0
 
     # Buffer
     assert agent_records['co2_removal_SAWD']['buffer']['in_co2_co2_ratio_in'][40] == 8
@@ -198,7 +204,7 @@ def test_agent_disaster(one_human_radish, currency_desc):
     assert agent_records['radish']['flows']['biomass'][5] == approx(2.7546116e-06)
     assert agent_records['radish']['flows']['o2'][5] == approx(2.6249884e-06)
     assert agent_records['radish']['flows']['h2o'][5] == approx(8.8602610e-06)
-    assert agent_records['radish']['flows']['ration'][5] == 0
+    assert agent_records['radish']['flows']['radish'][5] == 0
 
     # Deprive
     assert agent_records['radish']['deprive']['kwh'][5] == 28800
