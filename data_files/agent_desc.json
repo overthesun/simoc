@@ -82,11 +82,6 @@
         ],
         "characteristics": [
           {
-            "type": "lifetime",
-            "value": 525600.0,
-            "unit": "hour"
-          },
-          {
             "type": "mass",
             "value": 60.0,
             "unit": "kg"

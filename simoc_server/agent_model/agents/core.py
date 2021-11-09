@@ -246,9 +246,9 @@ class StorageAgent(EnclosedAgent):
         self.id = kwargs.pop("id", None)  # This will be phased out
         self.has_storage = False
         super(StorageAgent, self).__init__(*args, **kwargs)
+        class_capacities = {}
+        class_units = {}
         for attr in self.attrs:
-            class_capacities = {}
-            class_units = {}
             if attr.startswith('char_capacity'):
                 if not self.has_storage:
                     self.has_storage = True
@@ -266,10 +266,10 @@ class StorageAgent(EnclosedAgent):
                     class_capacities[currency_class] = 0
                     class_units[currency_class] = self.attr_details[attr]['units']
                 class_capacities[currency_class] += capacity
-            for currency_class, capacity in class_capacities.items():
-                class_attr = 'char_capacity_' + currency_class
-                self._attr(class_attr, capacity, is_client_attr=True, is_persisted_attr=True)
-                self.attr_details[class_attr] = dict(units=class_units[currency_class])
+        for currency_class, capacity in class_capacities.items():
+            class_attr = 'char_capacity_' + currency_class
+            self._attr(class_attr, capacity, is_client_attr=True, is_persisted_attr=True)
+            self.attr_details[class_attr] = dict(units=class_units[currency_class])
 
     def step(self):
         """TODO"""
@@ -835,27 +835,25 @@ class GeneralAgent(StorageAgent):
                         growth = None
                     self.last_flow[currency] = actual_value
                     self.flows[currency] = flows
-                    record = {"step_num": self.model.step_num + 1,
-                                'game_id': self.model.game_id,
-                                "user_id": self.model.user_id,
-                                "agent_type": self.agent_type,
-                                "agent_type_id": self.agent_type_id,
-                                "agent_id": self.unique_id,
-                                "direction": prefix,
-                                "agent_amount": agent_amount,
-                                "currency_type": currency_data['name'],
-                                "currency_type_id": currency_data['id'],
-                                "value": round(actual_value, value_round),
-                                "growth": growth,
-                                "unit": str(target_value.units),
-                                "flows": flows}
-                                # These fields used to be included in record
-                                # but are now part of flows:
-                                # "storage_type": storage.agent_type,
-                                # "storage_type_id": storage.agent_type_id,
-                                # "storage_agent_id": storage.unique_id,
-                                # "storage_id": storage.id}
-                    self.model.step_records_buffer.append(record)
+                    for flow in flows:
+                        record = {"step_num": self.model.step_num + 1,
+                                    'game_id': self.model.game_id,
+                                    "user_id": self.model.user_id,
+                                    "agent_type": self.agent_type,
+                                    "agent_type_id": self.agent_type_id,
+                                    "agent_id": self.unique_id,
+                                    "direction": prefix,
+                                    "agent_amount": agent_amount,
+                                    "currency_type": flow['currency'],
+                                    "currency_type_id": self.model.currency_dict[flow['currency']]['id'],
+                                    "value": abs(round(flow['amount'], value_round)),
+                                    "growth": growth,
+                                    "unit": str(target_value.units),
+                                    "storage_type": flow['storage_type'],
+                                    "storage_type_id": flow['storage_type_id'],
+                                    "storage_agent_id": flow['storage_agent_id'],
+                                    "storage_id": flow['storage_id']}
+                        self.model.step_records_buffer.append(record)
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model

@@ -34,6 +34,16 @@ class Record():
                     self.storage = {}
                 currency = attr.split('_', 2)[2]
                 self.storage[currency] = [self.agent[currency]]
+                if 'capacity' not in self.snapshot_attrs:
+                    self.snapshot_attrs.append('capacity')
+                    self.capacity = {}
+                self.capacity[currency] = dict(value=attr_value,
+                                               units=self.agent.attr_details[attr]['units'])
+                currency_class = self.agent.currency_dict[currency]['class']
+                if currency_class not in self.capacity:
+                    class_attr = f"char_capacity_{currency_class}"
+                    self.capacity[currency_class] = dict(value=self.agent[class_attr],
+                                                         units=self.agent.attr_details[class_attr]['units'])
             # Growth
             if attr.startswith('char_growth_criteria'):
                 self.snapshot_attrs += ['total_growth', 'growth']
@@ -130,18 +140,24 @@ def test_agent_one_human_radish(one_human_radish, currency_desc):
     one_human_radish_converted['agents']['food_storage']['wheat'] = 2
     model = AgentModelInstance(one_human_radish_converted, currency_desc)
     model.step_to(50)
+    export_data(model, 'agent_records_baseline.json')
     agent_records = model.get_agent_data()
-    with open('agent_records_baseline.json', 'w') as f:
-        json.dump(agent_records, f)
 
     # Storage
+    assert agent_records['water_storage']['capacity']['potable']['value'] == 4000
+    assert agent_records['water_storage']['capacity']['water']['value'] == 16000
     assert agent_records['water_storage']['storage']['potable'][50] == 1484.7081036234254
     assert agent_records['water_storage']['storage']['urine'][50] == approx(1.523082)
     assert agent_records['water_storage']['storage']['feces'][50] == approx(1.354150)
     assert agent_records['water_storage']['storage']['treated'][50] == approx(1.42)
 
+    assert agent_records['food_storage']['capacity']['wheat']['value'] == 10000
+    assert agent_records['food_storage']['capacity']['food']['value'] == 220000
     assert agent_records['food_storage']['storage']['wheat'][30] == approx(0.11249)
     assert agent_records['food_storage']['storage']['wheat'][40] == 0
+
+    assert agent_records['ration_storage']['capacity']['ration']['value'] == 10000
+    assert agent_records['ration_storage']['capacity']['food']['value'] == 10000
     assert agent_records['ration_storage']['storage']['ration'][30] == 100
     assert agent_records['ration_storage']['storage']['ration'][40] == approx(99.48332)
 
@@ -176,8 +192,6 @@ def test_agent_disaster(one_human_radish, currency_desc):
     model = AgentModelInstance(one_human_radish_converted, currency_desc)
     model.step_to(100)
     agent_records = model.get_agent_data()
-    with open('agent_records_disaster.json', 'w') as f:
-        json.dump(agent_records, f)
 
     # Amount
     assert agent_records['radish']['amount'][88] == 400
@@ -210,3 +224,21 @@ def test_agent_disaster(one_human_radish, currency_desc):
     assert agent_records['radish']['deprive']['kwh'][5] == 28800
     assert agent_records['radish']['deprive']['kwh'][50] == 13462
     assert agent_records['radish']['deprive']['kwh'][95] == -306
+
+def test_agent_four_humans_garden(four_humans_garden, currency_desc):
+    four_humans_garden_converted = convert_configuration(four_humans_garden)
+    model = AgentModelInstance(four_humans_garden_converted, currency_desc)
+    model.step_to(2)
+    export_data(model, 'agent_records_fhgarden.json')
+
+def export_data(model, fname):
+    agent_records = model.get_agent_data()
+    for agent in model.agent_model.scheduler.agents:
+        if agent.agent_type not in agent_records:
+            continue
+        step_values = agent.step_values
+        for currency, vals in step_values.items():
+            step_values[currency] = vals.tolist()
+        agent_records[agent.agent_type]['step_values'] = step_values
+    with open(fname, 'w') as f:
+        json.dump(agent_records, f)
