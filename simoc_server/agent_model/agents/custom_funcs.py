@@ -2,7 +2,7 @@ from simoc_server import db
 from simoc_server.database.db_model import AgentType, AgentState, CurrencyType
 
 def atmosphere_equalizer(agent):
-    atmo_in_agents = agent.selected_storage['in']['atmo']
+    atmo_in_agents = agent.selected_storage['in']['atmosphere']
     habitat = next(a for a in atmo_in_agents if 'habitat' in a.agent_type)
     greenhouse = next(a for a in atmo_in_agents if 'greenhouse' in a.agent_type)
     if not habitat or not greenhouse:
@@ -10,8 +10,8 @@ def atmosphere_equalizer(agent):
     habitat_volume = habitat.attrs['char_volume']
     greenhouse_volume = greenhouse.attrs['char_volume']
     net_volume = habitat_volume + greenhouse_volume
-    habitat_gasses = habitat.view(view='atmo')
-    greenhouse_gasses = greenhouse.view(view='atmo')
+    habitat_gasses = habitat.view(view='atmosphere')
+    greenhouse_gasses = greenhouse.view(view='atmosphere')
     combined_gasses = {**habitat_gasses, **greenhouse_gasses}.keys()
     max_flow = 50
     deltas = {}

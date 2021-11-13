@@ -1,53 +1,10 @@
 {
-  "simulation_variables": {
-    "currencies_of_exchange": {
-      "atmo_o2": 0,
-      "atmo_co2": 0,
-      "atmo_h2": 0,
-      "atmo_n2": 0,
-      "atmo_h2o": 0,
-      "atmo_ch4": 0,
-      "atmo_cont": 0,
-      "sold_n": 0,
-      "sold_p": 0,
-      "sold_k": 0,
-      "sold_wste": 0,
-      "food_stor": 0,
-      "food_edbl": 0,
-      "food_ined": 0,
-      "food_legu": 0,
-      "food_leaf": 0,
-      "food_vegi": 0,
-      "food_frut": 0,
-      "food_cers": 0,
-      "food_root": 0,
-      "food_othr": 0,
-      "h2o_tret": 0,
-      "h2o_potb": 0,
-      "h2o_urin": 0,
-      "h2o_wste": 0,
-      "enrg_kw": 0,
-      "enrg_kwh": 0,
-      "heat_cal": 0
-    },
-    "global_variables": {
-      "temp_int": 18,
-      "temp_ext": -63,
-      "sol_hrs": 0,
-      "solr_hrs": 24.67,
-      "solr_gain": 500,
-      "pres_hab": 0,
-      "pres_gh": 0,
-      "pres_ext": 0,
-      "grav_fld": 7.11
-    }
-  },
   "inhabitants": {
     "human_agent": {
       "data": {
         "input": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.021583,
             "flow_rate": {
               "unit": "kg",
@@ -59,7 +16,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.165833,
             "flow_rate": {
               "unit": "kg",
@@ -71,7 +28,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "food",
             "value": 0.062917,
             "flow_rate": {
               "unit": "kg",
@@ -85,7 +42,7 @@
         ],
         "output": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.025916,
             "flow_rate": {
               "unit": "kg",
@@ -93,7 +50,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.079167,
             "flow_rate": {
               "unit": "kg",
@@ -101,10 +58,10 @@
             }
           },
           {
-            "type": "h2o_urin",
+            "type": "urine",
             "value": 0.0625,
             "requires": [
-              "h2o_potb"
+              "potable"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -112,10 +69,10 @@
             }
           },
           {
-            "type": "h2o_wste",
+            "type": "feces",
             "value": 0.087083,
             "requires": [
-              "food_edbl"
+              "food"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -124,11 +81,6 @@
           }
         ],
         "characteristics": [
-          {
-            "type": "lifetime",
-            "value": 525600.0,
-            "unit": "hour"
-          },
           {
             "type": "mass",
             "value": 60.0,
@@ -140,12 +92,11 @@
             "unit": "m^3"
           },
           {
-            "type": "threshold_lower_atmo_o2",
-            "connection": "in.atmo_o2",
+            "type": "threshold_lower_o2",
             "value": 0.08
           },
           {
-            "type": "threshold_upper_atmo_co2",
+            "type": "threshold_upper_co2",
             "value": 0.01
           },
           {
@@ -161,7 +112,7 @@
       "data": {
         "input": [
           {
-            "type": "h2o_wste",
+            "type": "feces",
             "value": 1.5,
             "required": "mandatory",
             "flow_rate": {
@@ -170,7 +121,7 @@
             }
           },
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.00045,
             "required": "mandatory",
             "flow_rate": {
@@ -179,7 +130,7 @@
             }
           },
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.678,
             "required": "mandatory",
             "flow_rate": {
@@ -190,11 +141,11 @@
         ],
         "output": [
           {
-            "type": "sold_n",
-            "value": 0.002175,
+            "type": "fertilizer",
+            "value": 0.003051,
             "requires": [
-              "h2o_wste",
-              "atmo_o2"
+              "feces",
+              "o2"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -202,34 +153,10 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 0.000261,
+            "type": "urine",
             "requires": [
-              "h2o_wste",
-              "atmo_o2"
-            ],
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 0.000615,
-            "requires": [
-              "h2o_wste",
-              "atmo_o2"
-            ],
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          },
-          {
-            "type": "h2o_urin",
-            "requires": [
-              "h2o_wste",
-              "atmo_o2"
+              "feces",
+              "o2"
             ],
             "value": 1.199041,
             "flow_rate": {
@@ -238,11 +165,11 @@
             }
           },
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0015,
             "requires": [
-              "h2o_wste",
-              "atmo_o2"
+              "feces",
+              "o2"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -250,11 +177,11 @@
             }
           },
           {
-            "type": "atmo_ch4",
+            "type": "ch4",
             "value": 0.00075,
             "requires": [
-              "h2o_wste",
-              "atmo_o2"
+              "feces",
+              "o2"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -281,7 +208,7 @@
       "data": {
         "input": [
           {
-            "type": "h2o_urin",
+            "type": "urine",
             "value": 2.0,
             "required": "mandatory",
             "flow_rate": {
@@ -290,7 +217,7 @@
             }
           },
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 1.501,
             "required": "mandatory",
             "flow_rate": {
@@ -301,10 +228,10 @@
         ],
         "output": [
           {
-            "type": "h2o_tret",
+            "type": "treated",
             "value": 1.96,
             "requires": [
-              "h2o_urin"
+              "urine"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -312,10 +239,10 @@
             }
           },
           {
-            "type": "sold_wste",
+            "type": "waste",
             "value": 0.04,
             "requires": [
-              "h2o_urin"
+              "urine"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -342,7 +269,7 @@
       "data": {
         "input": [
           {
-            "type": "h2o_tret",
+            "type": "treated",
             "value": 4.75,
             "required": "mandatory",
             "flow_rate": {
@@ -351,7 +278,7 @@
             }
           },
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.012,
             "required": "mandatory",
             "flow_rate": {
@@ -362,10 +289,10 @@
         ],
         "output": [
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 4.75,
             "requires": [
-              "h2o_tret"
+              "treated"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -392,7 +319,7 @@
       "data": {
         "input": [
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.413,
             "required": "mandatory",
             "flow_rate": {
@@ -400,17 +327,17 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_o2_ratio_out",
+              "name": "o2_ratio_out",
               "limit": "<",
               "value": 0.195
             }
           },
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.959,
             "required": "mandatory",
             "requires": [
-              "h2o_potb"
+              "potable"
             ],
             "flow_rate": {
               "unit": "kWh",
@@ -420,10 +347,10 @@
         ],
         "output": [
           {
-            "type": "atmo_h2",
+            "type": "h2",
             "value": 0.0454,
             "requires": [
-              "h2o_potb"
+              "potable"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -431,10 +358,10 @@
             }
           },
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.367,
             "requires": [
-              "h2o_potb"
+              "potable"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -461,7 +388,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_h2",
+            "type": "h2",
             "value": 0.00163,
             "required": "mandatory",
             "flow_rate": {
@@ -469,36 +396,36 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_co2_ratio_in",
+              "name": "co2_ratio_in",
               "limit": ">",
               "value": 0.001,
               "buffer": 2
             }
           },
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.006534,
             "required": "mandatory",
             "requires": [
-              "atmo_h2"
+              "h2"
             ],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_co2_ratio_in",
+              "name": "co2_ratio_in",
               "limit": ">",
               "value": 0.001,
               "buffer": 2
             }
           },
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.291,
             "required": "mandatory",
             "requires": [
-              "atmo_co2"
+              "co2"
             ],
             "flow_rate": {
               "unit": "kWh",
@@ -508,11 +435,11 @@
         ],
         "output": [
           {
-            "type": "atmo_ch4",
+            "type": "ch4",
             "value": 0.0025,
             "requires": [
-              "atmo_co2",
-              "atmo_h2"
+              "co2",
+              "h2"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -520,11 +447,11 @@
             }
           },
           {
-            "type": "h2o_wste",
+            "type": "feces",
             "value": 0.00567,
             "requires": [
-              "atmo_co2",
-              "atmo_h2"
+              "co2",
+              "h2"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -551,7 +478,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.085,
             "required": "mandatory",
             "flow_rate": {
@@ -559,18 +486,18 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_co2_ratio_in",
+              "name": "co2_ratio_in",
               "limit": ">",
               "value": 0.001,
               "buffer": 8
             }
           },
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.65,
             "required": "mandatory",
             "requires": [
-              "atmo_co2"
+              "co2"
             ],
             "flow_rate": {
               "unit": "kWh",
@@ -580,11 +507,11 @@
         ],
         "output": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.085,
             "required": "mandatory",
             "requires": [
-              "atmo_co2"
+              "co2"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -611,7 +538,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.085,
             "required": "mandatory",
             "flow_rate": {
@@ -619,7 +546,7 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_co2_ratio_out",
+              "name": "co2_ratio_out",
               "limit": "<",
               "value": 0.0005,
               "buffer": 8
@@ -628,11 +555,11 @@
         ],
         "output": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.085,
             "required": "mandatory",
             "requires": [
-              "atmo_co2"
+              "co2"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -659,7 +586,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_cont",
+            "type": "cont",
             "value": 0.12533,
             "required": "mandatory",
             "flow_rate": {
@@ -667,17 +594,17 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_cont_ratio_in",
+              "name": "cont_ratio_in",
               "limit": ">",
               "value": 0.001
             }
           },
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 1.12,
             "required": "mandatory",
             "requires": [
-              "atmo_cont"
+              "cont"
             ],
             "flow_rate": {
               "unit": "kWh",
@@ -705,7 +632,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 4.0,
             "required": "mandatory",
             "flow_rate": {
@@ -713,17 +640,17 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_h2o_ratio_in",
+              "name": "h2o_ratio_in",
               "limit": ">",
               "value": 0.01
             }
           },
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.5,
             "required": "mandatory",
             "requires": [
-              "atmo_h2o"
+              "h2o"
             ],
             "flow_rate": {
               "unit": "kWh",
@@ -733,10 +660,10 @@
         ],
         "output": [
           {
-            "type": "h2o_tret",
+            "type": "treated",
             "value": 0.5,
             "requires": [
-              "atmo_h2o"
+              "h2o"
             ],
             "flow_rate": {
               "unit": "kg",
@@ -763,7 +690,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_ch4",
+            "type": "ch4",
             "value": 0.02,
             "required": "mandatory",
             "flow_rate": {
@@ -771,18 +698,18 @@
               "time": "hour"
             },
             "criteria": {
-              "name": "atmo_ch4_ratio_in",
+              "name": "ch4_ratio_in",
               "limit": ">",
               "value": 0.01,
               "buffer": 6
             }
           },
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.2,
             "required": "mandatory",
             "requires": [
-              "atmo_ch4"
+              "ch4"
             ],
             "flow_rate": {
               "unit": "kWh",
@@ -812,7 +739,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0015399905754,
             "required": "desired",
             "flow_rate": {
@@ -833,7 +760,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0079341666667,
             "required": "desired",
             "flow_rate": {
@@ -854,8 +781,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 2.06755062e-05,
+            "type": "fertilizer",
+            "value": 2.347e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -875,49 +802,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 3.270886e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.466768e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.2300870147,
             "required": "desired",
             "flow_rate": {
@@ -937,7 +822,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.77095,
             "required": "desired",
             "weighted": "growth_rate",
@@ -954,7 +839,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0011201294643,
             "flow_rate": {
               "unit": "kg",
@@ -970,7 +855,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0071179138073,
             "flow_rate": {
               "unit": "kg",
@@ -986,7 +871,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "rice",
             "value": 0.77095,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -1000,7 +885,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.001259583,
             "flow_rate": {
               "unit": "kg",
@@ -1028,7 +913,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -1041,7 +926,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.002547123016,
             "required": "desired",
             "flow_rate": {
@@ -1062,7 +947,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.01125,
             "required": "desired",
             "flow_rate": {
@@ -1083,8 +968,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 3.4197e-05,
+            "type": "fertilizer",
+            "value": 3.882e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -1104,49 +989,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 5.41e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 4.08e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.8018183846,
             "required": "desired",
             "flow_rate": {
@@ -1166,7 +1009,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 1.58,
             "required": "desired",
             "weighted": "growth_rate",
@@ -1183,7 +1026,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0018526785714,
             "flow_rate": {
               "unit": "kg",
@@ -1199,7 +1042,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0098999291113,
             "flow_rate": {
               "unit": "kg",
@@ -1215,7 +1058,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "wheat",
             "value": 1.58,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -1229,7 +1072,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.002083333,
             "flow_rate": {
               "unit": "kg",
@@ -1252,7 +1095,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "lifetime",
@@ -1270,7 +1113,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0003777302131,
             "required": "desired",
             "flow_rate": {
@@ -1291,7 +1134,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.00025529166667,
             "required": "desired",
             "flow_rate": {
@@ -1312,8 +1155,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 9.8276438e-06,
+            "type": "fertilizer",
+            "value": 1.293e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -1333,49 +1176,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 3.632356e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.7380959e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1952253458,
             "required": "desired",
             "flow_rate": {
@@ -1395,7 +1196,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.5151,
             "required": "desired",
             "weighted": "growth_rate",
@@ -1412,7 +1213,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0002752949011,
             "flow_rate": {
               "unit": "kg",
@@ -1428,7 +1229,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 8.78642873e-05,
             "flow_rate": {
               "unit": "kg",
@@ -1444,7 +1245,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "cabbage",
             "value": 0.5151,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -1458,7 +1259,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.000280416,
             "flow_rate": {
               "unit": "kg",
@@ -1486,7 +1287,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -1499,7 +1300,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0006044805936,
             "required": "desired",
             "flow_rate": {
@@ -1520,7 +1321,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0014133333333,
             "required": "desired",
             "flow_rate": {
@@ -1541,8 +1342,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.57271507e-05,
+            "type": "fertilizer",
+            "value": 1.785e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -1562,49 +1363,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 2.493329e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.878111e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1185296743,
             "required": "desired",
             "flow_rate": {
@@ -1624,7 +1383,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.315,
             "required": "desired",
             "weighted": "growth_rate",
@@ -1641,7 +1400,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.000440553653,
             "flow_rate": {
               "unit": "kg",
@@ -1657,7 +1416,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0011463648685,
             "flow_rate": {
               "unit": "kg",
@@ -1673,7 +1432,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "chard",
             "value": 0.315,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -1687,7 +1446,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.00044875,
             "flow_rate": {
               "unit": "kg",
@@ -1715,7 +1474,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -1728,7 +1487,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0006443302892,
             "required": "desired",
             "flow_rate": {
@@ -1749,7 +1508,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "required": "desired",
             "value": 0.00043,
             "flow_rate": {
@@ -1770,8 +1529,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.67639452e-05,
+            "type": "fertilizer",
+            "value": 1.903e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -1791,49 +1550,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 2.657699e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.0019233e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1185296743,
             "required": "desired",
             "flow_rate": {
@@ -1853,7 +1570,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.77475,
             "required": "desired",
             "weighted": "growth_rate",
@@ -1870,7 +1587,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0004695966514,
             "flow_rate": {
               "unit": "kg",
@@ -1886,7 +1603,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0001454319429,
             "flow_rate": {
               "unit": "kg",
@@ -1902,7 +1619,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "celery",
             "value": 0.77475,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -1916,7 +1633,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.000478333,
             "flow_rate": {
               "unit": "kg",
@@ -1944,7 +1661,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -1957,7 +1674,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0004097222222,
             "required": "desired",
             "flow_rate": {
@@ -1978,7 +1695,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.00027375,
             "required": "desired",
             "flow_rate": {
@@ -1999,8 +1716,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.066e-05,
+            "type": "fertilizer",
+            "value": 1.21e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -2020,49 +1737,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 1.69e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.273e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1185296743,
             "required": "desired",
             "flow_rate": {
@@ -2082,7 +1757,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.18396,
             "required": "desired",
             "weighted": "growth_rate",
@@ -2099,7 +1774,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0002986111111,
             "flow_rate": {
               "unit": "kg",
@@ -2115,7 +1790,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 9.27964444e-05,
             "flow_rate": {
               "unit": "kg",
@@ -2131,7 +1806,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "lettuce",
             "value": 0.18396,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -2145,7 +1820,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.000304166,
             "flow_rate": {
               "unit": "kg",
@@ -2173,7 +1848,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -2186,7 +1861,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0004097222222,
             "required": "desired",
             "flow_rate": {
@@ -2207,7 +1882,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.00027375,
             "required": "desired",
             "flow_rate": {
@@ -2228,8 +1903,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.066e-05,
+            "type": "fertilizer",
+            "value": 1.21e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -2249,49 +1924,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 1.69e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.273e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1185296743,
             "required": "desired",
             "flow_rate": {
@@ -2311,7 +1944,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.1971,
             "required": "desired",
             "weighted": "growth_rate",
@@ -2328,7 +1961,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0002986111111,
             "flow_rate": {
               "unit": "kg",
@@ -2344,7 +1977,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 9.27964444e-05,
             "flow_rate": {
               "unit": "kg",
@@ -2360,7 +1993,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "spinach",
             "value": 0.1971,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -2374,7 +2007,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.000304166,
             "flow_rate": {
               "unit": "kg",
@@ -2402,7 +2035,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -2415,7 +2048,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0020616319444,
             "required": "desired",
             "flow_rate": {
@@ -2436,7 +2069,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.005625,
             "required": "desired",
             "flow_rate": {
@@ -2457,8 +2090,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 3.00195313e-05,
+            "type": "fertilizer",
+            "value": 3.433e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -2478,49 +2111,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 5.058594e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 3.8085938e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1673360107,
             "required": "desired",
             "flow_rate": {
@@ -2540,7 +2131,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.85,
             "required": "desired",
             "weighted": "growth_rate",
@@ -2557,7 +2148,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0015010127315,
             "flow_rate": {
               "unit": "kg",
@@ -2573,7 +2164,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0051782865307,
             "flow_rate": {
               "unit": "kg",
@@ -2589,7 +2180,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "dry_bean",
             "value": 0.85,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -2603,7 +2194,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.001041666,
             "flow_rate": {
               "unit": "kg",
@@ -2631,7 +2222,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -2644,7 +2235,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0018562934028,
             "required": "desired",
             "flow_rate": {
@@ -2665,7 +2256,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0063258333333,
             "required": "desired",
             "flow_rate": {
@@ -2686,8 +2277,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 2.70295859e-05,
+            "type": "fertilizer",
+            "value": 3.091e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -2707,49 +2298,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 4.554758e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 3.4292578e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.188253012,
             "required": "desired",
             "flow_rate": {
@@ -2769,7 +2318,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.58552,
             "required": "desired",
             "weighted": "growth_rate",
@@ -2786,7 +2335,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0013515118634,
             "flow_rate": {
               "unit": "kg",
@@ -2802,7 +2351,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0059236125255,
             "flow_rate": {
               "unit": "kg",
@@ -2818,7 +2367,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "peanut",
             "value": 0.58552,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -2832,7 +2381,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.000937916,
             "flow_rate": {
               "unit": "kg",
@@ -2860,7 +2409,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -2873,7 +2422,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0010555555556,
             "required": "desired",
             "flow_rate": {
@@ -2894,7 +2443,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0025516666667,
             "required": "desired",
             "flow_rate": {
@@ -2915,8 +2464,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.537e-05,
+            "type": "fertilizer",
+            "value": 1.758e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -2936,49 +2485,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 2.59e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.95e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1952253458,
             "required": "desired",
             "flow_rate": {
@@ -2998,7 +2505,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.582,
             "required": "desired",
             "weighted": "growth_rate",
@@ -3015,7 +2522,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0007685185185,
             "flow_rate": {
               "unit": "kg",
@@ -3031,7 +2538,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0023229493705,
             "flow_rate": {
               "unit": "kg",
@@ -3047,7 +2554,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "soybean",
             "value": 0.582,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -3061,7 +2568,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.00053329,
             "flow_rate": {
               "unit": "kg",
@@ -3089,7 +2596,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -3102,7 +2609,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0007907178481,
             "required": "desired",
             "flow_rate": {
@@ -3123,7 +2630,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0054183333333,
             "required": "desired",
             "flow_rate": {
@@ -3144,8 +2651,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.84122632e-05,
+            "type": "fertilizer",
+            "value": 2.09e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -3165,49 +2672,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 2.913426e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.1961615e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1533913432,
             "required": "desired",
             "flow_rate": {
@@ -3227,7 +2692,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.66215,
             "required": "desired",
             "weighted": "growth_rate",
@@ -3244,7 +2709,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0005763666242,
             "flow_rate": {
               "unit": "kg",
@@ -3260,7 +2725,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0047265009912,
             "flow_rate": {
               "unit": "kg",
@@ -3276,7 +2741,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "strawberry",
             "value": 0.66215,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -3290,7 +2755,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.000927083,
             "flow_rate": {
               "unit": "kg",
@@ -3318,7 +2783,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -3331,7 +2796,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.000823412698,
             "required": "desired",
             "flow_rate": {
@@ -3352,7 +2817,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.00477875,
             "required": "desired",
             "flow_rate": {
@@ -3373,8 +2838,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.9173579e-05,
+            "type": "fertilizer",
+            "value": 2.176e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -3394,49 +2859,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 3.03389e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.286969e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.188253012,
             "required": "desired",
             "flow_rate": {
@@ -3456,7 +2879,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.88655,
             "required": "desired",
             "weighted": "growth_rate",
@@ -3473,7 +2896,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0006001984127,
             "flow_rate": {
               "unit": "kg",
@@ -3489,7 +2912,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0040583115556,
             "flow_rate": {
               "unit": "kg",
@@ -3505,7 +2928,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "tomato",
             "value": 0.88655,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -3519,7 +2942,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.000965416,
             "flow_rate": {
               "unit": "kg",
@@ -3547,7 +2970,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -3560,7 +2983,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0005612633181,
             "required": "desired",
             "flow_rate": {
@@ -3581,7 +3004,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.000375,
             "required": "desired",
             "flow_rate": {
@@ -3602,8 +3025,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.46027397e-05,
+            "type": "fertilizer",
+            "value": 1.658e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -3623,49 +3046,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 2.315068e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.7438356e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1812806783,
             "required": "desired",
             "flow_rate": {
@@ -3685,7 +3066,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.45,
             "required": "desired",
             "weighted": "growth_rate",
@@ -3702,7 +3083,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0004090563166,
             "flow_rate": {
               "unit": "kg",
@@ -3718,7 +3099,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0001271184169,
             "flow_rate": {
               "unit": "kg",
@@ -3734,7 +3115,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "green_onion",
             "value": 0.45,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -3748,7 +3129,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.000416666,
             "flow_rate": {
               "unit": "kg",
@@ -3776,7 +3157,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -3789,7 +3170,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0006314212329,
             "required": "desired",
             "flow_rate": {
@@ -3810,7 +3191,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.00084375,
             "required": "desired",
             "flow_rate": {
@@ -3831,8 +3212,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.64280822e-05,
+            "type": "fertilizer",
+            "value": 1.865e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -3852,49 +3233,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 2.604452e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.9618151e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1185296743,
             "required": "desired",
             "flow_rate": {
@@ -3914,7 +3253,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.45,
             "required": "desired",
             "weighted": "growth_rate",
@@ -3931,7 +3270,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0004601883562,
             "flow_rate": {
               "unit": "kg",
@@ -3947,7 +3286,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0005648832192,
             "flow_rate": {
               "unit": "kg",
@@ -3963,7 +3302,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "onion",
             "value": 0.45,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -3977,7 +3316,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.00046875,
             "flow_rate": {
               "unit": "kg",
@@ -4005,7 +3344,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -4018,7 +3357,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0015058694825,
             "required": "desired",
             "flow_rate": {
@@ -4039,7 +3378,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0060375,
             "required": "desired",
             "flow_rate": {
@@ -4060,8 +3399,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 3.91791507e-05,
+            "type": "fertilizer",
+            "value": 4.448e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -4081,49 +3420,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 6.211329e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 4.678711e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1673360107,
             "required": "desired",
             "flow_rate": {
@@ -4143,7 +3440,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.80475,
             "required": "desired",
             "weighted": "growth_rate",
@@ -4160,7 +3457,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0010974980974,
             "flow_rate": {
               "unit": "kg",
@@ -4176,7 +3473,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.005372433713,
             "flow_rate": {
               "unit": "kg",
@@ -4192,7 +3489,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "pea",
             "value": 0.80475,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -4206,7 +3503,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.001117916,
             "flow_rate": {
               "unit": "kg",
@@ -4234,7 +3531,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -4247,7 +3544,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0013004471081,
             "required": "desired",
             "flow_rate": {
@@ -4268,7 +3565,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0047775,
             "required": "desired",
             "flow_rate": {
@@ -4289,8 +3586,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 3.38345479e-05,
+            "type": "fertilizer",
+            "value": 3.841e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -4310,49 +3607,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 5.364014e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 4.0404671e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.188253012,
             "required": "desired",
             "flow_rate": {
@@ -4372,7 +3627,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.88655,
             "required": "desired",
             "weighted": "growth_rate",
@@ -4389,7 +3644,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0009477834855,
             "flow_rate": {
               "unit": "kg",
@@ -4405,7 +3660,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0042031583723,
             "flow_rate": {
               "unit": "kg",
@@ -4421,7 +3676,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "pepper",
             "value": 0.88655,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -4435,7 +3690,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.000965416,
             "flow_rate": {
               "unit": "kg",
@@ -4463,7 +3718,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -4476,7 +3731,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0016669520548,
             "required": "desired",
             "flow_rate": {
@@ -4497,7 +3752,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0066825,
             "required": "desired",
             "flow_rate": {
@@ -4518,8 +3773,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 0.00043370137,
+            "type": "fertilizer",
+            "value": 0.00043957,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -4539,49 +3794,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 6.875753e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 5.1791918e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1673360107,
             "required": "desired",
             "flow_rate": {
@@ -4601,7 +3814,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 1.0098,
             "required": "desired",
             "weighted": "growth_rate",
@@ -4618,7 +3831,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0012148972603,
             "flow_rate": {
               "unit": "kg",
@@ -4634,7 +3847,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0059462916986,
             "flow_rate": {
               "unit": "kg",
@@ -4650,7 +3863,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "snap_bean",
             "value": 1.0098,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -4664,7 +3877,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.0012375,
             "flow_rate": {
               "unit": "kg",
@@ -4692,7 +3905,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -4705,7 +3918,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0007452059028,
             "required": "desired",
             "flow_rate": {
@@ -4726,7 +3939,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0020625,
             "required": "desired",
             "flow_rate": {
@@ -4747,8 +3960,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 9.1026919e-06,
+            "type": "fertilizer",
+            "value": 1.033e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -4768,49 +3981,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 1.440346e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.0857428e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1812806783,
             "required": "desired",
             "flow_rate": {
@@ -4830,7 +4001,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.1375,
             "required": "desired",
             "weighted": "growth_rate",
@@ -4847,7 +4018,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0005393177194,
             "flow_rate": {
               "unit": "kg",
@@ -4863,7 +4034,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0018203873194,
             "flow_rate": {
               "unit": "kg",
@@ -4879,7 +4050,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "radish",
             "value": 0.1375,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -4893,7 +4064,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.000458333,
             "flow_rate": {
               "unit": "kg",
@@ -4916,7 +4087,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "lifetime",
@@ -4934,7 +4105,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0006774599116,
             "required": "desired",
             "flow_rate": {
@@ -4955,7 +4126,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0013125,
             "required": "desired",
             "flow_rate": {
@@ -4976,8 +4147,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 8.2751745e-06,
+            "type": "fertilizer",
+            "value": 1.025e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -4997,49 +4168,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 9.870389e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 9.870389e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1185296743,
             "required": "desired",
             "flow_rate": {
@@ -5059,7 +4188,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.247,
             "required": "desired",
             "weighted": "growth_rate",
@@ -5076,7 +4205,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0004902888358,
             "flow_rate": {
               "unit": "kg",
@@ -5092,7 +4221,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.001092397563,
             "flow_rate": {
               "unit": "kg",
@@ -5108,7 +4237,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "red_beet",
             "value": 0.247,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -5122,7 +4251,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.000416666,
             "flow_rate": {
               "unit": "kg",
@@ -5150,7 +4279,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -5163,7 +4292,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.0010141574877,
             "required": "desired",
             "flow_rate": {
@@ -5184,7 +4313,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.002245,
             "required": "desired",
             "flow_rate": {
@@ -5205,8 +4334,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 1.23879362e-05,
+            "type": "fertilizer",
+            "value": 1.406e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -5226,49 +4355,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 1.960179e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 1.4775972e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1952253458,
             "required": "desired",
             "flow_rate": {
@@ -5288,7 +4375,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.6735,
             "required": "desired",
             "weighted": "growth_rate",
@@ -5305,7 +4392,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0007339623872,
             "flow_rate": {
               "unit": "kg",
@@ -5321,7 +4408,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0019155066518,
             "flow_rate": {
               "unit": "kg",
@@ -5337,7 +4424,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "carrot",
             "value": 0.6735,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -5351,7 +4438,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.00062375,
             "flow_rate": {
               "unit": "kg",
@@ -5379,7 +4466,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -5392,7 +4479,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.002540474668,
             "required": "desired",
             "flow_rate": {
@@ -5413,7 +4500,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0084375,
             "required": "desired",
             "flow_rate": {
@@ -5434,8 +4521,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 3.1031904e-05,
+            "type": "fertilizer",
+            "value": 3.522e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -5455,49 +4542,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 4.91027e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 3.701396e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1952253458,
             "required": "desired",
             "flow_rate": {
@@ -5517,7 +4562,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 1.275,
             "required": "desired",
             "weighted": "growth_rate",
@@ -5534,7 +4579,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0018385831342,
             "flow_rate": {
               "unit": "kg",
@@ -5550,7 +4595,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0076121158608,
             "flow_rate": {
               "unit": "kg",
@@ -5566,7 +4611,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "sweet_potato",
             "value": 1.275,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -5580,7 +4625,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.0015625,
             "flow_rate": {
               "unit": "kg",
@@ -5608,7 +4653,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -5621,7 +4666,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo_co2",
+            "type": "co2",
             "value": 0.002038476874,
             "required": "desired",
             "flow_rate": {
@@ -5642,7 +4687,7 @@
             }
           },
           {
-            "type": "h2o_potb",
+            "type": "potable",
             "value": 0.0033841666667,
             "required": "desired",
             "flow_rate": {
@@ -5663,8 +4708,8 @@
             }
           },
           {
-            "type": "sold_n",
-            "value": 2.49e-05,
+            "type": "fertilizer",
+            "value": 2.826e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
@@ -5684,49 +4729,7 @@
             }
           },
           {
-            "type": "sold_p",
-            "value": 3.94e-07,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "sold_k",
-            "value": 2.97e-06,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.1952253458,
             "required": "desired",
             "flow_rate": {
@@ -5746,7 +4749,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 2.7799,
             "required": "desired",
             "weighted": "growth_rate",
@@ -5763,7 +4766,7 @@
         ],
         "output": [
           {
-            "type": "atmo_o2",
+            "type": "o2",
             "value": 0.0014752791069,
             "flow_rate": {
               "unit": "kg",
@@ -5779,7 +4782,7 @@
             }
           },
           {
-            "type": "atmo_h2o",
+            "type": "h2o",
             "value": 0.0027218784338,
             "flow_rate": {
               "unit": "kg",
@@ -5795,7 +4798,7 @@
             }
           },
           {
-            "type": "food_edbl",
+            "type": "white_potato",
             "value": 2.7799,
             "weighted": "growth_rate",
             "flow_rate": {
@@ -5809,7 +4812,7 @@
             }
           },
           {
-            "type": "biomass_totl",
+            "type": "biomass",
             "value": 0.00125375,
             "flow_rate": {
               "unit": "kg",
@@ -5837,7 +4840,7 @@
           },
           {
             "type": "growth_criteria",
-            "value": "out_biomass_totl"
+            "value": "out_biomass"
           },
           {
             "type": "reproduce",
@@ -5854,7 +4857,7 @@
       "data": {
         "input": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 2.711,
             "flow_rate": {
               "unit": "kWh",
@@ -5869,32 +4872,32 @@
             "value": "habitat"
           },
           {
-            "type": "capacity_atmo_o2",
+            "type": "capacity_o2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2",
+            "type": "capacity_co2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_n2",
+            "type": "capacity_n2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_ch4",
+            "type": "capacity_ch4",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2",
+            "type": "capacity_h2",
             "value": 1000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2o",
+            "type": "capacity_h2o",
             "value": 1000,
             "unit": "kg"
           },
@@ -5915,7 +4918,7 @@
       "data": {
         "input": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 2.711,
             "flow_rate": {
               "unit": "kWh",
@@ -5930,32 +4933,32 @@
             "value": "habitat"
           },
           {
-            "type": "capacity_atmo_o2",
+            "type": "capacity_o2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2",
+            "type": "capacity_co2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_n2",
+            "type": "capacity_n2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_ch4",
+            "type": "capacity_ch4",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2",
+            "type": "capacity_h2",
             "value": 1000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2o",
+            "type": "capacity_h2o",
             "value": 1000,
             "unit": "kg"
           },
@@ -5976,7 +4979,7 @@
       "data": {
         "input": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 6.113,
             "flow_rate": {
               "unit": "kWh",
@@ -5991,32 +4994,32 @@
             "value": "habitat"
           },
           {
-            "type": "capacity_atmo_o2",
+            "type": "capacity_o2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2",
+            "type": "capacity_co2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_n2",
+            "type": "capacity_n2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_ch4",
+            "type": "capacity_ch4",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2",
+            "type": "capacity_h2",
             "value": 1000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2o",
+            "type": "capacity_h2o",
             "value": 1000,
             "unit": "kg"
           },
@@ -6037,7 +5040,7 @@
       "data": {
         "input": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 10.866,
             "flow_rate": {
               "unit": "kWh",
@@ -6052,32 +5055,32 @@
             "value": "habitat"
           },
           {
-            "type": "capacity_atmo_o2",
+            "type": "capacity_o2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2",
+            "type": "capacity_co2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_n2",
+            "type": "capacity_n2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_ch4",
+            "type": "capacity_ch4",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2",
+            "type": "capacity_h2",
             "value": 1000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2o",
+            "type": "capacity_h2o",
             "value": 1000,
             "unit": "kg"
           },
@@ -6099,7 +5102,7 @@
       "data": {
         "input": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 1,
             "flow_rate": {
               "unit": "kWh",
@@ -6124,32 +5127,32 @@
             "unit": "m^3"
           },
           {
-            "type": "capacity_atmo_o2",
+            "type": "capacity_o2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2",
+            "type": "capacity_co2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_n2",
+            "type": "capacity_n2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_ch4",
+            "type": "capacity_ch4",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2",
+            "type": "capacity_h2",
             "value": 1000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2o",
+            "type": "capacity_h2o",
             "value": 1000,
             "unit": "kg"
           }
@@ -6160,7 +5163,7 @@
       "data": {
         "input": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 1,
             "flow_rate": {
               "unit": "kWh",
@@ -6185,32 +5188,32 @@
             "unit": "m^3"
           },
           {
-            "type": "capacity_atmo_o2",
+            "type": "capacity_o2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2",
+            "type": "capacity_co2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_n2",
+            "type": "capacity_n2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_ch4",
+            "type": "capacity_ch4",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2",
+            "type": "capacity_h2",
             "value": 1000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2o",
+            "type": "capacity_h2o",
             "value": 1000,
             "unit": "kg"
           }
@@ -6221,7 +5224,7 @@
       "data": {
         "input": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 1.5,
             "flow_rate": {
               "unit": "kWh",
@@ -6246,32 +5249,32 @@
             "unit": "m^3"
           },
           {
-            "type": "capacity_atmo_o2",
+            "type": "capacity_o2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2",
+            "type": "capacity_co2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_n2",
+            "type": "capacity_n2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_ch4",
+            "type": "capacity_ch4",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2",
+            "type": "capacity_h2",
             "value": 1000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2o",
+            "type": "capacity_h2o",
             "value": 1000,
             "unit": "kg"
           }
@@ -6282,7 +5285,7 @@
       "data": {
         "input": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 2,
             "flow_rate": {
               "unit": "kWh",
@@ -6307,32 +5310,32 @@
             "unit": "m^3"
           },
           {
-            "type": "capacity_atmo_o2",
+            "type": "capacity_o2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2",
+            "type": "capacity_co2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_n2",
+            "type": "capacity_n2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_ch4",
+            "type": "capacity_ch4",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2",
+            "type": "capacity_h2",
             "value": 1000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2o",
+            "type": "capacity_h2o",
             "value": 1000,
             "unit": "kg"
           }
@@ -6343,7 +5346,7 @@
       "data": {
         "input": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0,
             "flow_rate": {
               "unit": "kWh",
@@ -6370,7 +5373,7 @@
       "data": {
         "input": [
           {
-            "type": "atmo",
+            "type": "atmosphere",
             "value": 0,
             "flow_rate": {
               "unit": "kg",
@@ -6380,7 +5383,7 @@
         ],
         "output": [
           {
-            "type": "atmo",
+            "type": "atmosphere",
             "value": 0,
             "flow_rate": {
               "unit": "kg",
@@ -6405,7 +5408,7 @@
         "input": [],
         "output": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.354,
             "flow_rate": {
               "unit": "kWh",
@@ -6441,7 +5444,7 @@
         "input": [],
         "output": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 1.8,
             "flow_rate": {
               "unit": "kWh",
@@ -6473,7 +5476,7 @@
         "input": [],
         "output": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.0,
             "flow_rate": {
               "unit": "kWh",
@@ -6500,7 +5503,7 @@
         "input": [],
         "output": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0.0,
             "flow_rate": {
               "unit": "kWh",
@@ -6533,7 +5536,7 @@
       "data": {
         "input": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0,
             "flow_rate": {
               "unit": "kWh",
@@ -6560,7 +5563,7 @@
       "data": {
         "input": [
           {
-            "type": "enrg_kwh",
+            "type": "kwh",
             "value": 0,
             "flow_rate": {
               "unit": "kWh",
@@ -6591,32 +5594,32 @@
         "output": [],
         "characteristics": [
           {
-            "type": "capacity_atmo_o2",
+            "type": "capacity_o2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_co2",
+            "type": "capacity_co2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_n2",
+            "type": "capacity_n2",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_ch4",
+            "type": "capacity_ch4",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2",
+            "type": "capacity_h2",
             "value": 1000,
             "unit": "kg"
           },
           {
-            "type": "capacity_atmo_h2o",
+            "type": "capacity_h2o",
             "value": 1000,
             "unit": "kg"
           },
@@ -6639,22 +5642,22 @@
         "output": [],
         "characteristics": [
           {
-            "type": "capacity_h2o_potb",
+            "type": "capacity_potable",
             "value": 4000,
             "unit": "kg"
           },
           {
-            "type": "capacity_h2o_urin",
+            "type": "capacity_urine",
             "value": 4000,
             "unit": "kg"
           },
           {
-            "type": "capacity_h2o_wste",
+            "type": "capacity_feces",
             "value": 4000,
             "unit": "kg"
           },
           {
-            "type": "capacity_h2o_tret",
+            "type": "capacity_treated",
             "value": 4000,
             "unit": "kg"
           },
@@ -6677,32 +5680,17 @@
         "output": [],
         "characteristics": [
           {
-            "type": "capacity_biomass_totl",
+            "type": "capacity_biomass",
             "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "capacity_biomass_edible",
-            "value": 10000,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_sold_n",
+            "type": "capacity_fertilizer",
             "value": 1000,
             "unit": "kg"
           },
           {
-            "type": "capacity_sold_p",
-            "value": 1000,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_sold_k",
-            "value": 1000,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_sold_wste",
+            "type": "capacity_waste",
             "value": 1000,
             "unit": "kg"
           },
@@ -6719,13 +5707,141 @@
         ]
       }
     },
+    "ration_storage": {
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "capacity_ration",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "mass",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 100,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
     "food_storage": {
       "data": {
         "input": [],
         "output": [],
         "characteristics": [
           {
-            "type": "capacity_food_edbl",
+            "type": "capacity_rice",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_wheat",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_cabbage",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_chard",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_celery",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_lettuce",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_spinach",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_dry_bean",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_peanut",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_soybean",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_strawberry",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_tomato",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_green_onion",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_onion",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_pea",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_pepper",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_snap_bean",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_radish",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_red_beet",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_carrot",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_sweet_potato",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_white_potato",
             "value": 10000,
             "unit": "kg"
           },
@@ -6748,7 +5864,7 @@
         "output": [],
         "characteristics": [
           {
-            "type": "capacity_enrg_kwh",
+            "type": "capacity_kwh",
             "value": 1000,
             "unit": "kWh"
           },
@@ -6771,7 +5887,7 @@
         "output": [],
         "characteristics": [
           {
-            "type": "capacity_atmo_co2",
+            "type": "capacity_co2",
             "value": 10000,
             "unit": "kg"
           },

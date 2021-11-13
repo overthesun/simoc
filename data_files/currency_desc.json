@@ -1,5 +1,5 @@
 {
-    "atmo": {
+    "atmosphere": {
         "o2": {
             "label": "Oxygen"
         },
@@ -17,48 +17,105 @@
         },
         "ch4": {
             "label": "Methane"
-        },
-        "cont": {
-            "label": "Contaminants"
         }
     },
-    "sold": {
-        "n": {
-            "label": "Nitrogen"
+    "nutrients": {
+        "fertilizer": {
+            "label": "N-P-K Fertilizer"
         },
-        "p": {
-            "label": "Phosphorus"
-        },
-        "k": {
-            "label": "Potassium"
-        },
-        "wste": {
+        "waste": {
             "label": "Waste"
         },
         "biomass": {
-            "label": "Biomass"
+            "label": "Inedible Biomass"
         }
     },
     "food": {
-        "edbl": {
-            "label": "Edible Food"
+        "ration": {
+            "label": "Food Rations"
+        },
+        "rice": {
+            "label": "Rice"
+        },
+        "wheat": {
+            "label": "Wheat"
+        },
+        "cabbage": {
+            "label": "Cabbage"
+        },
+        "chard": {
+            "label": "Chard"
+        },
+        "celery": {
+            "label": "Celery"
+        },
+        "lettuce": {
+            "label": "Lettuce"
+        },
+        "spinach": {
+            "label": "Spinach"
+        },
+        "dry_bean": {
+            "label": "Dry Beans"
+        },
+        "peanut": {
+            "label": "Peanuts"
+        },
+        "soybean": {
+            "label": "Soybeans"
+        },
+        "strawberry": {
+            "label": "Strawberries"
+        },
+        "tomato": {
+            "label": "Tomatoes"
+        },
+        "green_onion": {
+            "label": "Green Onions"
+        },
+        "onion": {
+            "label": "Onions"
+        },
+        "pea": {
+            "label": "Peas"
+        },
+        "pepper": {
+            "label": "Peppers"
+        },
+        "snap_bean": {
+            "label": "Snap Beans"
+        },
+        "radish": {
+            "label": "Radishes"
+        },
+        "red_beet": {
+            "label": "Red Beets"
+        },
+        "carrot": {
+            "label": "Carrots"
+        },
+        "sweet_potato": {
+            "label": "Sweet Potatoes"
+        },
+        "white_potato": {
+            "label": "White Potatoes"
         }
     },
-    "h2o": {
-        "tret": {
+    "water": {
+        "treated": {
             "label": "Treated Water"
         },
-        "potb": {
+        "potable": {
             "label": "Potable Water"
         },
-        "urin": {
+        "urine": {
             "label": "Urine"
         },
-        "wste": {
+        "feces": {
             "label": "Waste"
         }
     },
-    "enrg": {
+    "energy": {
         "kwh": {
             "label": "Kilowatt-Hours"
         }

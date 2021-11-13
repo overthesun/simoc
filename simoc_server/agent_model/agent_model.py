@@ -93,10 +93,10 @@ class AgentModel(Model, AttributeHolder):
         """
         super(Model, self).__init__()
         self.load_params()
+        self._init_currencies(init_params.currencies)
         self.start_time = None
         self.game_id = None
         self.user_id = None
-        self.currency_ref = init_params.currencies
         self.grid_width = init_params.grid_width
         self.grid_height = init_params.grid_height
         self.snapshot_branch = init_params.snapshot_branch
@@ -126,9 +126,26 @@ class AgentModel(Model, AttributeHolder):
         else:
             self.scheduler = RandomActivation(self)
         self.scheduler.steps = init_params.starting_step_num
-        self.currency_dict = {}
         self.storage_list = None
         self.agents_list = None
+
+    def _init_currencies(self, currency_desc):
+        """Copies the list of currencies and parses into the currency dict."""
+        self.currency_ref = currency_desc
+        self.currency_dict = {}
+        for currency_class, currencies in currency_desc.items():
+            currency_class_record = {'name': currency_class,
+                                     'id': random.getrandbits(32),
+                                     'type': 'currency_class',
+                                     'currencies': currencies.keys()}
+            self.currency_dict[currency_class] = currency_class_record
+            for currency, currency_data in currencies.items():
+                currency_record = {'name': currency,
+                                   'id': random.getrandbits(32),
+                                   'type': 'currency',
+                                   'class': currency_class,
+                                   **currency_data}
+                self.currency_dict[currency] = currency_record
 
     @property
     def logger(self):
@@ -220,13 +237,11 @@ class AgentModel(Model, AttributeHolder):
                       "currencies": []}
             for attr in storage.attrs:
                 if attr.startswith('char_capacity'):
-                    currency = attr.split('_', 2)[2]
-                    if currency not in self.currency_dict:
-                        self.currency_dict[currency] = CurrencyType.query.filter_by(name=currency).first()
-                    currency_type = self.currency_dict[currency]
-                    entity["currencies"].append({"currency_type": currency_type.name,
-                                                 "currency_type_id": currency_type.id,
-                                                 "value": round(storage[currency], value_round),
+                    currency_name = attr.split('_', 2)[2]
+                    currency_data = self.currency_dict[currency_name]
+                    entity["currencies"].append({"currency_type": currency_data['name'],
+                                                 "currency_type_id": currency_data['id'],
+                                                 "value": round(storage[currency_name], value_round),
                                                  "units": storage.attr_details[attr]['units'],
                                                  "capacity": storage.attrs[attr]})
             storages.append(entity)
