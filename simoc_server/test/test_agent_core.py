@@ -111,12 +111,12 @@ class AgentModelInstance():
     game_runner.py.
 
     """
-    def __init__(self, game_config, currencies):
+    def __init__(self, game_config, currencies, agent_desc):
         # Initialize core dicts
         self.game_config = copy.deepcopy(game_config)
         self.currencies = copy.deepcopy(currencies)
         # Initialize agent model
-        grips = GameRunnerInitializationParams(game_config, currencies)
+        grips = GameRunnerInitializationParams(game_config, currencies, agent_desc)
         self.agent_model = AgentModel.create_new(grips.model_init_params,
                                                  grips.agent_init_recipe)
         # Initialize recordkeeping
@@ -135,10 +135,10 @@ class AgentModelInstance():
         """Return all variables for all agents"""
         return {name: r.snapshot() for name, r in self.agent_records.items()}
 
-def test_agent_one_human_radish(one_human_radish, currency_desc):
+def test_agent_one_human_radish(one_human_radish, currency_desc, agent_desc):
     one_human_radish_converted = convert_configuration(one_human_radish)
     one_human_radish_converted['agents']['food_storage']['wheat'] = 2
-    model = AgentModelInstance(one_human_radish_converted, currency_desc)
+    model = AgentModelInstance(one_human_radish_converted, currency_desc, agent_desc)
     model.step_to(50)
     export_data(model, 'agent_records_baseline.json')
     agent_records = model.get_agent_data()
@@ -187,14 +187,14 @@ def test_agent_one_human_radish(one_human_radish, currency_desc):
     # Sometimes this value is 2, sometimes it's 1. I think due to a rounding error.
     assert agent_records['co2_removal_SAWD']['buffer']['in_co2_co2_ratio_in'][49] in [1, 2]
 
-def test_agent_disaster(one_human_radish, currency_desc):
+def test_agent_disaster(one_human_radish, currency_desc, agent_desc):
     one_human_radish['human_agent']['amount'] = 0
     one_human_radish['power_storage']['kwh'] = 1
     one_human_radish['solar_pv_array_mars']['amount'] = 10
     one_human_radish['eclss']['amount'] = 0
     one_human_radish['plants'][0]['amount'] = 400
     one_human_radish_converted = convert_configuration(one_human_radish)
-    model = AgentModelInstance(one_human_radish_converted, currency_desc)
+    model = AgentModelInstance(one_human_radish_converted, currency_desc, agent_desc)
     model.step_to(100)
     agent_records = model.get_agent_data()
 
@@ -233,9 +233,9 @@ def test_agent_disaster(one_human_radish, currency_desc):
     assert radish_deprive['kwh'][50] == 13462
     assert radish_deprive['kwh'][95] == -306
 
-def test_agent_four_humans_garden(four_humans_garden, currency_desc):
+def test_agent_four_humans_garden(four_humans_garden, currency_desc, agent_desc):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
-    model = AgentModelInstance(four_humans_garden_converted, currency_desc)
+    model = AgentModelInstance(four_humans_garden_converted, currency_desc, agent_desc)
     model.step_to(2)
     export_data(model, 'agent_records_fhgarden.json')
 

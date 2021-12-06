@@ -227,8 +227,6 @@ class AgentStateAttribute(BaseAttribute):
 class AgentModelState(BaseEntity):
     id = db.Column(db.Integer, primary_key=True)
     step_num = db.Column(db.Integer, nullable=False)
-    grid_width = db.Column(db.Integer, nullable=False)
-    grid_height = db.Column(db.Integer, nullable=False)
     model_time = db.Column(db.Interval, nullable=False)
     seed = db.Column(db.BigInteger, nullable=False)
     random_state = db.Column(db.PickleType, nullable=False)

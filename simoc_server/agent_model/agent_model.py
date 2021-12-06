@@ -9,7 +9,6 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 import quantities as pq
 from mesa import Model
-from mesa.space import MultiGrid
 from mesa.time import RandomActivation
 from sqlalchemy.orm.exc import StaleDataError
 
@@ -19,7 +18,8 @@ from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentModelParam, AgentType, AgentModelState, \
     AgentModelSnapshot, SnapshotBranch, CurrencyType
 from simoc_server.util import timedelta_to_hours, location_to_day_length_minutes
-
+from simoc_server.exceptions import AgentModelInitializationError
+from simoc_server.agent_model.parse_data_files import parse_agent_desc
 
 class PrioritizedRandomActivation(RandomActivation):
     """A custom step scheduler for MESA prioritized by agent class."""
@@ -35,23 +35,29 @@ class PrioritizedRandomActivation(RandomActivation):
         Args:
           model: mesa.Model, MESA model to manage
         """
+        self.agents_by_class = {}
+        self.initialized = False
         super(RandomActivation, self).__init__(model)
 
     def step(self):
-        agent_by_class = {}
-        for agent in self.agents[:]:
-            agent_class = AgentType.query.get(agent.agent_type_id).agent_class
-            if agent_class not in agent_by_class:
-                agent_by_class[agent_class] = []
-            agent_by_class[agent_class].append(agent)
+        if not self.initialized:
+            self._load_agents_by_class()
         for agent_class in self.model.priorities:
-            if agent_class in agent_by_class:
-                agents = agent_by_class[agent_class]
+            if agent_class in self.agents_by_class:
+                agents = self.agents_by_class[agent_class]
                 self.model.random_state.shuffle(agents)
                 for agent in agents[:]:
                     agent.step()
         self.steps += 1
         self.time += 1
+
+    def _load_agents_by_class(self):
+        for agent in self.agents[:]:
+            agent_class = agent.agent_class
+            if agent_class not in self.agents_by_class:
+                self.agents_by_class[agent_class] = []
+            self.agents_by_class[agent_class].append(agent)
+        self.initialized = True
 
 
 class AgentModel(Model, AttributeHolder):
@@ -66,9 +72,6 @@ class AgentModel(Model, AttributeHolder):
           day_length_hours: int,
           day_length_minutes: int,
           daytime: int,
-          grid: int,
-          grid_height: int,
-          grid_width: int,
           is_terminated: int,
           location: int,
           minutes_per_step: int,
@@ -92,13 +95,10 @@ class AgentModel(Model, AttributeHolder):
           init_params: AgentModelInitializationParams, TODO
         """
         super(Model, self).__init__()
-        self.load_params()
-        self._init_currencies(init_params.currencies)
+        self.currency_dict = (init_params.currencies)
         self.start_time = None
         self.game_id = None
         self.user_id = None
-        self.grid_width = init_params.grid_width
-        self.grid_height = init_params.grid_height
         self.snapshot_branch = init_params.snapshot_branch
         self.seed = init_params.seed
         self.random_state = init_params.random_state
@@ -113,7 +113,6 @@ class AgentModel(Model, AttributeHolder):
         self.is_terminated = False
         self.storage_ratios = {}
         self.step_records_buffer = []
-        self.grid = MultiGrid(self.grid_width, self.grid_height, True)
         self.day_length_minutes = location_to_day_length_minutes(self.location)
         self.day_length_hours = self.day_length_minutes / 60
         self.daytime = int(self.time.total_seconds() / 60) % self.day_length_minutes
@@ -126,26 +125,6 @@ class AgentModel(Model, AttributeHolder):
         else:
             self.scheduler = RandomActivation(self)
         self.scheduler.steps = init_params.starting_step_num
-        self.storage_list = None
-        self.agents_list = None
-
-    def _init_currencies(self, currency_desc):
-        """Copies the list of currencies and parses into the currency dict."""
-        self.currency_ref = currency_desc
-        self.currency_dict = {}
-        for currency_class, currencies in currency_desc.items():
-            currency_class_record = {'name': currency_class,
-                                     'id': random.getrandbits(32),
-                                     'type': 'currency_class',
-                                     'currencies': currencies.keys()}
-            self.currency_dict[currency_class] = currency_class_record
-            for currency, currency_data in currencies.items():
-                currency_record = {'name': currency,
-                                   'id': random.getrandbits(32),
-                                   'type': 'currency',
-                                   'class': currency_class,
-                                   **currency_data}
-                self.currency_dict[currency] = currency_record
 
     @property
     def logger(self):
@@ -208,8 +187,7 @@ class AgentModel(Model, AttributeHolder):
           TODO
         """
         counter = {}
-        self.agents_list = self.get_agents_by_role(role="flows")
-        for agent in self.agents_list:
+        for agent in self.get_agents_by_role(role="flows"):
             agent_type = agent.agent_type
             agent_type_id = agent.agent_type_id
             key = f'{agent_type}#{agent_type_id}'
@@ -227,8 +205,7 @@ class AgentModel(Model, AttributeHolder):
           A dictionary of the storages information for this step
         """
         storages = []
-        self.storage_list = self.get_agents_by_role(role="storage")
-        for storage in self.storage_list:
+        for storage in self.get_agents_by_role(role="storage"):
             entity = {"agent_type": storage.agent_type,
                       "agent_type_id": storage.agent_type_id,
                       "storage_agent_id": storage.unique_id,
@@ -252,17 +229,6 @@ class AgentModel(Model, AttributeHolder):
         """Returns the last step number."""
         return self.scheduler.steps
 
-    def load_params(self):
-        """TODO"""
-        params = AgentModelParam.query.all()
-        for param in params:
-            value_type_str = param.value_type
-            if value_type_str != type(None).__name__:
-                value_type = eval(value_type_str)
-                self.__dict__[param.name] = value_type(param.value)
-            else:
-                self.__dict__[param.name] = None
-
     @classmethod
     def load_from_db(cls, agent_model_state):
         """TODO
@@ -277,8 +243,6 @@ class AgentModel(Model, AttributeHolder):
           TODO
         """
         snapshot_branch = agent_model_state.agent_model_snapshot.snapshot_branch
-        grid_width = agent_model_state.grid_width
-        grid_height = agent_model_state.grid_height
         step_num = agent_model_state.step_num
         model_time = agent_model_state.model_time
         seed = agent_model_state.seed
@@ -289,9 +253,7 @@ class AgentModel(Model, AttributeHolder):
         priorities = json.loads(agent_model_state.priorities)
         config = json.loads(agent_model_state.config)
         init_params = AgentModelInitializationParams()
-        (init_params.set_grid_width(grid_width)
-         .set_grid_height(grid_height)
-         .set_starting_step_num(step_num)
+        (init_params.set_starting_step_num(step_num)
          .set_starting_model_time(model_time)
          .set_snapshot_branch(snapshot_branch)
          .set_seed(seed)
@@ -350,14 +312,13 @@ class AgentModel(Model, AttributeHolder):
         agent_init_recipe.init_agents(model)
         return model
 
-    def add_agent(self, agent, pos=None):
+    def add_agent(self, agent):
         """TODO
 
         TODO
 
         Args:
             agent: TODO
-            pos: TODO
         """
         self.scheduler.add(agent)
 
@@ -395,8 +356,6 @@ class AgentModel(Model, AttributeHolder):
                     last_saved_branch_state.step_num >= self.step_num):
                 self._branch()
             agent_model_state = AgentModelState(step_num=self.step_num,
-                                                grid_width=self.grid.width,
-                                                grid_height=self.grid.height,
                                                 model_time=self.time,
                                                 seed=self.seed,
                                                 random_state=self.random_state,
@@ -551,36 +510,17 @@ class AgentModelInitializationParams(object):
     currencies = {}
 
     def set_currencies(self, currencies):
-        """Load currencies to be used in model"""
+        """TODO
+
+        TODO
+
+        Args:
+            currencies: TODO
+
+        Returns:
+          TODO
+        """
         self.currencies = currencies
-        return self
-
-    def set_grid_width(self, grid_width):
-        """TODO
-
-        TODO
-
-        Args:
-            grid_width: TODO
-
-        Returns:
-          TODO
-        """
-        self.grid_width = grid_width
-        return self
-
-    def set_grid_height(self, grid_height):
-        """TODO
-
-        TODO
-
-        Args:
-            grid_height: TODO
-
-        Returns:
-          TODO
-        """
-        self.grid_height = grid_height
         return self
 
     def set_starting_step_num(self, starting_step_num):
@@ -759,7 +699,7 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
           AGENT_LIST: TODO
     """
 
-    def __init__(self, config):
+    def __init__(self, config, currencies, agent_desc):
         """Creates an Agent Initializer object.
 
         TODO
@@ -767,6 +707,7 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
         Args:
           config: Dict, TODO
         """
+        self.AGENT_DESC = parse_agent_desc(config, currencies, agent_desc)
         self.AGENTS = config['agents']
         self.SINGLE_AGENT = config['single_agent']
 
@@ -782,21 +723,26 @@ class BaseLineAgentInitializerRecipe(AgentInitializerRecipe):
           TODO
         """
         for type_name, instance in self.AGENTS.items():
+            agent_desc = self.AGENT_DESC.get(type_name, None)
+            if not agent_desc:
+                raise AgentModelInitializationError("agent_desc data not found for {type_name}.")
             connections = instance.pop('connections') if 'connections' in instance else {}
             amount = instance.pop('amount') if 'amount' in instance else 1
             if self.SINGLE_AGENT == 1:
                 model.add_agent(GeneralAgent(model=model,
-                                            agent_type=type_name,
-                                            connections=connections,
-                                            amount=amount,
-                                            **instance))
+                                             agent_type=type_name,
+                                             agent_desc=agent_desc,
+                                             connections=connections,
+                                             amount=amount,
+                                             **instance))
             else:
                 for i in range(amount):
                     model.add_agent(GeneralAgent(model=model,
-                                    agent_type=type_name,
-                                    connections=connections,
-                                    amount=1,
-                                    **instance))
+                                                 agent_desc=agent_desc,
+                                                 agent_type=type_name,
+                                                 connections=connections,
+                                                 amount=1,
+                                                 **instance))
 
         # The '_init_selected_storage' method takes the connections dict,
         # supplied above, and makes a connection to the actual agent object

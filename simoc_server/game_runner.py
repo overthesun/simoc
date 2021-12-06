@@ -13,6 +13,7 @@ from simoc_server.database import SavedGame
 from simoc_server.database.db_model import User
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
+from simoc_server.agent_model.parse_data_files import parse_currency_desc
 
 
 class GameRunner(object):
@@ -252,12 +253,8 @@ s
 
 class GameRunnerInitializationParams(object):
 
-    def __init__(self, config, currencies):
+    def __init__(self, config, currency_desc, agent_desc):
         self.model_init_params = AgentModelInitializationParams()
-        self.model_init_params.set_currencies(currencies)
-        self.model_init_params.set_grid_width(100) \
-            .set_grid_height(100) \
-            .set_starting_model_time(datetime.timedelta())
         if 'termination' in config:
             self.model_init_params.set_termination(config['termination'])
         if 'minutes_per_step' in config:
@@ -266,10 +263,13 @@ class GameRunnerInitializationParams(object):
             self.model_init_params.set_priorities(config['priorities'])
         if 'location' in config:
             self.model_init_params.set_location(config['location'])
-        self.model_init_params.set_config(config)
         if 'single_agent' in config and config['single_agent'] == 1:
             self.model_init_params.set_single_agent(1)
-        self.agent_init_recipe = BaseLineAgentInitializerRecipe(config)
+        currencies = parse_currency_desc(currency_desc)
+        self.model_init_params.set_config(config) \
+                              .set_currencies(currencies) \
+                              .set_starting_model_time(datetime.timedelta())
+        self.agent_init_recipe = BaseLineAgentInitializerRecipe(config, currencies, agent_desc)
 
 
 class GameRunnerManager(object):

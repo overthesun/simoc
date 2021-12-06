@@ -12,7 +12,7 @@ from mesa import Agent
 
 from simoc_server import app, db
 from simoc_server.agent_model.attribute_meta import AttributeHolder
-from simoc_server.database.db_model import AgentType, AgentState, CurrencyType
+from simoc_server.database.db_model import AgentType, AgentState
 from simoc_server.util import load_db_attributes_into_dict
 from simoc_server.util import timedelta_to_hours
 from simoc_server.agent_model.agents import growth_func
@@ -42,8 +42,11 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         TODO
 
         Args:
-          agent_type: Dict, TODO
-          model: Dict, TODO
+          model: Dict, mesa model which agent is added to
+          agent_type: Str, human-readable name of agent (e.g. 'human_agent')
+          agent_desc: Dict, agent description data, parsed from agent_desc.json
+          connections: Dict, the agent_type of each prefix.currency interface
+          amount: Int, the quantity of this agent
         """
         self.model = kwargs.pop("model", None)
         assert self.model
@@ -55,7 +58,14 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         if not self.unique_id:
             self.unique_id = random.getrandbits(63)
 
-        self._load_agent_type_attributes()
+        agent_desc = kwargs.pop("agent_desc", None)
+        assert agent_desc
+        self.agent_class = agent_desc['agent_class']
+        self.agent_type_id = agent_desc['agent_type_id']
+        self.attrs = agent_desc['attributes']
+        self.attr_details = agent_desc['attribute_details']
+
+        # self._load_agent_type_attributes()
         AttributeHolder.__init__(self)
         self.currency_dict = {}
         super().__init__(self.unique_id, self.model)
@@ -73,10 +83,6 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         attributes, details = {}, {}
         load_db_attributes_into_dict(agent_type.agent_type_attributes, attributes, details)
         self.attrs, self.attr_details = attributes, details
-
-    def get_agent_type(self):
-        """Returns the AgentType related to the instance Agent"""
-        return AgentType.query.get(self.agent_type_id)
 
     def get_agent_type_attribute(self, name):
         """Get agent type attribute by name as it was defined in database.
