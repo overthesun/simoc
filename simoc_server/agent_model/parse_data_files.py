@@ -6,6 +6,20 @@ from simoc_server.util import location_to_day_length_minutes
 from simoc_server.exceptions import AgentModelInitializationError
 
 def parse_currency_desc(currency_desc):
+    """Converts raw currency_desc into a dictionary of currencies and classes.
+
+    Currencies input via currency_desc.json are stored organized heirarchically
+    with individual currencies nested below currency classes. This function
+    returns a dict of all currencies and classes on the same level with added
+    'id', 'type' descriptor, 'class' descriptor for currencies and 'currencies'
+    list for classes.
+
+    Args:
+      currency_desc: dict, raw data from currency_desc.json
+
+    Returns:
+      dict: All currencies and currency_classes with added IDs and metadata.
+    """
     parsed = {}
     for currency_class, currencies in currency_desc.items():
         currency_class_record = {'name': currency_class,
@@ -23,13 +37,23 @@ def parse_currency_desc(currency_desc):
     return parsed
 
 def parse_agent_desc(config, currencies, agent_desc):
-    """TODO
+    """Converts raw agent_desc.json data into AgentModel initialization dict
 
-    TODO
+    Return an object that includes all required data for all agents included
+    in `config`. Prior to 2022, this data was loaded into a database and
+    referenced during runtime.
 
     Args:
-      currencies: A dict of parsed data from currency_desc.json
-      agent_desc: Raw data from agent_desc.json
+      config: dict, raw game_config
+      currencies: dict, output of parse_currecy_desc
+      agent_desc: dict, raw data from agent_desc.json
+
+    Returns:
+      dict: Data for all agents needed to initialize AgentModel
+
+    Raises:
+      AgentModelInitializationError: If agent_desc or currency data is missing
+
     """
     agent_data = {}
     currencies_list = currencies.keys()
@@ -51,13 +75,24 @@ def parse_agent_desc(config, currencies, agent_desc):
     return agent_data
 
 def parse_agent(agent_class, name, data, currencies, location):
-    """TODO
+    """Converts agent_desc data for one agent into GeneralAgent initialization data
 
-    TODO
+    Takes a sparse definition of agent parameters and returns dicts with all
+    possible values, set to 'None' if not specified.
 
     Args:
-      agent_class: TODO
-      agent: TODO
+      agent_class: str, name of class to which agent belongs
+      name: str, human-readable name of the agent
+      data: dict, raw data from agent_desc.json
+      currencies: dict, parsed currency data
+      location: str, mars or moon
+
+    Returns:
+      dict: Data for one agent used to initialize a GeneralAgent:
+        str: agent_class
+        str: agent_type_id
+        dict: attributes
+        dict: attribute_details
     """
     # Initialize return object
     agent_data = {
@@ -153,6 +188,7 @@ def parse_agent(agent_class, name, data, currencies, location):
     return agent_data
 
 def calculate_lifetime_growth_max_value(attr_value, attr_details, lifetime, location):
+    """Calculate the highest point on a normal bell curve"""
     mean_value = float(attr_value)
     day_length_minutes = location_to_day_length_minutes(location)
     day_length_hours = day_length_minutes / 60
