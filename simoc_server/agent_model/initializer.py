@@ -1,3 +1,4 @@
+import numpy as np
 import json
 import random
 import pathlib
@@ -28,6 +29,8 @@ class AgentModelInitializer():
                 connections, returns an AgentModelInitializer
       from_model: Takes an instantiated AgentModel, returns an
                   AgentModelInitialzier
+      serialize: Converts this to a json-serializable dict
+      deserialize: Converts from dict back into AgentModelInitializer
 
     Raises:
       AgentModelInitializationError
@@ -71,7 +74,8 @@ class AgentModelInitializer():
 
         return AgentModelInitializer(model_data, agent_data, 'from_new')
 
-    def from_model(model):
+    @classmethod
+    def from_model(cls, model):
         model_data = dict(
             # Metadata (optional, set externally)
             user_id=model.user_id,
@@ -87,7 +91,7 @@ class AgentModelInitializer():
             minutes_per_step=model.minutes_per_step,
             currency_dict=model.currency_dict,
             # Status (generated)
-            random_state=model.random_state.get_state(),  # type np.random.RandomState()
+            random_state=model.random_state.get_state(),
             time=repr(model.time),  # type datetime.timedelta
             steps=model.scheduler.steps,
             storage_ratios=model.storage_ratios,
@@ -98,6 +102,79 @@ class AgentModelInitializer():
 
         agent_data = {}
         for agent in model.scheduler.agents:
-            agent_data[agent['agent_type']] = agent.save()
+            agent_data[agent['agent_type']] = cls._from_agent(agent)
 
         return AgentModelInitializer(model_data, agent_data, 'from_model')
+
+    def _from_agent(agent):
+        agent_desc = dict(
+            agent_class=agent.agent_class,
+            agent_type_id=agent.agent_type_id,
+            attributes=agent.attrs,
+            attribute_details=agent.attr_details
+        )
+        instance = dict(
+            # BaseAgent
+            unique_id=agent.unique_id,
+            active=agent.active,
+            # GrowthAgent
+            age=agent.age,
+            amount=agent.amount,
+            full_amount=agent.full_amount,
+            agent_step_num=agent.agent_step_num,
+            total_growth=agent.total_growth,
+            current_growth=agent.current_growth,
+            growth_rate=agent.growth_rate,
+            grown=agent.grown,
+            # StorageAgent
+            id=agent.id,
+            # GeneralAgent
+            connections=agent.connections,
+            buffer=agent.buffer,
+            deprive=agent.deprive,
+            step_values={}
+        )
+        # Step values
+        for currency, step_values in agent.step_values.items():
+            instance['step_values'][currency] = step_values
+        # Storage balances
+        for item in agent.__dict__.keys():
+            if item in agent.currency_dict:
+                if agent.currency_dict[item]['type'] == 'currency':
+                    instance[item] = agent[item]
+
+        return dict(agent_desc=agent_desc, instance=instance)
+
+    def serialize(self):
+        # Serialize np arrays
+        r0, r1, r2, r3, r4 = self.model_data['random_state']
+        self.model_data['random_state'] = (r0, r1.tolist(), r2, r3, r4)
+        for agent_data in self.agent_data.values():
+            step_values = {}
+            for currency, values in agent_data['instance']['step_values'].items():
+                step_values[currency] = values.tolist()
+            agent_data['instance']['step_values'] = step_values
+
+        return dict(model_data=self.model_data,
+                    agent_data=self.agent_data,
+                    init_type=self.init_type)
+
+    @classmethod
+    def deserialize(cls, serialized):
+        # Initialize new initializer
+        init = AgentModelInitializer(serialized['model_data'],
+                                     serialized['agent_data'],
+                                     serialized['init_type'])
+
+        # Deserialize np arrays
+        r0, r1, r2, r3, r4 = init.model_data['random_state']
+        r1 = np.ndarray((624), buffer=np.array(r1))
+        init.model_data['random_state'] = (r0, r1, r2, r3, r4)
+        for agent_data in init.agent_data.values():
+            step_values = {}
+            for currency, values in agent_data['instance']['step_values'].items():
+                step_values[currency] = np.array(values)
+            agent_data['instance']['step_values'] = step_values
+
+        return init
+

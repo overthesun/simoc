@@ -1,9 +1,8 @@
 r"""Describes Core Agent Types.
 """
 
-import json
-import operator
 import random
+import operator
 from abc import ABCMeta
 
 import numpy as np
@@ -12,21 +11,15 @@ from mesa import Agent
 
 from simoc_server import app, db
 from simoc_server.agent_model.attribute_meta import AttributeHolder
-from simoc_server.database.db_model import AgentType, AgentState
-from simoc_server.util import load_db_attributes_into_dict
-from simoc_server.util import timedelta_to_hours
 from simoc_server.agent_model.agents import growth_func
-from simoc_server.exceptions import ServerError
 from simoc_server.agent_model.agents import custom_funcs
 from simoc_server.exceptions import AgentInitializationError
-
 
 class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
     """Initializes and manages refs, metadata, currency_dict, and AttributeHolder
 
     Attributes:
         model:              AgentModel
-        model_time_created: datetime.timedelta
         agent_type:         str
         unique_id:          int
         active:             bool
@@ -47,14 +40,12 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
 
         Args:
           model:                AgentModel  mesa model which agent is added to
-          model_time_created:   datetime.timedelta
           agent_type:           str         e.g. 'human_agent'
           unique_id:            int
           agent_desc:           dict        from AgentModelInitializer
           active:               bool
         """
         self.model = kwargs.pop("model", None)
-        self.model_time_created = kwargs.pop("model_time_created", self.model.time)
         self.agent_type = kwargs.pop("agent_type", None)
         self.unique_id = kwargs.pop("unique_id", random.getrandbits(63))
         self.active = kwargs.pop("active", True)
@@ -81,40 +72,6 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
             if currency_data['type'] == 'currency':
                 self.add_currency_to_dict(currency_data['class'])
 
-    def snapshot(self, agent_model_state):
-        """TODO
-
-        TODO
-
-        Args:
-          agent_model_state: TODO
-        """
-        args = dict(agent_model_state=agent_model_state,
-                    agent_type_id=self.agent_type_id,
-                    agent_unique_id=self.unique_id,
-                    model_time_created=self.model_time_created,
-                    agent_id=self.__dict__.get('id', None),
-                    active=self.__dict__.get('active', None),
-                    age=self.__dict__.get('age', None),
-                    amount=self.__dict__.get('amount', None),
-                    lifetime=self.__dict__.get('lifetime', None),
-                    connections=json.dumps(self.__dict__.get('connections', None)),
-                    buffer=json.dumps(self.__dict__.get('buffer', None)),
-                    deprive=json.dumps(self.__dict__.get('deprive', None)))
-        args['attributes'] = []
-        for k in self.attribute_descriptors:
-            args['attributes'].append({'name': k, 'value': self[k]})
-        args['attributes'] = json.dumps(args['attributes'])
-        try:
-            agent_state = AgentState(**args)
-            db.session.add(agent_state)
-            db.session.commit()
-        except:
-            app.logger.exception('Failed to save a game.')
-            db.session.rollback()
-        finally:
-            db.session.close()
-
     def destroy(self):
         """Destroys the agent and removes it from the model"""
         self.active = False
@@ -130,7 +87,7 @@ class GrowthAgent(BaseAgent):
             lifetime:           int     hours to complete growth cycle.
             reproduce:          bool
             growth_criteria:    str     which item determines growth
-            total_growth:       int     sum of lifetime values for growth_criteria item
+            total_growth:       float   sum of lifetime values for growth_criteria item
         Dynamic Attributes:
             age:                int     hours, independent of growth_criteria, triggers `grown`
             amount:             int     the current amount
@@ -147,30 +104,37 @@ class GrowthAgent(BaseAgent):
     def __init__(self, *args, **kwargs):
         """Sets the age and amount, parses attributes and intializes growth-tracking fields
 
-        Args:
-          age: int, The age in hours of this agent. Resets when agent reproduces.
-          amount: int, The quantity of this agent. Reset when agent reproduces.
+        Args (optional):
+          age:              int
+          amount:           int
+          full_amount:      int
+          agent_step_num:   int
+          total_growth:     float
+          current_growth:   float
+          growth_rate:      float
+          grown:            bool
           ...[attributes & attribute_details inherited from BaseAgent]
         """
         super(GrowthAgent, self).__init__(*args, **kwargs)
-        self.age = kwargs.pop("age", 0)
-        self.full_amount = kwargs.pop("amount", 1)
-        self.amount = self.full_amount
+        self.age = kwargs.get("age", 0)
+        self.amount = kwargs.get('amount', 1)
+        self.full_amount = kwargs.get('full_amount', self.amount)
+        self.agent_step_num = kwargs.get('agent_step_num', 0)
+        self.total_growth = kwargs.get('total_growth', 0)
+        self.current_growth = kwargs.get('current_growth', 0)
+        self.growth_rate = kwargs.get('growth_rate', 0)
+        self.grown = kwargs.get('grown', False)
+
         if 'char_lifetime' in self.attrs:
             lifetime = self.attrs['char_lifetime']
-            lifetime_units = self.attr_details['char_lifetime']['units']
-            lifetime_multiplier = dict(day=self.model.day_length_hours, hour=1, min=1/60)[lifetime_units]
+            lifetime_unit = self.attr_details['char_lifetime']['unit']
+            lifetime_multiplier = dict(day=self.model.day_length_hours, hour=1, min=1/60)[lifetime_unit]
             self.lifetime = lifetime * int(lifetime_multiplier)
         else:
             self.lifetime = 0
         self.reproduce = self.attrs.get('char_reproduce', 0)
         self.growth_criteria = self.attrs.get('char_growth_criteria', None)
 
-        self.total_growth = 0
-        self.current_growth = 0
-        self.growth_rate = 0
-        self.grown = False
-        self.agent_step_num = 0
 
     def step(self):
         """TODO"""
@@ -224,10 +188,10 @@ class StorageAgent(GrowthAgent):
           ...[attributes & attribute_details inherited from BaseAgent]
         """
         super(StorageAgent, self).__init__(*args, **kwargs)
-        self.id = kwargs.pop("id", None)
+        self.id = kwargs.get("id", None)
         self.has_storage = False
         class_capacities = {}
-        class_units = {}
+        class_unit = {}
         for attr, attr_value in self.attrs.items():
             if attr.startswith('char_capacity'):
                 if not self.has_storage:
@@ -241,39 +205,43 @@ class StorageAgent(GrowthAgent):
                 currency_class = self.currency_dict[currency]['class']
                 if currency_class not in class_capacities:
                     class_capacities[currency_class] = 0
-                    class_units[currency_class] = self.attr_details[attr]['units']
+                    class_unit[currency_class] = self.attr_details[attr]['unit']
                 class_capacities[currency_class] += attr_value
         for currency_class, capacity in class_capacities.items():
             class_attr = 'char_capacity_' + currency_class
-            self._attr(class_attr, capacity)
-            self.attr_details[class_attr] = dict(units=class_units[currency_class])
+            if class_attr not in self:
+                self._attr(class_attr, capacity)
+                self.attr_details[class_attr] = dict(unit=class_unit[currency_class])
+        self._calculate_storage_ratios()
 
     def step(self):
         """Calculates storage ratios"""
-        if self.has_storage:
-            storage_id = self.agent_type
-            if storage_id not in self.model.storage_ratios:
-                self.model.storage_ratios[storage_id] = {}
-            temp, total = {}, None
-            for attr in self.attrs:
-                if attr.startswith('char_capacity'):
-                    currency = attr.split('_', 2)[2]
-                    storage_unit = self.attr_details[attr]['units']
-                    storage_value = pq.Quantity(float(self[currency]), storage_unit)
-                    if not total:
-                        total = storage_value
-                    else:
-                        storage_value.units = total.units
-                        total += storage_value
-                    temp[currency] = storage_value.magnitude.tolist()
-            for currency in temp:
-                if temp[currency] > 0:
-                    self.model.storage_ratios[storage_id][currency + '_ratio'] = \
-                        temp[currency] / total.magnitude.tolist()
-                else:
-                    self.model.storage_ratios[storage_id][currency + '_ratio'] = 0
         super().step()
+        if self.has_storage:
+            self._calculate_storage_ratios()
 
+    def _calculate_storage_ratios(self):
+        storage_id = self.agent_type
+        if storage_id not in self.model.storage_ratios:
+            self.model.storage_ratios[storage_id] = {}
+        temp, total = {}, None
+        for attr in self.attrs:
+            if attr.startswith('char_capacity'):
+                currency = attr.split('_', 2)[2]
+                storage_unit = self.attr_details[attr]['unit']
+                storage_value = pq.Quantity(float(self[currency]), storage_unit)
+                if not total:
+                    total = storage_value
+                else:
+                    storage_value.units = total.units
+                    total += storage_value
+                temp[currency] = storage_value.magnitude.tolist()
+        for currency in temp:
+            if temp[currency] > 0:
+                self.model.storage_ratios[storage_id][currency + '_ratio'] = \
+                    temp[currency] / total.magnitude.tolist()
+            else:
+                self.model.storage_ratios[storage_id][currency + '_ratio'] = 0
     def view(self, view=None):
         if view not in self.currency_dict:
             raise KeyError(f"{view} is not a recognized view.")
@@ -345,7 +313,7 @@ class GeneralAgent(StorageAgent):
     Methods:
         step()
         kill()
-        
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -359,11 +327,11 @@ class GeneralAgent(StorageAgent):
         """
         super(GeneralAgent, self).__init__(*args, **kwargs)
         self.has_flows = False
-        self.connections = kwargs.pop("connections", {})
+        self.connections = kwargs.get("connections", {})
         self.selected_storage = {"in": {}, 'out': {}}
         self.buffer = kwargs.pop("buffer", {})
         self.deprive = kwargs.pop("deprive", {})
-        self.step_values = kwargs.pop("step_values", {})
+        self.step_values = kwargs.get("step_values", {})
 
     def _init_currency_exchange(self):
         """Initializes all values related to currency exchanges
@@ -386,7 +354,7 @@ class GeneralAgent(StorageAgent):
             self.flows[currency] = []
             self.add_currency_to_dict(currency)
             attr_details = self.attr_details[attr]
-            attr_units = attr_details['flow_unit']
+            attr_unit = attr_details['flow_unit']
 
             # Connections
             connected_agents = self.connections[prefix][currency]
@@ -396,28 +364,31 @@ class GeneralAgent(StorageAgent):
             self.selected_storage[prefix][currency] = []
             for agent_type in connected_agents:
                 storage_agent = self.model.get_agents_by_type(agent_type=agent_type)[0]
-                storage_units = storage_agent.attr_details['char_capacity_' + currency]['units']
-                if storage_units != attr_units:
+                storage_unit = storage_agent.attr_details['char_capacity_' + currency]['unit']
+                if storage_unit != attr_unit:
                     raise AgentInitializationError(
-                        f"Units for {self.agent_type} {currency} ({attr_units}) \
-                        do not match storage ({storage_units})")
+                        f"Units for {self.agent_type} {currency} ({attr_unit}) \
+                        do not match storage ({storage_unit})")
                 self.selected_storage[prefix][currency].append(storage_agent)
 
             # Deprive
             deprive_value = attr_details.get('deprive_value', None)
-            if deprive_value and attr not in self.deprive:
+            if deprive_value and attr not in self.deprive.keys():
                 self.deprive[attr] = deprive_value * self.amount
 
             # Criteria Buffer
-            cr_name = attr_details.get('criteria_name', None)
-            if cr_name and attr not in self.buffer:
-                self.buffer[attr] = attr_details.get('criteria_buffer', 0.0)
+            cr_buffer = attr_details.get('criteria_buffer', None)
+            if cr_buffer and attr not in self.buffer.keys():
+                    self.buffer[attr] = cr_buffer
 
             # Step Values
-            step_values = self._calculate_step_values(attr, n_steps, hours_per_step, day_length_hours)
-            self.step_values[attr] = step_values
-            if attr == self.growth_criteria:
-                self.total_growth = np.sum(step_values)
+            if attr not in self.step_values.keys():
+                step_values = self._calculate_step_values(attr, n_steps, hours_per_step, day_length_hours)
+                self.step_values[attr] = step_values
+                if attr == self.growth_criteria:
+                    self.total_growth = float(np.sum(step_values))
+            else:
+                self.step_values[attr] = self.step_values[attr]
 
     def _calculate_step_values(self, attr, n_steps, hours_per_step, day_length_hours):
         """Calculate lifetime step values based on growth functions and add to self.step_values
@@ -638,6 +609,8 @@ class GeneralAgent(StorageAgent):
         for prefix in ['in', 'out']:
             # Iterate through all currencies for current flow direction
             for currency in self.selected_storage[prefix]:
+                self.flows[currency] = []
+                self.last_flow[currency] = 0
                 attr = '{}_{}'.format(prefix, currency)
                 # TODO: Skip step if input/output value is set to 0. This was
                 # added for atmosphere_equalizer, which uses 'dummy' in/outs to
@@ -670,7 +643,7 @@ class GeneralAgent(StorageAgent):
                 available_conns = []  # Breakdown of values by connection
                 for storage in self.selected_storage[prefix][currency]:
                     attr_name = 'char_capacity_' + currency
-                    storage_unit = storage.attr_details[attr_name]['units']
+                    storage_unit = storage.attr_details[attr_name]['unit']
                     storage_value = sum(storage.view(currency).values())
                     available_value += storage_value
                     target_value.units = storage_unit

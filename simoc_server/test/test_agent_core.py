@@ -8,134 +8,15 @@ import pytest
 from pytest import approx
 
 from simoc_server.front_end_routes import convert_configuration
-from simoc_server.agent_model import AgentModel, AgentModelInitializer
-from simoc_server.game_runner import GameRunnerInitializationParams
-
-class Record():
-    def __init__(self, agent):
-        # Static Fields
-        self.agent = agent
-        self.name = agent.agent_type
-        self.lifetime = agent.lifetime
-        self.full_amount = self.agent.full_amount
-        self.reproduce = agent.reproduce
-        # Dynamic Fields
-        self.age = [0]
-        self.amount = [self.agent.amount]
-        self.snapshot_attrs = ['name', 'lifetime', 'full_amount', 'reproduce',
-                               'age', 'amount']
-        for attr, attr_value in self.agent.attrs.items():
-            if attr_value == 0:
-                continue
-            # Storage
-            if attr.startswith('char_capacity'):
-                if 'storage' not in self.snapshot_attrs:
-                    self.snapshot_attrs.append('storage')
-                    self.storage = {}
-                currency = attr.split('_', 2)[2]
-                self.storage[currency] = [self.agent[currency]]
-                if 'capacity' not in self.snapshot_attrs:
-                    self.snapshot_attrs.append('capacity')
-                    self.capacity = {}
-                self.capacity[currency] = dict(value=attr_value,
-                                               units=self.agent.attr_details[attr]['units'])
-                currency_class = self.agent.currency_dict[currency]['class']
-                if currency_class not in self.capacity:
-                    class_attr = f"char_capacity_{currency_class}"
-                    self.capacity[currency_class] = dict(value=self.agent[class_attr],
-                                                         units=self.agent.attr_details[class_attr]['units'])
-            # Growth
-            if attr.startswith('char_growth_criteria'):
-                self.snapshot_attrs += ['total_growth', 'growth']
-                self.total_growth = self.agent.total_growth,
-                self.growth = dict(current_growth=[self.agent.current_growth],
-                                   growth_rate=[self.agent.growth_rate],
-                                   grown=[self.agent.grown],
-                                   agent_step_num=[self.agent.agent_step_num])
-            # Flows
-            if attr.startswith('in') or attr.startswith('out'):
-                if 'flows' not in self.snapshot_attrs:
-                    self.snapshot_attrs += ['flows', 'flow_records']
-                    self.flows = {}
-                    self.flow_records = {}
-                currency = attr.split('_', 1)[1]
-                self.flows[currency] = [0]
-                self.flow_records[currency] = [{}]
-                # Buffer
-                cr_buffer = self.agent.attr_details[attr]['criteria_buffer']
-                if cr_buffer:
-                    if 'buffer' not in self.snapshot_attrs:
-                        self.snapshot_attrs.append('buffer')
-                        self.buffer = {}
-                    self.buffer[attr] = [0]
-                # Deprive
-                deprive_value = self.agent.attr_details[attr]['deprive_value']
-                if deprive_value:
-                    if 'deprive' not in self.snapshot_attrs:
-                        self.snapshot_attrs.append('deprive')
-                        self.deprive = {}
-                    self.deprive[attr] = [deprive_value * self.full_amount]
-
-    def step(self):
-        self.age.append(self.agent.age)
-        self.amount.append(self.agent.amount)
-        if 'storage' in self.snapshot_attrs:
-            for currency, record in self.storage.items():
-                record.append(self.agent[currency])
-        if 'growth' in self.snapshot_attrs:
-            for field, record in self.growth.items():
-                record.append(self.agent[field])
-        if 'flows' in self.snapshot_attrs:
-            for currency, record in self.flows.items():
-                record.append(self.agent.last_flow[currency])
-            for currency, record in self.flow_records.items():
-                record.append(self.agent.flows[currency])
-        if 'buffer' in self.snapshot_attrs:
-            for cr_id, record in self.buffer.items():
-                record.append(self.agent.buffer.get(cr_id, 0))
-        if 'deprive' in self.snapshot_attrs:
-            for currency, record in self.deprive.items():
-                record.append(self.agent.deprive.get(currency, 0))
-
-    def snapshot(self):
-        return {a: getattr(self, a) for a in getattr(self, 'snapshot_attrs')}
-
-class AgentModelInstance():
-    """An individual instance of an Agent Model
-
-    Initializes a new AgentModel and all associated children based on a
-    game_config file. Borrows heavily from the GameRunner object in
-    game_runner.py.
-
-    """
-    def __init__(self, config):
-        # Initialize core dicts
-        initializer = AgentModelInitializer.from_new(config)
-        self.agent_model = AgentModel(initializer)
-
-        # Initialize recordkeeping
-        self.agent_records = {}
-        for agent in self.agent_model.scheduler.agents:
-            self.agent_records[agent.agent_type] = Record(agent)
-
-    def step_to(self, n_steps):
-        """Advances the agent model by n_steps steps."""
-        while self.agent_model.step_num < n_steps and not self.agent_model.is_terminated:
-            self.agent_model.step()
-            for agent_record in self.agent_records.values():
-                agent_record.step()
-
-    def get_agent_data(self):
-        """Return all variables for all agents"""
-        return {name: r.snapshot() for name, r in self.agent_records.items()}
+from simoc_server.agent_model import AgentModel
 
 def test_agent_one_human_radish(one_human_radish):
     one_human_radish_converted = convert_configuration(one_human_radish)
     one_human_radish_converted['agents']['food_storage']['wheat'] = 2
-    model = AgentModelInstance(one_human_radish_converted)
-    model.step_to(50)
+    model = AgentModel.new(one_human_radish_converted)
+    model.step_to(n_steps=50)
     export_data(model, 'agent_records_baseline.json')
-    agent_records = model.get_agent_data()
+    agent_records = model.get_data(debug=True)
 
     # Storage
     water_storage = agent_records['water_storage']
@@ -170,7 +51,7 @@ def test_agent_one_human_radish(one_human_radish):
     assert radish_flows['co2'][30] == approx(2.721425e-06)
     assert radish_flows['potable'][30] == approx(7.5320653e-06)
     assert radish_flows['fertilizer'][30] == approx(3.77242353e-08)
-    assert radish_flows['kwh'][30] == approx(7.251227132)
+    assert radish_flows['kwh'][10] == approx(7.251227132)
     assert radish_flows['biomass'][30] == approx(3.6055921e-06)
     assert radish_flows['o2'][30] == approx(1.9695400e-06)
     assert radish_flows['h2o'][30] == approx(6.6478915e-06)
@@ -181,17 +62,12 @@ def test_agent_one_human_radish(one_human_radish):
     # Sometimes this value is 2, sometimes it's 1. I think due to a rounding error.
     assert agent_records['co2_removal_SAWD']['buffer']['in_co2'][49] in [1, 2]
 
-def test_agent_disaster(one_human_radish):
-    one_human_radish['human_agent']['amount'] = 0
-    one_human_radish['power_storage']['kwh'] = 1
-    one_human_radish['solar_pv_array_mars']['amount'] = 10
-    one_human_radish['eclss']['amount'] = 0
-    one_human_radish['plants'][0]['amount'] = 400
-    one_human_radish_converted = convert_configuration(one_human_radish)
-    model = AgentModelInstance(one_human_radish_converted)
-    model.step_to(100)
+def test_agent_disaster(disaster):
+    disaster_converted = convert_configuration(disaster)
+    model = AgentModel.new(disaster_converted)
+    model.step_to(n_steps=100)
     export_data(model, 'agent_records_disaster.json')
-    agent_records = model.get_agent_data()
+    agent_records = model.get_data(debug=True)
 
     # Amount
     radish_amount = agent_records['radish']['amount']
@@ -230,13 +106,13 @@ def test_agent_disaster(one_human_radish):
 
 def test_agent_four_humans_garden(four_humans_garden):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
-    model = AgentModelInstance(four_humans_garden_converted)
-    model.step_to(2)
+    model = AgentModel.new(four_humans_garden_converted)
+    model.step_to(n_steps=2)
     export_data(model, 'agent_records_fhgarden.json')
 
 def export_data(model, fname):
-    agent_records = model.get_agent_data()
-    for agent in model.agent_model.scheduler.agents:
+    agent_records = model.get_data(debug=True)
+    for agent in model.scheduler.agents:
         if agent.agent_type not in agent_records:
             continue
         step_values = agent.step_values

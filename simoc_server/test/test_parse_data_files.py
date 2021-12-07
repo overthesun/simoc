@@ -48,7 +48,7 @@ def test_parse_agent_desc(four_humans_garden, currency_dict, agent_desc):
 
     lifetime, lifetime_detail = _attr('char_lifetime')
     assert lifetime == 2040
-    assert lifetime_detail['units'] == 'hour'
+    assert lifetime_detail['unit'] == 'hour'
 
     growth_criteria, _ = _attr('char_growth_criteria')
     assert growth_criteria == 'out_biomass'

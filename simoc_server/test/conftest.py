@@ -43,6 +43,21 @@ def one_human():
         'habitat': 'crew_habitat_small',
     }
 
+@pytest.fixture()
+def disaster():
+    return {
+        'duration': {'type': 'day', 'value': 30},
+        'food_storage': {'ration': 100},
+        'eclss': {'amount': 0},
+        'solar_pv_array_mars': {'amount': 10},
+        'power_storage': {'kwh': 1},
+        'nutrient_storage': {'fertilizer': 300},
+        'single_agent': 1,
+        'habitat': 'crew_habitat_small',
+        'greenhouse': 'greenhouse_small',
+        'plants': [{'species': 'radish', 'amount': 400}]
+    }
+
 # Matches the 'One Human + Radish' preset
 @pytest.fixture()
 def one_human_radish():

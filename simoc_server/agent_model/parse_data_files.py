@@ -109,14 +109,14 @@ def parse_agent(agent_class, name, data, currencies, location):
         attr_value = attr.get("value", '')
         agent_data['attributes'][attr_name] = attr_value
         # Attribute Details
-        attr_units = attr.get("unit", '')
+        attr_unit = attr.get("unit", '')
         currency = None
         if attr['type'].startswith('capacity'):
             currency = attr['type'].split('_', 1)[1]
             if currency not in currencies:
                 raise AgentModelInitializationError(f"Currency data not found for {currency} when parsing {name}.")
         attribute_detail = dict(currency_type=currency,
-                                units=attr_units)
+                                unit=attr_unit)
         agent_data['attribute_details'][attr_name] = attribute_detail
 
     # Parse currency exchanges (inputs & outputs)
