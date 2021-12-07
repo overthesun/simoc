@@ -80,6 +80,13 @@ class AgentModelInitializationError(ServerError):
         super().__init__(message, status_code=status_code)
 
 
+class AgentInitializationError(ServerError):
+    def __init__(self, message=None, status_code=None):
+        if message is None:
+            message = "Unknown error while initializing agent."
+        super().__init__(message, status_code=status_code)
+
+
 class AgentModelError(ServerError):
     def __init__(self, message=None, status_code=None):
         if message is None:

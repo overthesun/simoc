@@ -23,8 +23,8 @@ def test_initializer_new(one_human):
     assert md['location'] == 'mars'
     assert md['total_amount'] == 17
     assert md['minutes_per_step'] == 60
-    assert md['currencies']['atmosphere']['type'] == 'currency_class'
-    assert md['currencies']['o2']['class'] == 'atmosphere'
+    assert md['currency_dict']['atmosphere']['type'] == 'currency_class'
+    assert md['currency_dict']['o2']['class'] == 'atmosphere'
 
     ad = initializer.agent_data
     assert len(ad) == 17

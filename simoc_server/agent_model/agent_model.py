@@ -13,6 +13,7 @@ from mesa.time import RandomActivation
 from sqlalchemy.orm.exc import StaleDataError
 
 from simoc_server import db, app
+from simoc_server.agent_model.initializer import AgentModelInitializer
 from simoc_server.agent_model.agents.core import GeneralAgent, StorageAgent
 from simoc_server.agent_model.attribute_meta import AttributeHolder
 from simoc_server.database.db_model import AgentModelParam, AgentType, AgentModelState, \
@@ -86,45 +87,90 @@ class AgentModel(Model, AttributeHolder):
           time: int,
     """
 
-    def __init__(self, init_params):
+    def __init__(self, initializer):
         """Creates an Agent Model object.
 
-        TODO
-
         Args:
-          init_params: AgentModelInitializationParams, TODO
+          initializer: AgentModelInitializer, contains all setup data
         """
         super(Model, self).__init__()
-        self.currency_dict = (init_params.currencies)
-        self.start_time = None
-        self.game_id = None
-        self.user_id = None
-        self.snapshot_branch = init_params.snapshot_branch
-        self.seed = init_params.seed
-        self.random_state = init_params.random_state
-        self.termination = init_params.termination
-        self.termination_reason = None
-        self.single_agent = init_params.single_agent
-        self.priorities = init_params.priorities
-        self.location = init_params.location
-        self.config = init_params.config
-        self.time = init_params.starting_model_time
-        self.minutes_per_step = init_params.minutes_per_step
-        self.is_terminated = False
-        self.storage_ratios = {}
-        self.step_records_buffer = []
-        self.day_length_minutes = location_to_day_length_minutes(self.location)
-        self.day_length_hours = self.day_length_minutes / 60
-        self.daytime = int(self.time.total_seconds() / 60) % self.day_length_minutes
-        if self.seed is None:
-            self.seed = random.getrandbits(32)
-        if self.random_state is None:
+        #------------------------------
+        #          MODEL DATA
+        #------------------------------
+        md = initializer.model_data
+        # Metadata (optional, set externally)
+        self.user_id = md.get('user_id', None)
+        self.game_id = md.get('game_id', None)
+        self.start_time = md.get('start_time', None)
+        # Configuration (user-input)
+        self.seed = md['seed']
+        self.single_agent = md['single_agent']
+        self.termination = md['termination']
+        self.priorities = md['priorities']
+        self.location = md['location']
+        self.total_amout = md['total_amount']
+        self.minutes_per_step = md['minutes_per_step']
+        self.currency_dict = md['currency_dict']
+        # Status (generated when model is initialized, saved)
+        if initializer.init_type == 'from_new':
             self.random_state = np.random.RandomState(self.seed)
+            self.time = datetime.timedelta()
+            self.starting_step_num = 0
+            self.storage_ratios = {}
+            self.step_records_buffer = []
+            self.is_terminated = False
+            self.termination_reason = None
+        elif initializer.init_type == 'from_model':
+            self.random_state = np.random.RandomState().set_state(md.get('random_state'))
+            self.time = eval(md['time'])
+            self.starting_step_num = md['steps']
+            self.storage_ratios = md['storage_ratios']
+            self.step_records_buffer = md['step_records_buffer']
+            self.is_terminated = md['is_terminated']
+            self.termination_reason = md['termination_reason']
+        else:
+            raise AgentModelInitializationError(f"Unrecognized initializer type: {initializer.init_type}")
+        # Calculated / Temporary
         if self.priorities:
             self.scheduler = PrioritizedRandomActivation(self)
         else:
             self.scheduler = RandomActivation(self)
-        self.scheduler.steps = init_params.starting_step_num
+        self.scheduler.steps = self.starting_step_num
+        self.day_length_minutes = location_to_day_length_minutes(self.location)
+        self.day_length_hours = self.day_length_minutes / 60
+        self.daytime = int(self.time.total_seconds() / 60) % self.day_length_minutes
+        self.timedelta_per_step = datetime.timedelta(minutes=self.minutes_per_step)
+        self.hours_per_step = timedelta_to_hours(self.timedelta_per_step)
+
+        #------------------------------
+        #          AGENT DATA
+        #------------------------------
+        for agent_type, agent_data in initializer.agent_data.items():
+            agent_desc, instance = agent_data.values()
+            connections = instance.pop('connections') if 'connections' in instance else {}
+            amount = instance.pop('amount') if 'amount' in instance else 1
+            if self.single_agent == 1:
+                self.add_agent(GeneralAgent(model=self,
+                                            agent_type=agent_type,
+                                            agent_desc=agent_desc,
+                                            connections=connections,
+                                            amount=amount,
+                                            **instance))
+            else:
+                for i in range(amount):
+                    self.add_agent(GeneralAgent(model=self,
+                                                agent_desc=agent_desc,
+                                                agent_type=agent_type,
+                                                connections=connections,
+                                                amount=1,
+                                                **instance))
+        for agent in self.scheduler.agents:
+            agent._init_currency_exchange()
+
+
+    def initialize(config, currency_desc=None, agent_desc=None, connections=None):
+        """Takes configuration files, return an initializer object or list of errors"""
+        return AgentModelInitializer.from_new(config, currency_desc, agent_desc, connections)
 
     @property
     def logger(self):
@@ -146,7 +192,7 @@ class AgentModel(Model, AttributeHolder):
                             game_id=self.game_id,
                             start_time=self.start_time,
                             time=self["time"].total_seconds(),
-                            hours_per_step=timedelta_to_hours(self.timedelta_per_step()),
+                            hours_per_step=self.hours_per_step,
                             is_terminated=str(self.is_terminated),
                             termination_reason=self.termination_reason)
         agent_type_counts = []
@@ -322,10 +368,6 @@ class AgentModel(Model, AttributeHolder):
         """
         self.scheduler.add(agent)
 
-    def num_agents(self):
-        """Returns total number of agents in the models."""
-        return len(self.schedule.agents)
-
     def _branch(self):
         """TODO"""
         self.snapshot_branch = SnapshotBranch(parent_branch_id=self.snapshot_branch.id)
@@ -391,7 +433,7 @@ class AgentModel(Model, AttributeHolder):
 
         TODO
         """
-        self.time += self.timedelta_per_step()
+        self.time += self.timedelta_per_step
         self.daytime = int(self.time.total_seconds() / 60) % self.day_length_minutes
         # Check termination conditions; stop if true
         for cond in self.termination:
@@ -416,10 +458,6 @@ class AgentModel(Model, AttributeHolder):
         # Step agents
         self.scheduler.step()
         app.logger.info("{0} step_num {1}".format(self, self.step_num))
-
-    def timedelta_per_step(self):
-        """TODO"""
-        return datetime.timedelta(minutes=self.minutes_per_step)
 
     def remove(self, agent):
         """TODO"""

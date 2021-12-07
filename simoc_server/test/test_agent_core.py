@@ -8,7 +8,7 @@ import pytest
 from pytest import approx
 
 from simoc_server.front_end_routes import convert_configuration
-from simoc_server.agent_model import AgentModel
+from simoc_server.agent_model import AgentModel, AgentModelInitializer
 from simoc_server.game_runner import GameRunnerInitializationParams
 
 class Record():
@@ -67,17 +67,14 @@ class Record():
                     if 'buffer' not in self.snapshot_attrs:
                         self.snapshot_attrs.append('buffer')
                         self.buffer = {}
-                    prefix = attr.split('_', 1)[0]
-                    cr_name = self.agent.attr_details[attr]['criteria_name']
-                    cr_id = '{}_{}_{}'.format(prefix, currency, cr_name)
-                    self.buffer[cr_id] = [0]
+                    self.buffer[attr] = [0]
                 # Deprive
                 deprive_value = self.agent.attr_details[attr]['deprive_value']
                 if deprive_value:
                     if 'deprive' not in self.snapshot_attrs:
                         self.snapshot_attrs.append('deprive')
                         self.deprive = {}
-                    self.deprive[currency] = [deprive_value * self.full_amount]
+                    self.deprive[attr] = [deprive_value * self.full_amount]
 
     def step(self):
         self.age.append(self.agent.age)
@@ -111,14 +108,11 @@ class AgentModelInstance():
     game_runner.py.
 
     """
-    def __init__(self, game_config, currencies, agent_desc):
+    def __init__(self, config):
         # Initialize core dicts
-        self.game_config = copy.deepcopy(game_config)
-        self.currencies = copy.deepcopy(currencies)
-        # Initialize agent model
-        grips = GameRunnerInitializationParams(game_config, currencies, agent_desc)
-        self.agent_model = AgentModel.create_new(grips.model_init_params,
-                                                 grips.agent_init_recipe)
+        initializer = AgentModelInitializer.from_new(config)
+        self.agent_model = AgentModel(initializer)
+
         # Initialize recordkeeping
         self.agent_records = {}
         for agent in self.agent_model.scheduler.agents:
@@ -135,10 +129,10 @@ class AgentModelInstance():
         """Return all variables for all agents"""
         return {name: r.snapshot() for name, r in self.agent_records.items()}
 
-def test_agent_one_human_radish(one_human_radish, currency_desc, agent_desc):
+def test_agent_one_human_radish(one_human_radish):
     one_human_radish_converted = convert_configuration(one_human_radish)
     one_human_radish_converted['agents']['food_storage']['wheat'] = 2
-    model = AgentModelInstance(one_human_radish_converted, currency_desc, agent_desc)
+    model = AgentModelInstance(one_human_radish_converted)
     model.step_to(50)
     export_data(model, 'agent_records_baseline.json')
     agent_records = model.get_agent_data()
@@ -183,19 +177,20 @@ def test_agent_one_human_radish(one_human_radish, currency_desc, agent_desc):
     assert radish_flows['radish'][30] == 0
 
     # Buffer
-    assert agent_records['co2_removal_SAWD']['buffer']['in_co2_co2_ratio_in'][40] == 8
+    assert agent_records['co2_removal_SAWD']['buffer']['in_co2'][40] == 8
     # Sometimes this value is 2, sometimes it's 1. I think due to a rounding error.
-    assert agent_records['co2_removal_SAWD']['buffer']['in_co2_co2_ratio_in'][49] in [1, 2]
+    assert agent_records['co2_removal_SAWD']['buffer']['in_co2'][49] in [1, 2]
 
-def test_agent_disaster(one_human_radish, currency_desc, agent_desc):
+def test_agent_disaster(one_human_radish):
     one_human_radish['human_agent']['amount'] = 0
     one_human_radish['power_storage']['kwh'] = 1
     one_human_radish['solar_pv_array_mars']['amount'] = 10
     one_human_radish['eclss']['amount'] = 0
     one_human_radish['plants'][0]['amount'] = 400
     one_human_radish_converted = convert_configuration(one_human_radish)
-    model = AgentModelInstance(one_human_radish_converted, currency_desc, agent_desc)
+    model = AgentModelInstance(one_human_radish_converted)
     model.step_to(100)
+    export_data(model, 'agent_records_disaster.json')
     agent_records = model.get_agent_data()
 
     # Amount
@@ -229,13 +224,13 @@ def test_agent_disaster(one_human_radish, currency_desc, agent_desc):
 
     # Deprive
     radish_deprive = agent_records['radish']['deprive']
-    assert radish_deprive['kwh'][5] == 28800
-    assert radish_deprive['kwh'][50] == 13462
-    assert radish_deprive['kwh'][95] == -306
+    assert radish_deprive['in_kwh'][5] == 28800
+    assert radish_deprive['in_kwh'][50] == 13462
+    assert radish_deprive['in_kwh'][95] == -306
 
-def test_agent_four_humans_garden(four_humans_garden, currency_desc, agent_desc):
+def test_agent_four_humans_garden(four_humans_garden):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
-    model = AgentModelInstance(four_humans_garden_converted, currency_desc, agent_desc)
+    model = AgentModelInstance(four_humans_garden_converted)
     model.step_to(2)
     export_data(model, 'agent_records_fhgarden.json')
 

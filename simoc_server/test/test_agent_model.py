@@ -7,8 +7,7 @@ import datetime
 import pytest
 
 from simoc_server.front_end_routes import convert_configuration
-from simoc_server.agent_model import AgentModel
-from simoc_server.game_runner import GameRunnerInitializationParams
+from simoc_server.agent_model import AgentModel, AgentModelInitializer
 
 class AgentModelInstance():
     """An individual instance of an Agent Model
@@ -18,12 +17,10 @@ class AgentModelInstance():
     game_runner.py.
 
     """
-    def __init__(self, game_config, currencies, agent_desc):
-        self.game_config = copy.deepcopy(game_config)
-        self.currencies = copy.deepcopy(currencies)
-        grips = GameRunnerInitializationParams(game_config, currencies, agent_desc)
-        self.agent_model = AgentModel.create_new(grips.model_init_params,
-                                                 grips.agent_init_recipe)
+    def __init__(self, config):
+        self.game_config = copy.deepcopy(config)
+        initializer = AgentModelInitializer.from_new(config)
+        self.agent_model = AgentModel(initializer)
 
         # Setup model records storages
         self.model_records = []
@@ -58,8 +55,7 @@ class AgentModelInstance():
         flows_agents = [a.agent_type for a in self.agent_model.get_agents_by_role(role="flows")]
         single_agent = self.game_config.get('single_agent', 0)
 
-        for agent in self.game_config['agents']:
-            agent_config_data = self.game_config['agents'][agent]
+        for agent, agent_config_data in self.game_config['agents'].items():
             # Agents were added to model with correct amount
             amount = 1 if single_agent else agent_config_data.get(amount, 1)
             agent_instances = self.agent_model.get_agents_by_type(agent_type=agent)
@@ -96,9 +92,9 @@ class AgentModelInstance():
                         assert agent in storage_agents
 
 
-def test_model_one_human(one_human, agent_class_dict, currency_desc, agent_desc):
+def test_model_one_human(one_human, agent_class_dict, agent_desc):
     one_human_converted = convert_configuration(one_human)
-    model = AgentModelInstance(one_human_converted, currency_desc, agent_desc)
+    model = AgentModelInstance(one_human_converted)
     model.check_agents(agent_desc, agent_class_dict)
     model.step_to(2)
     assert model.agent_model.step_num == 2
@@ -111,9 +107,9 @@ def test_model_one_human(one_human, agent_class_dict, currency_desc, agent_desc)
     #     json.dump(records, f)
 
 
-def test_model_four_humans_garden(four_humans_garden, agent_class_dict, currency_desc, agent_desc):
+def test_model_four_humans_garden(four_humans_garden, agent_class_dict, agent_desc):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
-    model = AgentModelInstance(four_humans_garden_converted, currency_desc, agent_desc)
+    model = AgentModelInstance(four_humans_garden_converted)
     model.check_agents(agent_desc, agent_class_dict)
     model.step_to(2)
     assert model.agent_model.step_num == 2

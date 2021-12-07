@@ -18,82 +18,56 @@ from simoc_server.util import timedelta_to_hours
 from simoc_server.agent_model.agents import growth_func
 from simoc_server.exceptions import ServerError
 from simoc_server.agent_model.agents import custom_funcs
+from simoc_server.exceptions import AgentInitializationError
 
 
 class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
-    """TODO
-
-    TODO
+    """Initializes and manages refs, metadata, currency_dict, and AttributeHolder
 
     Attributes:
-          agent_type_id: TODO
-          active: TODO
-          agent_class: TODO
-          agent_type: TODO
-          attrs: TODO
-          attr_details: TODO
-          model_time_created: TODO
-          unique_id: TODO
+        model:              AgentModel
+        model_time_created: datetime.timedelta
+        agent_type:         str
+        unique_id:          int
+        active:             bool
+        agent_class:        str
+        agent_type_id:      int
+        attrs:              dict    e.g. self.attrs['char_lifetime'] = 1000
+        attr_details:       dict    e.g. self.attr_details['char_lifetime']['unit'] = 'hour'
+        currency_dict:      dict
+
+    Methods:
+        _attr(name, default_value, _type): inherited from AttributeHolder
+        add_currency_to_dict(currency): copies currency and currency_class data from model
+        destroy(): sets active to false, removes from model.scheduler
     """
 
     def __init__(self, *args, **kwargs):
-        """Creates a Base Agent object.
-
-        TODO
+        """Sets refs and metadata, initializes currency_dict and AttributeHolder
 
         Args:
-          model: Dict, mesa model which agent is added to
-          agent_type: Str, human-readable name of agent (e.g. 'human_agent')
-          agent_desc: Dict, agent description data, parsed from agent_desc.json
-          connections: Dict, the agent_type of each prefix.currency interface
-          amount: Int, the quantity of this agent
+          model:                AgentModel  mesa model which agent is added to
+          model_time_created:   datetime.timedelta
+          agent_type:           str         e.g. 'human_agent'
+          unique_id:            int
+          agent_desc:           dict        from AgentModelInitializer
+          active:               bool
         """
         self.model = kwargs.pop("model", None)
-        assert self.model
-
-        self.agent_type = kwargs.get("agent_type", None)
-        self.active = kwargs.pop("active", True)
         self.model_time_created = kwargs.pop("model_time_created", self.model.time)
-        self.unique_id = kwargs.pop("unique_id", None)
-        if not self.unique_id:
-            self.unique_id = random.getrandbits(63)
+        self.agent_type = kwargs.pop("agent_type", None)
+        self.unique_id = kwargs.pop("unique_id", random.getrandbits(63))
+        self.active = kwargs.pop("active", True)
 
         agent_desc = kwargs.pop("agent_desc", None)
-        assert agent_desc
         self.agent_class = agent_desc['agent_class']
         self.agent_type_id = agent_desc['agent_type_id']
         self.attrs = agent_desc['attributes']
         self.attr_details = agent_desc['attribute_details']
 
-        # self._load_agent_type_attributes()
-        AttributeHolder.__init__(self)
         self.currency_dict = {}
+        AttributeHolder.__init__(self)
         super().__init__(self.unique_id, self.model)
-
-    def _load_agent_type_attributes(self):
-        """ TODO
-
-        Load the agent type attributes from database into class. These agent type attributes should
-            be static values that define the behaviors of a particular *class* of agents. They do
-            not define instance level behavoirs or traits.
-        """
-        agent_type = AgentType.query.filter_by(name=self.agent_type).first()
-        self.agent_class = agent_type.agent_class
-        self.agent_type_id = agent_type.id
-        attributes, details = {}, {}
-        load_db_attributes_into_dict(agent_type.agent_type_attributes, attributes, details)
-        self.attrs, self.attr_details = attributes, details
-
-    def get_agent_type_attribute(self, name):
-        """Get agent type attribute by name as it was defined in database.
-
-        Args:
-          name: str, The name of the attribute to return.
-
-        Returns:
-          The value of the agent attribute with the given name
-        """
-        return self.attrs[name]
 
     def add_currency_to_dict(self, currency):
         """Adds a reference to the currency's database object.
@@ -147,48 +121,51 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         self.model.remove(self)
 
 
-class EnclosedAgent(BaseAgent):
-    """TODO
-
-    TODO
+class GrowthAgent(BaseAgent):
+    """Initializes and manages growth, amount and reproduction
 
     Attributes:
-          age: TODO
-          agent_type: TODO
-          cause_of_death: TODO
-          lifetime: TODO
+        Static Attributes:
+            full_amount:        int     maximum/reset amount as defined in agent_desc
+            lifetime:           int     hours to complete growth cycle.
+            reproduce:          bool
+            growth_criteria:    str     which item determines growth
+            total_growth:       int     sum of lifetime values for growth_criteria item
+        Dynamic Attributes:
+            age:                int     hours, independent of growth_criteria, triggers `grown`
+            amount:             int     the current amount
+            agent_step_num:     int     current step in growth cycle, as limited by growth_critera
+            current_growth:     int     accumulated values for growth_criteria item
+            growth_rate:        int     accumulated % for growth_criteria item
+            grown:              bool    whether growth is complete
+
+    Methods:
+        step(): manage age, trigger reproduction/death
+        destroy(reason)
     """
 
     def __init__(self, *args, **kwargs):
-        """Creates an Enclosed Agent object.
-
-        TODO
+        """Sets the age and amount, parses attributes and intializes growth-tracking fields
 
         Args:
-          agent_type: TODO
+          age: int, The age in hours of this agent. Resets when agent reproduces.
+          amount: int, The quantity of this agent. Reset when agent reproduces.
+          ...[attributes & attribute_details inherited from BaseAgent]
         """
+        super(GrowthAgent, self).__init__(*args, **kwargs)
         self.age = kwargs.pop("age", 0)
-        super(EnclosedAgent, self).__init__(*args, **kwargs)
         self.full_amount = kwargs.pop("amount", 1)
         self.amount = self.full_amount
         if 'char_lifetime' in self.attrs:
             lifetime = self.attrs['char_lifetime']
-            self.lifetime_units = self.attr_details['char_lifetime']['units']
-            if self.lifetime_units == 'day':
-                self.lifetime = int(lifetime) * self.model.day_length_hours
-            elif self.lifetime_units == 'hour':
-                self.lifetime = int(lifetime)
-            elif self.lifetime_units == 'min':
-                self.lifetime = int(lifetime / 60)
-            else:
-                raise Exception('Unknown agent lifetime units.')
+            lifetime_units = self.attr_details['char_lifetime']['units']
+            lifetime_multiplier = dict(day=self.model.day_length_hours, hour=1, min=1/60)[lifetime_units]
+            self.lifetime = lifetime * int(lifetime_multiplier)
         else:
             self.lifetime = 0
-        if 'char_reproduce' in self.attrs:
-            self.reproduce = self.attrs['char_reproduce']
-        else:
-            self.reproduce = 0
+        self.reproduce = self.attrs.get('char_reproduce', 0)
         self.growth_criteria = self.attrs.get('char_growth_criteria', None)
+
         self.total_growth = 0
         self.current_growth = 0
         self.growth_rate = 0
@@ -197,8 +174,7 @@ class EnclosedAgent(BaseAgent):
 
     def step(self):
         """TODO"""
-        timedelta_per_step = self.model.timedelta_per_step()
-        hours_per_step = timedelta_to_hours(timedelta_per_step)
+        hours_per_step = self.model.hours_per_step
         self.age += hours_per_step
         if not self.growth_criteria:
             self.agent_step_num = int(self.age)
@@ -214,10 +190,6 @@ class EnclosedAgent(BaseAgent):
             self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
                 self.agent_type))
 
-    def age(self):
-        """Return the age of the agent."""
-        return self.model.time - self.model_time_created
-
     def destroy(self, reason):
         """Destroys the agent and removes it from the model
 
@@ -229,57 +201,55 @@ class EnclosedAgent(BaseAgent):
         super().destroy()
 
 
-class StorageAgent(EnclosedAgent):
-    """TODO
-
-    TODO
+class StorageAgent(GrowthAgent):
+    """Initializes and manages storage capacity
 
     Attributes:
-          agent_type: TODO
-          id: TODO
+        id:             int
+        has_storage:    bool    true if 1 or more storages have been initialized
+        ...[currency]   int     current balance of the currency
+
+    Methods:
+        step(): Calculates storage ratios
+        view(view): Returns current balances for a currency or currency class
+        increment(view, increment_amount)
     """
 
     def __init__(self, *args, **kwargs):
-        """Creates an Agent Initializer object.
-
-        TODO
+        """Sets initial currency balances; creates new attributes for class capacities
 
         Args:
-          agent_type: TODO
-          id: TODO
-          currency: TODO
+          id:           int     storage-specific id
+          ...[currency] int     starting balance, from config
+          ...[attributes & attribute_details inherited from BaseAgent]
         """
-        self.id = kwargs.pop("id", None)  # This will be phased out
-        self.has_storage = False
         super(StorageAgent, self).__init__(*args, **kwargs)
+        self.id = kwargs.pop("id", None)
+        self.has_storage = False
         class_capacities = {}
         class_units = {}
-        for attr in self.attrs:
+        for attr, attr_value in self.attrs.items():
             if attr.startswith('char_capacity'):
                 if not self.has_storage:
                     self.has_storage = True
+                self._attr(attr, attr_value)
                 currency = attr.split('_', 2)[2]
-                self.add_currency_to_dict(currency)
-                initial_value = kwargs.get(currency, None)
-                initial_value = initial_value if initial_value is not None else 0
-                self._attr(currency, initial_value, is_client_attr=True, is_persisted_attr=True)
-                capacity = self.attrs[attr]
-                self._attr(attr, capacity, is_client_attr=True, is_persisted_attr=True)
+                self._attr(currency, kwargs.get(currency, 0))
                 # Add meta-attributes for currency classes, so that inputs/outputs
                 # can use the same mechanisms to reference them.
+                self.add_currency_to_dict(currency)
                 currency_class = self.currency_dict[currency]['class']
                 if currency_class not in class_capacities:
                     class_capacities[currency_class] = 0
                     class_units[currency_class] = self.attr_details[attr]['units']
-                class_capacities[currency_class] += capacity
+                class_capacities[currency_class] += attr_value
         for currency_class, capacity in class_capacities.items():
             class_attr = 'char_capacity_' + currency_class
-            self._attr(class_attr, capacity, is_client_attr=True, is_persisted_attr=True)
+            self._attr(class_attr, capacity)
             self.attr_details[class_attr] = dict(units=class_units[currency_class])
 
     def step(self):
-        """TODO"""
-        # Moved from agent_model to storages
+        """Calculates storage ratios"""
         if self.has_storage:
             storage_id = self.agent_type
             if storage_id not in self.model.storage_ratios:
@@ -358,14 +328,6 @@ class StorageAgent(EnclosedAgent):
         else:
             return {}
 
-    def kill(self, reason):
-        """Destroys the agent and removes it from the model
-
-        Args:
-          reason: str, cause of death
-        """
-        self.destroy(reason)
-
 
 class GeneralAgent(StorageAgent):
     """TODO
@@ -373,90 +335,45 @@ class GeneralAgent(StorageAgent):
     TODO
 
     Attributes:
-          agent_type: TODO
-          buffer: TODO
-          deprive: TODO
-          selected_storage: TODO
+        has_flows:          bool
+        connections:        dict
+        selected_storage:   dict
+        deprive:            dict
+        criteria:           list
+        step_values:        dict
+
+    Methods:
+        step()
+        kill()
+        
     """
 
     def __init__(self, *args, **kwargs):
-        """Creates a General Agent object.
-
-        TODO
+        """Initialize currency exchange fields and copy relevant data
 
         Args:
-          agent_type: Dict, TODO
-          connections: Dict, TODO
-          model: Dict, TODO
-          amount: Dict, TODO
+          connections:      dict
+          buffer:           dict
+          deprive:          dict
+          step_values:      dict
         """
-        self.connections = kwargs.pop("connections", [])
-        self.buffer = kwargs.pop("buffer", {})
-        self.deprive = kwargs.pop("deprive", None)
-        self.has_flows = False
         super(GeneralAgent, self).__init__(*args, **kwargs)
-        self._calculate_step_values()
-        if not self.deprive:
-            self._init_deprive()
-
-    def _init_deprive(self):
-        self.deprive = {}
-        for attr in self.attrs:
-            prefix, currency = attr.split('_', 1)
-            if prefix not in ['in', 'out']:
-                continue
-            deprive_value = self.attr_details[attr]['deprive_value'] or 0.0
-            self.deprive[currency] = deprive_value * self.amount
-
-    def _init_selected_storage(self):
+        self.has_flows = False
+        self.connections = kwargs.pop("connections", {})
         self.selected_storage = {"in": {}, 'out': {}}
-        # NOTE: The 'agent_conn.json' file does not distinguish which agent
-        # initiates a flow; e.g. a connection between 'greenhouse.atmo_co2' and
-        # and 'rice.atmo_co2' could reference an INPUT of rice, or an OUTPUT of
-        # greenhouse. The present function does that; rather than add all
-        # the connections, we iterate through flows and add the appropriate
-        # connection. In the future, it may be useful for diagnostic purposes
-        # to copy all the connections (those initiated by an agent, and those
-        # initiated by another). This shouldn't break anything.
-        for attr in self.attrs:
-            prefix, currency = attr.split('_', 1)
-            if prefix not in ['in', 'out']:
-                continue
-            connected_agents = self.connections[prefix][currency]
-            if len(connected_agents) == 0:
-                raise Exception(f"No connection specified for {self.agent_type!r} {currency!r}.")
-            self.selected_storage[prefix][currency] = []
-            self.add_currency_to_dict(currency)
-            attr_name = 'char_capacity_' + currency
-            attr_units = None
-            for agent_type in connected_agents:
-                # Function returns a list, but with the latest updates, there
-                # should only ever be one instance of an agent_type.
-                storage_agent = self.model.get_agents_by_type(agent_type=agent_type)
-                storage_agent = storage_agent[0]
-                storage_units = storage_agent.attr_details[attr_name]['units']
-                if attr_units:
-                    if storage_units != attr_units:
-                        raise Exception(f"Connections for {self.agent_type!r} {currency!r} have same units.")
-                else:
-                    attr_units = storage_units
-                self.selected_storage[prefix][currency].append(storage_agent)
+        self.buffer = kwargs.pop("buffer", {})
+        self.deprive = kwargs.pop("deprive", {})
+        self.step_values = kwargs.pop("step_values", {})
 
-    def _calculate_step_values(self):
-        if self.lifetime > 0:
-            if self.lifetime_units == 'day':
-                num_values = int(self.lifetime * self.model.day_length_hours)
-            elif self.lifetime_units == 'hour':
-                num_values = int(self.lifetime)
-            elif self.lifetime_units == 'min':
-                num_values = int(self.lifetime / 60)
-            else:
-                num_values = int(self.model.day_length_hours)
-        else:
-            num_values = int(self.model.day_length_hours)
-        timedelta_per_step = self.model.timedelta_per_step()
-        hours_per_step = timedelta_to_hours(timedelta_per_step)
-        self.step_values = {}
+    def _init_currency_exchange(self):
+        """Initializes all values related to currency exchanges
+
+        This includes making connections to other live Agents, so it must be
+        isolated from __init__ and called after all Agents are initialized.
+        """
+        n_steps = int(self.lifetime) if self.lifetime > 0 else int(self.model.day_length_hours)
+        hours_per_step = self.model.hours_per_step
+        day_length_hours = self.model.day_length_hours
         for attr in self.attrs:
             prefix, currency = attr.split('_', 1)
             if prefix not in ['in', 'out']:
@@ -467,114 +384,153 @@ class GeneralAgent(StorageAgent):
                 self.flows = {}
             self.last_flow[currency] = 0
             self.flows[currency] = []
-            agent_flow_time = self.attr_details[attr]['flow_time']
-            lifetime_growth_type = self.attr_details[attr]['lifetime_growth_type']
-            lifetime_growth_center = self.attr_details[attr]['lifetime_growth_center']
-            lifetime_growth_min_value = self.attr_details[attr]['lifetime_growth_min_value']
-            lifetime_growth_max_value = self.attr_details[attr]['lifetime_growth_max_value']
-            daily_growth_type = self.attr_details[attr]['daily_growth_type']
-            daily_growth_center = self.attr_details[attr]['daily_growth_center']
-            daily_growth_min_value = self.attr_details[attr]['daily_growth_min_value']
-            lifetime_growth_min_threshold = self.attr_details[attr]['lifetime_growth_min_threshold']
-            lifetime_growth_max_threshold = self.attr_details[attr]['lifetime_growth_max_threshold']
-            daily_growth_min_threshold = self.attr_details[attr]['daily_growth_min_threshold']
-            daily_growth_max_threshold = self.attr_details[attr]['daily_growth_max_threshold']
-            daily_growth_invert = self.attr_details[attr]['daily_growth_invert']
-            lifetime_growth_invert = self.attr_details[attr]['lifetime_growth_invert']
-            daily_growth_noise = self.attr_details[attr]['daily_growth_noise']
-            lifetime_growth_noise = self.attr_details[attr]['lifetime_growth_noise']
-            daily_growth_scale = self.attr_details[attr]['daily_growth_scale']
-            lifetime_growth_scale = self.attr_details[attr]['lifetime_growth_scale']
-            daily_growth_steepness = self.attr_details[attr]['daily_growth_steepness']
-            lifetime_growth_steepness = self.attr_details[attr]['lifetime_growth_steepness']
+            self.add_currency_to_dict(currency)
+            attr_details = self.attr_details[attr]
+            attr_units = attr_details['flow_unit']
 
-            multiplier = 1
-            if agent_flow_time == 'min':
-                multiplier *= (hours_per_step * 60)
-            elif agent_flow_time == 'hour':
-                multiplier *= hours_per_step
-            elif agent_flow_time == 'day':
-                multiplier *= hours_per_step / self.model.day_length_hours
-            else:
-                raise Exception('Unknown agent flow_rate.time value.')
-            agent_value = float(self.attrs[attr])
-            agent_value *= float(multiplier)
+            # Connections
+            connected_agents = self.connections[prefix][currency]
+            if len(connected_agents) == 0:
+                raise AgentInitializationError(
+                    f"No connection found for {currency} in {self.agent_type}.")
+            self.selected_storage[prefix][currency] = []
+            for agent_type in connected_agents:
+                storage_agent = self.model.get_agents_by_type(agent_type=agent_type)[0]
+                storage_units = storage_agent.attr_details['char_capacity_' + currency]['units']
+                if storage_units != attr_units:
+                    raise AgentInitializationError(
+                        f"Units for {self.agent_type} {currency} ({attr_units}) \
+                        do not match storage ({storage_units})")
+                self.selected_storage[prefix][currency].append(storage_agent)
 
-            if lifetime_growth_type:
-                start_value = lifetime_growth_min_value or 0.0
-                max_value = lifetime_growth_max_value or 0.0
-                center = lifetime_growth_center or None
-                min_threshold = lifetime_growth_min_threshold or 0.0
-                min_threshold *= num_values
-                max_threshold = lifetime_growth_max_threshold or 0.0
-                max_threshold *= num_values
-                invert = bool(lifetime_growth_invert)
-                noise = bool(lifetime_growth_noise)
-                kwargs = {'agent_value': agent_value,
-                          'max_value': max_value,
-                          'num_values': num_values,
-                          'growth_type': lifetime_growth_type,
-                          'min_value': start_value,
-                          'min_threshold': int(min_threshold),
-                          'max_threshold': int(max_threshold),
-                          'center': center,
-                          'noise': noise,
-                          'invert': invert}
-                if lifetime_growth_scale:
-                    kwargs['scale'] = lifetime_growth_scale
-                if lifetime_growth_steepness:
-                    kwargs['steepness'] = lifetime_growth_steepness
-                self.step_values[attr] = growth_func.get_growth_values(**kwargs)
-            else:
-                self.step_values[attr] = np.ones(num_values) * agent_value
+            # Deprive
+            deprive_value = attr_details.get('deprive_value', None)
+            if deprive_value and attr not in self.deprive:
+                self.deprive[attr] = deprive_value * self.amount
 
-            if daily_growth_type:
-                day_length = int(self.model.day_length_hours)
-                center = daily_growth_center or None
-                min_threshold = daily_growth_min_threshold or 0.0
-                min_threshold *= self.model.day_length_hours
-                max_threshold = daily_growth_max_threshold or 0.0
-                max_threshold *= self.model.day_length_hours
-                invert = bool(daily_growth_invert)
-                noise = bool(daily_growth_noise)
-                for i in range(0, num_values, day_length):
-                    day_values = self.step_values[attr][i:i+day_length]
-                    agent_value = np.mean(day_values)
-                    daily_min = np.min(day_values)
-                    daily_max = np.max(day_values)
-                    if daily_growth_min_value:
-                        start_value = agent_value * daily_growth_min_value
-                    elif daily_min < daily_max:
-                        start_value = daily_min or 0
-                    else:
-                        start_value = 0
-                    if (i + day_length) > num_values:
-                        day_length = num_values - i
-                    kwargs = {'agent_value': agent_value,
-                              'num_values': day_length,
-                              'growth_type': daily_growth_type,
-                              'min_value': start_value,
-                              'min_threshold': int(min_threshold),
-                              'max_threshold': int(max_threshold),
-                              'center': center,
-                              'noise': noise,
-                              'invert': invert}
-                    if daily_growth_scale:
-                        kwargs['scale'] = daily_growth_scale
-                    elif lifetime_growth_type:
-                        kwargs['scale'] = 0.5
-                        kwargs['max_value'] = agent_value * 1.1
-                    if daily_growth_steepness:
-                        kwargs['steepness'] = daily_growth_steepness
-                    if start_value == agent_value:
-                        self.step_values[attr][i:i+day_length] = np.ones(day_length) * agent_value
-                    else:
-                        self.step_values[attr][i:i+day_length] = growth_func.get_growth_values(**kwargs)
+            # Criteria Buffer
+            cr_name = attr_details.get('criteria_name', None)
+            if cr_name and attr not in self.buffer:
+                self.buffer[attr] = attr_details.get('criteria_buffer', 0.0)
 
+            # Step Values
+            step_values = self._calculate_step_values(attr, n_steps, hours_per_step, day_length_hours)
+            self.step_values[attr] = step_values
             if attr == self.growth_criteria:
-                self.total_growth = np.sum(self.step_values[attr])
+                self.total_growth = np.sum(step_values)
 
-    def get_step_value(self, attr):
+    def _calculate_step_values(self, attr, n_steps, hours_per_step, day_length_hours):
+        """Calculate lifetime step values based on growth functions and add to self.step_values
+
+        """
+        step_values = []
+        ad = self.attr_details[attr]
+        agent_flow_time = ad['flow_time']
+        lifetime_growth_type = ad['lifetime_growth_type']
+        lifetime_growth_center = ad['lifetime_growth_center']
+        lifetime_growth_min_value = ad['lifetime_growth_min_value']
+        lifetime_growth_max_value = ad['lifetime_growth_max_value']
+        daily_growth_type = ad['daily_growth_type']
+        daily_growth_center = ad['daily_growth_center']
+        daily_growth_min_value = ad['daily_growth_min_value']
+        lifetime_growth_min_threshold = ad['lifetime_growth_min_threshold']
+        lifetime_growth_max_threshold = ad['lifetime_growth_max_threshold']
+        daily_growth_min_threshold = ad['daily_growth_min_threshold']
+        daily_growth_max_threshold = ad['daily_growth_max_threshold']
+        daily_growth_invert = ad['daily_growth_invert']
+        lifetime_growth_invert = ad['lifetime_growth_invert']
+        daily_growth_noise = ad['daily_growth_noise']
+        lifetime_growth_noise = ad['lifetime_growth_noise']
+        daily_growth_scale = ad['daily_growth_scale']
+        lifetime_growth_scale = ad['lifetime_growth_scale']
+        daily_growth_steepness = ad['daily_growth_steepness']
+        lifetime_growth_steepness = ad['lifetime_growth_steepness']
+
+        multiplier = 1
+        if agent_flow_time == 'min':
+            multiplier *= (hours_per_step * 60)
+        elif agent_flow_time == 'hour':
+            multiplier *= hours_per_step
+        elif agent_flow_time == 'day':
+            multiplier *= hours_per_step / day_length_hours
+        else:
+            raise Exception('Unknown agent flow_rate.time value.')
+        agent_value = float(self.attrs[attr])
+        agent_value *= float(multiplier)
+
+        if lifetime_growth_type:
+            start_value = lifetime_growth_min_value or 0.0
+            max_value = lifetime_growth_max_value or 0.0
+            center = lifetime_growth_center or None
+            min_threshold = lifetime_growth_min_threshold or 0.0
+            min_threshold *= n_steps
+            max_threshold = lifetime_growth_max_threshold or 0.0
+            max_threshold *= n_steps
+            invert = bool(lifetime_growth_invert)
+            noise = bool(lifetime_growth_noise)
+            kwargs = {'agent_value': agent_value,
+                        'max_value': max_value,
+                        'num_values': n_steps,
+                        'growth_type': lifetime_growth_type,
+                        'min_value': start_value,
+                        'min_threshold': int(min_threshold),
+                        'max_threshold': int(max_threshold),
+                        'center': center,
+                        'noise': noise,
+                        'invert': invert}
+            if lifetime_growth_scale:
+                kwargs['scale'] = lifetime_growth_scale
+            if lifetime_growth_steepness:
+                kwargs['steepness'] = lifetime_growth_steepness
+            step_values = growth_func.get_growth_values(**kwargs)
+        else:
+            step_values = np.ones(n_steps) * agent_value
+
+        if daily_growth_type:
+            day_length = int(day_length_hours)
+            center = daily_growth_center or None
+            min_threshold = daily_growth_min_threshold or 0.0
+            min_threshold *= day_length_hours
+            max_threshold = daily_growth_max_threshold or 0.0
+            max_threshold *= day_length_hours
+            invert = bool(daily_growth_invert)
+            noise = bool(daily_growth_noise)
+            for i in range(0, n_steps, day_length):
+                day_values = step_values[i:i+day_length]
+                agent_value = np.mean(day_values)
+                daily_min = np.min(day_values)
+                daily_max = np.max(day_values)
+                if daily_growth_min_value:
+                    start_value = agent_value * daily_growth_min_value
+                elif daily_min < daily_max:
+                    start_value = daily_min or 0
+                else:
+                    start_value = 0
+                if (i + day_length) > n_steps:
+                    day_length = n_steps - i
+                kwargs = {'agent_value': agent_value,
+                            'num_values': day_length,
+                            'growth_type': daily_growth_type,
+                            'min_value': start_value,
+                            'min_threshold': int(min_threshold),
+                            'max_threshold': int(max_threshold),
+                            'center': center,
+                            'noise': noise,
+                            'invert': invert}
+                if daily_growth_scale:
+                    kwargs['scale'] = daily_growth_scale
+                elif lifetime_growth_type:
+                    kwargs['scale'] = 0.5
+                    kwargs['max_value'] = agent_value * 1.1
+                if daily_growth_steepness:
+                    kwargs['steepness'] = daily_growth_steepness
+                if start_value == agent_value:
+                    step_values[i:i+day_length] = np.ones(day_length) * agent_value
+                else:
+                    step_values[i:i+day_length] = growth_func.get_growth_values(**kwargs)
+        return step_values
+
+    def _get_step_value(self, attr):
         """TODO
 
         TODO
@@ -601,11 +557,7 @@ class GeneralAgent(StorageAgent):
         elif cr_name:
             if cr_name in self:
                 source = self[cr_name]
-            else:
-                # For co2 management, criteria need to be evaluated against
-                # specific storages; not all storages, as was done before.
-                # I added '_in' or '_out' to the criteria name so that it can
-                # be evaluated against a selected storage.
+            else:  # e.g. 'co2_ratio_in'
                 source = 0
                 direction = cr_name.split('_')[-1]
                 storage_ratios = self.model.storage_ratios
@@ -619,22 +571,14 @@ class GeneralAgent(StorageAgent):
                     for storage_id in storage_ratios:
                         if cr_name in storage_ratios[storage_id]:
                             source += storage_ratios[storage_id][cr_name]
-            cr_id = '{}_{}_{}'.format(prefix, currency, cr_name)
-            if cr_limit == '>':
-                opp = operator.gt
-            elif cr_limit == '<':
-                opp = operator.lt
-            elif cr_limit == '=':
-                opp = operator.eq
-            else:
-                raise ServerError('Unknown attr criteria.')
+            opp = {'>': operator.gt, '<': operator.lt, '=': operator.eq}[cr_limit]
             if opp(source, cr_value):
-                if cr_buffer > 0 and self.buffer.get(cr_id, 0) > 0:
-                    self.buffer[cr_id] -= 1
+                if cr_buffer > 0 and self.buffer.get(attr, 0) > 0:
+                    self.buffer[attr] -= 1
                     return pq.Quantity(0.0, agent_unit)
             else:
                 if cr_buffer > 0:
-                    self.buffer[cr_id] = cr_buffer
+                    self.buffer[attr] = cr_buffer
                 return pq.Quantity(0.0, agent_unit)
         step_num = int(self.agent_step_num)
         if step_num >= self.step_values[attr].shape[0]:
@@ -656,8 +600,7 @@ class GeneralAgent(StorageAgent):
         # If agent doesn't have flows (i.e. is storage agent), skip this step
         if not self.has_flows:
             return
-        timedelta_per_step = self.model.timedelta_per_step()
-        hours_per_step = timedelta_to_hours(timedelta_per_step)
+        hours_per_step = self.model.hours_per_step
         if self.age + hours_per_step >= self.lifetime > 0:
             self.grown = True
         # If agent has threshold characteristic, check value and kill if met.
@@ -719,7 +662,7 @@ class GeneralAgent(StorageAgent):
                 requires = self.attr_details[attr]['requires'] or []
                 if len(requires) > 0 and len(set(requires).difference(influx)) > 0:
                     continue
-                target_value = self.get_step_value(attr)
+                target_value = self._get_step_value(attr)
                 actual_value = 0
                 agent_amount = 0
                 # Determine the available_value based on storage balances
@@ -756,8 +699,8 @@ class GeneralAgent(StorageAgent):
                         if deprive_value > 0:
                             # Decrement the deprive value. If it hits 0,
                             # kill one agent and try again with one fewer.
-                            self.deprive[currency] -= delta_per_step
-                            if self.deprive[currency] < 0:
+                            self.deprive[attr] -= delta_per_step
+                            if self.deprive[attr] < 0:
                                 self.amount -= 1
                             if self.amount <= 0:
                                 self.kill(f'All {self.agent_type} are died. Killing the agent')
@@ -807,9 +750,8 @@ class GeneralAgent(StorageAgent):
                             # deprive value * amount, which doesn't seem
                             # to make sense?
                             if deprive_value > 0:
-                                self.deprive[currency] = min(deprive_value * self.amount,
-                                                             self.deprive[currency] +
-                                                             deprive_value)
+                                self.deprive[attr] = min(deprive_value * self.amount,
+                                                         self.deprive[attr] + deprive_value)
                             agent_amount = i
                             actual_value = test_value
                             # Advance to the next step_num ONLY if the
