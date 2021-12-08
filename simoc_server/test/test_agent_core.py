@@ -119,5 +119,5 @@ def export_data(model, fname):
         for currency, vals in step_values.items():
             step_values[currency] = vals.tolist()
         agent_records[agent.agent_type]['step_values'] = step_values
-    with open(fname, 'w') as f:
+    with open('data_analysis/' + fname, 'w') as f:
         json.dump(agent_records, f)

@@ -6,14 +6,11 @@ import traceback
 import random
 
 from simoc_server import app, db, redis_conn
-from simoc_server.agent_model import (AgentModel,
-                                      AgentModelInitializationParams,
-                                      BaseLineAgentInitializerRecipe)
+from simoc_server.agent_model import (AgentModel)
 from simoc_server.database import SavedGame
 from simoc_server.database.db_model import User
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
-from simoc_server.agent_model.parse_data_files import parse_currency_desc
 
 
 class GameRunner(object):
@@ -122,7 +119,7 @@ class GameRunner(object):
         return GameRunner.load_from_state(user, agent_model_state)
 
     @classmethod
-    def from_new_game(cls, user, game_runner_init_params):
+    def from_new_game(cls, user, game_config):  #game_runner_init_params):
         """Creates a new game runner.
 
         Parameters
@@ -137,8 +134,7 @@ class GameRunner(object):
         GameRunner
             loaded GameRunner instance
         """
-        agent_model = AgentModel.create_new(game_runner_init_params.model_init_params,
-                                            game_runner_init_params.agent_init_recipe)
+        agent_model = AgentModel.new(game_config)
         return GameRunner(agent_model, user, None)
 
     def save_game(self, save_name):
@@ -249,27 +245,6 @@ s
         user_id = user.id
         self.step_loop(self.agent_model, max_step_num, buffer_size, user_id)
         self.reset_last_accessed()
-
-
-class GameRunnerInitializationParams(object):
-
-    def __init__(self, config, currency_desc, agent_desc):
-        self.model_init_params = AgentModelInitializationParams()
-        if 'termination' in config:
-            self.model_init_params.set_termination(config['termination'])
-        if 'minutes_per_step' in config:
-            self.model_init_params.set_minutes_per_step(config['minutes_per_step'])
-        if 'priorities' in config:
-            self.model_init_params.set_priorities(config['priorities'])
-        if 'location' in config:
-            self.model_init_params.set_location(config['location'])
-        if 'single_agent' in config and config['single_agent'] == 1:
-            self.model_init_params.set_single_agent(1)
-        currencies = parse_currency_desc(currency_desc)
-        self.model_init_params.set_config(config) \
-                              .set_currencies(currencies) \
-                              .set_starting_model_time(datetime.timedelta())
-        self.agent_init_recipe = BaseLineAgentInitializerRecipe(config, currencies, agent_desc)
 
 
 class GameRunnerManager(object):

@@ -284,13 +284,7 @@ def new_game():
     user_cleanup(user)
     # Import and load default currencies list
     default_currencies = load_from_basedir('data_files/currency_desc.json')
-    default_agent_desc = load_from_basedir('data_files/agent_desc.json')
-    tasks.new_game.apply_async(
-        args=[user.username,
-        game_config,
-        default_currencies,
-        default_agent_desc,
-        step_num])
+    tasks.new_game.apply_async(args=[user.username, game_config, step_num])
     while True:
         time.sleep(0.5)
         game_id = get_user_game_id(user)
