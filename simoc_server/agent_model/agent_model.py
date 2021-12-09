@@ -18,7 +18,6 @@ from simoc_server.util import timedelta_to_hours, location_to_day_length_minutes
 from simoc_server.exceptions import AgentModelInitializationError
 from simoc_server.agent_model.parse_data_files import parse_agent_desc
 
-
 class AgentModel(Model, AttributeHolder):
     """The core class that describes the SIMOC's Agent Model interface.
 
@@ -46,7 +45,7 @@ class AgentModel(Model, AttributeHolder):
     """
 
     @classmethod
-    def new(cls, config, currency_desc=None, agent_desc=None, connections=None):
+    def from_config(cls, config, currency_desc=None, agent_desc=None, connections=None):
         """Takes configuration files, return an initialized model
 
         Args (required):
@@ -58,7 +57,7 @@ class AgentModel(Model, AttributeHolder):
             agent_conn      dict    User-specified connections
         """
         initializer = AgentModelInitializer.from_new(config, currency_desc, agent_desc, connections)
-        return AgentModel(initializer)
+        return cls(initializer)
 
     def save(self):
         """Exports current model as an AgentModelInitializer"""
@@ -67,9 +66,9 @@ class AgentModel(Model, AttributeHolder):
 
     @classmethod
     def load(cls, saved):
-        """Takes a save file and returns """
+        """Takes a save file and returns an initialized AgentModel"""
         initializer = AgentModelInitializer.deserialize(saved)
-        return AgentModel(initializer)
+        return cls(initializer)
 
     def __init__(self, initializer):
         """Creates an Agent Model object.
@@ -91,7 +90,7 @@ class AgentModel(Model, AttributeHolder):
         self.single_agent = md['single_agent']
         self.termination = md['termination']
         self.priorities = md['priorities']
-        self.location = md['location']
+        self.location = md.get('location')
         self.total_amount = md['total_amount']
         self.minutes_per_step = md['minutes_per_step']
         self.currency_dict = md['currency_dict']
@@ -132,26 +131,28 @@ class AgentModel(Model, AttributeHolder):
         #------------------------------
         for agent_type, agent_data in initializer.agent_data.items():
             agent_desc, instance = agent_data.values()
-            connections = instance.pop('connections') if 'connections' in instance else {}
-            amount = instance.pop('amount') if 'amount' in instance else 1
+            connections = instance.pop('connections', {})
+            amount = instance.pop('amount', 1)
             if self.single_agent == 1:
-                self.scheduler.add(GeneralAgent(model=self,
-                                                agent_type=agent_type,
-                                                agent_desc=agent_desc,
-                                                connections=connections,
-                                                amount=amount,
-                                                **instance))
+                agent = GeneralAgent(model=self,
+                                     agent_type=agent_type,
+                                     agent_desc=agent_desc,
+                                     connections=connections,
+                                     amount=amount,
+                                     **instance)
+                self.scheduler.add(agent)
             else:
                 for i in range(amount):
-                    self.scheduler.add(GeneralAgent(model=self,
-                                                    agent_desc=agent_desc,
-                                                    agent_type=agent_type,
-                                                    connections=connections,
-                                                    amount=1,
-                                                    **instance))
+                    agent = GeneralAgent(model=self,
+                                         agent_desc=agent_desc,
+                                         agent_type=agent_type,
+                                         connections=connections,
+                                         amount=1,
+                                         **instance)
+                    self.scheduler.add(agent)
         for agent in self.scheduler.agents:
             agent._init_currency_exchange()
-            agent.data_collector = AgentDataCollector.new(agent)
+            agent.data_collector = AgentDataCollector.from_agent(agent)
 
     @property
     def logger(self):
@@ -390,7 +391,7 @@ class AgentModel(Model, AttributeHolder):
             return [agent for agent in self.scheduler.agents if agent.has_storage]
         elif role == 'flows':
             return [agent for agent in self.scheduler.agents if agent.has_flows]
-            
+
 
 class PrioritizedRandomActivation(RandomActivation):
     """A custom step scheduler for MESA prioritized by agent class."""
@@ -417,13 +418,13 @@ class PrioritizedRandomActivation(RandomActivation):
             if agent_class in self.agents_by_class:
                 agents = self.agents_by_class[agent_class]
                 self.model.random_state.shuffle(agents)
-                for agent in agents[:]:
+                for agent in agents:
                     agent.step()
         self.steps += 1
         self.time += 1
 
     def _load_agents_by_class(self):
-        for agent in self.agents[:]:
+        for agent in self.agents:
             agent_class = agent.agent_class
             if agent_class not in self.agents_by_class:
                 self.agents_by_class[agent_class] = []

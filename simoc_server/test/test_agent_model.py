@@ -19,7 +19,7 @@ class AgentModelInstance():
     """
     def __init__(self, config):
         self.game_config = copy.deepcopy(config)
-        self.agent_model = AgentModel.new(config)
+        self.agent_model = AgentModel.from_config(config)
 
         # Setup model records storages
         self.model_records = []

@@ -6,6 +6,7 @@ import pathlib
 from simoc_server.exceptions import AgentModelInitializationError
 from simoc_server.agent_model.parse_data_files import parse_currency_desc, parse_agent_desc
 
+_DEFAULT_LOCATION = 'mars'
 _DATA_FILES_DIR = pathlib.Path(__file__).parent.parent.parent / 'data_files'
 def load_data_file(fname):
     try:
@@ -41,7 +42,8 @@ class AgentModelInitializer():
         self.agent_data = agent_data
         self.init_type = init_type
 
-    def from_new(config, user_currency_desc=None, user_agent_desc=None,
+    @classmethod
+    def from_new(cls, config, user_currency_desc=None, user_agent_desc=None,
                  user_agent_conn=None):
 
         # Unpack & initialize all model-level fields from config
@@ -50,7 +52,7 @@ class AgentModelInitializer():
             single_agent=0 if not config.get('single_agent', None) == 1 else 1,
             termination=config.get('termination', []),
             priorities=config.get('priorities', []),
-            location=config.get('location', 'mars'),
+            location=config.get('location', _DEFAULT_LOCATION),
             total_amount=config.get('total_amount', len(config['agents'])),
             minutes_per_step=config.get('minutes_per_step', 60),
         )
@@ -61,7 +63,7 @@ class AgentModelInitializer():
         # TODO: Add connections here, rather than in convert_config
         # TODO: Merge with user-defined
         model_data['currency_dict'] = parse_currency_desc(default_currency_desc)
-        agent_desc = parse_agent_desc(config, model_data['currency_dict'], default_agent_desc)
+        agent_desc = parse_agent_desc(config, model_data['currency_dict'], default_agent_desc, _DEFAULT_LOCATION)
 
         # Unpack and initialize agent-level fields
         agent_data = {}
@@ -72,7 +74,7 @@ class AgentModelInitializer():
                     raise AgentModelInitializationError(f"Currency {field} specified for agent {agent} not found in currency dict.")
             agent_data[agent] = dict(agent_desc=agent_desc[agent], instance=instance)
 
-        return AgentModelInitializer(model_data, agent_data, 'from_new')
+        return cls(model_data, agent_data, 'from_new')
 
     @classmethod
     def from_model(cls, model):
@@ -104,7 +106,7 @@ class AgentModelInitializer():
         for agent in model.scheduler.agents:
             agent_data[agent['agent_type']] = cls._from_agent(agent)
 
-        return AgentModelInitializer(model_data, agent_data, 'from_model')
+        return cls(model_data, agent_data, 'from_model')
 
     def _from_agent(agent):
         agent_desc = dict(
@@ -162,9 +164,8 @@ class AgentModelInitializer():
     @classmethod
     def deserialize(cls, serialized):
         # Initialize new initializer
-        init = AgentModelInitializer(serialized['model_data'],
-                                     serialized['agent_data'],
-                                     serialized['init_type'])
+        init = cls(serialized['model_data'], serialized['agent_data'],
+                   serialized['init_type'])
 
         # Deserialize np arrays
         r0, r1, r2, r3, r4 = init.model_data['random_state']

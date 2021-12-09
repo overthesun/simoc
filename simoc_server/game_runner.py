@@ -134,7 +134,7 @@ class GameRunner(object):
         GameRunner
             loaded GameRunner instance
         """
-        agent_model = AgentModel.new(game_config)
+        agent_model = AgentModel.from_config(game_config)
         return GameRunner(agent_model, user, None)
 
     def save_game(self, save_name):

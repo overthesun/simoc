@@ -13,7 +13,7 @@ from simoc_server.agent_model import AgentModel
 def test_agent_one_human_radish(one_human_radish):
     one_human_radish_converted = convert_configuration(one_human_radish)
     one_human_radish_converted['agents']['food_storage']['wheat'] = 2
-    model = AgentModel.new(one_human_radish_converted)
+    model = AgentModel.from_config(one_human_radish_converted)
     model.step_to(n_steps=50)
     export_data(model, 'agent_records_baseline.json')
     agent_records = model.get_data(debug=True)
@@ -64,7 +64,7 @@ def test_agent_one_human_radish(one_human_radish):
 
 def test_agent_disaster(disaster):
     disaster_converted = convert_configuration(disaster)
-    model = AgentModel.new(disaster_converted)
+    model = AgentModel.from_config(disaster_converted)
     model.step_to(n_steps=100)
     export_data(model, 'agent_records_disaster.json')
     agent_records = model.get_data(debug=True)
@@ -106,7 +106,7 @@ def test_agent_disaster(disaster):
 
 def test_agent_four_humans_garden(four_humans_garden):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
-    model = AgentModel.new(four_humans_garden_converted)
+    model = AgentModel.from_config(four_humans_garden_converted)
     model.step_to(n_steps=2)
     export_data(model, 'agent_records_fhgarden.json')
 

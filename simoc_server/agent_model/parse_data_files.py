@@ -36,7 +36,7 @@ def parse_currency_desc(currency_desc):
             parsed[currency] = currency_record
     return parsed
 
-def parse_agent_desc(config, currencies, agent_desc):
+def parse_agent_desc(config, currencies, agent_desc, _DEFAULT_LOCATION):
     """Converts raw agent_desc.json data into AgentModel initialization dict
 
     Return an object that includes all required data for all agents included
@@ -57,7 +57,7 @@ def parse_agent_desc(config, currencies, agent_desc):
     """
     agent_data = {}
     currencies_list = currencies.keys()
-    location = config.get('location', 'mars')
+    location = config.get('location', _DEFAULT_LOCATION)
     agent_class_reference = {}
     for agent_class, agents in agent_desc.items():
         for agent in agents.keys():

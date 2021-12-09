@@ -367,22 +367,22 @@ class GeneralAgent(StorageAgent):
                 storage_unit = storage_agent.attr_details['char_capacity_' + currency]['unit']
                 if storage_unit != attr_unit:
                     raise AgentInitializationError(
-                        f"Units for {self.agent_type} {currency} ({attr_unit}) \
-                        do not match storage ({storage_unit})")
+                        f"Units for {self.agent_type} {currency} ({attr_unit}) "
+                        f"do not match storage ({storage_unit})")
                 self.selected_storage[prefix][currency].append(storage_agent)
 
             # Deprive
             deprive_value = attr_details.get('deprive_value', None)
-            if deprive_value and attr not in self.deprive.keys():
+            if deprive_value and attr not in self.deprive:
                 self.deprive[attr] = deprive_value * self.amount
 
             # Criteria Buffer
             cr_buffer = attr_details.get('criteria_buffer', None)
-            if cr_buffer and attr not in self.buffer.keys():
+            if cr_buffer and attr not in self.buffer:
                     self.buffer[attr] = cr_buffer
 
             # Step Values
-            if attr not in self.step_values.keys():
+            if attr not in self.step_values:
                 step_values = self._calculate_step_values(attr, n_steps, hours_per_step, day_length_hours)
                 self.step_values[attr] = step_values
                 if attr == self.growth_criteria:
@@ -480,14 +480,14 @@ class GeneralAgent(StorageAgent):
                 if (i + day_length) > n_steps:
                     day_length = n_steps - i
                 kwargs = {'agent_value': agent_value,
-                            'num_values': day_length,
-                            'growth_type': daily_growth_type,
-                            'min_value': start_value,
-                            'min_threshold': int(min_threshold),
-                            'max_threshold': int(max_threshold),
-                            'center': center,
-                            'noise': noise,
-                            'invert': invert}
+                          'num_values': day_length,
+                          'growth_type': daily_growth_type,
+                          'min_value': start_value,
+                          'min_threshold': int(min_threshold),
+                          'max_threshold': int(max_threshold),
+                          'center': center,
+                          'noise': noise,
+                          'invert': invert}
                 if daily_growth_scale:
                     kwargs['scale'] = daily_growth_scale
                 elif lifetime_growth_type:

@@ -1,8 +1,8 @@
 class AgentDataCollector():
 
     @classmethod
-    def new(cls, agent):
-        return AgentDataCollector(agent)
+    def from_agent(cls, agent):
+        return cls(agent)
 
     def __init__(self, agent):
         # Static Fields

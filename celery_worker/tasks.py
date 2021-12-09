@@ -13,7 +13,7 @@ logger = get_task_logger(__name__)
 sys.path.append("../")
 
 from simoc_server.database.db_model import User
-from simoc_server.game_runner import GameRunnerManager, GameRunnerInitializationParams
+from simoc_server.game_runner import GameRunnerManager
 from simoc_server.exceptions import NotFound
 from simoc_server import redis_conn, db
 

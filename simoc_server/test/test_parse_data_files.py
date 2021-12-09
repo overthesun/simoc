@@ -30,7 +30,7 @@ def test_parse_currency_desc(currency_desc):
 
 def test_parse_agent_desc(four_humans_garden, currency_dict, agent_desc):
     config = convert_configuration(four_humans_garden)
-    agents = parse_agent_desc(config, currency_dict, agent_desc)
+    agents = parse_agent_desc(config, currency_dict, agent_desc, 'mars')
     # with open('data_analysis/parsed_agent_desc.json', 'w') as f:
     #     json.dump(agents, f)
 
