@@ -1,6 +1,3 @@
-from simoc_server import db
-from simoc_server.database.db_model import AgentType, AgentState, CurrencyType
-
 def atmosphere_equalizer(agent):
     atmo_in_agents = agent.selected_storage['in']['atmosphere']
     habitat = next(a for a in atmo_in_agents if 'habitat' in a.agent_type)

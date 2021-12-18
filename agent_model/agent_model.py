@@ -9,14 +9,13 @@ import numpy as np
 from mesa import Model
 from mesa.time import RandomActivation
 
-from simoc_server import db, app
-from simoc_server.agent_model.initializer import AgentModelInitializer
-from simoc_server.agent_model.agents.core import GeneralAgent
-from simoc_server.agent_model.agents.data_collector import AgentDataCollector
-from simoc_server.agent_model.attribute_meta import AttributeHolder
-from simoc_server.util import timedelta_to_hours, location_to_day_length_minutes
-from simoc_server.exceptions import AgentModelInitializationError
-from simoc_server.agent_model.parse_data_files import parse_agent_desc
+# from simoc_server import app  # TODO: Fix logger
+from agent_model.initializer import AgentModelInitializer
+from agent_model.agents.core import GeneralAgent
+from agent_model.agents.data_collector import AgentDataCollector
+from agent_model.attribute_meta import AttributeHolder
+from agent_model.util import timedelta_to_hours, location_to_day_length_minutes
+from agent_model.exceptions import AgentModelInitializationError
 
 class AgentModel(Model, AttributeHolder):
     """The core class that describes the SIMOC's Agent Model interface.
@@ -154,10 +153,11 @@ class AgentModel(Model, AttributeHolder):
             agent._init_currency_exchange()
             agent.data_collector = AgentDataCollector.from_agent(agent)
 
-    @property
-    def logger(self):
-        """Returns Flask logger object."""
-        return app.logger
+    # TODO: Fix logger
+    # @property
+    # def logger(self):
+    #     """Returns Flask logger object."""
+    #     return app.logger
 
     def get_step_logs(self):
         """TODO
@@ -315,7 +315,7 @@ class AgentModel(Model, AttributeHolder):
         self.scheduler.step()
         for agent in self.scheduler.agents:
             agent.data_collector.step()
-        app.logger.info("{0} step_num {1}".format(self, self.step_num))
+        # app.logger.info("{0} step_num {1}".format(self, self.step_num))  # TODO: Fix logger
 
     def step_to(self, n_steps=None, termination=None, timeout=365*24):
         if not n_steps and not termination:

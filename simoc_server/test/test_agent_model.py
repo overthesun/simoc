@@ -7,7 +7,7 @@ import datetime
 import pytest
 
 from simoc_server.front_end_routes import convert_configuration
-from simoc_server.agent_model import AgentModel, AgentModelInitializer
+from agent_model import AgentModel
 
 class AgentModelInstance():
     """An individual instance of an Agent Model

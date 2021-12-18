@@ -1,9 +1,9 @@
 import json
 import random
 
-from simoc_server.agent_model.agents import growth_func
-from simoc_server.util import location_to_day_length_minutes
-from simoc_server.exceptions import AgentModelInitializationError
+from agent_model.agents import growth_func
+from agent_model.util import location_to_day_length_minutes
+from agent_model.exceptions import AgentModelInitializationError
 
 def parse_currency_desc(currency_desc):
     """Converts raw currency_desc into a dictionary of currencies and classes.

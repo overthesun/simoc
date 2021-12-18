@@ -3,7 +3,7 @@ import json
 import pytest
 from pytest import approx
 
-from simoc_server.agent_model import AgentModel, AgentModelInitializer
+from agent_model import AgentModel, AgentModelInitializer
 from simoc_server.front_end_routes import convert_configuration
 
 def test_initializer_from_new(one_human):

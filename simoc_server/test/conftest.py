@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from simoc_server.agent_model.parse_data_files import parse_currency_desc
+from agent_model.parse_data_files import parse_currency_desc
 
 # Returns the agent_desc.json file as a dict
 @pytest.fixture(autouse=True, scope="session")

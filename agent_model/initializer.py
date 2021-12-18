@@ -3,11 +3,11 @@ import json
 import random
 import pathlib
 
-from simoc_server.exceptions import AgentModelInitializationError
-from simoc_server.agent_model.parse_data_files import parse_currency_desc, parse_agent_desc
+from agent_model.exceptions import AgentModelInitializationError
+from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc
 
 _DEFAULT_LOCATION = 'mars'
-_DATA_FILES_DIR = pathlib.Path(__file__).parent.parent.parent / 'data_files'
+_DATA_FILES_DIR = pathlib.Path(__file__).parent.parent / 'data_files'
 def load_data_file(fname):
     try:
         with open(_DATA_FILES_DIR / fname) as f:

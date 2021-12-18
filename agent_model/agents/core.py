@@ -9,11 +9,10 @@ import numpy as np
 import quantities as pq
 from mesa import Agent
 
-from simoc_server import app, db
-from simoc_server.agent_model.attribute_meta import AttributeHolder
-from simoc_server.agent_model.agents import growth_func
-from simoc_server.agent_model.agents import custom_funcs
-from simoc_server.exceptions import AgentInitializationError
+from agent_model.attribute_meta import AttributeHolder
+from agent_model.agents import growth_func
+from agent_model.agents import custom_funcs
+from agent_model.exceptions import AgentInitializationError
 
 class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
     """Initializes and manages refs, metadata, currency_dict, and AttributeHolder
@@ -160,7 +159,7 @@ class GrowthAgent(BaseAgent):
         Args:
           reason: str, cause of death
         """
-        self.model.logger.info("Object Died! Reason: {}".format(reason))
+        # self.model.logger.info("Object Died! Reason: {}".format(reason))  # TODO: Fix logger
         self.cause_of_death = reason
         super().destroy()
 

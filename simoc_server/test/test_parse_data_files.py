@@ -4,8 +4,7 @@ import pytest
 from pytest import approx
 
 from simoc_server.front_end_routes import convert_configuration
-from simoc_server.agent_model.parse_data_files import parse_currency_desc, \
-                                                      parse_agent_desc
+from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc
 
 def test_parse_currency_desc(currency_desc):
     currencies = parse_currency_desc(currency_desc)

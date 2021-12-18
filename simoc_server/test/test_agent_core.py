@@ -8,7 +8,7 @@ import pytest
 from pytest import approx
 
 from simoc_server.front_end_routes import convert_configuration
-from simoc_server.agent_model import AgentModel
+from agent_model import AgentModel
 
 def test_agent_one_human_radish(one_human_radish):
     one_human_radish_converted = convert_configuration(one_human_radish)
@@ -64,6 +64,8 @@ def test_agent_one_human_radish(one_human_radish):
 
 def test_agent_disaster(disaster):
     disaster_converted = convert_configuration(disaster)
+    with open('data_analysis/config_disaster.json', 'w') as f:
+        json.dump(disaster_converted, f)
     model = AgentModel.from_config(disaster_converted)
     model.step_to(n_steps=100)
     export_data(model, 'agent_records_disaster.json')
