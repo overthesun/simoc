@@ -1,6 +1,7 @@
 r"""Describes Core Agent Types.
 """
 
+import math
 import random
 import operator
 from abc import ABCMeta
@@ -137,10 +138,6 @@ class GrowthAgent(BaseAgent):
 
     def step(self):
         """TODO"""
-        hours_per_step = self.model.hours_per_step
-        self.age += hours_per_step
-        if not self.growth_criteria:
-            self.agent_step_num = int(self.age)
         if self.grown:
             if self.reproduce:
                 self.age = 0
@@ -153,13 +150,20 @@ class GrowthAgent(BaseAgent):
             self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
                 self.agent_type))
 
+        self.age += self.model.hours_per_step
+        if not self.growth_criteria:
+            self.agent_step_num = int(self.age)
+        if self.age >= self.lifetime > 0:
+            self.grown = True  # Complete last flow cycle and terminate next step
+
+
     def destroy(self, reason):
         """Destroys the agent and removes it from the model
 
         Args:
           reason: str, cause of death
         """
-        # self.model.logger.info("Object Died! Reason: {}".format(reason))  # TODO: Fix logger
+        # self.model.logger.info("Object Died! Reason: {}".format(reason))
         self.cause_of_death = reason
         super().destroy()
 
@@ -374,6 +378,9 @@ class GeneralAgent(StorageAgent):
             deprive_value = attr_details.get('deprive_value', None)
             if deprive_value and attr not in self.deprive:
                 self.deprive[attr] = deprive_value * self.amount
+                deprive_unit = attr_details['deprive_unit']
+                multiplier = dict(min=60, hour=1, day=1/int(self.model.day_length_hours)).get(deprive_unit, 0)
+                self.attr_details[attr]['delta_per_step'] = self.model.hours_per_step * multiplier
 
             # Criteria Buffer
             cr_buffer = attr_details.get('criteria_buffer', None)
@@ -559,221 +566,160 @@ class GeneralAgent(StorageAgent):
         return pq.Quantity(agent_value, agent_unit)
 
     def step(self, value_eps=1e-12, value_round=6):
-        """TODO
+        """The main step function for SIMOC agents. Calculates step value and processes exchange.
 
-        TODO
-
-        Raises:
-        Exception: TODO
         """
         super().step()
-        # If agent doesn't have flows (i.e. is storage agent), skip this step
-        if not self.has_flows:
-            return
-        hours_per_step = self.model.hours_per_step
-        if self.age + hours_per_step >= self.lifetime > 0:
-            self.grown = True
-        # If agent has threshold characteristic, check value and kill if met.
-        for attr in self.attrs:
+        for attr, attr_value in self.attrs.items():
+            # 1. CHECK THRESHOLDS
             if attr.startswith('char_threshold_'):
-                threshold_value = self.attrs[attr]
-                threshold_type = attr.split('_', 3)[2]
-                currency = attr.split('_', 3)[3]
+                (threshold_type, currency) = attr.split('_')[-2:]
                 for prefix in ['in', 'out']:
                     if currency in self.selected_storage[prefix]:
                         for storage_agent in self.selected_storage[prefix][currency]:
                             agent_id = storage_agent.agent_type
-                            if threshold_type == 'lower' and self.model.storage_ratios[agent_id][
-                                currency + '_ratio'] < threshold_value:
+                            storage_ratio = self.model.storage_ratios[agent_id][currency + '_ratio']
+                            opp = {'upper': operator.gt, 'lower': operator.lt}[threshold_type]
+                            if opp(storage_ratio, attr_value):
                                 self.kill('Threshold {} met for {}. Killing the agent'.format(
                                     currency, self.agent_type))
                                 return
-                            elif threshold_type == 'upper' and self.model.storage_ratios[agent_id][
-                                currency + '_ratio'] > threshold_value:
-                                self.kill('Threshold {} met for {}. Killing the agent'.format(
-                                    currency, self.agent_type))
-                                return
-            # If agent has an extension function, e.g. 'atmosphere_equalizer', call it here.
+            # 2. EXECUTE CUSTOM FUNCTIONS
             if attr == 'char_custom_function':
-                custom_function_type = self.attrs[attr]
-                custom_function = getattr(custom_funcs, custom_function_type)
+                custom_function = getattr(custom_funcs, attr_value)
                 if custom_function:
                     custom_function(self)
                 else:
                     raise Exception('Unknown custom function: f{custom_function}.')
 
-        influx = set()
-        skip_step = False
-        # Iterate through all agent flows, starting with inputs
+        # ITERATE THROUGH EACH INPUT AND OUTPUT
+        influx = set()     # For 'requires' field
+        skip_step = False  # Stalls growth if 'required = desired' field is missing
         for prefix in ['in', 'out']:
-            # Iterate through all currencies for current flow direction
-            for currency in self.selected_storage[prefix]:
+            for currency, selected_storages in self.selected_storage[prefix].items():
                 self.flows[currency] = []
                 self.last_flow[currency] = 0
-                attr = '{}_{}'.format(prefix, currency)
-                # TODO: Skip step if input/output value is set to 0. This was
-                # added for atmosphere_equalizer, which uses 'dummy' in/outs to
-                # trigger _init_selected_storage.
-                if self.attrs[attr] == 0:
-                    continue
-                # Get values for DEPRIVE, REQUIRED and REQUIRES
-                deprive_unit = self.attr_details[attr]['deprive_unit']
-                deprive_value = self.attr_details[attr]['deprive_value'] or 0.0
-                if deprive_value > 0:
-                    if deprive_unit == 'min':
-                        delta_per_step = hours_per_step * 60
-                    elif deprive_unit == 'hour':
-                        delta_per_step = hours_per_step
-                    elif deprive_unit == 'day':
-                        delta_per_step = hours_per_step / int(self.model.day_length_hours)
-                    else:
-                        raise Exception('Unknown agent deprive_unit value.')
-                else:
-                    delta_per_step = 0
-                is_required = self.attr_details[attr]['is_required'] or ''
-                requires = self.attr_details[attr]['requires'] or []
-                if len(requires) > 0 and len(set(requires).difference(influx)) > 0:
-                    continue
-                target_value = self._get_step_value(attr)
-                actual_value = 0
-                agent_amount = 0
-                # Determine the available_value based on storage balances
-                available_value = 0   # Available in connected storages
-                available_conns = []  # Breakdown of values by connection
-                for storage in self.selected_storage[prefix][currency]:
-                    attr_name = 'char_capacity_' + currency
-                    storage_unit = storage.attr_details[attr_name]['unit']
-                    storage_value = sum(storage.view(currency).values())
-                    available_value += storage_value
-                    target_value.units = storage_unit
-                    storage_cap = storage[attr_name]
-                    storage_amount = storage.__dict__.get('amount', 1)
-                    storage_net_cap = storage_cap * storage_amount
-                    available_conns.append(dict(agent=storage, value=storage_value,
-                                                capacity=storage_net_cap))
+                attr = f"{prefix}_{currency}"
+                attr_details = self.attr_details[attr]
 
-                # This loop tries to execute a flow for the full amount
-                # of agents. If a currency in storage is lacking, it updates
-                # deprive or kills an agent, decrements the amount and tries
-                # again with one fewer agents. If a currency in storage is
-                # sufficient, it breaks the loop and continues.
-                # NOTE: Room for optimization in this process: find
-                # the available currency and jump straight to N surviving.
-                for i in range(self.amount, 0, -1):
-                    test_value = target_value.magnitude.tolist() * i
+                # 3. CHECK ESCAPE PARAMETERS
+                if self.attrs[attr] == 0:
+                    # e.g. Atmosphere Equalizer: uses custom_func, has dummy flow to initialize connections
+                    continue
+                requires = attr_details.get('requires') or []
+                if len(requires) > 0 and len(set(requires).difference(influx)) > 0:
+                    # e.g. Human: if not consume potable water, don't produce urine
+                    continue
+
+                # 4. CALCULATE TARGET VALUE
+                step_value = self._get_step_value(attr)     # type pq.Quantity
+                step_mag = step_value.magnitude.tolist()    # type float
+                target_value = step_mag * self.amount
+                actual_value = target_value                 # to be adjusted below
+
+                # 5. CALCULATE AVAILABLE VALUE
+                available_value = 0   # Total available in connected storages
+                available_conns = []  # Value/capacity for each storage
+                for storage in selected_storages:
+                    storage_value = sum(storage.view(currency).values())
+                    storage_cap = storage['char_capacity_' + currency]
+                    storage_amount = storage.__dict__.get('amount', 1)
+                    available_value += storage_value
+                    available_conns.append(dict(
+                        agent=storage,
+                        value=storage_value,
+                        capacity=storage_cap * storage_amount
+                    ))
+
+                # 6. UPDATE AGENT BASED ON DEFICIT/SUFFICIENCY
+                has_deficit = prefix == 'in' and available_value < target_value
+                # 6.1 REQUIRES
+                is_required = attr_details.get('is_required')
+                if has_deficit and is_required:
+                    if is_required == 'mandatory':
+                        # e.g. Dehumidifier: If there's no atmosphere.h2o, don't do anything.
+                        return
+                    elif is_required == 'desired':
+                        # e.g. Plants: If one or more desired inputs is missing, growth stalls.
+                        skip_step = True
+                # 6.2 DEPRIVE
+                deprive_value = attr_details.get('deprive_value') or 0
+                if has_deficit and deprive_value > 0:
+                    n_satisfied = math.floor(available_value / step_mag)
+                    actual_value = n_satisfied * step_mag
+                    delta_per_step = attr_details.get('delta_per_step', 0)
+                    max_survive = math.floor(max(self.deprive[attr], 0) / delta_per_step)
+                    n_deprived = self.amount - n_satisfied
+                    n_survive = min(n_deprived, max_survive)
+                    self.deprive[attr] -= delta_per_step * n_survive
+                    n_die = n_deprived - n_survive
+                    self.amount -= n_die
+                    if self.amount <= 0:
+                        self.kill(f'All {self.agent_type} died. Killing the agent')
+                        return
+                elif deprive_value > 0:
+                    self.deprive[attr] = min(deprive_value * self.amount,
+                                             self.deprive[attr] + deprive_value)
+                # 6.3 GROWTH
+                if attr == self.growth_criteria and not skip_step:
+                    self.agent_step_num += self.model.hours_per_step
+                    self.current_growth += (actual_value / self.amount)
+                    self.growth_rate = self.current_growth / self.total_growth
+                    growth = self.growth_rate
+                else:
+                    growth = None
+
+                # 7. PROCESS EXCHANGE
+                flows = []
+                remaining_value = actual_value
+                for conn in available_conns:
+                    storage = conn['agent']
                     if prefix == 'in':
-                        new_storage_value = available_value - test_value
+                        conn_delta = min(remaining_value, conn['value'])
+                        flow = storage.increment(currency, -conn_delta)
                     elif prefix == 'out':
-                        new_storage_value = available_value + test_value
-                    # If there ISN'T enough currency in the storage
-                    # (excluding storages that were empty, i.e. output targets)
-                    if new_storage_value < 0 <= available_value:
-                        if deprive_value > 0:
-                            # Decrement the deprive value. If it hits 0,
-                            # kill one agent and try again with one fewer.
-                            self.deprive[attr] -= delta_per_step
-                            if self.deprive[attr] < 0:
-                                self.amount -= 1
-                            if self.amount <= 0:
-                                self.kill(f'All {self.agent_type} are died. Killing the agent')
-                                return
-                        # If it's mandatory, abort step. This accounts for
-                        # cases like the waste processor where, if there's
-                        # no waste available, it shouldn't do anything.
-                        if is_required == 'mandatory':
-                            return
-                        elif is_required == 'desired':
-                            # NOTE: this seems to have no effect. It's only
-                            # referenced once (a couple lines below), and
-                            # whether it's true or false, the conditional
-                            # will trigger because 'is_required' is truthy.
-                            skip_step = True
-                    # If there IS enough currency in storage,
-                    else:
-                        if not skip_step or is_required or self.attr_details[attr]['criteria_name']:
-                            # Update the value of the storage.
-                            # NOTE: If the output value is greater than the
-                            # maximum capacity of the storage, the excess
-                            # is currently ignored. This should be addressed.
-                            remaining_value = test_value
-                            flows = []
-                            for conn in available_conns:
-                                storage = conn['agent']
-                                if prefix == 'in':
-                                    conn_delta = min(remaining_value, conn['value'])
-                                    flow = storage.increment(currency, -conn_delta)
-                                elif prefix == 'out':
-                                    conn_delta = remaining_value / len(available_conns)
-                                    flow = storage.increment(currency, conn_delta)
-                                remaining_value -= conn_delta
-                                for k, v in flow.items():
-                                    if v == 0:
-                                        continue
-                                    flows.append({"storage_type": storage.agent_type,
-                                                  "storage_type_id": storage.agent_type_id,
-                                                  "storage_agent_id": storage.unique_id,
-                                                  "storage_id": storage.id,
-                                                  "currency": k,
-                                                  "amount": v})
-                                if remaining_value <= 0:
-                                    break
-                            # If deprive is less than max, increment up.
-                            # NOTE: This function takes the maximum as
-                            # deprive value * amount, which doesn't seem
-                            # to make sense?
-                            if deprive_value > 0:
-                                self.deprive[attr] = min(deprive_value * self.amount,
-                                                         self.deprive[attr] + deprive_value)
-                            agent_amount = i
-                            actual_value = test_value
-                            # Advance to the next step_num ONLY if the
-                            # growth_criteria currency is increased.
-                            # NOTE: The step_num defines the maximum growth
-                            # potential at a point in the agent's lifetime.
-                            # For plants, shouldn't this be related to the
-                            # age of the plant, and not how much it's grown?
-                            # In other words, if a plant is deprived of a
-                            # required currency during its period of maximum
-                            # growth, it shouldn't DELAY the maximum growth
-                            # period until later, it should FORFEIT the
-                            # maximum growth.
-                            if attr == self.growth_criteria:
-                                self.agent_step_num += hours_per_step
+                        conn_delta = remaining_value / len(available_conns)
+                        flow = storage.increment(currency, conn_delta)
+                    remaining_value -= conn_delta
+                    for k, v in flow.items():
+                        if v == 0:
+                            continue
+                        flows.append({"storage_type": storage.agent_type,
+                                      "storage_type_id": storage.agent_type_id,
+                                      "storage_agent_id": storage.unique_id,
+                                      "storage_id": storage.id,
+                                      "currency": k,
+                                      "amount": v})
+                    if remaining_value <= 0:
                         break
-                # Values below a certain threshold (1e-12) are ignored.
-                if actual_value > value_eps:
-                    if prefix == 'in' and currency not in influx:
-                        influx.add(currency)
-                    currency_data = self.currency_dict[currency]
-                    # Growth criteria updates the percentage grown, which
-                    # is used at the end of life to calcuate outputs.
-                    if attr == self.growth_criteria:
-                        self.current_growth += (actual_value / agent_amount)
-                        self.growth_rate = self.current_growth / self.total_growth
-                        growth = self.growth_rate
-                    else:
-                        growth = None
-                    self.last_flow[currency] = actual_value
-                    self.flows[currency] = flows
-                    for flow in flows:
-                        record = {"step_num": self.model.step_num + 1,
-                                  "game_id": self.model.game_id,
-                                  "user_id": self.model.user_id,
-                                  "agent_type": self.agent_type,
-                                  "agent_type_id": self.agent_type_id,
-                                  "agent_id": self.unique_id,
-                                  "direction": prefix,
-                                  "agent_amount": agent_amount,
-                                  "currency_type": flow['currency'],
-                                  "currency_type_id": self.model.currency_dict[flow['currency']]['id'],
-                                  "value": abs(round(flow['amount'], value_round)),
-                                  "growth": growth,
-                                  "unit": str(target_value.units),
-                                  "storage_type": flow['storage_type'],
-                                  "storage_type_id": flow['storage_type_id'],
-                                  "storage_agent_id": flow['storage_agent_id'],
-                                  "storage_id": flow['storage_id']}
-                        self.model.step_records_buffer.append(record)
+
+                # 8. UPDATE RECORDS
+                if actual_value < value_eps:  # ignore values less than 1e-12
+                    continue
+                if prefix == 'in' and currency not in influx:
+                    influx.add(currency)
+                self.last_flow[currency] = actual_value
+                self.flows[currency] = flows
+                for flow in flows:
+                    record = {"step_num": self.model.step_num + 1,
+                              "game_id": self.model.game_id,
+                              "user_id": self.model.user_id,
+                              "agent_type": self.agent_type,
+                              "agent_type_id": self.agent_type_id,
+                              "agent_id": self.unique_id,
+                              "direction": prefix,
+                              "agent_amount": self.amount,
+                              "currency_type": flow['currency'],
+                              "currency_type_id": self.model.currency_dict[flow['currency']]['id'],
+                              "value": abs(round(flow['amount'], value_round)),
+                              "growth": growth,
+                              "unit": str(step_value.units),
+                              "storage_type": flow['storage_type'],
+                              "storage_type_id": flow['storage_type_id'],
+                              "storage_agent_id": flow['storage_agent_id'],
+                              "storage_id": flow['storage_id']}
+                    self.model.step_records_buffer.append(record)
+
 
     def kill(self, reason):
         """Destroys the agent and removes it from the model

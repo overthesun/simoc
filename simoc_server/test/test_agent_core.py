@@ -73,10 +73,9 @@ def test_agent_disaster(disaster):
 
     # Amount
     radish_amount = agent_records['radish']['amount']
-    assert radish_amount[88] == 400
-    assert radish_amount[89] == 378
-    assert radish_amount[90] == 52
-    assert radish_amount[91] == 0
+    assert radish_amount[79] == 400
+    assert radish_amount[80] == 64
+    assert radish_amount[81] == 16
 
     # Growth
     growth_test={
@@ -103,8 +102,8 @@ def test_agent_disaster(disaster):
     # Deprive
     radish_deprive = agent_records['radish']['deprive']
     assert radish_deprive['in_kwh'][5] == 28800
-    assert radish_deprive['in_kwh'][50] == 13462
-    assert radish_deprive['in_kwh'][95] == -306
+    assert radish_deprive['in_kwh'][50] == 11501
+    assert radish_deprive['in_kwh'][95] == 316
 
 def test_agent_four_humans_garden(four_humans_garden):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
