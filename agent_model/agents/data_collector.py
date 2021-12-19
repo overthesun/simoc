@@ -71,6 +71,13 @@ class AgentDataCollector():
                         self.snapshot_attrs.append('deprive')
                         self.deprive = {}
                     self.deprive[attr] = [deprive_value * self.full_amount]
+        # Variation
+        if 'initial_variable' in self.agent:
+            self.snapshot_attrs.append('initial_variable')
+            self.initial_variable = self.agent.initial_variable
+        if 'step_variable' in self.agent:
+            self.snapshot_attrs.append('step_variable')
+            self.step_variable = [1]
 
     def step(self):
         self.age.append(self.agent.age)
@@ -94,6 +101,8 @@ class AgentDataCollector():
         if 'deprive' in self.snapshot_attrs:
             for currency, record in self.deprive.items():
                 record.append(self.agent.deprive.get(currency, 0))
+        if 'step_variable' in self.snapshot_attrs:
+            self.step_variable.append(self.agent.step_variable)
 
     def get_data(self, debug=False, clear_cache=False):
         default_fields = ['flows', 'storage', 'growth']

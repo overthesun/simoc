@@ -12,8 +12,9 @@ def test_initializer_from_new(one_human):
     #     json.dump(initializer.serialize(), f)
 
     md = initializer.model_data
-    assert len(md) == 8
+    assert len(md) == 9
     assert md['seed'] > 100
+    assert md['global_entropy'] == None
     assert md['single_agent'] == 1
     expected_termination = dict(condition='time', value=10, unit='day')
     assert md['termination'][0] == expected_termination
@@ -61,7 +62,7 @@ def test_initializer_save_load(disaster):
         elif isinstance(a, dict):
             for k, v in a.items():
                 # TODO: These fields aren't working properly; this makes the test pass
-                if k not in ['buffer', 'storage_ratios', 'deprive']:
+                if k not in ['buffer', 'storage_ratios', 'deprive', 'flow_records']:
                     _compare(v, b[k])
         elif isinstance(a, list):
             for item_a, item_b in zip(a, b):

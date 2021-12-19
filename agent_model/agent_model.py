@@ -86,6 +86,7 @@ class AgentModel(Model, AttributeHolder):
         self.start_time = md.get('start_time', None)
         # Configuration (user-input)
         self.seed = md['seed']
+        self.global_entropy = md.get('global_entropy', None)
         self.single_agent = md['single_agent']
         self.termination = md['termination']
         self.priorities = md['priorities']

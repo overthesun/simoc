@@ -44,11 +44,15 @@ class AgentModelInitializer():
 
     @classmethod
     def from_new(cls, config, user_currency_desc=None, user_agent_desc=None,
-                 user_agent_conn=None):
+                 user_agent_conn=None, user_agent_variation=None):
 
         # Unpack & initialize all model-level fields from config
+        seed = config.get('seed', None)
+        seed = seed if type(seed) == int else random.getrandbits(32)
+        seed = seed if seed > 2**32 else seed % 2**32
         model_data = dict(
-            seed=config.get('seed', random.getrandbits(32)),
+            seed=seed,
+            global_entropy=config.get('global_entropy', None),
             single_agent=0 if not config.get('single_agent', None) == 1 else 1,
             termination=config.get('termination', []),
             priorities=config.get('priorities', []),
@@ -64,6 +68,13 @@ class AgentModelInitializer():
         # TODO: Merge with user-defined
         model_data['currency_dict'] = parse_currency_desc(default_currency_desc)
         agent_desc = parse_agent_desc(config, model_data['currency_dict'], default_agent_desc, _DEFAULT_LOCATION)
+
+        # Add agent variation data
+        if model_data['global_entropy']:
+            default_agent_variation = load_data_file('agent_variation.json')
+            for agent, agent_data in agent_desc.items():
+                if agent_data['agent_class'] in default_agent_variation:
+                    agent_data['variation'] = default_agent_variation[agent_data['agent_class']]
 
         # Unpack and initialize agent-level fields
         agent_data = {}
@@ -85,6 +96,7 @@ class AgentModelInitializer():
             start_time=model.start_time,
             # Configuration (user-input)
             seed=model.seed,
+            global_entropy=model.global_entropy,
             single_agent=model.single_agent,
             termination=model.termination,
             priorities=model.priorities,

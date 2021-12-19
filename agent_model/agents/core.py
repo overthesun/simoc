@@ -11,7 +11,7 @@ import quantities as pq
 from mesa import Agent
 
 from agent_model.attribute_meta import AttributeHolder
-from agent_model.agents import growth_func
+from agent_model.agents import growth_func, variation_func
 from agent_model.agents import custom_funcs
 from agent_model.exceptions import AgentInitializationError
 
@@ -56,9 +56,39 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         self.attrs = agent_desc['attributes']
         self.attr_details = agent_desc['attribute_details']
 
+        if 'variation' in agent_desc:
+            self._init_variation(agent_desc['variation'])
+
         self.currency_dict = {}
         AttributeHolder.__init__(self)
         super().__init__(self.unique_id, self.model)
+
+    def _init_variation(self, variation):
+        ge = self.model.global_entropy
+        iv = variation.get('initial')
+        sv = variation.get('step')
+        if iv:
+            # Calculate initial variable
+            upper = ge * iv.get('upper', 0)
+            lower = ge * iv.get('lower', 0)
+            distribution = iv.get('distribution')
+            self.initial_variable = variation_func.get_variable(
+                self.model.random_state, upper, lower, distribution)
+
+            # Multiply starting values by initial variable
+            characteristics = iv.get('characteristics', [])
+            characteristics = map(lambda a: 'char_' + a, characteristics)
+            for attr, attr_value in self.attrs.items():
+                if attr.startswith('in_') or attr.startswith('out_') or attr in characteristics:
+                    self.attrs[attr] = attr_value * self.initial_variable
+
+        if sv:
+            upper = ge * sv.get('upper', 0)
+            lower = ge * sv.get('lower', 0)
+            distribution = sv.get('distribution')
+            self.generate_step_variable = lambda: variation_func.get_variable(
+                self.model.random_state, upper, lower, distribution)
+            self.step_variable = 1
 
     def add_currency_to_dict(self, currency):
         """Adds a reference to the currency's database object.
@@ -592,6 +622,12 @@ class GeneralAgent(StorageAgent):
                 else:
                     raise Exception('Unknown custom function: f{custom_function}.')
 
+        # GENERATE RANDOM VARIATION
+        if 'generate_step_variable' in self:
+            self.step_variable = self.generate_step_variable()
+        else:
+            self.step_variable = 1
+
         # ITERATE THROUGH EACH INPUT AND OUTPUT
         influx = set()     # For 'requires' field
         skip_step = False  # Stalls growth if 'required = desired' field is missing
@@ -613,6 +649,7 @@ class GeneralAgent(StorageAgent):
 
                 # 4. CALCULATE TARGET VALUE
                 step_value = self._get_step_value(attr)     # type pq.Quantity
+                step_value = step_value * self.step_variable
                 step_mag = step_value.magnitude.tolist()    # type float
                 target_value = step_mag * self.amount
                 actual_value = target_value                 # to be adjusted below
