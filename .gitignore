@@ -5,3 +5,9 @@ __pycache__
 docs/_build/
 
 certs/
+
+data_analysis/
+
+.DS_Store
+docker-compose.mysql.yml
+simoc_nginx.conf

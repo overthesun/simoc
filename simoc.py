@@ -245,7 +245,7 @@ def test(*args):
         init_test_db = lambda: True
     return (up() and init_test_db() and
             docker_compose('exec', 'flask-app',
-                                   'pytest', '-v', '--pyargs',
+                                   'pytest', '-v', '--pyargs', '--durations=0',
                                    'simoc_server', *args))
 
 @cmd

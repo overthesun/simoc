@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from simoc_server.agent_model.parse_data_files import parse_currency_desc
 
 # Returns the agent_desc.json file as a dict
 @pytest.fixture(autouse=True, scope="session")
@@ -23,6 +24,10 @@ def currency_desc():
     with open('data_files/currency_desc.json') as f:
         yield json.load(f)
 
+@pytest.fixture(autouse=True, scope="session")
+def currency_dict(currency_desc):
+    return parse_currency_desc(currency_desc)
+
 # Matches the 'One Human' preset
 @pytest.fixture()
 def one_human():
@@ -36,6 +41,21 @@ def one_human():
         'nutrient_storage': {'fertilizer': 300},
         'single_agent': 1,
         'habitat': 'crew_habitat_small',
+    }
+
+@pytest.fixture()
+def disaster():
+    return {
+        'duration': {'type': 'day', 'value': 30},
+        'food_storage': {'ration': 100},
+        'eclss': {'amount': 0},
+        'solar_pv_array_mars': {'amount': 10},
+        'power_storage': {'kwh': 1},
+        'nutrient_storage': {'fertilizer': 300},
+        'single_agent': 1,
+        'habitat': 'crew_habitat_small',
+        'greenhouse': 'greenhouse_small',
+        'plants': [{'species': 'radish', 'amount': 400}]
     }
 
 # Matches the 'One Human + Radish' preset
