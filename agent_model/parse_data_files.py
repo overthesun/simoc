@@ -3,7 +3,6 @@ import random
 
 from agent_model.agents import growth_func
 from agent_model.util import location_to_day_length_minutes
-from agent_model.exceptions import AgentModelInitializationError
 
 def parse_currency_desc(currency_desc):
     """Converts raw currency_desc into a dictionary of currencies and classes.
@@ -21,20 +20,26 @@ def parse_currency_desc(currency_desc):
       dict: All currencies and currency_classes with added IDs and metadata.
     """
     parsed = {}
+    currency_errors = {}
+    def _add(key, value):
+        if key in parsed:
+            currency_errors[key] = "All currencies and currency class names must be unique"
+        else:
+            parsed[key] = value
     for currency_class, currencies in currency_desc.items():
         currency_class_record = {'name': currency_class,
                                  'id': random.getrandbits(32),
                                  'type': 'currency_class',
                                  'currencies': list(currencies.keys())}
-        parsed[currency_class] = currency_class_record
+        _add(currency_class, currency_class_record)
         for currency, currency_data in currencies.items():
             currency_record = {'name': currency,
                                 'id': random.getrandbits(32),
                                 'type': 'currency',
                                 'class': currency_class,
                                 **currency_data}
-            parsed[currency] = currency_record
-    return parsed
+            _add(currency, currency_record)
+    return parsed, currency_errors
 
 def parse_agent_desc(config, currencies, agent_desc, _DEFAULT_LOCATION):
     """Converts raw agent_desc.json data into AgentModel initialization dict
@@ -55,7 +60,8 @@ def parse_agent_desc(config, currencies, agent_desc, _DEFAULT_LOCATION):
       AgentModelInitializationError: If agent_desc or currency data is missing
 
     """
-    agent_data = {}
+    agents_data = {}
+    agents_errors = {}
     currencies_list = currencies.keys()
     location = config.get('location', _DEFAULT_LOCATION)
     agent_class_reference = {}
@@ -64,35 +70,24 @@ def parse_agent_desc(config, currencies, agent_desc, _DEFAULT_LOCATION):
             agent_class_reference[agent] = agent_class
     for agent in config['agents'].keys():
         agent_class = agent_class_reference.get(agent, None)
-        if not agent_class:
-            raise AgentModelInitializationError(f"No agent_desc data found for {agent}")
-        parsed_agent_data = parse_agent(agent_class,
-                                        agent,
-                                        agent_desc[agent_class][agent],
-                                        currencies_list,
-                                        location)
-        agent_data[agent] = parsed_agent_data
-    return agent_data
+        if not agent_class or agent not in agent_desc[agent_class]:
+            agents_errors[agent]['agent_class'] = "Agent not specified in agent_desc"
+            continue
+        parsed_agent_data, agent_errors = parse_agent(agent_class,
+                                                      agent,
+                                                      agent_desc[agent_class][agent],
+                                                      currencies_list,
+                                                      location)
+        agents_data[agent] = parsed_agent_data
+        if len(agent_errors) > 0:
+            agents_errors[agent] = agent_errors
+    return agents_data, agents_errors
 
 def parse_agent(agent_class, name, data, currencies, location):
     """Converts agent_desc data for one agent into GeneralAgent initialization data
 
     Takes a sparse definition of agent parameters and returns dicts with all
     possible values, set to 'None' if not specified.
-
-    Args:
-      agent_class: str, name of class to which agent belongs
-      name: str, human-readable name of the agent
-      data: dict, raw data from agent_desc.json
-      currencies: dict, parsed currency data
-      location: str, mars or moon
-
-    Returns:
-      dict: Data for one agent used to initialize a GeneralAgent:
-        str: agent_class
-        str: agent_type_id
-        dict: attributes
-        dict: attribute_details
     """
     # Initialize return object
     agent_data = {
@@ -101,6 +96,7 @@ def parse_agent(agent_class, name, data, currencies, location):
         "attributes": {},
         "attribute_details": {},
     }
+    agent_errors = {}
 
     # Parse characteristics
     for attr in data['data']['characteristics']:
@@ -114,7 +110,7 @@ def parse_agent(agent_class, name, data, currencies, location):
         if attr['type'].startswith('capacity'):
             currency = attr['type'].split('_', 1)[1]
             if currency not in currencies:
-                raise AgentModelInitializationError(f"Currency data not found for {currency} when parsing {name}.")
+                agent_errors[currency] = "Currency not specified in currency_desc"
         attribute_detail = dict(currency_type=currency,
                                 unit=attr_unit)
         agent_data['attribute_details'][attr_name] = attribute_detail
@@ -124,7 +120,7 @@ def parse_agent(agent_class, name, data, currencies, location):
         for attr in data['data'][section]:
             currency = attr['type'].lower().strip()
             if currency not in currencies:
-                raise AgentModelInitializationError(f"Currency data not found for {currency} when parsing {name}.")
+                agent_errors[currency] = "Currency not specified in currency_desc"
 
             # Attributes
             prefix = 'in' if section == 'input' else 'out'
@@ -185,7 +181,7 @@ def parse_agent(agent_class, name, data, currencies, location):
 
             agent_data['attribute_details'][attr_name] = attribute_detail
 
-    return agent_data
+    return agent_data, agent_errors
 
 def calculate_lifetime_growth_max_value(attr_value, attr_details, lifetime, location):
     """Calculate the highest point on a normal bell curve"""

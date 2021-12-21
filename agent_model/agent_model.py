@@ -55,7 +55,10 @@ class AgentModel(Model, AttributeHolder):
             agent_desc      dict    User-specified agents
             agent_conn      dict    User-specified connections
         """
-        initializer = AgentModelInitializer.from_new(config, currency_desc, agent_desc, connections)
+        initializer, errors = AgentModelInitializer.from_new(config, currency_desc, agent_desc, connections)
+        for category in ['model', 'agents', 'currencies']:
+            if len(errors[category]) > 0:
+                return errors
         return cls(initializer)
 
     def save(self):
@@ -86,12 +89,11 @@ class AgentModel(Model, AttributeHolder):
         self.start_time = md.get('start_time', None)
         # Configuration (user-input)
         self.seed = md['seed']
-        self.global_entropy = md.get('global_entropy', None)
+        self.global_entropy = md['global_entropy']
         self.single_agent = md['single_agent']
         self.termination = md['termination']
         self.priorities = md['priorities']
         self.location = md.get('location')
-        self.total_amount = md['total_amount']
         self.minutes_per_step = md['minutes_per_step']
         self.currency_dict = md['currency_dict']
         # Status (generated when model is initialized, saved)
@@ -105,8 +107,8 @@ class AgentModel(Model, AttributeHolder):
             self.termination_reason = None
         elif initializer.init_type == 'from_model':
             self.random_state = np.random.RandomState()
-            self.random_state.set_state(md.get('random_state'))
-            self.time = eval(md['time'])
+            self.random_state.set_state(md['random_state'])
+            self.time = datetime.timedelta(seconds=md['time'])
             self.starting_step_num = md['steps']
             self.storage_ratios = md['storage_ratios']
             self.step_records_buffer = md['step_records_buffer']
@@ -131,6 +133,7 @@ class AgentModel(Model, AttributeHolder):
         #------------------------------
         for agent_type, agent_data in initializer.agent_data.items():
             agent_desc, instance = agent_data.values()
+            instance['init_type'] = initializer.init_type
             connections = instance.pop('connections', {})
             amount = instance.pop('amount', 1)
             if self.single_agent == 1:

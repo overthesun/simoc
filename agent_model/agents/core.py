@@ -56,8 +56,19 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         self.attrs = agent_desc['attributes']
         self.attr_details = agent_desc['attribute_details']
 
-        if 'variation' in agent_desc:
-            self._init_variation(agent_desc['variation'])
+        init_type = kwargs.pop("init_type")
+        if init_type == "from_model":
+            self.initial_variable = kwargs.pop("initial_variable")
+            self.step_variation = kwargs.pop("step_variation")
+            self.step_variable = kwargs.pop("step_variable")
+        else:
+            global_entropy = self.model.global_entropy
+            if global_entropy == 0 or 'variation' not in agent_desc:
+                self.initial_variable = 1
+                self.step_variation = None
+                self.step_variable = 1
+            else:
+                self._init_variation(agent_desc['variation'])
 
         self.currency_dict = {}
         AttributeHolder.__init__(self)
@@ -76,19 +87,19 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
                 self.model.random_state, upper, lower, distribution)
 
             # Multiply starting values by initial variable
-            characteristics = iv.get('characteristics', [])
-            characteristics = map(lambda a: 'char_' + a, characteristics)
+            characteristics = {'char_' + a for a in iv.get('characteristics', [])}
             for attr, attr_value in self.attrs.items():
-                if attr.startswith('in_') or attr.startswith('out_') or attr in characteristics:
+                if attr.startswith(('in_', 'out_')) or attr in characteristics:
                     self.attrs[attr] = attr_value * self.initial_variable
-
         if sv:
             upper = ge * sv.get('upper', 0)
             lower = ge * sv.get('lower', 0)
             distribution = sv.get('distribution')
-            self.generate_step_variable = lambda: variation_func.get_variable(
-                self.model.random_state, upper, lower, distribution)
+            self.step_variation = dict(upper=upper, lower=lower, distribution=distribution)
             self.step_variable = 1
+
+    def generate_step_variable(self):
+        return variation_func.get_variable(self.model.random_state, **self.step_variation)
 
     def add_currency_to_dict(self, currency):
         """Adds a reference to the currency's database object.
@@ -623,10 +634,8 @@ class GeneralAgent(StorageAgent):
                     raise Exception('Unknown custom function: f{custom_function}.')
 
         # GENERATE RANDOM VARIATION
-        if 'generate_step_variable' in self:
+        if self.step_variation is not None:
             self.step_variable = self.generate_step_variable()
-        else:
-            self.step_variable = 1
 
         # ITERATE THROUGH EACH INPUT AND OUTPUT
         influx = set()     # For 'requires' field

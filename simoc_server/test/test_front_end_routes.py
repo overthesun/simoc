@@ -75,7 +75,7 @@ def test_convert_one_human(one_human, agent_desc, agent_class_dict):
 
     # Game Variables
     assert gc.single_agent == 1
-    assert gc.total_amount == 17
+    assert len(gc.agents) == 17
 
     termination = gc.termination
     assert termination[0]['condition'] == 'time'

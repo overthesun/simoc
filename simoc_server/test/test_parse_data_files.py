@@ -7,7 +7,7 @@ from simoc_server.front_end_routes import convert_configuration
 from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc
 
 def test_parse_currency_desc(currency_desc):
-    currencies = parse_currency_desc(currency_desc)
+    currencies, currency_errors = parse_currency_desc(currency_desc)
 
     assert len(currencies) == 42
     # with open('data_analysis/parsed_currency_desc.json', 'w') as f:
@@ -29,7 +29,7 @@ def test_parse_currency_desc(currency_desc):
 
 def test_parse_agent_desc(four_humans_garden, currency_dict, agent_desc):
     config = convert_configuration(four_humans_garden)
-    agents = parse_agent_desc(config, currency_dict, agent_desc, 'mars')
+    agents, agent_errors = parse_agent_desc(config, currency_dict, agent_desc, 'mars')
     # with open('data_analysis/parsed_agent_desc.json', 'w') as f:
     #     json.dump(agents, f)
 

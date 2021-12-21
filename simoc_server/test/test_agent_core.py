@@ -13,6 +13,7 @@ from agent_model import AgentModel
 
 def test_agent_one_human_radish(one_human_radish):
     one_human_radish_converted = convert_configuration(one_human_radish)
+    # export_config(one_human_radish_converted, 'config_1hrad.json')
     one_human_radish_converted['agents']['food_storage']['wheat'] = 2
     model = AgentModel.from_config(one_human_radish_converted)
     model.step_to(n_steps=50)
@@ -66,8 +67,7 @@ def test_agent_one_human_radish(one_human_radish):
 
 def test_agent_disaster(disaster):
     disaster_converted = convert_configuration(disaster)
-    with open('data_analysis/config_disaster.json', 'w') as f:
-        json.dump(disaster_converted, f)
+    # export_config(disaster_converted, 'config_disaster.json')
     model = AgentModel.from_config(disaster_converted)
     model.step_to(n_steps=100)
     export_data(model, 'agent_records_disaster.json')
@@ -110,6 +110,7 @@ def test_agent_disaster(disaster):
 
 def test_agent_four_humans_garden(four_humans_garden):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
+    # export_config(four_humans_garden_converted, 'config_4hg.json')
     model = AgentModel.from_config(four_humans_garden_converted)
     model.step_to(n_steps=2)
     export_data(model, 'agent_records_fhgarden.json')
@@ -187,3 +188,7 @@ def export_data(model, fname):
         agent_records[agent.agent_type]['step_values'] = step_values
     with open('data_analysis/' + fname, 'w') as f:
         json.dump(agent_records, f)
+
+def export_config(config, fname):
+    with open('data_analysis/' + fname, 'w') as f:
+        json.dump(config, f)

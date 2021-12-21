@@ -7,27 +7,28 @@ from agent_model import AgentModel, AgentModelInitializer
 from simoc_server.front_end_routes import convert_configuration
 
 def test_initializer_from_new(one_human):
-    initializer = AgentModelInitializer.from_new(convert_configuration(one_human))
+    initializer, errors = AgentModelInitializer.from_new(convert_configuration(one_human))
+    for category in ['model', 'agents', 'currencies']:
+        assert len(errors[category]) == 0
     # with open('data_analysis/initializer.json', 'w') as f:
     #     json.dump(initializer.serialize(), f)
 
     md = initializer.model_data
-    assert len(md) == 9
+    assert len(md) == 8
     assert md['seed'] > 100
-    assert md['global_entropy'] == None
+    assert md['global_entropy'] == 0
     assert md['single_agent'] == 1
     expected_termination = dict(condition='time', value=10, unit='day')
     assert md['termination'][0] == expected_termination
     assert md['priorities'] == ['structures', 'storage', 'power_generation',
                                 'inhabitants', 'eclss', 'plants']
     assert md['location'] == 'mars'
-    assert md['total_amount'] == 17
     assert md['minutes_per_step'] == 60
     assert md['currency_dict']['atmosphere']['type'] == 'currency_class'
     assert md['currency_dict']['o2']['class'] == 'atmosphere'
 
     ad = initializer.agent_data
-    assert len(ad) > 1
+    assert len(ad) == 17
     assert ad['human_agent']['agent_desc']['agent_class'] == 'inhabitants'
     assert ad['human_agent']['instance']['amount'] == 1
 

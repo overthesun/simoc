@@ -42,50 +42,93 @@ class AgentModelInitializer():
         self.agent_data = agent_data
         self.init_type = init_type
 
+    def default_model_data():
+        return dict(
+            seed=random.getrandbits(32),
+            global_entropy=0,
+            single_agent=1,
+            termination=[],
+            priorities=[],
+            location=_DEFAULT_LOCATION,
+            minutes_per_step=60
+        )
+
     @classmethod
     def from_new(cls, config, user_currency_desc=None, user_agent_desc=None,
                  user_agent_conn=None, user_agent_variation=None):
 
-        # Unpack & initialize all model-level fields from config
-        seed = config.get('seed', None)
-        seed = seed if type(seed) == int else random.getrandbits(32)
-        seed = seed if seed > 2**32 else seed % 2**32
-        model_data = dict(
-            seed=seed,
-            global_entropy=config.get('global_entropy', None),
-            single_agent=0 if not config.get('single_agent', None) == 1 else 1,
-            termination=config.get('termination', []),
-            priorities=config.get('priorities', []),
-            location=config.get('location', _DEFAULT_LOCATION),
-            total_amount=config.get('total_amount', len(config['agents'])),
-            minutes_per_step=config.get('minutes_per_step', 60),
-        )
+        errors = dict(model={}, agents={}, currencies={})
+        def _agent_error(agent, item, error):
+            if agent not in errors['agents']:
+                errors['agents'][agent] = {}
+            errors['agents'][agent][item] = error
+        # Initialize default values
+        model_data = cls.default_model_data()
+        for key, value in config.items():
+            if key in ['agents', 'total_amount']:
+                continue
+            elif key in model_data:
+                if key == 'seed':
+                    if type(value) != int:
+                        errors['model']['seed'] = 'seed must be an integer'
+                        continue
+                    value = value % 2**32
+                # Replace defaults with user-specified fields
+                model_data[key] = value
+            else:
+                # Return unrecognized user-specified fields
+                errors['model'][key] = 'unrecognized'
 
         # Load and merge data files
         default_currency_desc = load_data_file('currency_desc.json')
-        default_agent_desc = load_data_file('agent_desc.json')
-        # TODO: Add connections here, rather than in convert_config
         # TODO: Merge with user-defined
-        model_data['currency_dict'] = parse_currency_desc(default_currency_desc)
-        agent_desc = parse_agent_desc(config, model_data['currency_dict'], default_agent_desc, _DEFAULT_LOCATION)
+        currency_desc, currency_errors = parse_currency_desc(default_currency_desc)
+        model_data['currency_dict'] = currency_desc
+        errors['currencies'] = currency_errors
 
-        # Add agent variation data
-        if model_data['global_entropy']:
-            default_agent_variation = load_data_file('agent_variation.json')
-            for agent, agent_data in agent_desc.items():
-                if agent_data['agent_class'] in default_agent_variation:
-                    agent_data['variation'] = default_agent_variation[agent_data['agent_class']]
+        default_agent_desc = load_data_file('agent_desc.json')
+        # TODO: Merge with user-defined
+        agent_desc, agents_errors = parse_agent_desc(config, model_data['currency_dict'], default_agent_desc, _DEFAULT_LOCATION)
+        errors['agents'] = agents_errors
 
-        # Unpack and initialize agent-level fields
+        default_agent_variation = load_data_file('agent_variation.json')
+        # TODO: Merge with user-defined
+        for agent, agent_data in agent_desc.items():
+            if agent in default_agent_variation:
+                variation = default_agent_variation['variation']
+            elif agent_data['agent_class'] in default_agent_variation:
+                variation = default_agent_variation[agent_data['agent_class']]
+            else:
+                continue
+            valid_variation = {}
+            for key, value in variation.items():
+                if key not in ['initial', 'step']:
+                    _agent_error(agent, 'variation', f"Unrecognized variation type: {key}")
+                valid_variation[key] = value
+            if len(valid_variation) == 0:
+                _agent_error(agent, 'variation', f"No valid variation types found")
+            else:
+                agent_data['variation'] = valid_variation
+
+        # TODO: Add connections here, rather than in convert_config
+
+        # Build and validate agent instance
         agent_data = {}
+        if len(config['agents']) == 0:
+            errors['model']['agents'] = "Must specify at least one agent"
         for agent, instance in config['agents'].items():
+            if agent not in agent_desc:
+                continue
+            valid_instance = {}
             non_currency_fields = ['id', 'amount', 'total_capacity', 'connections']
-            for field in instance:
+            for field, value in instance.items():
                 if field not in non_currency_fields and field not in model_data['currency_dict']:
-                    raise AgentModelInitializationError(f"Currency {field} specified for agent {agent} not found in currency dict.")
-            agent_data[agent] = dict(agent_desc=agent_desc[agent], instance=instance)
+                    _agent_error(agent, field, "Unrecognized field in agent instance")
+                else:
+                    valid_instance[field] = value
+            agent_data[agent] = dict(agent_desc=agent_desc[agent], instance=valid_instance)
 
-        return cls(model_data, agent_data, 'from_new')
+        return cls(model_data, agent_data, 'from_new'), errors
 
     @classmethod
     def from_model(cls, model):
@@ -101,12 +144,11 @@ class AgentModelInitializer():
             termination=model.termination,
             priorities=model.priorities,
             location=model.location,
-            total_amount=model.total_amount,
             minutes_per_step=model.minutes_per_step,
             currency_dict=model.currency_dict,
             # Status (generated)
             random_state=model.random_state.get_state(),
-            time=repr(model.time),  # type datetime.timedelta
+            time=model.time.seconds,  # int of seconds
             steps=model.scheduler.steps,
             storage_ratios=model.storage_ratios,
             step_records_buffer=model.step_records_buffer,
@@ -135,6 +177,9 @@ class AgentModelInitializer():
             age=agent.age,
             amount=agent.amount,
             full_amount=agent.full_amount,
+            initial_variable=agent.initial_variable,
+            step_variation=agent.step_variation,
+            step_variable=agent.step_variable,
             agent_step_num=agent.agent_step_num,
             total_growth=agent.total_growth,
             current_growth=agent.current_growth,

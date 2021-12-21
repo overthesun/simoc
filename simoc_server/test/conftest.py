@@ -26,7 +26,8 @@ def currency_desc():
 
 @pytest.fixture(autouse=True, scope="session")
 def currency_dict(currency_desc):
-    return parse_currency_desc(currency_desc)
+    currency_desc, currency_errors = parse_currency_desc(currency_desc)
+    return currency_desc
 
 # Matches the 'One Human' preset
 @pytest.fixture()
