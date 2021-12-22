@@ -56,7 +56,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         self.attrs = agent_desc['attributes']
         self.attr_details = agent_desc['attribute_details']
 
-        init_type = kwargs.pop("init_type")
+        init_type = kwargs.get("init_type")
         if init_type == "from_model":
             self.initial_variable = kwargs.pop("initial_variable")
             self.step_variation = kwargs.pop("step_variation")
@@ -286,6 +286,7 @@ class StorageAgent(GrowthAgent):
                     temp[currency] / total.magnitude.tolist()
             else:
                 self.model.storage_ratios[storage_id][currency + '_ratio'] = 0
+
     def view(self, view=None):
         if view not in self.currency_dict:
             raise KeyError(f"{view} is not a recognized view.")
@@ -325,9 +326,10 @@ class StorageAgent(GrowthAgent):
         elif increment_amount < 0:
             currencies = self.view(view)
             total_view_amount = sum(currencies.values())
-            target_view_amount = total_view_amount + increment_amount
-            if target_view_amount < 0:
-                raise ValueError(f"{self.agent_type} has insufficient {view} balance to increment by {increment_amount}")
+            target_view_amount = min(total_view_amount + increment_amount, 0)
+            # TODO: This is triggered sometimes by a rounding error. Need a better solution.
+            # if target_view_amount < 0:
+                # raise ValueError(f"{self.agent_type} has insufficient {view} balance to increment by {increment_amount}")
             ratios = {c: self[c]/total_view_amount for c in currencies.keys()}
             flow = {}
             for currency in currencies:
@@ -376,6 +378,27 @@ class GeneralAgent(StorageAgent):
         self.buffer = kwargs.pop("buffer", {})
         self.deprive = kwargs.pop("deprive", {})
         self.step_values = kwargs.get("step_values", {})
+        self.events = kwargs.get("events", {})
+        self.event_multipliers = kwargs.get("event_multipliers", {})
+        if kwargs.get('init_type') == 'from_new':
+            self._init_events()
+
+    def _init_events(self):
+        for attr in self.attrs:
+            if not attr.startswith('event'):
+                continue
+            # Normalize unit values
+            probability = self.attr_details[attr]['probability_value']
+            probability_unit = self.attr_details[attr]['probability_unit']
+            multiplier = dict(min=60, hour=1, day=1/int(self.model.day_length_hours)).get(probability_unit, 0)
+            self.attr_details[attr]['probability_per_step'] = probability * self.model.hours_per_step * multiplier
+
+            duration = self.attr_details[attr].get('duration_value', None)
+            if duration:
+                duration_unit = self.attr_details[attr].get('duration_unit', 'hour')
+                multiplier = dict(min=60, hour=1, day=1/int(self.model.day_length_hours)).get(duration_unit, 1)
+                self.attr_details[attr]['duration_delta_per_step'] = self.model.hours_per_step * multiplier
+
 
     def _init_currency_exchange(self):
         """Initializes all values related to currency exchanges
@@ -606,6 +629,67 @@ class GeneralAgent(StorageAgent):
             agent_value *= self[weighted]
         return pq.Quantity(agent_value, agent_unit)
 
+    def _process_event(self, attr, attr_value):
+        event_type = attr.split('_', 1)[1]
+        attr_details = self.attr_details[attr]
+        # UPDATE INSTANCES FOR DURATION & AMOUNT
+        instances = self.events.get(event_type, [])
+        for instance in instances:
+            if 'duration' in instance:
+                instance['duration'] -= attr_details['duration_delta_per_step']
+        instances = list(filter(
+            lambda e: False if 'duration' in e and e['duration'] <= 0 else True, instances))
+        if len(instances) > self.amount:
+            instances = instances[:self.amount]
+        # RANDOMLY GENERATE NEW INSTANCES
+        scope = attr_details['scope']
+        max_instances = 1 if scope == 'group' else self.amount
+        max_new_instances = max_instances - len(instances)
+        for i in range(max_new_instances):
+            # Roll the dice
+            instance_variable = self.model.random_state.rand()
+            if instance_variable > attr_details['probability_per_step']:
+                continue
+            # Add instance
+            if attr_value == 'termination':
+                self.kill(f"Agent died due to {event_type}")
+            elif attr_value == 'multiplier':
+                magnitude = attr_details['magnitude_value']
+                magnitude_variation_distribution = attr_details.get('magnitude_variation_distribution')
+                if magnitude_variation_distribution:
+                    magnitude_variable = variation_func.get_variable(
+                        self.model.random_state,
+                        attr_details['magnitude_variation_upper'],
+                        attr_details['magnitude_variation_lower'],
+                        magnitude_variation_distribution
+                    )
+                    magnitude = magnitude * magnitude_variable
+                instance = dict(magnitude=magnitude)
+                duration = attr_details.get('duration_value')
+                if duration:
+                    duration_variation_distribution = attr_details.get('duration_variation_distribution')
+                    if duration_variation_distribution:
+                        duration_variable = variation_func.get_variable(
+                            self.model.random_state,
+                            attr_details['duration_variation_upper'],
+                            attr_details['duration_variation_lower'],
+                            duration_variation_distribution
+                        )
+                        duration = duration * duration_variable
+                    instance['duration'] = duration
+                instances.append(instance)
+        # UPDATE EVENT RECORDS
+        if len(instances) == 0 and event_type in self.events:
+            del self.events[event_type]
+            del self.event_multipliers[event_type]
+        elif len(instances) > 0:
+            self.events[event_type] = instances
+            modified = sum([i['magnitude'] for i in instances])
+            unmodified = max_instances - len(instances)
+            event_multiplier = (modified + unmodified) / max_instances
+            self.event_multipliers[event_type] = event_multiplier
+
+
     def step(self, value_eps=1e-12, value_round=6):
         """The main step function for SIMOC agents. Calculates step value and processes exchange.
 
@@ -631,9 +715,12 @@ class GeneralAgent(StorageAgent):
                 if custom_function:
                     custom_function(self)
                 else:
-                    raise Exception('Unknown custom function: f{custom_function}.')
+                    raise Exception(f'Unknown custom function: {custom_function}.')
+            # 3. PROCESS EVENTS
+            if attr.startswith('event'):
+                self._process_event(attr, attr_value)
 
-        # GENERATE RANDOM VARIATION
+        # 4. GENERATE RANDOM VARIATION
         if self.step_variation is not None:
             self.step_variable = self.generate_step_variable()
 
@@ -647,7 +734,7 @@ class GeneralAgent(StorageAgent):
                 attr = f"{prefix}_{currency}"
                 attr_details = self.attr_details[attr]
 
-                # 3. CHECK ESCAPE PARAMETERS
+                # 5. CHECK ESCAPE PARAMETERS
                 if self.attrs[attr] == 0:
                     # e.g. Atmosphere Equalizer: uses custom_func, has dummy flow to initialize connections
                     continue
@@ -656,14 +743,15 @@ class GeneralAgent(StorageAgent):
                     # e.g. Human: if not consume potable water, don't produce urine
                     continue
 
-                # 4. CALCULATE TARGET VALUE
+                # 6. CALCULATE TARGET VALUE
                 step_value = self._get_step_value(attr)     # type pq.Quantity
                 step_value = step_value * self.step_variable
+                step_value = step_value * np.prod(list(self.event_multipliers.values()))
                 step_mag = step_value.magnitude.tolist()    # type float
                 target_value = step_mag * self.amount
                 actual_value = target_value                 # to be adjusted below
 
-                # 5. CALCULATE AVAILABLE VALUE
+                # 7. CALCULATE AVAILABLE VALUE
                 available_value = 0   # Total available in connected storages
                 available_conns = []  # Value/capacity for each storage
                 for storage in selected_storages:
@@ -677,9 +765,9 @@ class GeneralAgent(StorageAgent):
                         capacity=storage_cap * storage_amount
                     ))
 
-                # 6. UPDATE AGENT BASED ON DEFICIT/SUFFICIENCY
+                # 8. UPDATE AGENT BASED ON DEFICIT/SUFFICIENCY
                 has_deficit = prefix == 'in' and available_value < target_value
-                # 6.1 REQUIRES
+                # 8.1 REQUIRES
                 is_required = attr_details.get('is_required')
                 if has_deficit and is_required:
                     if is_required == 'mandatory':
@@ -688,7 +776,7 @@ class GeneralAgent(StorageAgent):
                     elif is_required == 'desired':
                         # e.g. Plants: If one or more desired inputs is missing, growth stalls.
                         skip_step = True
-                # 6.2 DEPRIVE
+                # 8.2 DEPRIVE
                 deprive_value = attr_details.get('deprive_value') or 0
                 if has_deficit and deprive_value > 0:
                     n_satisfied = math.floor(available_value / step_mag)
@@ -706,7 +794,7 @@ class GeneralAgent(StorageAgent):
                 elif deprive_value > 0:
                     self.deprive[attr] = min(deprive_value * self.amount,
                                              self.deprive[attr] + deprive_value)
-                # 6.3 GROWTH
+                # 8.3 GROWTH
                 if attr == self.growth_criteria and not skip_step:
                     self.agent_step_num += self.model.hours_per_step
                     self.current_growth += (actual_value / self.amount)
@@ -715,7 +803,7 @@ class GeneralAgent(StorageAgent):
                 else:
                     growth = None
 
-                # 7. PROCESS EXCHANGE
+                # 9. PROCESS EXCHANGE
                 flows = []
                 remaining_value = actual_value
                 for conn in available_conns:
@@ -739,7 +827,7 @@ class GeneralAgent(StorageAgent):
                     if remaining_value <= 0:
                         break
 
-                # 8. UPDATE RECORDS
+                # 10. UPDATE RECORDS
                 if actual_value < value_eps:  # ignore values less than 1e-12
                     continue
                 if prefix == 'in' and currency not in influx:

@@ -49,7 +49,7 @@ class AgentDataCollector():
                                    grown=[self.agent.grown],
                                    agent_step_num=[self.agent.agent_step_num])
             # Flows
-            if attr.startswith('in') or attr.startswith('out'):
+            if attr.startswith(('in', 'out')):
                 if 'flows' not in self.snapshot_attrs:
                     self.snapshot_attrs += ['flows', 'flow_records']
                     self.flows = {}
@@ -71,6 +71,15 @@ class AgentDataCollector():
                         self.snapshot_attrs.append('deprive')
                         self.deprive = {}
                     self.deprive[attr] = [deprive_value * self.full_amount]
+            # Events
+            if attr.startswith('event'):
+                if 'events' not in self.snapshot_attrs:
+                    self.snapshot_attrs += ['events', 'event_multipliers']
+                    self.events = {}
+                    self.event_multipliers = {}
+                event_type = attr.split('_', 1)[1]
+                self.events[event_type] = [[]]
+                self.event_multipliers[event_type] = ['-']
         # Variation
         if 'initial_variable' in self.agent:
             self.snapshot_attrs.append('initial_variable')
@@ -103,6 +112,15 @@ class AgentDataCollector():
                 record.append(self.agent.deprive.get(currency, 0))
         if 'step_variable' in self.snapshot_attrs:
             self.step_variable.append(self.agent.step_variable)
+        if 'events' in self.snapshot_attrs:
+            for event, record in self.events.items():
+                if event in self.agent.events:
+                    record.append(self.agent.events[event])
+                    self.event_multipliers[event].append(self.agent.event_multipliers[event])
+                else:
+                    record.append([])
+                    self.event_multipliers[event].append('-')
+
 
     def get_data(self, debug=False, clear_cache=False):
         default_fields = ['flows', 'storage', 'growth']

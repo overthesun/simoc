@@ -122,6 +122,8 @@ def test_agent_variation(one_human_radish):
     one_human_radish_converted['seed'] = 12345
     model = AgentModel.from_config(one_human_radish_converted)
 
+    with open('data_analysis/agent_variation_save.json', 'w') as f:
+        json.dump(model.save(), f)
     assert model.global_entropy == 0.5
     assert model.seed == 12345
     assert model.random_state.rand(1)[0] == 0.65641118308227
@@ -145,12 +147,8 @@ def test_agent_variation(one_human_radish):
     assert human.attrs['out_feces'] == h_var * 0.087083
     assert human.attrs['char_mass'] == h_var * 60.0
 
-    _check_flows('human_agent', 'o2', 0.021606025828706632, 0.021837554957358753)
-    _check_flows('human_agent', 'potable', 0.16600991897567097, 0.16778887324485353)
-    _check_flows('human_agent', 'food', 0.06298412301648218, 0.06365905783496922)
-    _check_flows('human_agent', 'h2o', 0.07925145933286465, 0.08010071414118614)
-    _check_flows('human_agent', 'urine', 0.06256667813993255, 0.06323713963929584)
-    _check_flows('human_agent', 'feces', 0.08717590451935595, 0.08811007729934078)
+    s_var = human.step_variable
+    assert human.last_flow['o2'] == human.attrs['in_o2'] * h_var * s_var
 
     dehumidifier = model.get_agents_by_type('dehumidifier')[0]
     d_var = 0.9885233739822509

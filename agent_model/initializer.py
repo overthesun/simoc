@@ -4,7 +4,8 @@ import random
 import pathlib
 
 from agent_model.exceptions import AgentModelInitializationError
-from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc
+from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc, \
+                                         parse_agent_events
 
 _DEFAULT_LOCATION = 'mars'
 _DATA_FILES_DIR = pathlib.Path(__file__).parent.parent / 'data_files'
@@ -55,7 +56,7 @@ class AgentModelInitializer():
 
     @classmethod
     def from_new(cls, config, user_currency_desc=None, user_agent_desc=None,
-                 user_agent_conn=None, user_agent_variation=None):
+                 user_agent_conn=None, user_agent_variation=None, user_events=None):
 
         errors = dict(model={}, agents={}, currencies={})
         def _agent_error(agent, item, error):
@@ -90,6 +91,22 @@ class AgentModelInitializer():
         # TODO: Merge with user-defined
         agent_desc, agents_errors = parse_agent_desc(config, model_data['currency_dict'], default_agent_desc, _DEFAULT_LOCATION)
         errors['agents'] = agents_errors
+
+        default_agent_events = load_data_file('agent_events.json')
+        # TODO: Merge with user-defined
+        agents_events, agents_errors = parse_agent_events(default_agent_events)
+        for agent, errors in agents_errors.items():
+            for item, message in errors.items():
+                _agent_error(agent, item, message)
+        for agent, agent_data in agent_desc.items():
+            if agent in agents_events:
+                events = agents_events[agent]
+            elif agent_data['agent_class'] in agents_events:
+                events = agents_events[agent_data['agent_class']]
+            else:
+                continue
+            for section in ['attributes', 'attribute_details']:
+                agent_data[section] = {**agent_data[section], **events[section]}
 
         default_agent_variation = load_data_file('agent_variation.json')
         # TODO: Merge with user-defined
@@ -191,7 +208,9 @@ class AgentModelInitializer():
             connections=agent.connections,
             buffer=agent.buffer,
             deprive=agent.deprive,
-            step_values={}
+            step_values={},
+            events=agent.events,
+            event_multipliers=agent.event_multipliers
         )
         # Step values
         for currency, step_values in agent.step_values.items():
@@ -226,7 +245,7 @@ class AgentModelInitializer():
 
         # Deserialize np arrays
         r0, r1, r2, r3, r4 = init.model_data['random_state']
-        r1 = np.ndarray((624), buffer=np.array(r1))
+        r1 = np.ndarray((624), dtype='uint64', buffer=np.array(r1))
         init.model_data['random_state'] = (r0, r1, r2, r3, r4)
         for agent_data in init.agent_data.values():
             step_values = {}

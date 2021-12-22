@@ -201,3 +201,55 @@ def calculate_lifetime_growth_max_value(attr_value, attr_details, lifetime, loca
     # Rounding is not technically necessary, but it was rounded under the old
     # system and I do it here for continuity of test results.
     return round(float(res['max_value']), 8)
+
+def parse_agent_events(agent_events):
+    agents_data = {}
+    agents_errors = {}
+    for agent, events in agent_events.items():
+        attrs = {}
+        attr_details = {}
+        agent_errors = {}
+        def _error(index, message):
+            if index not in agent_errors:
+                agent_errors[index] = []
+            agent_errors[index].append(message)
+        for i, event in enumerate(events):
+            for field in ['type', 'function', 'scope', 'probability']:
+                if field not in event:
+                    _error(str(i), f"Events must specify {field}")
+            for field in ['probability', 'magnitude', 'duration']:
+                if field in event and 'value' not in event[field]:
+                    _error(str(i), f"Events with {field} must include a value")
+            for field in ['magnitude', 'duration']:
+                if 'variation' in event[field]:
+                    variation = event[field]['variation']
+                    if 'upper' not in variation or 'lower' not in variation:
+                        _error(str(i), f"Events with {field} variation must specify upper or lower threshold")
+                    if 'distribution' not in variation:
+                        _error(str(i), f"Events with {field} variation must specify a distribution")
+            if len(agent_errors) > 0:
+                continue
+
+            attr_name = f"event_{event['type']}"
+            attrs[attr_name] = event['function']
+            mag_var = event['magnitude'].get('variation', None)
+            dur_var = event['duration'].get('variation', None)
+            attr_details[attr_name] = dict(
+                scope=event['scope'],
+                probability_value=event['probability']['value'],
+                probability_unit=event['probability'].get('unit', 'hour'),
+                magnitude_value=None if 'magnitude' not in event else event['magnitude']['value'],
+                magnitude_variation_upper = None if not mag_var else mag_var.get('upper', 1),
+                magnitude_variation_lower = None if not mag_var else mag_var.get('lower', 1),
+                magnitude_variation_distribution = None if not mag_var else mag_var['distribution'],
+                duration_value=None if 'duration' not in event else event['duration']['value'],
+                duration_unit=None if 'duration' not in event else event['duration'].get('unit', 'hour'),
+                duration_variation_upper = None if not dur_var else dur_var.get('upper', 1),
+                duration_variation_lower = None if not dur_var else dur_var.get('lower', 1),
+                duration_variation_distribution = None if not dur_var else dur_var['distribution'],
+            )
+            agents_data[agent] = dict(attributes=attrs, attribute_details=attr_details)
+            if len(agent_errors) > 0:
+                agents_errors[agent] = agent_errors
+    return agents_data, agents_errors
+
