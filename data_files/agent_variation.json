@@ -1,9 +1,28 @@
 {
     "inhabitants": {
         "initial": {
-            "upper": 0.2,
-            "lower": 0.2,
+            "upper": {
+                "o2": 0.045,
+                "potable": 0.182917,
+                "food": 0.08,
+                "co2": 0.054583,
+                "h2o": 0.1875,
+                "urine": 0.060833,
+                "feces": 0.005,
+                "mass": 99
+            },
+            "lower": {
+                "o2": 0.025417,
+                "potable": 0.095,
+                "food": 0.043333,
+                "co2": 0.030833,
+                "h2o": 0.067083,
+                "urine": 0.060833,
+                "feces": 0.005,
+                "mass": 54
+            },
             "distribution": "normal",
+            "stdev_range": 1.65,
             "characteristics": [
                 "mass"
             ]

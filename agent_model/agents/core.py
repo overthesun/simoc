@@ -79,18 +79,36 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         iv = variation.get('initial')
         sv = variation.get('step')
         if iv:
-            # Calculate initial variable
-            upper = ge * iv.get('upper', 0)
-            lower = ge * iv.get('lower', 0)
+            upper = iv.get('upper', 0)
+            lower = iv.get('lower', 0)
             distribution = iv.get('distribution')
-            self.initial_variable = variation_func.get_variable(
-                self.model.random_state, upper, lower, distribution)
-
-            # Multiply starting values by initial variable
-            characteristics = {'char_' + a for a in iv.get('characteristics', [])}
-            for attr, attr_value in self.attrs.items():
-                if attr.startswith(('in_', 'out_')) or attr in characteristics:
-                    self.attrs[attr] = attr_value * self.initial_variable
+            stdev_range = iv.get('stdev_range', None)
+            characteristics = iv.get('characteristics', [])
+            if isinstance(upper, dict):
+                # When currency values are specified individually
+                self.initial_variable = ge * variation_func.get_variable(
+                    self.model.random_state, 1, 1, distribution, stdev_range)
+                if self.initial_variable == 1:
+                    return
+                elif self.initial_variable < 1:
+                    y_ref = lower
+                elif self.initial_variable > 1:
+                    y_ref = upper
+                x_norm = abs(self.initial_variable - 1)
+                for attr, attr_value in self.attrs.items():
+                    prefix, field = attr.split('_', 1)
+                    if prefix in ['in', 'out'] or field in characteristics:
+                        if field not in y_ref:
+                            raise Exception(f"Missing variation value for {self.agent_type} {field}.")
+                        self.attrs[attr] = np.interp(x_norm, [0, 1], [attr_value, y_ref[field]])
+            else:
+                # When a scalar is used
+                self.initial_variable = ge * variation_func.get_variable(
+                    self.model.random_state, upper, lower, distribution, stdev_range)
+                for attr, attr_value in self.attrs.items():
+                    prefix, field = attr.split('_', 1)
+                    if prefix in ['in', 'out'] or field in characteristics:
+                        self.attrs[attr] = attr_value * self.initial_variable
         if sv:
             upper = ge * sv.get('upper', 0)
             lower = ge * sv.get('lower', 0)

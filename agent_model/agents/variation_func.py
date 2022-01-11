@@ -1,10 +1,13 @@
-def get_variable(gen, upper, lower, distribution):
+def get_variable(gen, upper, lower, distribution, stdev_range=None):
     if distribution == 'normal':
         # TODO: Use skewed normal distribution instead
         max = 1 + upper
         min = 1 - lower
         mean = (max+min)/2      # Shift mean to center of min/max
-        stdev = (max-mean)/3    # Upper/lower encompases 99.7% of cases
+        if stdev_range:
+            stdev = (max - mean)/stdev_range
+        else:
+            stdev = (max-mean)/6    # Upper/lower encompases 99.7% of cases
         return gen.normal(mean, stdev)
     elif distribution == 'exponential':
         if upper > 0:

@@ -5,7 +5,7 @@
         "input": [
           {
             "type": "o2",
-            "value": 0.021583,
+            "value": 0.037083,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -17,7 +17,7 @@
           },
           {
             "type": "potable",
-            "value": 0.165833,
+            "value": 0.137083,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -29,7 +29,7 @@
           },
           {
             "type": "food",
-            "value": 0.062917,
+            "value": 0.065,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -43,7 +43,7 @@
         "output": [
           {
             "type": "co2",
-            "value": 0.025916,
+            "value": 0.045,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -51,7 +51,7 @@
           },
           {
             "type": "h2o",
-            "value": 0.079167,
+            "value": 0.128333,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -59,7 +59,7 @@
           },
           {
             "type": "urine",
-            "value": 0.0625,
+            "value": 0.060833,
             "requires": [
               "potable"
             ],
@@ -70,7 +70,7 @@
           },
           {
             "type": "feces",
-            "value": 0.087083,
+            "value": 0.005,
             "requires": [
               "food"
             ],
@@ -83,7 +83,7 @@
         "characteristics": [
           {
             "type": "mass",
-            "value": 60.0,
+            "value": 82.0,
             "unit": "kg"
           },
           {
