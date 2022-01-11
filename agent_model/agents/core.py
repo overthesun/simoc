@@ -380,8 +380,12 @@ class GeneralAgent(StorageAgent):
         self.step_values = kwargs.get("step_values", {})
         self.events = kwargs.get("events", {})
         self.event_multipliers = kwargs.get("event_multipliers", {})
-        if kwargs.get('init_type') == 'from_new':
+
+        if kwargs.get('init_type') == 'from_new' and self.model.global_entropy != 0:
+            self.process_events = True
             self._init_events()
+        else:
+            self.process_events = False
 
     def _init_events(self):
         for attr in self.attrs:
@@ -717,7 +721,7 @@ class GeneralAgent(StorageAgent):
                 else:
                     raise Exception(f'Unknown custom function: {custom_function}.')
             # 3. PROCESS EVENTS
-            if attr.startswith('event'):
+            if attr.startswith('event') and self.process_events:
                 self._process_event(attr, attr_value)
 
         # 4. GENERATE RANDOM VARIATION

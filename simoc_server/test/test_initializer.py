@@ -37,12 +37,12 @@ def test_initializer_save_load(disaster):
     model.step_to(n_steps=4)
     # Save to json and create duplicate
     saved = model.save()
-    with open('data_analysis/saved_game.json', 'w') as f:
-        json.dump(saved, f)
+    # with open('data_analysis/saved_game.json', 'w') as f:
+    #     json.dump(saved, f)
     new_model = AgentModel.load(saved)
     resaved = new_model.save()
-    with open('data_analysis/resaved_game.json', 'w') as f:
-        json.dump(resaved, f)
+    # with open('data_analysis/resaved_game.json', 'w') as f:
+    #     json.dump(resaved, f)
     # Clear data from both so output is the same
     model.get_data(clear_cache=True)
     new_model.get_data(clear_cache=True)
@@ -53,9 +53,9 @@ def test_initializer_save_load(disaster):
     # Recursively compare all fields
     model_records = model.get_data(debug=True)
     new_model_records = new_model.get_data(debug=True)
-    for name, recs in [('original', model_records), ('copied', new_model_records)]:
-        with open(f"data_analysis/save_data_{name}.json", 'w') as f:
-            json.dump(recs, f)
+    # for name, recs in [('original', model_records), ('copied', new_model_records)]:
+    #     with open(f"data_analysis/save_data_{name}.json", 'w') as f:
+    #         json.dump(recs, f)
 
     def _compare(a, b):
         if isinstance(a, (str, int, float)):

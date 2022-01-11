@@ -15,9 +15,9 @@ def test_agent_one_human_radish(one_human_radish):
     one_human_radish_converted = convert_configuration(one_human_radish)
     # export_config(one_human_radish_converted, 'config_1hrad.json')
     one_human_radish_converted['agents']['food_storage']['wheat'] = 2
-    model = AgentModel.from_config(one_human_radish_converted)
+    model = AgentModel.from_config(one_human_radish_converted, data_collection=True)
     model.step_to(n_steps=50)
-    export_data(model, 'agent_records_baseline.json')
+    # export_data(model, 'agent_records_baseline.json')
     agent_records = model.get_data(debug=True)
 
     # Storage
@@ -68,9 +68,9 @@ def test_agent_one_human_radish(one_human_radish):
 def test_agent_disaster(disaster):
     disaster_converted = convert_configuration(disaster)
     # export_config(disaster_converted, 'config_disaster.json')
-    model = AgentModel.from_config(disaster_converted)
+    model = AgentModel.from_config(disaster_converted, data_collection=True)
     model.step_to(n_steps=100)
-    export_data(model, 'agent_records_disaster.json')
+    # export_data(model, 'agent_records_disaster.json')
     agent_records = model.get_data(debug=True)
 
     # Amount
@@ -111,26 +111,26 @@ def test_agent_disaster(disaster):
 def test_agent_four_humans_garden(four_humans_garden):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
     # export_config(four_humans_garden_converted, 'config_4hg.json')
-    model = AgentModel.from_config(four_humans_garden_converted)
+    model = AgentModel.from_config(four_humans_garden_converted, data_collection=True)
     model.step_to(n_steps=2)
-    export_data(model, 'agent_records_fhgarden.json')
+    # export_data(model, 'agent_records_fhgarden.json')
 
 
 def test_agent_variation(one_human_radish):
     one_human_radish_converted = convert_configuration(one_human_radish)
     one_human_radish_converted['global_entropy'] = 0.5
     one_human_radish_converted['seed'] = 12345
-    model = AgentModel.from_config(one_human_radish_converted)
+    model = AgentModel.from_config(one_human_radish_converted, data_collection=True)
 
-    with open('data_analysis/agent_variation_save.json', 'w') as f:
-        json.dump(model.save(), f)
+    # with open('data_analysis/agent_variation_save.json', 'w') as f:
+    #     json.dump(model.save(), f)
     assert model.global_entropy == 0.5
     assert model.seed == 12345
     assert model.random_state.rand(1)[0] == 0.65641118308227
 
     model.step_to(n_steps=10)
     agent_records = model.get_data(debug=True)
-    export_data(model, 'agent_records_variable.json')
+    # export_data(model, 'agent_records_variable.json')
     def _check_flows(agent, currency, step_9, step_10):
         assert agent_records[agent]['flows'][currency][9] == step_9
         assert agent_records[agent]['flows'][currency][10] == step_10
@@ -147,8 +147,8 @@ def test_agent_variation(one_human_radish):
     assert human.attrs['out_feces'] == h_var * 0.087083
     assert human.attrs['char_mass'] == h_var * 60.0
 
-    s_var = human.step_variable
-    assert human.last_flow['o2'] == human.attrs['in_o2'] * h_var * s_var
+    # s_var = human.step_variable
+    # assert human.last_flow['o2'] == human.attrs['in_o2'] * h_var * s_var
 
     dehumidifier = model.get_agents_by_type('dehumidifier')[0]
     d_var = 0.9885233739822509
