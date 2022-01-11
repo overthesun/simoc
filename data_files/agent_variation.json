@@ -1,0 +1,50 @@
+{
+    "inhabitants": {
+        "initial": {
+            "upper": 0.2,
+            "lower": 0.2,
+            "distribution": "normal",
+            "characteristics": [
+                "mass"
+            ]
+        },
+        "step": {
+            "upper": 0.1,
+            "lower": 0.1,
+            "distribution": "normal"
+        }
+    },
+    "eclss": {
+        "initial": {
+            "lower": 0.05,
+            "distribution": "exponential"
+        },
+        "step": {
+            "lower": 0.1,
+            "distribution": "exponential"
+        }
+    },
+    "plants": {
+        "initial": {
+            "upper": 0.5,
+            "lower": 0.5,
+            "distribution": "normal"
+        },
+        "step": {
+            "upper": 0.1,
+            "lower": 0.1,
+            "distribution": "normal"
+        }
+    },
+    "power_generation": {
+        "initial": {
+            "upper": 0.1,
+            "lower": 0.1,
+            "distribution": "normal"
+        },
+        "step": {
+            "lower": 0.5,
+            "distribution": "exponential"
+        }
+    }
+}

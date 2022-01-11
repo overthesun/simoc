@@ -6,7 +6,7 @@ import traceback
 import random
 
 from simoc_server import app, db, redis_conn
-from simoc_server.agent_model import (AgentModel)
+from agent_model import (AgentModel)
 from simoc_server.database import SavedGame
 from simoc_server.database.db_model import User
 from simoc_server.exceptions import GameNotFoundException, Unauthorized

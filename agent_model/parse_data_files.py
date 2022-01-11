@@ -1,9 +1,8 @@
 import json
 import random
 
-from simoc_server.agent_model.agents import growth_func
-from simoc_server.util import location_to_day_length_minutes
-from simoc_server.exceptions import AgentModelInitializationError
+from agent_model.agents import growth_func
+from agent_model.util import location_to_day_length_minutes
 
 def parse_currency_desc(currency_desc):
     """Converts raw currency_desc into a dictionary of currencies and classes.
@@ -21,20 +20,26 @@ def parse_currency_desc(currency_desc):
       dict: All currencies and currency_classes with added IDs and metadata.
     """
     parsed = {}
+    currency_errors = {}
+    def _add(key, value):
+        if key in parsed:
+            currency_errors[key] = "All currencies and currency class names must be unique"
+        else:
+            parsed[key] = value
     for currency_class, currencies in currency_desc.items():
         currency_class_record = {'name': currency_class,
                                  'id': random.getrandbits(32),
                                  'type': 'currency_class',
                                  'currencies': list(currencies.keys())}
-        parsed[currency_class] = currency_class_record
+        _add(currency_class, currency_class_record)
         for currency, currency_data in currencies.items():
             currency_record = {'name': currency,
                                 'id': random.getrandbits(32),
                                 'type': 'currency',
                                 'class': currency_class,
                                 **currency_data}
-            parsed[currency] = currency_record
-    return parsed
+            _add(currency, currency_record)
+    return parsed, currency_errors
 
 def parse_agent_desc(config, currencies, agent_desc, _DEFAULT_LOCATION):
     """Converts raw agent_desc.json data into AgentModel initialization dict
@@ -55,7 +60,8 @@ def parse_agent_desc(config, currencies, agent_desc, _DEFAULT_LOCATION):
       AgentModelInitializationError: If agent_desc or currency data is missing
 
     """
-    agent_data = {}
+    agents_data = {}
+    agents_errors = {}
     currencies_list = currencies.keys()
     location = config.get('location', _DEFAULT_LOCATION)
     agent_class_reference = {}
@@ -64,35 +70,24 @@ def parse_agent_desc(config, currencies, agent_desc, _DEFAULT_LOCATION):
             agent_class_reference[agent] = agent_class
     for agent in config['agents'].keys():
         agent_class = agent_class_reference.get(agent, None)
-        if not agent_class:
-            raise AgentModelInitializationError(f"No agent_desc data found for {agent}")
-        parsed_agent_data = parse_agent(agent_class,
-                                        agent,
-                                        agent_desc[agent_class][agent],
-                                        currencies_list,
-                                        location)
-        agent_data[agent] = parsed_agent_data
-    return agent_data
+        if not agent_class or agent not in agent_desc[agent_class]:
+            agents_errors[agent]['agent_class'] = "Agent not specified in agent_desc"
+            continue
+        parsed_agent_data, agent_errors = parse_agent(agent_class,
+                                                      agent,
+                                                      agent_desc[agent_class][agent],
+                                                      currencies_list,
+                                                      location)
+        agents_data[agent] = parsed_agent_data
+        if len(agent_errors) > 0:
+            agents_errors[agent] = agent_errors
+    return agents_data, agents_errors
 
 def parse_agent(agent_class, name, data, currencies, location):
     """Converts agent_desc data for one agent into GeneralAgent initialization data
 
     Takes a sparse definition of agent parameters and returns dicts with all
     possible values, set to 'None' if not specified.
-
-    Args:
-      agent_class: str, name of class to which agent belongs
-      name: str, human-readable name of the agent
-      data: dict, raw data from agent_desc.json
-      currencies: dict, parsed currency data
-      location: str, mars or moon
-
-    Returns:
-      dict: Data for one agent used to initialize a GeneralAgent:
-        str: agent_class
-        str: agent_type_id
-        dict: attributes
-        dict: attribute_details
     """
     # Initialize return object
     agent_data = {
@@ -101,6 +96,7 @@ def parse_agent(agent_class, name, data, currencies, location):
         "attributes": {},
         "attribute_details": {},
     }
+    agent_errors = {}
 
     # Parse characteristics
     for attr in data['data']['characteristics']:
@@ -114,7 +110,7 @@ def parse_agent(agent_class, name, data, currencies, location):
         if attr['type'].startswith('capacity'):
             currency = attr['type'].split('_', 1)[1]
             if currency not in currencies:
-                raise AgentModelInitializationError(f"Currency data not found for {currency} when parsing {name}.")
+                agent_errors[currency] = "Currency not specified in currency_desc"
         attribute_detail = dict(currency_type=currency,
                                 unit=attr_unit)
         agent_data['attribute_details'][attr_name] = attribute_detail
@@ -124,7 +120,7 @@ def parse_agent(agent_class, name, data, currencies, location):
         for attr in data['data'][section]:
             currency = attr['type'].lower().strip()
             if currency not in currencies:
-                raise AgentModelInitializationError(f"Currency data not found for {currency} when parsing {name}.")
+                agent_errors[currency] = "Currency not specified in currency_desc"
 
             # Attributes
             prefix = 'in' if section == 'input' else 'out'
@@ -185,7 +181,7 @@ def parse_agent(agent_class, name, data, currencies, location):
 
             agent_data['attribute_details'][attr_name] = attribute_detail
 
-    return agent_data
+    return agent_data, agent_errors
 
 def calculate_lifetime_growth_max_value(attr_value, attr_details, lifetime, location):
     """Calculate the highest point on a normal bell curve"""
@@ -205,3 +201,55 @@ def calculate_lifetime_growth_max_value(attr_value, attr_details, lifetime, loca
     # Rounding is not technically necessary, but it was rounded under the old
     # system and I do it here for continuity of test results.
     return round(float(res['max_value']), 8)
+
+def parse_agent_events(agent_events):
+    agents_data = {}
+    agents_errors = {}
+    for agent, events in agent_events.items():
+        attrs = {}
+        attr_details = {}
+        agent_errors = {}
+        def _error(index, message):
+            if index not in agent_errors:
+                agent_errors[index] = []
+            agent_errors[index].append(message)
+        for i, event in enumerate(events):
+            for field in ['type', 'function', 'scope', 'probability']:
+                if field not in event:
+                    _error(str(i), f"Events must specify {field}")
+            for field in ['probability', 'magnitude', 'duration']:
+                if field in event and 'value' not in event[field]:
+                    _error(str(i), f"Events with {field} must include a value")
+            for field in ['magnitude', 'duration']:
+                if 'variation' in event[field]:
+                    variation = event[field]['variation']
+                    if 'upper' not in variation or 'lower' not in variation:
+                        _error(str(i), f"Events with {field} variation must specify upper or lower threshold")
+                    if 'distribution' not in variation:
+                        _error(str(i), f"Events with {field} variation must specify a distribution")
+            if len(agent_errors) > 0:
+                continue
+
+            attr_name = f"event_{event['type']}"
+            attrs[attr_name] = event['function']
+            mag_var = event['magnitude'].get('variation', None)
+            dur_var = event['duration'].get('variation', None)
+            attr_details[attr_name] = dict(
+                scope=event['scope'],
+                probability_value=event['probability']['value'],
+                probability_unit=event['probability'].get('unit', 'hour'),
+                magnitude_value=None if 'magnitude' not in event else event['magnitude']['value'],
+                magnitude_variation_upper = None if not mag_var else mag_var.get('upper', 1),
+                magnitude_variation_lower = None if not mag_var else mag_var.get('lower', 1),
+                magnitude_variation_distribution = None if not mag_var else mag_var['distribution'],
+                duration_value=None if 'duration' not in event else event['duration']['value'],
+                duration_unit=None if 'duration' not in event else event['duration'].get('unit', 'hour'),
+                duration_variation_upper = None if not dur_var else dur_var.get('upper', 1),
+                duration_variation_lower = None if not dur_var else dur_var.get('lower', 1),
+                duration_variation_distribution = None if not dur_var else dur_var['distribution'],
+            )
+            agents_data[agent] = dict(attributes=attrs, attribute_details=attr_details)
+            if len(agent_errors) > 0:
+                agents_errors[agent] = agent_errors
+    return agents_data, agents_errors
+

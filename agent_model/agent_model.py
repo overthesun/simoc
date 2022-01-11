@@ -9,14 +9,13 @@ import numpy as np
 from mesa import Model
 from mesa.time import RandomActivation
 
-from simoc_server import db, app
-from simoc_server.agent_model.initializer import AgentModelInitializer
-from simoc_server.agent_model.agents.core import GeneralAgent
-from simoc_server.agent_model.agents.data_collector import AgentDataCollector
-from simoc_server.agent_model.attribute_meta import AttributeHolder
-from simoc_server.util import timedelta_to_hours, location_to_day_length_minutes
-from simoc_server.exceptions import AgentModelInitializationError
-from simoc_server.agent_model.parse_data_files import parse_agent_desc
+# from simoc_server import app  # TODO: Fix logger
+from agent_model.initializer import AgentModelInitializer
+from agent_model.agents.core import GeneralAgent
+from agent_model.agents.data_collector import AgentDataCollector
+from agent_model.attribute_meta import AttributeHolder
+from agent_model.util import timedelta_to_hours, location_to_day_length_minutes
+from agent_model.exceptions import AgentModelInitializationError
 
 class AgentModel(Model, AttributeHolder):
     """The core class that describes the SIMOC's Agent Model interface.
@@ -45,7 +44,7 @@ class AgentModel(Model, AttributeHolder):
     """
 
     @classmethod
-    def from_config(cls, config, currency_desc=None, agent_desc=None, connections=None):
+    def from_config(cls, config, data_collection=False, currency_desc=None, agent_desc=None, connections=None):
         """Takes configuration files, return an initialized model
 
         Args (required):
@@ -56,8 +55,11 @@ class AgentModel(Model, AttributeHolder):
             agent_desc      dict    User-specified agents
             agent_conn      dict    User-specified connections
         """
-        initializer = AgentModelInitializer.from_new(config, currency_desc, agent_desc, connections)
-        return cls(initializer)
+        initializer, errors = AgentModelInitializer.from_new(config, currency_desc, agent_desc, connections)
+        for category in ['model', 'agents', 'currencies']:
+            if len(errors[category]) > 0:
+                return errors
+        return cls(initializer, data_collection)
 
     def save(self):
         """Exports current model as an AgentModelInitializer"""
@@ -65,12 +67,12 @@ class AgentModel(Model, AttributeHolder):
         return initializer.serialize()
 
     @classmethod
-    def load(cls, saved):
+    def load(cls, saved, data_collection=False):
         """Takes a save file and returns an initialized AgentModel"""
         initializer = AgentModelInitializer.deserialize(saved)
-        return cls(initializer)
+        return cls(initializer, data_collection)
 
-    def __init__(self, initializer):
+    def __init__(self, initializer, data_collection=False):
         """Creates an Agent Model object.
 
         Args:
@@ -87,14 +89,15 @@ class AgentModel(Model, AttributeHolder):
         self.start_time = md.get('start_time', None)
         # Configuration (user-input)
         self.seed = md['seed']
+        self.global_entropy = md['global_entropy']
         self.single_agent = md['single_agent']
         self.termination = md['termination']
         self.priorities = md['priorities']
         self.location = md.get('location')
-        self.total_amount = md['total_amount']
         self.minutes_per_step = md['minutes_per_step']
         self.currency_dict = md['currency_dict']
         # Status (generated when model is initialized, saved)
+        self.data_collection = data_collection
         if initializer.init_type == 'from_new':
             self.random_state = np.random.RandomState(self.seed)
             self.time = datetime.timedelta()
@@ -105,8 +108,8 @@ class AgentModel(Model, AttributeHolder):
             self.termination_reason = None
         elif initializer.init_type == 'from_model':
             self.random_state = np.random.RandomState()
-            self.random_state.set_state(md.get('random_state'))
-            self.time = eval(md['time'])
+            self.random_state.set_state(md['random_state'])
+            self.time = datetime.timedelta(seconds=md['time'])
             self.starting_step_num = md['steps']
             self.storage_ratios = md['storage_ratios']
             self.step_records_buffer = md['step_records_buffer']
@@ -131,6 +134,7 @@ class AgentModel(Model, AttributeHolder):
         #------------------------------
         for agent_type, agent_data in initializer.agent_data.items():
             agent_desc, instance = agent_data.values()
+            instance['init_type'] = initializer.init_type
             connections = instance.pop('connections', {})
             amount = instance.pop('amount', 1)
             if self.single_agent == 1:
@@ -152,12 +156,14 @@ class AgentModel(Model, AttributeHolder):
                     self.scheduler.add(agent)
         for agent in self.scheduler.agents:
             agent._init_currency_exchange()
-            agent.data_collector = AgentDataCollector.from_agent(agent)
+            if self.data_collection:
+                agent.data_collector = AgentDataCollector.from_agent(agent)
 
-    @property
-    def logger(self):
-        """Returns Flask logger object."""
-        return app.logger
+    # TODO: Fix logger
+    # @property
+    # def logger(self):
+    #     """Returns Flask logger object."""
+    #     return app.logger
 
     def get_step_logs(self):
         """TODO
@@ -313,9 +319,10 @@ class AgentModel(Model, AttributeHolder):
                     return
         # Step agents
         self.scheduler.step()
-        for agent in self.scheduler.agents:
-            agent.data_collector.step()
-        app.logger.info("{0} step_num {1}".format(self, self.step_num))
+        if self.data_collection:
+            for agent in self.scheduler.agents:
+                agent.data_collector.step()
+        # app.logger.info("{0} step_num {1}".format(self, self.step_num))  # TODO: Fix logger
 
     def step_to(self, n_steps=None, termination=None, timeout=365*24):
         if not n_steps and not termination:
@@ -330,9 +337,12 @@ class AgentModel(Model, AttributeHolder):
 
     def get_data(self, debug=False, clear_cache=False):
         data = {}
-        for agent in self.scheduler.agents:
-            data[agent.agent_type] = agent.data_collector.get_data(debug, clear_cache)
-        return data
+        if not self.data_collection:
+            return data
+        else:
+            for agent in self.scheduler.agents:
+                data[agent.agent_type] = agent.data_collector.get_data(debug, clear_cache)
+            return data
 
     def remove(self, agent):
         """TODO"""

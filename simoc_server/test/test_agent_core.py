@@ -8,14 +8,16 @@ import pytest
 from pytest import approx
 
 from simoc_server.front_end_routes import convert_configuration
-from simoc_server.agent_model import AgentModel
+from agent_model import AgentModel
+
 
 def test_agent_one_human_radish(one_human_radish):
     one_human_radish_converted = convert_configuration(one_human_radish)
+    # export_config(one_human_radish_converted, 'config_1hrad.json')
     one_human_radish_converted['agents']['food_storage']['wheat'] = 2
-    model = AgentModel.from_config(one_human_radish_converted)
+    model = AgentModel.from_config(one_human_radish_converted, data_collection=True)
     model.step_to(n_steps=50)
-    export_data(model, 'agent_records_baseline.json')
+    # export_data(model, 'agent_records_baseline.json')
     agent_records = model.get_data(debug=True)
 
     # Storage
@@ -62,19 +64,20 @@ def test_agent_one_human_radish(one_human_radish):
     # Sometimes this value is 2, sometimes it's 1. I think due to a rounding error.
     assert agent_records['co2_removal_SAWD']['buffer']['in_co2'][49] in [1, 2]
 
+
 def test_agent_disaster(disaster):
     disaster_converted = convert_configuration(disaster)
-    model = AgentModel.from_config(disaster_converted)
+    # export_config(disaster_converted, 'config_disaster.json')
+    model = AgentModel.from_config(disaster_converted, data_collection=True)
     model.step_to(n_steps=100)
-    export_data(model, 'agent_records_disaster.json')
+    # export_data(model, 'agent_records_disaster.json')
     agent_records = model.get_data(debug=True)
 
     # Amount
     radish_amount = agent_records['radish']['amount']
-    assert radish_amount[88] == 400
-    assert radish_amount[89] == 378
-    assert radish_amount[90] == 52
-    assert radish_amount[91] == 0
+    assert radish_amount[79] == 400
+    assert radish_amount[80] == 64
+    assert radish_amount[81] == 16
 
     # Growth
     growth_test={
@@ -101,14 +104,76 @@ def test_agent_disaster(disaster):
     # Deprive
     radish_deprive = agent_records['radish']['deprive']
     assert radish_deprive['in_kwh'][5] == 28800
-    assert radish_deprive['in_kwh'][50] == 13462
-    assert radish_deprive['in_kwh'][95] == -306
+    assert radish_deprive['in_kwh'][50] == 11501
+    assert radish_deprive['in_kwh'][95] == 316
+
 
 def test_agent_four_humans_garden(four_humans_garden):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
-    model = AgentModel.from_config(four_humans_garden_converted)
+    # export_config(four_humans_garden_converted, 'config_4hg.json')
+    model = AgentModel.from_config(four_humans_garden_converted, data_collection=True)
     model.step_to(n_steps=2)
-    export_data(model, 'agent_records_fhgarden.json')
+    # export_data(model, 'agent_records_fhgarden.json')
+
+
+def test_agent_variation(one_human_radish):
+    one_human_radish_converted = convert_configuration(one_human_radish)
+    one_human_radish_converted['global_entropy'] = 0.5
+    one_human_radish_converted['seed'] = 12345
+    model = AgentModel.from_config(one_human_radish_converted, data_collection=True)
+
+    # with open('data_analysis/agent_variation_save.json', 'w') as f:
+    #     json.dump(model.save(), f)
+    assert model.global_entropy == 0.5
+    assert model.seed == 12345
+    assert model.random_state.rand(1)[0] == 0.65641118308227
+
+    model.step_to(n_steps=10)
+    agent_records = model.get_data(debug=True)
+    # export_data(model, 'agent_records_variable.json')
+    def _check_flows(agent, currency, step_9, step_10):
+        assert agent_records[agent]['flows'][currency][9] == step_9
+        assert agent_records[agent]['flows'][currency][10] == step_10
+
+    human = model.get_agents_by_type('human_agent')[0]
+    h_var = 0.9931764113505096
+    assert human.initial_variable == h_var
+    assert human.attrs['in_o2'] == h_var * 0.021583
+    assert human.attrs['in_potable'] == h_var * 0.165833
+    assert human.attrs['in_food'] == h_var * 0.062917
+    assert human.attrs['out_co2'] == h_var * 0.025916
+    assert human.attrs['out_h2o'] == h_var * 0.079167
+    assert human.attrs['out_urine'] == h_var * 0.0625
+    assert human.attrs['out_feces'] == h_var * 0.087083
+    assert human.attrs['char_mass'] == h_var * 60.0
+
+    # s_var = human.step_variable
+    # assert human.last_flow['o2'] == human.attrs['in_o2'] * h_var * s_var
+
+    dehumidifier = model.get_agents_by_type('dehumidifier')[0]
+    d_var = 0.9885233739822509
+    assert dehumidifier.initial_variable == d_var
+    assert dehumidifier.attrs['in_h2o'] == d_var * 4
+    assert dehumidifier.attrs['in_kwh'] == d_var * 0.5
+    assert dehumidifier.attrs['out_treated'] == d_var * 0.5
+
+    radish = model.get_agents_by_type('radish')[0]
+    r_var = 0.9733618945466784
+    assert radish.initial_variable == r_var
+    assert radish.attrs['in_co2'] == r_var * 0.0007452059028
+    assert radish.attrs['in_potable'] == r_var * 0.0020625
+    assert radish.attrs['in_fertilizer'] == r_var * 1.033e-05
+    assert radish.attrs['in_kwh'] == r_var * 0.1812806783
+    assert radish.attrs['in_biomass'] == r_var * 0.1375
+    assert radish.attrs['out_o2'] == r_var * 0.0005393177194
+    assert radish.attrs['out_h2o'] == r_var * 0.0018203873194
+    assert radish.attrs['out_radish'] == r_var * 0.1375
+    assert radish.attrs['out_biomass'] == r_var * 0.000458333
+
+    solar = model.get_agents_by_type('solar_pv_array_mars')[0]
+    s_var = 1.0079823889676258
+    assert solar.initial_variable == s_var
+    assert solar.attrs['out_kwh'] == s_var * 0.354
 
 def export_data(model, fname):
     agent_records = model.get_data(debug=True)
@@ -121,3 +186,7 @@ def export_data(model, fname):
         agent_records[agent.agent_type]['step_values'] = step_values
     with open('data_analysis/' + fname, 'w') as f:
         json.dump(agent_records, f)
+
+def export_config(config, fname):
+    with open('data_analysis/' + fname, 'w') as f:
+        json.dump(config, f)

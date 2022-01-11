@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from simoc_server.agent_model.parse_data_files import parse_currency_desc
+from agent_model.parse_data_files import parse_currency_desc
 
 # Returns the agent_desc.json file as a dict
 @pytest.fixture(autouse=True, scope="session")
@@ -26,7 +26,8 @@ def currency_desc():
 
 @pytest.fixture(autouse=True, scope="session")
 def currency_dict(currency_desc):
-    return parse_currency_desc(currency_desc)
+    currency_desc, currency_errors = parse_currency_desc(currency_desc)
+    return currency_desc
 
 # Matches the 'One Human' preset
 @pytest.fixture()
