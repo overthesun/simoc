@@ -728,8 +728,7 @@ class GeneralAgent(StorageAgent):
                 # 8.3 GROWTH
                 # TODO: This technically belongs in the PlantAgent class, but under the current
                 # get_step_logs system, growth process is collected from the record produced below.
-                if hasattr(self, 'growth_criteria') and attr == self.growth_criteria \
-                        and not skip_step:
+                if hasattr(self, 'growth_criteria') and attr == self.growth_criteria and not skip_step:
                     self.agent_step_num += self.model.hours_per_step
                     self.current_growth += (actual_value / self.amount)
                     self.growth_rate = self.current_growth / self.total_growth
@@ -856,6 +855,11 @@ class PlantAgent(GeneralAgent):
         super()._init_currency_exchange(n_steps)
         if self.growth_criteria and self.total_growth == 0:
             self.total_growth = float(np.sum(self.step_values[self.growth_criteria]))
+        self.co2_scale = {}
+        for attr in self.attrs:
+            prefix, _ = attr.split('_', 1)
+            if prefix in ['in', 'out']:
+                self.co2_scale[attr] = 1
 
 
     def _get_step_value(self, attr, step_num):
@@ -879,7 +883,68 @@ class PlantAgent(GeneralAgent):
         if weighted and weighted in self:
             step_value *= self[weighted]
 
+        if attr in self.co2_scale:
+            step_value *= self.co2_scale[attr]
+
         return step_value
+
+
+    def _calculate_co2_scale(self, step_num, value_eps=1e-12):
+        """Calculate a multiplier for each currency exchange based on ambient co2"""
+        co2_ppm = self._get_storage_ratio('co2_ratio_in') * 1e6
+        t_mean = 25 # Mean temperature for timestep. TODO: Link to connection
+
+        # Calculate the ratio of increased co2 uptake [Vanuytrecht 5]
+        cu_fields = ['co2', 'fertilizer', 'o2', 'biomass', 'wheat']
+        tt = (163 - t_mean) / (5 - 0.1 * t_mean) # co2 compensation point
+        numerator = (co2_ppm - tt) * (350 + 2 * tt)
+        denominator = (co2_ppm + 2 * tt) * (350 - tt)
+        co2_uptake_ratio = numerator/denominator
+
+        # Calculate the ratio of decreased water use [Vanuytrecht 7]
+        te_fields = ['potable', 'h2o']
+        co2_range = [350, 700]
+        te_range = [1, 1.37]
+        transpiration_efficiency_factor = np.interp(co2_ppm, co2_range, te_range)
+
+        # Calculate co2-adjusted step values
+        sv_baseline = {'in': {}, 'out': {}}
+        sv_adjusted = {'in': {}, 'out': {}}
+        exclude = ['in_biomass', f'out_{self.agent_type}']
+        for attr in self.attrs:
+            prefix, currency = attr.split('_', 1)
+            if prefix not in ['in', 'out']:
+                continue
+            step_value = self.step_values[attr][step_num]
+            sv_baseline[prefix][currency] = step_value
+            if attr in exclude:
+                continue
+            elif currency in cu_fields:
+                sv_adjusted[prefix][currency] = step_value * co2_uptake_ratio
+            elif currency in te_fields:
+                sv_adjusted[prefix][currency] = step_value * (1 / transpiration_efficiency_factor)
+
+        # Calculate error (difference between total inputs and outputs)
+        net_inputs = sum(sv_adjusted['in'].values())
+        net_outputs = sum(sv_adjusted['out'].values())
+        sv_error = net_inputs - net_outputs
+
+        # Remove error proportionally from outputs
+        if sv_error > value_eps:
+            corrected = {}
+            for currency, value in sv_adjusted['out'].items():
+                correction = value / net_outputs * sv_error
+                corrected[currency] = value + correction
+            sv_adjusted['out'] = corrected
+
+        # Convert to scale factors (1 = no change)
+        sv_scale = {}
+        for prefix in ['in', 'out']:
+            for currency, baseline in sv_baseline[prefix].items():
+                attr_name = f"{prefix}_{currency}"
+                adjusted = sv_adjusted[prefix].get(currency, None)
+                sv_scale[attr_name] = 1 if not adjusted else adjusted / baseline
+        return sv_scale
 
 
     def step(self):
@@ -895,6 +960,9 @@ class PlantAgent(GeneralAgent):
                 return
             self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
                 self.agent_type))
+
+        step_num = int(self.agent_step_num + 1)
+        self.co2_scale = self._calculate_co2_scale(step_num)
 
         super().step()
         if self.age >= self.lifetime > 0:

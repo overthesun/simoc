@@ -41,14 +41,15 @@ class AgentDataCollector():
                     class_attr = f"char_capacity_{currency_class}"
                     self.capacity[currency_class] = dict(value=self.agent[class_attr],
                                                          unit=self.agent.attr_details[class_attr]['unit'])
-            # Growth
+            # Plants
             if attr.startswith('char_growth_criteria'):
-                self.snapshot_attrs += ['total_growth', 'growth']
+                self.snapshot_attrs += ['total_growth', 'growth', 'co2_scale']
                 self.total_growth = self.agent.total_growth,
                 self.growth = dict(current_growth=[self.agent.current_growth],
                                    growth_rate=[self.agent.growth_rate],
                                    grown=[self.agent.grown],
                                    agent_step_num=[self.agent.agent_step_num])
+                self.co2_scale = {k: [] for k in self.agent.co2_scale.keys()}
             # Flows
             if attr.startswith(('in', 'out')):
                 if 'flows' not in self.snapshot_attrs:
@@ -99,7 +100,10 @@ class AgentDataCollector():
                 record.append(self.agent.model.storage_ratios[self.name][currency + '_ratio'])
         if 'growth' in self.snapshot_attrs:
             for field, record in self.growth.items():
-                record.append(self.agent[field])
+                record.append(getattr(self.agent, field))
+        if 'co2_scale' in self.snapshot_attrs:
+            for field, record in self.co2_scale.items():
+                record.append(self.agent.co2_scale[field])
         if 'flows' in self.snapshot_attrs:
             for currency, record in self.flows.items():
                 record.append(self.agent.last_flow[currency])
