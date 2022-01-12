@@ -49,6 +49,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         self.agent_type = kwargs.pop("agent_type", None)
         self.unique_id = kwargs.pop("unique_id", random.getrandbits(63))
         self.active = kwargs.pop("active", True)
+        self.amount = kwargs.pop('amount', 1)
 
         agent_desc = kwargs.pop("agent_desc", None)
         self.agent_class = agent_desc['agent_class']
@@ -137,97 +138,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
         self.model.remove(self)
 
 
-class GrowthAgent(BaseAgent):
-    """Initializes and manages growth, amount and reproduction
-
-    Attributes:
-        Static Attributes:
-            full_amount:        int     maximum/reset amount as defined in agent_desc
-            lifetime:           int     hours to complete growth cycle.
-            reproduce:          bool
-            growth_criteria:    str     which item determines growth
-            total_growth:       float   sum of lifetime values for growth_criteria item
-        Dynamic Attributes:
-            age:                int     hours, independent of growth_criteria, triggers `grown`
-            amount:             int     the current amount
-            agent_step_num:     int     current step in growth cycle, as limited by growth_critera
-            current_growth:     int     accumulated values for growth_criteria item
-            growth_rate:        int     accumulated % for growth_criteria item
-            grown:              bool    whether growth is complete
-
-    Methods:
-        step(): manage age, trigger reproduction/death
-        destroy(reason)
-    """
-
-    def __init__(self, *args, **kwargs):
-        """Sets the age and amount, parses attributes and intializes growth-tracking fields
-
-        Args (optional):
-          age:              int
-          amount:           int
-          full_amount:      int
-          agent_step_num:   int
-          total_growth:     float
-          current_growth:   float
-          growth_rate:      float
-          grown:            bool
-          ...[attributes & attribute_details inherited from BaseAgent]
-        """
-        super(GrowthAgent, self).__init__(*args, **kwargs)
-        self.age = kwargs.get("age", 0)
-        self.amount = kwargs.get('amount', 1)
-        self.full_amount = kwargs.get('full_amount', self.amount)
-        self.agent_step_num = kwargs.get('agent_step_num', 0)
-        self.total_growth = kwargs.get('total_growth', 0)
-        self.current_growth = kwargs.get('current_growth', 0)
-        self.growth_rate = kwargs.get('growth_rate', 0)
-        self.grown = kwargs.get('grown', False)
-
-        if 'char_lifetime' in self.attrs:
-            lifetime = self.attrs['char_lifetime']
-            lifetime_unit = self.attr_details['char_lifetime']['unit']
-            lifetime_multiplier = dict(day=self.model.day_length_hours, hour=1, min=1/60)[lifetime_unit]
-            self.lifetime = lifetime * int(lifetime_multiplier)
-        else:
-            self.lifetime = 0
-        self.reproduce = self.attrs.get('char_reproduce', 0)
-        self.growth_criteria = self.attrs.get('char_growth_criteria', None)
-
-
-    def step(self):
-        """TODO"""
-        if self.grown:
-            if self.reproduce:
-                self.age = 0
-                self.current_growth = 0
-                self.growth_rate = 0
-                self.agent_step_num = 0
-                self.grown = False
-                self.amount = self.full_amount
-                return
-            self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
-                self.agent_type))
-
-        self.age += self.model.hours_per_step
-        if not self.growth_criteria:
-            self.agent_step_num = int(self.age)
-        if self.age >= self.lifetime > 0:
-            self.grown = True  # Complete last flow cycle and terminate next step
-
-
-    def destroy(self, reason):
-        """Destroys the agent and removes it from the model
-
-        Args:
-          reason: str, cause of death
-        """
-        # self.model.logger.info("Object Died! Reason: {}".format(reason))
-        self.cause_of_death = reason
-        super().destroy()
-
-
-class StorageAgent(GrowthAgent):
+class StorageAgent(BaseAgent):
     """Initializes and manages storage capacity
 
     Attributes:
@@ -278,7 +189,7 @@ class StorageAgent(GrowthAgent):
 
     def step(self):
         """Calculates storage ratios"""
-        super().step()
+        # TODO: This should be moved to self.increment() and streamlined
         if self.has_storage:
             self._calculate_storage_ratios()
 
@@ -390,6 +301,7 @@ class GeneralAgent(StorageAgent):
           step_values:      dict
         """
         super(GeneralAgent, self).__init__(*args, **kwargs)
+        self.age = kwargs.pop("age", 0)
         self.has_flows = False
         self.connections = kwargs.get("connections", {})
         self.selected_storage = {"in": {}, 'out': {}}
@@ -422,13 +334,14 @@ class GeneralAgent(StorageAgent):
                 self.attr_details[attr]['duration_delta_per_step'] = self.model.hours_per_step * multiplier
 
 
-    def _init_currency_exchange(self):
+    def _init_currency_exchange(self, n_steps=None):
         """Initializes all values related to currency exchanges
 
         This includes making connections to other live Agents, so it must be
         isolated from __init__ and called after all Agents are initialized.
         """
-        n_steps = int(self.lifetime) if self.lifetime > 0 else int(self.model.day_length_hours)
+        # For PlantAgents, n_steps is calculated in PlantAgent.__init__ and passed
+        n_steps = int(self.model.day_length_hours) if not n_steps else n_steps
         hours_per_step = self.model.hours_per_step
         day_length_hours = self.model.day_length_hours
         for attr in self.attrs:
@@ -477,10 +390,6 @@ class GeneralAgent(StorageAgent):
             if attr not in self.step_values:
                 step_values = self._calculate_step_values(attr, n_steps, hours_per_step, day_length_hours)
                 self.step_values[attr] = step_values
-                if attr == self.growth_criteria:
-                    self.total_growth = float(np.sum(step_values))
-            else:
-                self.step_values[attr] = self.step_values[attr]
 
     def _calculate_step_values(self, attr, n_steps, hours_per_step, day_length_hours):
         """Calculate lifetime step values based on growth functions and add to self.step_values
@@ -593,7 +502,26 @@ class GeneralAgent(StorageAgent):
                     step_values[i:i+day_length] = growth_func.get_growth_values(**kwargs)
         return step_values
 
-    def _get_step_value(self, attr):
+    def _get_storage_ratio(self, cr_name):
+        total = 0
+        direction = cr_name.split('_')[-1]
+        storage_ratios = self.model.storage_ratios
+        if direction in ['in', 'out']:
+            #  e.g. 'co2_ratio_in': Return value for specific connection
+            elements = cr_name.split('_')
+            currency = elements[0]
+            cr_actual = '_'.join(elements[:2])
+            storage_id = self.selected_storage[direction][currency][0].agent_type
+            total += storage_ratios[storage_id][cr_actual]
+        else:
+            # e.g. 'co2_ratio': Return value for all storages with currency
+            # TODO: not used?
+            for storage_id in storage_ratios:
+                if cr_name in storage_ratios[storage_id]:
+                    total += storage_ratios[storage_id][cr_name]
+        return total
+
+    def _get_step_value(self, attr, step_num, skip_criteria=False):
         """TODO
 
         TODO
@@ -607,33 +535,15 @@ class GeneralAgent(StorageAgent):
         prefix, currency = attr.split('_', 1)
         agent_unit = self.attr_details[attr]['flow_unit']
         cr_name = self.attr_details[attr]['criteria_name']
-        cr_limit = self.attr_details[attr]['criteria_limit']
-        cr_value = self.attr_details[attr]['criteria_value'] or 0.0
-        cr_buffer = self.attr_details[attr]['criteria_buffer'] or 0.0
-        weighted = self.attr_details[attr]['weighted']
-        # Only apply weighted actions when grown
-        if self.grown and not weighted:
-            return pq.Quantity(0.0, agent_unit)
-        # Ignore growth_rate criteria when grown and weighted
-        if cr_name == "growth_rate" and self.grown and weighted:
-            pass
-        elif cr_name:
+        if cr_name and not skip_criteria:
+            cr_limit = self.attr_details[attr]['criteria_limit']
+            cr_value = self.attr_details[attr]['criteria_value'] or 0.0
+            cr_buffer = self.attr_details[attr]['criteria_buffer'] or 0.0
             if cr_name in self:
+                # e.g. 'growth_rate'
                 source = self[cr_name]
-            else:  # e.g. 'co2_ratio_in'
-                source = 0
-                direction = cr_name.split('_')[-1]
-                storage_ratios = self.model.storage_ratios
-                if direction in ['in', 'out']:
-                    elements = cr_name.split('_')
-                    currency = elements[0]
-                    cr_actual = '_'.join(elements[:2])
-                    storage_id = self.selected_storage[direction][currency][0].agent_type
-                    source += storage_ratios[storage_id][cr_actual]
-                else:
-                    for storage_id in storage_ratios:
-                        if cr_name in storage_ratios[storage_id]:
-                            source += storage_ratios[storage_id][cr_name]
+            else:
+                source = self._get_storage_ratio(cr_name)
             opp = {'>': operator.gt, '<': operator.lt, '=': operator.eq}[cr_limit]
             if opp(source, cr_value):
                 if cr_buffer > 0 and self.buffer.get(attr, 0) > 0:
@@ -643,12 +553,9 @@ class GeneralAgent(StorageAgent):
                 if cr_buffer > 0:
                     self.buffer[attr] = cr_buffer
                 return pq.Quantity(0.0, agent_unit)
-        step_num = int(self.agent_step_num)
         if step_num >= self.step_values[attr].shape[0]:
             step_num = step_num % int(self.model.day_length_hours)
         agent_value = self.step_values[attr][step_num]
-        if weighted and weighted in self:
-            agent_value *= self[weighted]
         return pq.Quantity(agent_value, agent_unit)
 
     def _process_event(self, attr, attr_value):
@@ -717,6 +624,7 @@ class GeneralAgent(StorageAgent):
 
         """
         super().step()
+        self.age += self.model.hours_per_step
         for attr, attr_value in self.attrs.items():
             # 1. CHECK THRESHOLDS
             if attr.startswith('char_threshold_'):
@@ -766,7 +674,8 @@ class GeneralAgent(StorageAgent):
                     continue
 
                 # 6. CALCULATE TARGET VALUE
-                step_value = self._get_step_value(attr)     # type pq.Quantity
+                step_num = int(self.age)
+                step_value = self._get_step_value(attr, step_num)     # type pq.Quantity
                 step_value = step_value * self.step_variable
                 step_value = step_value * np.prod(list(self.event_multipliers.values()))
                 step_mag = step_value.magnitude.tolist()    # type float
@@ -817,7 +726,10 @@ class GeneralAgent(StorageAgent):
                     self.deprive[attr] = min(deprive_value * self.amount,
                                              self.deprive[attr] + deprive_value)
                 # 8.3 GROWTH
-                if attr == self.growth_criteria and not skip_step:
+                # TODO: This technically belongs in the PlantAgent class, but under the current
+                # get_step_logs system, growth process is collected from the record produced below.
+                if hasattr(self, 'growth_criteria') and attr == self.growth_criteria \
+                        and not skip_step:
                     self.agent_step_num += self.model.hours_per_step
                     self.current_growth += (actual_value / self.amount)
                     self.growth_rate = self.current_growth / self.total_growth
@@ -884,3 +796,117 @@ class GeneralAgent(StorageAgent):
           reason: str, cause of death
         """
         self.destroy(reason)
+
+
+
+class PlantAgent(GeneralAgent):
+    """Initializes and manages growth, amount and reproduction
+
+    Attributes:
+        Static Attributes:
+            full_amount:        int     maximum/reset amount as defined in agent_desc
+            lifetime:           int     hours to complete growth cycle.
+            reproduce:          bool
+            growth_criteria:    str     which item determines growth
+            total_growth:       float   sum of lifetime values for growth_criteria item
+        Dynamic Attributes:
+            agent_step_num:     int     current step in growth cycle, as limited by growth_critera
+            current_growth:     int     accumulated values for growth_criteria item
+            growth_rate:        int     accumulated % for growth_criteria item
+            grown:              bool    whether growth is complete
+
+    Methods:
+        step(): manage age, trigger reproduction/death
+        destroy(reason)
+    """
+
+    def __init__(self, *args, **kwargs):
+        """Sets the age and amount, parses attributes and intializes growth-tracking fields
+
+        Args (optional):
+          full_amount:      int
+          agent_step_num:   int
+          total_growth:     float
+          current_growth:   float
+          growth_rate:      float
+          grown:            bool
+          ...[attributes & attribute_details inherited from BaseAgent]
+        """
+        super(PlantAgent, self).__init__(*args, **kwargs)
+        self.full_amount = kwargs.get('full_amount', self.amount)
+        self.agent_step_num = kwargs.pop('agent_step_num', 0)
+        self.total_growth = kwargs.get('total_growth', 0)
+        self.current_growth = kwargs.get('current_growth', 0)
+        self.growth_rate = kwargs.get('growth_rate', 0)
+        self.grown = kwargs.get('grown', False)
+
+        if 'char_lifetime' in self.attrs:
+            lifetime = self.attrs['char_lifetime']
+            lifetime_unit = self.attr_details['char_lifetime']['unit']
+            lifetime_multiplier = dict(day=self.model.day_length_hours, hour=1, min=1/60)[lifetime_unit]
+            self.lifetime = lifetime * int(lifetime_multiplier)
+        else:
+            self.lifetime = 0
+        self.reproduce = self.attrs.get('char_reproduce', 0)
+        self.growth_criteria = self.attrs.get('char_growth_criteria', None)
+
+
+    def _init_currency_exchange(self):
+        n_steps = int(self.lifetime)
+        super()._init_currency_exchange(n_steps)
+        if self.growth_criteria and self.total_growth == 0:
+            self.total_growth = float(np.sum(self.step_values[self.growth_criteria]))
+
+
+    def _get_step_value(self, attr, step_num):
+        # On last step in lifecycle, only return the `weighted` value, i.e. the
+        # food output, and ignore any criteria.
+        weighted = self.attr_details[attr]['weighted']
+        if self.grown and not weighted:
+            agent_unit = self.attr_details[attr]['flow_unit']
+            return pq.Quantity(0.0, agent_unit)
+        cr_name = self.attr_details[attr]['criteria_name']
+        skip_criteria = cr_name == "growth_rate" and self.grown and weighted
+
+        # Step values for plants are based on `agent_step_num`` instead of `age`
+        # to account for stalled growth from deprive. TODO: As noted above,
+        # `agent_step_num` and other growth-related variables *should* be
+        # updated here, but the current reporting system expects `growth` in
+        # the main step record, so it's included in GeneralAgent.step().
+        step_num = int(self.agent_step_num)
+
+        step_value = super()._get_step_value(attr, step_num, skip_criteria)
+        if weighted and weighted in self:
+            step_value *= self[weighted]
+
+        return step_value
+
+
+    def step(self):
+        """TODO"""
+        if self.grown:
+            if self.reproduce:
+                self.age = 0
+                self.current_growth = 0
+                self.growth_rate = 0
+                self.agent_step_num = 0
+                self.grown = False
+                self.amount = self.full_amount
+                return
+            self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
+                self.agent_type))
+
+        super().step()
+        if self.age >= self.lifetime > 0:
+            self.grown = True  # Complete last flow cycle and terminate next step
+
+
+    def destroy(self, reason):
+        """Destroys the agent and removes it from the model
+
+        Args:
+          reason: str, cause of death
+        """
+        # self.model.logger.info("Object Died! Reason: {}".format(reason))
+        self.cause_of_death = reason
+        super().destroy()

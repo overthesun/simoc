@@ -11,7 +11,7 @@ from mesa.time import RandomActivation
 
 # from simoc_server import app  # TODO: Fix logger
 from agent_model.initializer import AgentModelInitializer
-from agent_model.agents.core import GeneralAgent
+from agent_model.agents.core import GeneralAgent, PlantAgent
 from agent_model.agents.data_collector import AgentDataCollector
 from agent_model.attribute_meta import AttributeHolder
 from agent_model.util import timedelta_to_hours, location_to_day_length_minutes
@@ -134,25 +134,19 @@ class AgentModel(Model, AttributeHolder):
         #------------------------------
         for agent_type, agent_data in initializer.agent_data.items():
             agent_desc, instance = agent_data.values()
+            agent_class = agent_desc.get('agent_class')
             instance['init_type'] = initializer.init_type
             connections = instance.pop('connections', {})
             amount = instance.pop('amount', 1)
+            build_from_class = PlantAgent if agent_class == 'plants' else GeneralAgent
+            params = dict(model=self, agent_type=agent_type, agent_desc=agent_desc,
+                          connections=connections, **instance)
             if self.single_agent == 1:
-                agent = GeneralAgent(model=self,
-                                     agent_type=agent_type,
-                                     agent_desc=agent_desc,
-                                     connections=connections,
-                                     amount=amount,
-                                     **instance)
+                agent = build_from_class(amount=amount, **params)
                 self.scheduler.add(agent)
             else:
                 for i in range(amount):
-                    agent = GeneralAgent(model=self,
-                                         agent_desc=agent_desc,
-                                         agent_type=agent_type,
-                                         connections=connections,
-                                         amount=1,
-                                         **instance)
+                    agent = build_from_class(amount=1, **params)
                     self.scheduler.add(agent)
         for agent in self.scheduler.agents:
             agent._init_currency_exchange()

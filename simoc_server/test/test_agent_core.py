@@ -15,6 +15,7 @@ def test_agent_one_human_radish(one_human_radish):
     one_human_radish_converted = convert_configuration(one_human_radish)
     # export_config(one_human_radish_converted, 'config_1hrad.json')
     one_human_radish_converted['agents']['food_storage']['wheat'] = 2
+    one_human_radish_converted['seed'] = 12345
     model = AgentModel.from_config(one_human_radish_converted, data_collection=True)
     model.step_to(n_steps=50)
     export_data(model, 'agent_records_baseline.json')
@@ -61,8 +62,7 @@ def test_agent_one_human_radish(one_human_radish):
 
     # Buffer
     assert agent_records['co2_removal_SAWD']['buffer']['in_co2'][40] == 0
-    # Sometimes this value is 3, sometimes it's 2. I think due to a rounding error.
-    assert agent_records['co2_removal_SAWD']['buffer']['in_co2'][49] in [3, 2]
+    assert agent_records['co2_removal_SAWD']['buffer']['in_co2'][49] == 3
 
 
 def test_agent_disaster(disaster):

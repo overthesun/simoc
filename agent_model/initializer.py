@@ -190,18 +190,11 @@ class AgentModelInitializer():
             # BaseAgent
             unique_id=agent.unique_id,
             active=agent.active,
-            # GrowthAgent
             age=agent.age,
             amount=agent.amount,
-            full_amount=agent.full_amount,
             initial_variable=agent.initial_variable,
             step_variation=agent.step_variation,
             step_variable=agent.step_variable,
-            agent_step_num=agent.agent_step_num,
-            total_growth=agent.total_growth,
-            current_growth=agent.current_growth,
-            growth_rate=agent.growth_rate,
-            grown=agent.grown,
             # StorageAgent
             id=agent.id,
             # GeneralAgent
@@ -212,6 +205,17 @@ class AgentModelInitializer():
             events=agent.events,
             event_multipliers=agent.event_multipliers
         )
+        # PlantAgent
+        if agent.agent_class == 'plants':
+            plant_fields = dict(
+                agent_step_num=agent.agent_step_num,
+                full_amount=agent.full_amount,
+                total_growth=agent.total_growth,
+                current_growth=agent.current_growth,
+                growth_rate=agent.growth_rate,
+                grown=agent.grown,
+            )
+            instance = {**instance, **plant_fields}
         # Step values
         for currency, step_values in agent.step_values.items():
             instance['step_values'][currency] = step_values

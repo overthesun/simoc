@@ -8,14 +8,15 @@ class AgentDataCollector():
         # Static Fields
         self.agent = agent
         self.name = agent.agent_type
-        self.lifetime = agent.lifetime
-        self.full_amount = self.agent.full_amount
-        self.reproduce = agent.reproduce
-        # Dynamic Fields
         self.age = [0]
         self.amount = [self.agent.amount]
-        self.snapshot_attrs = ['name', 'lifetime', 'full_amount', 'reproduce',
-                               'age', 'amount']
+        self.snapshot_attrs = ['name', 'age', 'amount']
+        # Plant-Specific Fields
+        for attr in ['lifetime', 'full_amount', 'reproduce']:
+            if hasattr(self.agent, attr):
+                self.snapshot_attrs.append(attr)
+                setattr(self, attr, getattr(self.agent, attr))
+        # Dynamic Fields
         for attr, attr_value in self.agent.attrs.items():
             if attr_value == 0:
                 continue
@@ -70,7 +71,7 @@ class AgentDataCollector():
                     if 'deprive' not in self.snapshot_attrs:
                         self.snapshot_attrs.append('deprive')
                         self.deprive = {}
-                    self.deprive[attr] = [deprive_value * self.full_amount]
+                    self.deprive[attr] = [deprive_value * self.amount[0]]
             # Events
             if attr.startswith('event'):
                 if 'events' not in self.snapshot_attrs:
