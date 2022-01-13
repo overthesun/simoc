@@ -365,7 +365,10 @@ class GeneralAgent(StorageAgent):
                     f"No connection found for {currency} in {self.agent_type}.")
             self.selected_storage[prefix][currency] = []
             for agent_type in connected_agents:
-                storage_agent = self.model.get_agents_by_type(agent_type=agent_type)[0]
+                if agent_type == self.agent_type:
+                    storage_agent = self
+                else:
+                    storage_agent = self.model.get_agents_by_type(agent_type=agent_type)[0]
                 storage_unit = storage_agent.attr_details['char_capacity_' + currency]['unit']
                 if storage_unit != attr_unit:
                     raise AgentInitializationError(
@@ -521,7 +524,7 @@ class GeneralAgent(StorageAgent):
                     total += storage_ratios[storage_id][cr_name]
         return total
 
-    def _get_step_value(self, attr, step_num, skip_criteria=False):
+    def _get_step_value(self, attr, step_num):
         """TODO
 
         TODO
@@ -535,7 +538,7 @@ class GeneralAgent(StorageAgent):
         prefix, currency = attr.split('_', 1)
         agent_unit = self.attr_details[attr]['flow_unit']
         cr_name = self.attr_details[attr]['criteria_name']
-        if cr_name and not skip_criteria:
+        if cr_name:
             cr_limit = self.attr_details[attr]['criteria_limit']
             cr_value = self.attr_details[attr]['criteria_value'] or 0.0
             cr_buffer = self.attr_details[attr]['criteria_buffer'] or 0.0
@@ -864,12 +867,10 @@ class PlantAgent(GeneralAgent):
     def _get_step_value(self, attr, step_num):
         # On last step in lifecycle, only return the `weighted` value, i.e. the
         # food output, and ignore any criteria.
-        weighted = self.attr_details[attr]['weighted']
-        if self.grown and not weighted:
+        cr_name = self.attr_details[attr]['criteria_name']
+        if self.grown and cr_name != 'grown':
             agent_unit = self.attr_details[attr]['flow_unit']
             return pq.Quantity(0.0, agent_unit)
-        cr_name = self.attr_details[attr]['criteria_name']
-        skip_criteria = cr_name == "growth_rate" and self.grown and weighted
 
         # Step values for plants are based on `agent_step_num`` instead of `age`
         # to account for stalled growth from deprive. TODO: As noted above,
@@ -877,14 +878,13 @@ class PlantAgent(GeneralAgent):
         # updated here, but the current reporting system expects `growth` in
         # the main step record, so it's included in GeneralAgent.step().
         step_num = int(self.agent_step_num)
+        step_value = super()._get_step_value(attr, step_num)
 
-        step_value = super()._get_step_value(attr, step_num, skip_criteria)
+        weighted = self.attr_details[attr]['weighted']
         if weighted and weighted in self:
             step_value *= self[weighted]
-
         if attr in self.co2_scale:
             step_value *= self.co2_scale[attr]
-
         return step_value
 
 
@@ -960,12 +960,14 @@ class PlantAgent(GeneralAgent):
             self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
                 self.agent_type))
 
-        step_num = int(self.agent_step_num + 1)
-        self.co2_scale = self._calculate_co2_scale(step_num)
+        if self.agent_step_num >= self.lifetime - 1 > 0:
+            self.grown = True  # Complete last flow cycle and terminate next step
+        else:
+            # Calculate co2 multipliers for each currency for the next step
+            step_num = int(self.agent_step_num + 1)
+            self.co2_scale = self._calculate_co2_scale(step_num)
 
         super().step()
-        if self.age >= self.lifetime > 0:
-            self.grown = True  # Complete last flow cycle and terminate next step
 
 
     def destroy(self, reason):

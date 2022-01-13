@@ -148,11 +148,13 @@ def test_convert_four_humans_garden(four_humans_garden, agent_desc, agent_class_
 
     # Plants
     greenhouse = 'greenhouse_small'
-    plant_in = dict(co2=[greenhouse], potable=['water_storage'],
+    def _plant_in(plant):
+        return dict(co2=[greenhouse], potable=['water_storage'],
                     fertilizer=['nutrient_storage'], kwh=['power_storage'],
-                    biomass=['nutrient_storage'])
-    plant_out = dict(o2=[greenhouse], h2o=[greenhouse], biomass=['nutrient_storage'])
+                    biomass=[plant])
+    def _plant_out(plant):
+        return dict(o2=[greenhouse], h2o=[greenhouse], biomass=[plant])
     garden = dict(wheat=20, cabbage=30, strawberry=10, radish=50, red_beet=50, onion=50)
     for plant, amount in garden.items():
-        gc.check_agent(plant, amount=amount, in_conn=plant_in,
-                       out_conn={**plant_out, plant: ['food_storage']})
+        gc.check_agent(plant, amount=amount, in_conn=_plant_in(plant),
+                       out_conn={**_plant_out(plant), plant: ['food_storage']})

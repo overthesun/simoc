@@ -111,7 +111,7 @@ def test_agent_disaster(disaster):
 
 def test_agent_four_humans_garden(four_humans_garden):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
-    # export_config(four_humans_garden_converted, 'config_4hg.json')
+    export_config(four_humans_garden_converted, 'config_4hg.json')
     model = AgentModel.from_config(four_humans_garden_converted, data_collection=True)
     model.step_to(n_steps=2)
     export_data(model, 'agent_records_fhgarden.json')
@@ -164,11 +164,11 @@ def test_agent_variation(one_human_radish):
     assert radish.attrs['in_potable'] == r_var * 0.0020625
     assert radish.attrs['in_fertilizer'] == r_var * 1.033e-05
     assert radish.attrs['in_kwh'] == r_var * 0.1812806783
-    assert radish.attrs['in_biomass'] == r_var * 0.1375
+    assert radish.attrs['in_biomass'] == r_var * 1
     assert radish.attrs['out_o2'] == r_var * 0.0005393177194
     assert radish.attrs['out_h2o'] == r_var * 0.0018203873194
-    assert radish.attrs['out_radish'] == r_var * 0.1375
-    assert radish.attrs['out_biomass'] == r_var * 0.000458333
+    assert radish.attrs['out_radish'] == r_var * 0.5
+    assert radish.attrs['out_residual'] == r_var * 0.5
 
     solar = model.get_agents_by_type('solar_pv_array_mars')[0]
     s_var = 0.5039911944838129

@@ -9,7 +9,7 @@ from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc, 
 def test_parse_currency_desc(currency_desc):
     currencies, currency_errors = parse_currency_desc(currency_desc)
 
-    assert len(currencies) == 42
+    assert len(currencies) == 43
     # with open('data_analysis/parsed_currency_desc.json', 'w') as f:
     #     json.dump(currencies, f)
 
@@ -79,11 +79,11 @@ def test_parse_agent_desc(four_humans_garden, currency_dict, agent_desc):
     assert kwh_details['daily_growth_max_threshold'] == 0.75
 
     in_biomass, in_biomass_details = _attr('in_biomass')
-    assert in_biomass == 0.66215
-    assert in_biomass_details['weighted'] == 'growth_rate'
-    assert in_biomass_details['criteria_name'] == 'growth_rate'
-    assert in_biomass_details['criteria_limit'] == '>'
-    assert in_biomass_details['criteria_value'] == 1
+    assert in_biomass == 1
+    assert in_biomass_details['weighted'] == 'current_growth'
+    assert in_biomass_details['criteria_name'] == 'grown'
+    assert in_biomass_details['criteria_limit'] == '='
+    assert in_biomass_details['criteria_value'] == True
 
     o2, _ = _attr('out_o2')
     assert o2 == 0.0005763666242
@@ -92,7 +92,7 @@ def test_parse_agent_desc(four_humans_garden, currency_dict, agent_desc):
     assert h2o == 0.0047265009912
 
     strawberry, _ = _attr('out_strawberry')
-    assert strawberry == 0.66215
+    assert strawberry == 0.35011
 
     out_biomass, out_biomass_details = _attr('out_biomass')
     assert out_biomass == 0.000927083

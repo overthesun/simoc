@@ -27,7 +27,10 @@
             "label": "Waste"
         },
         "biomass": {
-            "label": "Inedible Biomass"
+            "label": "Accumulated Biomass"
+        },
+        "residual": {
+            "label": "Residual (Inedible) Biomass"
         }
     },
     "food": {

@@ -823,17 +823,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.77095,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -872,16 +871,30 @@
           },
           {
             "type": "rice",
-            "value": 0.77095,
-            "weighted": "growth_rate",
+            "value": 0.30003,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.69997,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -918,6 +931,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1010,17 +1028,16 @@
           },
           {
             "type": "biomass",
-            "value": 1.58,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1059,16 +1076,30 @@
           },
           {
             "type": "wheat",
-            "value": 1.58,
-            "weighted": "growth_rate",
+            "value": 0.4,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.6,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -1105,6 +1136,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1197,17 +1233,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.5151,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1246,16 +1281,30 @@
           },
           {
             "type": "cabbage",
-            "value": 0.5151,
-            "weighted": "growth_rate",
+            "value": 0.90045,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.09955,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -1292,6 +1341,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1384,17 +1438,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.315,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1433,16 +1486,30 @@
           },
           {
             "type": "chard",
-            "value": 0.315,
-            "weighted": "growth_rate",
+            "value": 0.64995,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.35005,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -1479,6 +1546,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1571,17 +1643,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.77475,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1620,16 +1691,30 @@
           },
           {
             "type": "celery",
-            "value": 0.77475,
-            "weighted": "growth_rate",
+            "value": 0.89983,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.10017,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -1666,6 +1751,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1758,17 +1848,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.18396,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1807,16 +1896,30 @@
           },
           {
             "type": "lettuce",
-            "value": 0.18396,
-            "weighted": "growth_rate",
+            "value": 0.9,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.1,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -1853,6 +1956,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1945,17 +2053,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.1971,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1994,16 +2101,30 @@
           },
           {
             "type": "spinach",
-            "value": 0.1971,
-            "weighted": "growth_rate",
+            "value": 0.9,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.1,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2040,6 +2161,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -2132,17 +2258,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.85,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -2181,16 +2306,30 @@
           },
           {
             "type": "dry_bean",
-            "value": 0.85,
-            "weighted": "growth_rate",
+            "value": 0.4,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.6,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2227,6 +2366,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -2319,17 +2463,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.58552,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -2368,16 +2511,30 @@
           },
           {
             "type": "peanut",
-            "value": 0.58552,
-            "weighted": "growth_rate",
+            "value": 0.25011,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.74989,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2414,6 +2571,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -2506,17 +2668,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.582,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -2555,16 +2716,30 @@
           },
           {
             "type": "soybean",
-            "value": 0.582,
-            "weighted": "growth_rate",
+            "value": 0.46875,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.53125,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2601,6 +2776,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -2693,17 +2873,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.66215,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -2742,16 +2921,30 @@
           },
           {
             "type": "strawberry",
-            "value": 0.66215,
-            "weighted": "growth_rate",
+            "value": 0.35011,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.64989,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2788,6 +2981,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -2880,17 +3078,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.88655,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -2929,16 +3126,30 @@
           },
           {
             "type": "tomato",
-            "value": 0.88655,
-            "weighted": "growth_rate",
+            "value": 0.45015,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.54985,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2975,6 +3186,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -3067,17 +3283,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.45,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -3116,16 +3331,30 @@
           },
           {
             "type": "green_onion",
-            "value": 0.45,
-            "weighted": "growth_rate",
+            "value": 0.9,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.1,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -3162,6 +3391,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -3254,17 +3488,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.45,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -3303,16 +3536,30 @@
           },
           {
             "type": "onion",
-            "value": 0.45,
-            "weighted": "growth_rate",
+            "value": 0.8,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.2,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -3349,6 +3596,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -3441,17 +3693,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.80475,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -3490,16 +3741,30 @@
           },
           {
             "type": "pea",
-            "value": 0.80475,
-            "weighted": "growth_rate",
+            "value": 0.39993,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.60007,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -3536,6 +3801,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -3628,17 +3898,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.88655,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -3677,16 +3946,30 @@
           },
           {
             "type": "pepper",
-            "value": 0.88655,
-            "weighted": "growth_rate",
+            "value": 0.45015,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.54985,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -3723,6 +4006,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -3815,17 +4103,16 @@
           },
           {
             "type": "biomass",
-            "value": 1.0098,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -3864,16 +4151,30 @@
           },
           {
             "type": "snap_bean",
-            "value": 1.0098,
-            "weighted": "growth_rate",
+            "value": 0.4,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.6,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -3910,6 +4211,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -4002,17 +4308,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.1375,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -4050,20 +4355,6 @@
             }
           },
           {
-            "type": "radish",
-            "value": 0.1375,
-            "weighted": "growth_rate",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
-            }
-          },
-          {
             "type": "biomass",
             "value": 0.000458333,
             "flow_rate": {
@@ -4077,6 +4368,48 @@
               "daily": {
                 "type": "norm"
               }
+            }
+          },
+          {
+            "type": "radish",
+            "value": 0.5,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.5,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.5,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -4097,6 +4430,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -4189,17 +4527,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.247,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -4238,16 +4575,30 @@
           },
           {
             "type": "red_beet",
-            "value": 0.247,
-            "weighted": "growth_rate",
+            "value": 0.65,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.35,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -4284,6 +4635,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -4376,17 +4732,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.6735,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -4425,16 +4780,30 @@
           },
           {
             "type": "carrot",
-            "value": 0.6735,
-            "weighted": "growth_rate",
+            "value": 0.59987,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.40013,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -4471,6 +4840,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -4563,17 +4937,16 @@
           },
           {
             "type": "biomass",
-            "value": 1.275,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -4612,16 +4985,30 @@
           },
           {
             "type": "sweet_potato",
-            "value": 1.275,
-            "weighted": "growth_rate",
+            "value": 0.4,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.6,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -4658,6 +5045,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -4750,17 +5142,16 @@
           },
           {
             "type": "biomass",
-            "value": 2.7799,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -4799,16 +5190,30 @@
           },
           {
             "type": "white_potato",
-            "value": 2.7799,
-            "weighted": "growth_rate",
+            "value": 0.6999,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "residual",
+            "value": 0.3001,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -4845,6 +5250,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -5680,7 +6090,7 @@
         "output": [],
         "characteristics": [
           {
-            "type": "capacity_biomass",
+            "type": "capacity_residual",
             "value": 10000,
             "unit": "kg"
           },
