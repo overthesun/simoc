@@ -797,7 +797,6 @@ class GeneralAgent(StorageAgent):
         self.destroy(reason)
 
 
-
 class PlantAgent(GeneralAgent):
     """Initializes and manages growth, amount and reproduction
 

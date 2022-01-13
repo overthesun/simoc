@@ -1,5 +1,6 @@
 import json
 import random
+from itertools import zip_longest
 
 from agent_model.agents import growth_func
 from agent_model.util import location_to_day_length_minutes
@@ -253,3 +254,18 @@ def parse_agent_events(agent_events):
                 agents_errors[agent] = agent_errors
     return agents_data, agents_errors
 
+def merge_agent_desc(default, user):
+    if isinstance(user, dict):
+        for field, values in user.items():
+            if field in default:
+                default[field] = merge_agent_desc(default[field], values)
+            else:
+                default[field] = values
+        return default
+    elif isinstance(user, list):
+        combined = []
+        for default_item, user_item in zip(default, user):
+            combined.append(merge_agent_desc(default_item, user_item))
+        return [i[1] if i[1] else i[0] for i in zip_longest(default, combined)]
+    elif isinstance(user, (str, int, float, bool)):
+        return user

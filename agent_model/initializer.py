@@ -5,7 +5,7 @@ import pathlib
 
 from agent_model.exceptions import AgentModelInitializationError
 from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc, \
-                                         parse_agent_events
+                                         parse_agent_events, merge_agent_desc
 
 _DEFAULT_LOCATION = 'mars'
 _DATA_FILES_DIR = pathlib.Path(__file__).parent.parent / 'data_files'
@@ -88,7 +88,8 @@ class AgentModelInitializer():
         errors['currencies'] = currency_errors
 
         default_agent_desc = load_data_file('agent_desc.json')
-        # TODO: Merge with user-defined
+        if user_agent_desc:
+            default_agent_desc = merge_agent_desc(default_agent_desc, user_agent_desc)
         agent_desc, agents_errors = parse_agent_desc(config, model_data['currency_dict'], default_agent_desc, _DEFAULT_LOCATION)
         errors['agents'] = agents_errors
 

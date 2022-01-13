@@ -4,7 +4,7 @@ import pytest
 from pytest import approx
 
 from simoc_server.front_end_routes import convert_configuration
-from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc
+from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc, merge_agent_desc
 
 def test_parse_currency_desc(currency_desc):
     currencies, currency_errors = parse_currency_desc(currency_desc)
@@ -98,3 +98,42 @@ def test_parse_agent_desc(four_humans_garden, currency_dict, agent_desc):
     assert out_biomass == 0.000927083
     assert out_biomass_details['lifetime_growth_type'] == 'norm'
     assert out_biomass_details['lifetime_growth_max_value'] == 0.00369864
+
+def test_merge_agent_desc(agent_desc):
+    user_agent_desc = {
+        'eclss': {
+            'co2_removal_SAWD': {
+                'data': {
+                    'input': [
+                        {
+                            'criteria': {
+                                'value': 0.001,
+                                'buffer': 2
+                            }
+                        }
+                    ]
+                }
+            },
+            'co2_makeup_valve': {
+                'data': {
+                    'input': [
+                        {
+                            'criteria': {
+                                'value': 0.001,
+                                'buffer': 2
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+    merged = merge_agent_desc(agent_desc, user_agent_desc)
+    assert len(merged.keys()) == 10
+    assert len(merged['eclss'].keys()) == 10
+    assert merged['eclss']['co2_makeup_valve']['data']['input'][0]['criteria']['value'] == 0.001
+    assert merged['eclss']['co2_makeup_valve']['data']['input'][0]['criteria']['buffer'] == 2
+    assert merged['eclss']['co2_removal_SAWD']['data']['input'][0]['criteria']['value'] == 0.001
+    assert merged['eclss']['co2_removal_SAWD']['data']['input'][0]['criteria']['value'] == 0.001
+    with open('data_analysis/agent_desc_merged.json', 'w') as f:
+        json.dump(merged, f)
