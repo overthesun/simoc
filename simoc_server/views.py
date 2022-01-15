@@ -585,6 +585,13 @@ def get_agent_desc():
     return status("Agent editor data retrieved",
                   agent_desc=agent_desc, agent_schema=agent_schema)
 
+
+@app.route("/get_currency_desc", methods=["GET"])
+def get_currency_desc():
+    currency_desc = load_from_basedir('data_files/currency_desc.json')
+    return status("Currency desc retrieved", currency_desc=currency_desc)
+
+
 def load_from_basedir(fname):
     basedir = Path(app.root_path).resolve().parent
     path = basedir / fname
