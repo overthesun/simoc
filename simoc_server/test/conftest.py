@@ -1,4 +1,5 @@
 import json
+import numpy as np
 
 import pytest
 from agent_model.parse_data_files import parse_currency_desc
@@ -99,3 +100,10 @@ def four_humans_garden():
             {'species': 'onion', 'amount': 50}
         ],
     }
+
+# Return a RandomState with constant seed
+@pytest.fixture()
+def random_state():
+    random_seed = 12345
+    random_state = np.random.RandomState(random_seed)
+    return random_state

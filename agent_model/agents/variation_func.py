@@ -16,7 +16,3 @@ def get_variable(gen, upper, lower, distribution, stdev_range=None):
         elif lower > 0:
             delta = gen.exponential(lower/3)
             return 1 - delta
-        else:
-            return 1
-    elif distribution == 'uniform':
-        return gen.uniform(1-lower, 1+upper)

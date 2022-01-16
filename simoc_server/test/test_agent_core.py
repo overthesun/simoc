@@ -137,28 +137,28 @@ def test_agent_variation(one_human_radish):
         assert agent_records[agent]['flows'][currency][10] == step_10
 
     human = model.get_agents_by_type('human_agent')[0]
-    assert human.initial_variable == 0.43796737591372337
-    assert human.attrs['in_o2'] == 0.030526327407409494
-    assert human.attrs['in_potable'] == 0.11343098108057723
-    assert human.attrs['in_food'] == 0.05282243913392265
-    assert human.attrs['out_co2'] == 0.03703768381456972
-    assert human.attrs['out_h2o'] == 0.09390850177471556
+    assert human.initial_variable == 0.9379673759137234
+    assert human.attrs['in_o2'] == 0.03635932740740949
+    assert human.attrs['in_potable'] == 0.13447248108057724
+    assert human.attrs['in_food'] == 0.06365593913392265
+    assert human.attrs['out_co2'] == 0.04412118381456972
+    assert human.attrs['out_h2o'] == 0.12453350177471556
     assert human.attrs['out_urine'] == 0.060833
     assert human.attrs['out_feces'] == 0.005
-    assert human.attrs['char_mass'] == 66.26308652558426
+    assert human.attrs['char_mass'] == 80.26308652558426
 
     # s_var = human.step_variable
     # assert human.last_flow['o2'] == human.attrs['in_o2'] * h_var * s_var
 
     dehumidifier = model.get_agents_by_type('dehumidifier')[0]
-    d_var = 0.4885233739822509
+    d_var = 0.9885233739822509
     assert dehumidifier.initial_variable == d_var
     assert dehumidifier.attrs['in_h2o'] == d_var * 4
     assert dehumidifier.attrs['in_kwh'] == d_var * 0.5
     assert dehumidifier.attrs['out_treated'] == d_var * 0.5
 
     radish = model.get_agents_by_type('radish')[0]
-    r_var = 0.4866809472733392
+    r_var = 0.9866809472733392
     assert radish.initial_variable == r_var
     assert radish.attrs['in_co2'] == r_var * 0.0007452059028
     assert radish.attrs['in_potable'] == r_var * 0.0020625
@@ -171,7 +171,7 @@ def test_agent_variation(one_human_radish):
     assert radish.attrs['out_residual'] == r_var * 0.5
 
     solar = model.get_agents_by_type('solar_pv_array_mars')[0]
-    s_var = 0.5039911944838129
+    s_var = 1.003991194483813
     assert solar.initial_variable == s_var
     assert solar.attrs['out_kwh'] == s_var * 0.354
 

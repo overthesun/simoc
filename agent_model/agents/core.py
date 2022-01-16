@@ -85,10 +85,10 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
             distribution = iv.get('distribution')
             stdev_range = iv.get('stdev_range', None)
             characteristics = iv.get('characteristics', [])
-            if isinstance(upper, dict):
+            if isinstance(upper, dict) or isinstance(lower, dict):
                 # When currency values are specified individually
-                self.initial_variable = ge * variation_func.get_variable(
-                    self.model.random_state, 1, 1, distribution, stdev_range)
+                self.initial_variable =  variation_func.get_variable(
+                    self.model.random_state, ge, ge, distribution, stdev_range)
                 if self.initial_variable == 1:
                     return
                 elif self.initial_variable < 1:
@@ -104,7 +104,9 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
                         self.attrs[attr] = np.interp(x_norm, [0, 1], [attr_value, y_ref[field]])
             else:
                 # When a scalar is used
-                self.initial_variable = ge * variation_func.get_variable(
+                upper = upper * ge
+                lower = lower * ge
+                self.initial_variable = variation_func.get_variable(
                     self.model.random_state, upper, lower, distribution, stdev_range)
                 for attr, attr_value in self.attrs.items():
                     prefix, field = attr.split('_', 1)
