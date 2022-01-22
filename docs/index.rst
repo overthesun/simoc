@@ -12,6 +12,7 @@ SIMOC Developer's Guide
 
    setup
    architecture
+   git
    deployment
    docker-deployment
    gcp-deployment
