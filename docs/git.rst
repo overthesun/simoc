@@ -2,6 +2,9 @@
 Git Guidelines
 ==============
 
+.. highlight:: bash
+
+
 .. _repo-setup:
 
 Repository setup
@@ -47,7 +50,7 @@ Workflow
 
     git switch -c <name-of-the-branch>
 
-3. Make changes and review, add, and commit them::
+3. Make changes and review, add, and :ref:`commit <commits>` them::
 
     git status           # check current branch and modified files
     git diff             # review changes
@@ -58,12 +61,12 @@ Workflow
 
     git push origin <name-of-the-branch>
 
-5. Create a pull request (PR) against the upstream repo, either from
-   the GitHub interface or by following the link that should appear
-   after pushing.
+5. Create a :ref:`pull request (PR) <prs>` against the upstream repo,
+   either from the GitHub interface or by following the link that
+   should appear after pushing.
 
-6. Once the PR has been reviewed and merged, go back to step 1 to update
-   your local clone, and delete the merged branch with::
+6. Once the PR has been reviewed and :ref:`merged <merge>`, go back to
+   step 1 to update your local clone, and delete the merged branch with::
 
     git branch -d <name-of-the-branch>
 
@@ -79,6 +82,8 @@ Workflow
     ``git checkout <branch>`` to switch to a different branch.
 
 
+.. _prs:
+
 Pull Requests (PRs)
 -------------------
 Each pull request should be self-contained and address a single issue
@@ -93,6 +98,8 @@ and pushing the changes to your fork with ``git push origin <branch>``.
 
 PRs should include tests and documentation whenever possible.
 
+
+.. _commits:
 
 Commits
 -------
@@ -111,7 +118,7 @@ to navigate and understand.
 
 
 Commit Messages
----------------
+~~~~~~~~~~~~~~~
 The commit message should be a short sentence, starting with a
 capitalized word and ending with a period, that describes the change
 being committed.  It's common to use an imperative verb at the beginning
@@ -138,6 +145,8 @@ without affecting the ``master`` branch and without creating a giant pull
 request.  Once the feature is completed and tested, the whole branch can
 be merged into ``master``.
 
+
+.. _merge:
 
 Merge strategy
 --------------
