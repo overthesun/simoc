@@ -138,7 +138,7 @@ class AgentModelInitializer():
             if agent not in agent_desc:
                 continue
             valid_instance = {}
-            non_currency_fields = ['id', 'amount', 'total_capacity', 'connections']
+            non_currency_fields = ['id', 'amount', 'total_capacity', 'connections', 'delay_start']
             for field, value in instance.items():
                 if field not in non_currency_fields and field not in model_data['currency_dict']:
                     _agent_error(agent, field, "Unrecognized field in agent instance")
@@ -209,6 +209,7 @@ class AgentModelInitializer():
         # PlantAgent
         if agent.agent_class == 'plants':
             plant_fields = dict(
+                delay_start=agent.delay_start,
                 agent_step_num=agent.agent_step_num,
                 full_amount=agent.full_amount,
                 total_growth=agent.total_growth,

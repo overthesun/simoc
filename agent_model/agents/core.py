@@ -836,6 +836,7 @@ class PlantAgent(GeneralAgent):
           ...[attributes & attribute_details inherited from BaseAgent]
         """
         super().__init__(*args, **kwargs)
+        self.delay_start = kwargs.get('delay_start', 0)
         self.full_amount = kwargs.get('full_amount', self.amount)
         self.agent_step_num = kwargs.pop('agent_step_num', 0)
         self.total_growth = kwargs.get('total_growth', 0)
@@ -954,6 +955,9 @@ class PlantAgent(GeneralAgent):
 
     def step(self):
         """TODO"""
+        if self.delay_start > 0:
+            self.delay_start -= self.model.hours_per_step
+            return
         if self.grown:
             if self.reproduce:
                 self.age = 0
