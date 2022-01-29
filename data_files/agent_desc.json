@@ -920,6 +920,10 @@
             "value": "food_cers"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
@@ -1123,6 +1127,10 @@
           {
             "type": "category",
             "value": "food_cers"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
           },
           {
             "type": "growth_criteria",
@@ -1330,6 +1338,10 @@
             "value": "food_leaf"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040.0,
             "unit": "hour"
@@ -1533,6 +1545,10 @@
           {
             "type": "category",
             "value": "food_leaf"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
           },
           {
             "type": "lifetime",
@@ -1740,6 +1756,10 @@
             "value": "food_leaf"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 1800,
             "unit": "hour"
@@ -1943,6 +1963,10 @@
           {
             "type": "category",
             "value": "food_leaf"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
           },
           {
             "type": "lifetime",
@@ -2150,6 +2174,10 @@
             "value": "food_leaf"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 720,
             "unit": "hour"
@@ -2353,6 +2381,10 @@
           {
             "type": "category",
             "value": "food_legu"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
           },
           {
             "type": "lifetime",
@@ -2560,6 +2592,10 @@
             "value": "food_legu"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2496,
             "unit": "hour"
@@ -2763,6 +2799,10 @@
           {
             "type": "category",
             "value": "food_legu"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
           },
           {
             "type": "lifetime",
@@ -2970,6 +3010,10 @@
             "value": "food_frut"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
@@ -3173,6 +3217,10 @@
           {
             "type": "category",
             "value": "food_frut"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
           },
           {
             "type": "lifetime",
@@ -3380,6 +3428,10 @@
             "value": "food_vegi"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 1200,
             "unit": "hour"
@@ -3583,6 +3635,10 @@
           {
             "type": "category",
             "value": "food_vegi"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
           },
           {
             "type": "lifetime",
@@ -3790,6 +3846,10 @@
             "value": "food_vegi"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 1800,
             "unit": "hour"
@@ -3995,6 +4055,10 @@
             "value": "food_vegi"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
@@ -4198,6 +4262,10 @@
           {
             "type": "category",
             "value": "food_vegi"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
           },
           {
             "type": "lifetime",
@@ -4419,6 +4487,10 @@
             "value": "food_root"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "growth_criteria",
             "value": "out_biomass"
           },
@@ -4622,6 +4694,10 @@
           {
             "type": "category",
             "value": "food_root"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
           },
           {
             "type": "lifetime",
@@ -4829,6 +4905,10 @@
             "value": "food_root"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 1800,
             "unit": "hour"
@@ -5034,6 +5114,10 @@
             "value": "food_vegi"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
@@ -5237,6 +5321,10 @@
           {
             "type": "category",
             "value": "food_root"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
           },
           {
             "type": "lifetime",

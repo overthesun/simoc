@@ -162,7 +162,7 @@ class StorageAgent(BaseAgent):
           ...[currency] int     starting balance, from config
           ...[attributes & attribute_details inherited from BaseAgent]
         """
-        super(StorageAgent, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.id = kwargs.get("id", None)
         self.has_storage = False
         class_capacities = {}
@@ -302,7 +302,7 @@ class GeneralAgent(StorageAgent):
           deprive:          dict
           step_values:      dict
         """
-        super(GeneralAgent, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.age = kwargs.pop("age", 0)
         self.has_flows = False
         self.connections = kwargs.get("connections", {})
@@ -835,7 +835,7 @@ class PlantAgent(GeneralAgent):
           grown:            bool
           ...[attributes & attribute_details inherited from BaseAgent]
         """
-        super(PlantAgent, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.full_amount = kwargs.get('full_amount', self.amount)
         self.agent_step_num = kwargs.pop('agent_step_num', 0)
         self.total_growth = kwargs.get('total_growth', 0)
@@ -852,6 +852,7 @@ class PlantAgent(GeneralAgent):
             self.lifetime = 0
         self.reproduce = self.attrs.get('char_reproduce', 0)
         self.growth_criteria = self.attrs.get('char_growth_criteria', None)
+        self.carbon_fixation = self.attrs.get('char_carbon_fixation', None)
 
 
     def _init_currency_exchange(self):
@@ -896,11 +897,14 @@ class PlantAgent(GeneralAgent):
         t_mean = 25 # Mean temperature for timestep. TODO: Link to connection
 
         # Calculate the ratio of increased co2 uptake [Vanuytrecht 5]
-        cu_fields = ['co2', 'fertilizer', 'o2', 'biomass', 'wheat']
-        tt = (163 - t_mean) / (5 - 0.1 * t_mean) # co2 compensation point
-        numerator = (co2_ppm - tt) * (350 + 2 * tt)
-        denominator = (co2_ppm + 2 * tt) * (350 - tt)
-        co2_uptake_ratio = numerator/denominator
+        cu_fields = ['co2', 'fertilizer', 'o2', 'biomass', self.agent_type]
+        if self.carbon_fixation == 'c3':
+            tt = (163 - t_mean) / (5 - 0.1 * t_mean) # co2 compensation point
+            numerator = (co2_ppm - tt) * (350 + 2 * tt)
+            denominator = (co2_ppm + 2 * tt) * (350 - tt)
+            co2_uptake_ratio = numerator/denominator
+        else:
+            co2_uptake_ratio = 1
 
         # Calculate the ratio of decreased water use [Vanuytrecht 7]
         te_fields = ['potable', 'h2o']
@@ -964,7 +968,7 @@ class PlantAgent(GeneralAgent):
 
         if self.agent_step_num >= self.lifetime - 1 > 0:
             self.grown = True  # Complete last flow cycle and terminate next step
-        else:
+        elif self.carbon_fixation:
             # Calculate co2 multipliers for each currency for the next step
             step_num = int(self.agent_step_num + 1)
             self.co2_scale = self._calculate_co2_scale(step_num)
