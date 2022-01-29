@@ -318,75 +318,17 @@ def convert_configuration(game_config, save_output=False):
     # 'human_agent' and 'solar_pv...' are already in the correct format.
 
     ###########################################################################
-    #                 STEP 3: Build connections dictionary                    #
-    ###########################################################################
-    # This step performs three tasks simultaneously:
-    # 1. Convert connections from a list of from/to pairs to a dict of the same
-    #    structure used by the Agent-based model
-    # 2. Replace generic connections (e.g. 'habitat') with the specific agent
-    #    type selected for this simulation (e.g. 'crew_habitat_small')
-    # 3. Ignore connections involving agents not in this sim.
-
-    # Replace generic connections with user-selected structure
-    def _substitute_structures(agent_type):
-        if agent_type in structures_dict:
-            return structures_dict[agent_type]
-        return agent_type
-    # Load connections file
-    fpath = pathlib.Path(__file__).parent.parent / 'data_files/agent_conn.json'
-    # if not fpath.is_file():
-    #     default_connections = build_connections_from_agent_desc(fpath)
-    # else:
-    with open(fpath) as f:
-        default_connections = json.load(f)
-
-    # Parse connections file in to dict
-    connections_dict = {}
-    for conn in default_connections:
-        from_agent, from_currency = conn['from'].split(".")
-        to_agent, to_currency = conn['to'].split(".")
-        priority = int(conn.get('priority', 0))
-        from_agent = _substitute_structures(from_agent)
-        to_agent = _substitute_structures(to_agent)
-        if from_agent not in working_config or to_agent not in working_config:
-            continue
-        # Add agents to dict
-        for agent in [from_agent, to_agent]:
-            if agent not in connections_dict.keys():
-                connections_dict[agent] = {'in': {}, 'out': {}}
-        # Add currencies/connections by agent
-        to_record = dict(agent_type=to_agent, priority=priority)
-        if from_currency not in connections_dict[from_agent]['out']:
-            connections_dict[from_agent]['out'][from_currency] = [to_record]
-        else:
-            connections_dict[from_agent]['out'][from_currency].append(to_record)
-        from_record = dict(agent_type=from_agent, priority=priority)
-        if to_currency not in connections_dict[to_agent]['in']:
-            connections_dict[to_agent]['in'][to_currency] = [from_record]
-        else:
-            connections_dict[to_agent]['in'][to_currency].append(from_record)
-
-    ###########################################################################
-    #                   STEP 4: Add all agents to output                      #
+    #                   STEP 3: Add all agents to output                      #
     ###########################################################################
 
-    def _connections(agent_type):
-        connections = connections_dict[agent_type].copy()
-        for prefix in ['in', 'out']:
-            for currency, conns in connections[prefix].items():
-                _sorted = sorted(conns, key=lambda c: c['priority'])
-                connections[prefix][currency] = [c['agent_type'] for c in _sorted]
-        return connections
     db_agents = [agent.name for agent in db.session.query(AgentType).all()]
     for agent_type, attrs in working_config.items():
         if not isinstance(attrs, dict):
-            print(f"Attributes for agent type {agent} must be a dict")
+            print(f"Attributes for agent type {agent_type} must be a dict")
             continue
         if agent_type not in db_agents:
-            print(f"Agent type {agent} not found in database")
+            print(f"Agent type {agent_type} not found in database")
             continue
-        if agent_type in connections_dict:
-            attrs['connections'] = _connections(agent_type)
         full_game_config['agents'][agent_type] = attrs
     # Calculate the total number of agents. Used in `views.py` to enforce a
     # maximum number of agents per simulation (currently 50).

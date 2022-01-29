@@ -30,6 +30,11 @@ def currency_dict(currency_desc):
     currency_desc, currency_errors = parse_currency_desc(currency_desc)
     return currency_desc
 
+@pytest.fixture(scope="session")
+def agent_conn():
+    with open('data_files/agent_conn.json') as f:
+        yield json.load(f)
+
 # Matches the 'One Human' preset
 @pytest.fixture()
 def one_human():

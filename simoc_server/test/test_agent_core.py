@@ -18,7 +18,7 @@ def test_agent_one_human_radish(one_human_radish):
     one_human_radish_converted['seed'] = 12345
     model = AgentModel.from_config(one_human_radish_converted, data_collection=True)
     model.step_to(n_steps=50)
-    export_data(model, 'agent_records_baseline.json')
+    # export_data(model, 'agent_records_baseline.json')
     agent_records = model.get_data(debug=True)
 
     # Storage
@@ -71,7 +71,7 @@ def test_agent_disaster(disaster):
     disaster_converted['seed'] = 12345
     model = AgentModel.from_config(disaster_converted, data_collection=True)
     model.step_to(n_steps=100)
-    export_data(model, 'agent_records_disaster.json')
+    # export_data(model, 'agent_records_disaster.json')
     agent_records = model.get_data(debug=True)
 
     # Amount
@@ -111,10 +111,10 @@ def test_agent_disaster(disaster):
 
 def test_agent_four_humans_garden(four_humans_garden):
     four_humans_garden_converted = convert_configuration(four_humans_garden)
-    export_config(four_humans_garden_converted, 'config_4hg.json')
+    # export_config(four_humans_garden_converted, 'config_4hg.json')
     model = AgentModel.from_config(four_humans_garden_converted, data_collection=True)
     model.step_to(n_steps=2)
-    export_data(model, 'agent_records_fhgarden.json')
+    # export_data(model, 'agent_records_fhgarden.json')
 
 
 def test_agent_variation(one_human_radish):

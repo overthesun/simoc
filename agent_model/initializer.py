@@ -5,7 +5,7 @@ import pathlib
 
 from agent_model.exceptions import AgentModelInitializationError
 from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc, \
-                                         parse_agent_events, merge_agent_desc
+                                         parse_agent_events, parse_agent_conn, merge_json
 
 _DEFAULT_LOCATION = 'mars'
 _DATA_FILES_DIR = pathlib.Path(__file__).parent.parent / 'data_files'
@@ -56,14 +56,20 @@ class AgentModelInitializer():
 
     @classmethod
     def from_new(cls, config, user_currency_desc=None, user_agent_desc=None,
-                 user_agent_conn=None, user_agent_variation=None, user_events=None):
+                 user_agent_conn=None, user_agent_variation=None, user_agent_events=None):
 
+        # 1. INITIALIZE ERROR DICT
+        # Errors from all subsequent steps are compiled into a dict and returned to
+        # user, for easier debugging.
         errors = dict(model={}, agents={}, currencies={})
         def _agent_error(agent, item, error):
             if agent not in errors['agents']:
                 errors['agents'][agent] = {}
             errors['agents'][agent][item] = error
-        # Initialize default values
+
+        # 2. INITIALIZE DEFAULT VALUES
+        # Certain fields are required to run a simulation. If not specified
+        # by user, use the default value.
         model_data = cls.default_model_data()
         for key, value in config.items():
             if key in ['agents', 'total_amount']:
@@ -74,28 +80,36 @@ class AgentModelInitializer():
                         errors['model']['seed'] = 'seed must be an integer'
                         continue
                     value = value % 2**32
-                # Replace defaults with user-specified fields
                 model_data[key] = value
             else:
-                # Return unrecognized user-specified fields
                 errors['model'][key] = 'unrecognized'
 
-        # Load and merge data files
-        default_currency_desc = load_data_file('currency_desc.json')
-        # TODO: Merge with user-defined
-        currency_desc, currency_errors = parse_currency_desc(default_currency_desc)
+        # LOAD AND MERGE DATA FILES
+        # Default agent and currency parameters are specified in json files in
+        # the `data_files` directory. User can specify custom parameters, which
+        # will replace or be added to default values.
+
+        # 3. CURRENCY DESC
+        currency_desc = load_data_file('currency_desc.json')
+        if user_currency_desc:
+            currency_desc = merge_json(currency_desc, user_currency_desc)
+        currency_desc, currency_errors = parse_currency_desc(currency_desc)
         model_data['currency_dict'] = currency_desc
         errors['currencies'] = currency_errors
 
-        default_agent_desc = load_data_file('agent_desc.json')
+        # 4. AGENT DESC
+        agent_desc = load_data_file('agent_desc.json')
         if user_agent_desc:
-            default_agent_desc = merge_agent_desc(default_agent_desc, user_agent_desc)
-        agent_desc, agents_errors = parse_agent_desc(config, model_data['currency_dict'], default_agent_desc, _DEFAULT_LOCATION)
+            agent_desc = merge_json(agent_desc, user_agent_desc)
+        # Only return agent_desc data for agents included in the config file
+        agent_desc, agents_errors = parse_agent_desc(config, model_data['currency_dict'], agent_desc, _DEFAULT_LOCATION)
         errors['agents'] = agents_errors
 
-        default_agent_events = load_data_file('agent_events.json')
-        # TODO: Merge with user-defined
-        agents_events, agents_errors = parse_agent_events(default_agent_events)
+        # 5. AGENT EVENTS
+        agent_events = load_data_file('agent_events.json')
+        if user_agent_events:
+            agent_events = merge_json(agent_events, user_agent_events)
+        agents_events, agents_errors = parse_agent_events(agent_events)
         for agent, errors in agents_errors.items():
             for item, message in errors.items():
                 _agent_error(agent, item, message)
@@ -109,13 +123,15 @@ class AgentModelInitializer():
             for section in ['attributes', 'attribute_details']:
                 agent_data[section] = {**agent_data[section], **events[section]}
 
-        default_agent_variation = load_data_file('agent_variation.json')
-        # TODO: Merge with user-defined
+        # 6. AGENT VARIATION
+        agent_variation = load_data_file('agent_variation.json')
+        if user_agent_variation:
+            agent_variation = merge_json(agent_variation, user_agent_variation)
         for agent, agent_data in agent_desc.items():
-            if agent in default_agent_variation:
-                variation = default_agent_variation['variation']
-            elif agent_data['agent_class'] in default_agent_variation:
-                variation = default_agent_variation[agent_data['agent_class']]
+            if agent in agent_variation:
+                variation = agent_variation[agent]['variation']
+            elif agent_data['agent_class'] in agent_variation:
+                variation = agent_variation[agent_data['agent_class']]
             else:
                 continue
             valid_variation = {}
@@ -128,7 +144,18 @@ class AgentModelInitializer():
             else:
                 agent_data['variation'] = valid_variation
 
-        # TODO: Add connections here, rather than in convert_config
+        # 7. AGENT CONNECTIONS
+        agent_conn = load_data_file('agent_conn.json')
+        if user_agent_conn:
+            # TODO: This approach may fail if trying to *replace* a connection
+            # with user_agent_conn.
+            agent_conn = user_agent_conn + agent_conn
+        active_agents = list(config['agents'].keys())
+        connections, agent_conn_errors = parse_agent_conn(active_agents, agent_conn)
+        for agent, error in agent_conn_errors.items():
+            _agent_error(agent, 'connection', error)
+        for a in active_agents:
+            config['agents'][a]['connections'] = {} if a not in connections else connections[a]
 
         # Build and validate agent instance
         agent_data = {}
@@ -231,13 +258,15 @@ class AgentModelInitializer():
 
     def serialize(self):
         # Serialize np arrays
-        r0, r1, r2, r3, r4 = self.model_data['random_state']
-        self.model_data['random_state'] = (r0, r1.tolist(), r2, r3, r4)
+        if 'random_state' in self.model_data:
+            r0, r1, r2, r3, r4 = self.model_data['random_state']
+            self.model_data['random_state'] = (r0, r1.tolist(), r2, r3, r4)
         for agent_data in self.agent_data.values():
-            step_values = {}
-            for currency, values in agent_data['instance']['step_values'].items():
-                step_values[currency] = values.tolist()
-            agent_data['instance']['step_values'] = step_values
+            if 'step_values' in agent_data['instance']:
+                step_values = {}
+                for currency, values in agent_data['instance']['step_values'].items():
+                    step_values[currency] = values.tolist()
+                agent_data['instance']['step_values'] = step_values
 
         return dict(model_data=self.model_data,
                     agent_data=self.agent_data,

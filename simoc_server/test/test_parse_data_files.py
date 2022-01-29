@@ -4,7 +4,8 @@ import pytest
 from pytest import approx
 
 from simoc_server.front_end_routes import convert_configuration
-from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc, merge_agent_desc
+from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc, \
+                                         parse_agent_conn, merge_json
 
 def test_parse_currency_desc(currency_desc):
     currencies, currency_errors = parse_currency_desc(currency_desc)
@@ -99,7 +100,7 @@ def test_parse_agent_desc(four_humans_garden, currency_dict, agent_desc):
     assert out_biomass_details['lifetime_growth_type'] == 'norm'
     assert out_biomass_details['lifetime_growth_max_value'] == 0.00369864
 
-def test_merge_agent_desc(agent_desc):
+def test_merge_json(agent_desc, currency_desc):
     user_agent_desc = {
         'eclss': {
             'co2_removal_SAWD': {
@@ -128,12 +129,38 @@ def test_merge_agent_desc(agent_desc):
             }
         }
     }
-    merged = merge_agent_desc(agent_desc, user_agent_desc)
+    merged = merge_json(agent_desc, user_agent_desc)
     assert len(merged.keys()) == 10
     assert len(merged['eclss'].keys()) == 10
     assert merged['eclss']['co2_makeup_valve']['data']['input'][0]['criteria']['value'] == 0.001
     assert merged['eclss']['co2_makeup_valve']['data']['input'][0]['criteria']['buffer'] == 2
     assert merged['eclss']['co2_removal_SAWD']['data']['input'][0]['criteria']['value'] == 0.001
     assert merged['eclss']['co2_removal_SAWD']['data']['input'][0]['criteria']['value'] == 0.001
-    with open('data_analysis/agent_desc_merged.json', 'w') as f:
-        json.dump(merged, f)
+
+    user_currency_desc = {
+        "food": {
+            "mushroom": {
+                "label": "Mushroom"
+            },
+            "rice": {
+                "label": "Not rice"
+            }
+        }
+    }
+    merged = merge_json(currency_desc, user_currency_desc)
+    food = merged['food']
+    assert len(food) == 24
+    assert food['mushroom']['label'] == 'Mushroom'
+    assert food['rice']['label'] == 'Not rice'
+
+def test_parse_agent_conn(four_humans_garden, agent_desc, currency_dict, agent_conn):
+    config = convert_configuration(four_humans_garden)
+    active_agents = list(config['agents'].keys())
+    connections, conn_errors = parse_agent_conn(active_agents, agent_conn)
+
+    for agent in connections.values():
+        for direction in ['in', 'out']:
+            for currency, connected_agents in agent[direction].items():
+                assert currency in currency_dict
+                for conn in connected_agents:
+                    assert conn in connections

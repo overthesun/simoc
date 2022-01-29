@@ -184,6 +184,69 @@ def parse_agent(agent_class, name, data, currencies, location):
 
     return agent_data, agent_errors
 
+def parse_agent_conn(active_agents, agent_conn):
+    """Returns active_connections dict from active_agent list and raw agent_conn.json"""
+    conn_errors = {}
+
+    # 1. SUBSTITUTE STRUCTURES
+    # Some connections specify a structure class (e.g. 'habitat') rather than
+    # a specific agent (e.g. 'crew_habitat_small') to accomodate different
+    # configurations.
+    def get_sub(agent_class):
+        try:
+            agent = next(a for a in active_agents if agent_class in a)
+            return agent
+        except StopIteration as e:
+            return None
+    structures_dict = {k: get_sub(k) for k in ['habitat', 'greenhouse']}
+    def _substitute_structures(agent_type):
+        if agent_type in structures_dict:
+            return structures_dict[agent_type]
+        return agent_type
+
+    # 2. PARSE RELEVANT CONNECTIONS INTO DICT
+    # Connections are specified in a long list and don't specify outbound or
+    # inbound. Here we parse the list into a dict, indexed by agent names, for
+    # both the from- and to- agent.
+    connections_dict = {}
+    for conn in agent_conn:
+        from_agent, from_currency = conn['from'].split(".")
+        to_agent, to_currency = conn['to'].split(".")
+        priority = int(conn.get('priority', 0))
+        from_agent = _substitute_structures(from_agent)
+        to_agent = _substitute_structures(to_agent)
+        if from_agent not in active_agents or to_agent not in active_agents:
+            continue
+        # Add agents to dict
+        for agent in [from_agent, to_agent]:
+            if agent not in connections_dict.keys():
+                connections_dict[agent] = {'in': {}, 'out': {}}
+        # Add currencies/connections by agent
+        to_record = dict(agent_type=to_agent, priority=priority)
+        if from_currency not in connections_dict[from_agent]['out']:
+            connections_dict[from_agent]['out'][from_currency] = [to_record]
+        else:
+            connections_dict[from_agent]['out'][from_currency].append(to_record)
+        from_record = dict(agent_type=from_agent, priority=priority)
+        if to_currency not in connections_dict[to_agent]['in']:
+            connections_dict[to_agent]['in'][to_currency] = [from_record]
+        else:
+            connections_dict[to_agent]['in'][to_currency].append(from_record)
+
+    # 3. COMPILE CONNECTIONS FOR ACTIVE AGENTS
+    active_connections = {}
+    for agent in active_agents:
+        if agent not in connections_dict:
+            continue
+        connections = connections_dict[agent]
+        for prefix in ['in', 'out']:
+            for currency, conns in connections[prefix].items():
+                _sorted = sorted(conns, key=lambda c: c['priority'])
+                connections[prefix][currency] = [c['agent_type'] for c in _sorted]
+        active_connections[agent] = connections
+
+    return active_connections, conn_errors
+
 def calculate_lifetime_growth_max_value(attr_value, attr_details, lifetime, location):
     """Calculate the highest point on a normal bell curve"""
     mean_value = float(attr_value)
@@ -254,18 +317,18 @@ def parse_agent_events(agent_events):
                 agents_errors[agent] = agent_errors
     return agents_data, agents_errors
 
-def merge_agent_desc(default, user):
+def merge_json(default, user):
     if isinstance(user, dict):
         for field, values in user.items():
             if field in default:
-                default[field] = merge_agent_desc(default[field], values)
+                default[field] = merge_json(default[field], values)
             else:
                 default[field] = values
         return default
     elif isinstance(user, list):
         combined = []
         for default_item, user_item in zip(default, user):
-            combined.append(merge_agent_desc(default_item, user_item))
+            combined.append(merge_json(default_item, user_item))
         return [i[1] if i[1] else i[0] for i in zip_longest(default, combined)]
     elif isinstance(user, (str, int, float, bool)):
         return user
