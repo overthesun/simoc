@@ -194,8 +194,8 @@
         "to": "rice.biomass"
     },
     {
-        "from": "rice.residual",
-        "to": "nutrient_storage.residual"
+        "from": "rice.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "rice.o2",
@@ -230,8 +230,8 @@
         "to": "wheat.biomass"
     },
     {
-        "from": "wheat.residual",
-        "to": "nutrient_storage.residual"
+        "from": "wheat.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "wheat.o2",
@@ -266,8 +266,8 @@
         "to": "cabbage.biomass"
     },
     {
-        "from": "cabbage.residual",
-        "to": "nutrient_storage.residual"
+        "from": "cabbage.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "cabbage.o2",
@@ -302,8 +302,8 @@
         "to": "chard.biomass"
     },
     {
-        "from": "chard.residual",
-        "to": "nutrient_storage.residual"
+        "from": "chard.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "chard.o2",
@@ -338,8 +338,8 @@
         "to": "celery.biomass"
     },
     {
-        "from": "celery.residual",
-        "to": "nutrient_storage.residual"
+        "from": "celery.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "celery.o2",
@@ -374,8 +374,8 @@
         "to": "lettuce.biomass"
     },
     {
-        "from": "lettuce.residual",
-        "to": "nutrient_storage.residual"
+        "from": "lettuce.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "lettuce.o2",
@@ -410,8 +410,8 @@
         "to": "spinach.biomass"
     },
     {
-        "from": "spinach.residual",
-        "to": "nutrient_storage.residual"
+        "from": "spinach.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "spinach.o2",
@@ -446,8 +446,8 @@
         "to": "dry_bean.biomass"
     },
     {
-        "from": "dry_bean.residual",
-        "to": "nutrient_storage.residual"
+        "from": "dry_bean.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "dry_bean.o2",
@@ -482,8 +482,8 @@
         "to": "peanut.biomass"
     },
     {
-        "from": "peanut.residual",
-        "to": "nutrient_storage.residual"
+        "from": "peanut.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "peanut.o2",
@@ -518,8 +518,8 @@
         "to": "soybean.biomass"
     },
     {
-        "from": "soybean.residual",
-        "to": "nutrient_storage.residual"
+        "from": "soybean.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "soybean.o2",
@@ -554,8 +554,8 @@
         "to": "strawberry.biomass"
     },
     {
-        "from": "strawberry.residual",
-        "to": "nutrient_storage.residual"
+        "from": "strawberry.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "strawberry.o2",
@@ -590,8 +590,8 @@
         "to": "tomato.biomass"
     },
     {
-        "from": "tomato.residual",
-        "to": "nutrient_storage.residual"
+        "from": "tomato.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "tomato.o2",
@@ -626,8 +626,8 @@
         "to": "green_onion.biomass"
     },
     {
-        "from": "green_onion.residual",
-        "to": "nutrient_storage.residual"
+        "from": "green_onion.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "green_onion.o2",
@@ -662,8 +662,8 @@
         "to": "onion.biomass"
     },
     {
-        "from": "onion.residual",
-        "to": "nutrient_storage.residual"
+        "from": "onion.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "onion.o2",
@@ -698,8 +698,8 @@
         "to": "pea.biomass"
     },
     {
-        "from": "pea.residual",
-        "to": "nutrient_storage.residual"
+        "from": "pea.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "pea.o2",
@@ -734,8 +734,8 @@
         "to": "pepper.biomass"
     },
     {
-        "from": "pepper.residual",
-        "to": "nutrient_storage.residual"
+        "from": "pepper.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "pepper.o2",
@@ -770,8 +770,8 @@
         "to": "snap_bean.biomass"
     },
     {
-        "from": "snap_bean.residual",
-        "to": "nutrient_storage.residual"
+        "from": "snap_bean.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "snap_bean.o2",
@@ -818,8 +818,8 @@
         "to": "radish.biomass"
     },
     {
-        "from": "radish.residual",
-        "to": "nutrient_storage.residual"
+        "from": "radish.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "greenhouse.co2",
@@ -842,8 +842,8 @@
         "to": "red_beet.biomass"
     },
     {
-        "from": "red_beet.residual",
-        "to": "nutrient_storage.residual"
+        "from": "red_beet.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "red_beet.o2",
@@ -878,8 +878,8 @@
         "to": "carrot.biomass"
     },
     {
-        "from": "carrot.residual",
-        "to": "nutrient_storage.residual"
+        "from": "carrot.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "carrot.o2",
@@ -914,8 +914,8 @@
         "to": "sweet_potato.biomass"
     },
     {
-        "from": "sweet_potato.residual",
-        "to": "nutrient_storage.residual"
+        "from": "sweet_potato.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "sweet_potato.o2",
@@ -950,8 +950,8 @@
         "to": "white_potato.biomass"
     },
     {
-        "from": "white_potato.residual",
-        "to": "nutrient_storage.residual"
+        "from": "white_potato.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "white_potato.o2",

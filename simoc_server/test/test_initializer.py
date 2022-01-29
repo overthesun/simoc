@@ -79,6 +79,7 @@ def test_initializer_user_agent_desc(one_human):
                 'data': {
                     'input': [
                         {
+                            'type': 'co2',
                             'criteria': {
                                 'value': 0.001,
                                 'buffer': 2
@@ -91,6 +92,7 @@ def test_initializer_user_agent_desc(one_human):
                 'data': {
                     'input': [
                         {
+                            'type': 'co2',
                             'criteria': {
                                 'value': 0.001,
                                 'buffer': 2

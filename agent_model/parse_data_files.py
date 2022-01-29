@@ -318,6 +318,7 @@ def parse_agent_events(agent_events):
     return agents_data, agents_errors
 
 def merge_json(default, user):
+    """Recursively merge a default data_file object with user data"""
     if isinstance(user, dict):
         for field, values in user.items():
             if field in default:
@@ -326,9 +327,27 @@ def merge_json(default, user):
                 default[field] = values
         return default
     elif isinstance(user, list):
-        combined = []
-        for default_item, user_item in zip(default, user):
-            combined.append(merge_json(default_item, user_item))
-        return [i[1] if i[1] else i[0] for i in zip_longest(default, combined)]
+        # There are three possible cases for lists:
+        # 1. If list elements don't have a 'type' attribute, just concatinate
+        #    the lists (e.g. connections in agent_conn.json)
+        if 'type' not in user[0]:
+            return default + user
+        merged = []
+        used_types = set([])
+        for item in user:
+            match = next((d for d in default if d['type'] == item['type']), None)
+            if match is not None:
+                # 2. If the 'type' in user element matches a default element,
+                #    merge the two (e.g. inputs/outputs in agent_desc.json)
+                used_types.add(match['type'])
+                merged.append(merge_json(match, item))
+            else:
+                # 3. Else, add a new item to the list (e.g. characteristics
+                #    in agent_desc.json)
+                merged.append(item)
+        for item in default:
+            if item['type'] not in used_types:
+                merged.append(item)
+        return merged
     elif isinstance(user, (str, int, float, bool)):
         return user

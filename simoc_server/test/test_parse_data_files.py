@@ -107,6 +107,7 @@ def test_merge_json(agent_desc, currency_desc):
                 'data': {
                     'input': [
                         {
+                            'type': 'co2',
                             'criteria': {
                                 'value': 0.001,
                                 'buffer': 2
@@ -119,6 +120,7 @@ def test_merge_json(agent_desc, currency_desc):
                 'data': {
                     'input': [
                         {
+                            'type': 'co2',
                             'criteria': {
                                 'value': 0.001,
                                 'buffer': 2
@@ -135,7 +137,7 @@ def test_merge_json(agent_desc, currency_desc):
     assert merged['eclss']['co2_makeup_valve']['data']['input'][0]['criteria']['value'] == 0.001
     assert merged['eclss']['co2_makeup_valve']['data']['input'][0]['criteria']['buffer'] == 2
     assert merged['eclss']['co2_removal_SAWD']['data']['input'][0]['criteria']['value'] == 0.001
-    assert merged['eclss']['co2_removal_SAWD']['data']['input'][0]['criteria']['value'] == 0.001
+    assert merged['eclss']['co2_removal_SAWD']['data']['input'][0]['criteria']['buffer'] == 2
 
     user_currency_desc = {
         "food": {

@@ -29,8 +29,8 @@
         "biomass": {
             "label": "Accumulated Biomass"
         },
-        "residual": {
-            "label": "Residual (Inedible) Biomass"
+        "inedible_biomass": {
+            "label": "Inedible Biomass"
         }
     },
     "food": {

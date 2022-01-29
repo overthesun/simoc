@@ -168,7 +168,7 @@ def test_agent_variation(one_human_radish):
     assert radish.attrs['out_o2'] == r_var * 0.0005393177194
     assert radish.attrs['out_h2o'] == r_var * 0.0018203873194
     assert radish.attrs['out_radish'] == r_var * 0.5
-    assert radish.attrs['out_residual'] == r_var * 0.5
+    assert radish.attrs['out_inedible_biomass'] == r_var * 0.5
 
     solar = model.get_agents_by_type('solar_pv_array_mars')[0]
     s_var = 1.003991194483813
