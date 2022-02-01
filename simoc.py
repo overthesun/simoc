@@ -274,6 +274,28 @@ def adminer(db=None):
     return up() and show_info() and run(cmd)
 
 
+# Jupyter Notebook environment
+def launch_env(envname):
+    """Launch simoc virtualenv"""
+    return run(['python3', f'{envname}/bin/activate_this.py'])
+
+def setup_env(envname, kernelname):
+    """Create simoc virtualenv, install packages and ipython kernel"""
+    run(['virtualenv', envname])
+    launch_env(envname)
+    print("* Installing simoc requirements...")
+    run(['pip', 'install', '-r', 'requirements-jupyter.txt'])
+    run(['ipython', 'kernel', 'install', '--name', kernelname, '--user'])
+
+@cmd
+def jupyter(envname='simoc_env', kernelname='simoc'):
+    """Open jupyter notebook in virtualenv"""
+    if not pathlib.Path(envname).exists():
+        setup_env(envname, kernelname)
+    else:
+        launch_env(envname)
+    return run(['jupyter', 'notebook', f'--GatewayKernelSpecManager.allowed_kernelspecs={kernelname}'])
+
 # others
 @cmd
 def format_agent_desc(fname=AGENT_DESC):
