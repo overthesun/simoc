@@ -143,7 +143,7 @@
     },
     {
         "from": "co2_makeup_valve.co2",
-        "to": "habitat.co2"
+        "to": "greenhouse.co2"
     },
     {
         "from": "habitat.cont",
@@ -154,7 +154,7 @@
         "to": "particulate_removal_TCCS.kwh"
     },
     {
-        "from": "habitat.h2o",
+        "from": "greenhouse.h2o",
         "to": "dehumidifier.h2o"
     },
     {
@@ -175,7 +175,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "rice.co2"
+        "to": "rice.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "rice.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -211,7 +217,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "wheat.co2"
+        "to": "wheat.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "wheat.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -247,7 +259,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "cabbage.co2"
+        "to": "cabbage.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "cabbage.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -283,7 +301,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "chard.co2"
+        "to": "chard.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "chard.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -319,7 +343,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "celery.co2"
+        "to": "celery.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "celery.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -355,7 +385,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "lettuce.co2"
+        "to": "lettuce.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "lettuce.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -391,7 +427,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "spinach.co2"
+        "to": "spinach.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "spinach.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -427,7 +469,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "dry_bean.co2"
+        "to": "dry_bean.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "dry_bean.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -463,7 +511,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "peanut.co2"
+        "to": "peanut.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "peanut.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -499,7 +553,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "soybean.co2"
+        "to": "soybean.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "soybean.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -535,7 +595,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "strawberry.co2"
+        "to": "strawberry.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "strawberry.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -571,7 +637,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "tomato.co2"
+        "to": "tomato.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "tomato.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -607,7 +679,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "green_onion.co2"
+        "to": "green_onion.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "green_onion.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -643,7 +721,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "onion.co2"
+        "to": "onion.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "onion.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -679,7 +763,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "pea.co2"
+        "to": "pea.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "pea.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -715,7 +805,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "pepper.co2"
+        "to": "pepper.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "pepper.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -751,7 +847,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "snap_bean.co2"
+        "to": "snap_bean.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "snap_bean.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -787,7 +889,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "radish.co2"
+        "to": "radish.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "radish.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -823,7 +931,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "red_beet.co2"
+        "to": "red_beet.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "red_beet.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -859,7 +973,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "carrot.co2"
+        "to": "carrot.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "carrot.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -895,7 +1015,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "sweet_potato.co2"
+        "to": "sweet_potato.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "sweet_potato.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -931,7 +1057,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "white_potato.co2"
+        "to": "white_potato.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "white_potato.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",

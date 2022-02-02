@@ -423,7 +423,8 @@ class PrioritizedRandomActivation(RandomActivation):
                 agents = self.agents_by_class[agent_class]
                 self.model.random_state.shuffle(agents)
                 for agent in agents:
-                    agent.step()
+                    if agent.active:
+                        agent.step()
         self.steps += 1
         self.time += 1
 
@@ -435,3 +436,6 @@ class PrioritizedRandomActivation(RandomActivation):
             self.agents_by_class[agent_class].append(agent)
         self.initialized = True
 
+    def remove(self, agent):
+        super().remove(agent)
+        self.agents_by_class[agent.agent_class].remove(agent)

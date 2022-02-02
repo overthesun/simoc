@@ -134,8 +134,9 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
             if currency_data['type'] == 'currency':
                 self.add_currency_to_dict(currency_data['class'])
 
-    def destroy(self):
+    def destroy(self, reason):
         """Destroys the agent and removes it from the model"""
+        self.cause_of_death = reason
         self.active = False
         self.model.remove(self)
 
@@ -261,6 +262,8 @@ class StorageAgent(BaseAgent):
             # TODO: This is triggered sometimes by a rounding error. Need a better solution.
             # if target_view_amount < 0:
                 # raise ValueError(f"{self.agent_type} has insufficient {view} balance to increment by {increment_amount}")
+            if total_view_amount <= 0:
+                return {c: 0 for c in currencies}
             ratios = {c: self[c]/total_view_amount for c in currencies.keys()}
             flow = {}
             for currency in currencies:
@@ -725,7 +728,7 @@ class GeneralAgent(StorageAgent):
                     n_die = n_deprived - n_survive
                     self.amount -= n_die
                     if self.amount <= 0:
-                        self.kill(f'All {self.agent_type} died. Killing the agent')
+                        self.kill(f'All {self.agent_type} died from lack of {currency}. Killing the agent')
                         return
                 elif deprive_value > 0:
                     self.deprive[attr] = min(deprive_value * self.amount,
@@ -895,6 +898,7 @@ class PlantAgent(GeneralAgent):
     def _calculate_co2_scale(self, step_num, value_eps=1e-12):
         """Calculate a multiplier for each currency exchange based on ambient co2"""
         co2_ppm = self._get_storage_ratio('co2_ratio_in') * 1e6
+        co2_ppm = min(350, max(1000, co2_ppm)) # Limit effect to 350-1000ppm range
         t_mean = 25 # Mean temperature for timestep. TODO: Link to connection
 
         # Calculate the ratio of increased co2 uptake [Vanuytrecht 5]
@@ -939,7 +943,7 @@ class PlantAgent(GeneralAgent):
         if sv_error > value_eps:
             corrected = {}
             for currency, value in sv_adjusted['out'].items():
-                correction = value / net_outputs * sv_error
+                correction = (value / net_outputs) * sv_error
                 corrected[currency] = value + correction
             sv_adjusted['out'] = corrected
 
@@ -978,14 +982,3 @@ class PlantAgent(GeneralAgent):
             self.co2_scale = self._calculate_co2_scale(step_num)
 
         super().step()
-
-
-    def destroy(self, reason):
-        """Destroys the agent and removes it from the model
-
-        Args:
-          reason: str, cause of death
-        """
-        # self.model.logger.info("Object Died! Reason: {}".format(reason))
-        self.cause_of_death = reason
-        super().destroy()

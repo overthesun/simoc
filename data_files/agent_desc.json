@@ -661,7 +661,7 @@
         "output": [
           {
             "type": "treated",
-            "value": 0.5,
+            "value": 4,
             "requires": [
               "h2o"
             ],
