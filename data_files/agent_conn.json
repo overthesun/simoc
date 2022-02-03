@@ -143,7 +143,7 @@
     },
     {
         "from": "co2_makeup_valve.co2",
-        "to": "greenhouse.co2"
+        "to": "habitat.co2"
     },
     {
         "from": "habitat.cont",
@@ -154,7 +154,7 @@
         "to": "particulate_removal_TCCS.kwh"
     },
     {
-        "from": "greenhouse.h2o",
+        "from": "habitat.h2o",
         "to": "dehumidifier.h2o"
     },
     {

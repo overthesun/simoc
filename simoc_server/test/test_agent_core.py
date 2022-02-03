@@ -18,17 +18,17 @@ def test_agent_one_human_radish(one_human_radish):
     one_human_radish_converted['seed'] = 12345
     model = AgentModel.from_config(one_human_radish_converted, data_collection=True)
     model.step_to(n_steps=50)
-    # export_data(model, 'agent_records_baseline.json')
+    export_data(model, 'agent_records_baseline.json')
     agent_records = model.get_data(debug=True)
 
     # Storage
     water_storage = agent_records['water_storage']
     assert water_storage['capacity']['potable']['value'] == 4000
     assert water_storage['capacity']['water']['value'] == 16000
-    assert water_storage['storage']['potable'][50] == 1481.3956685004655
+    assert water_storage['storage']['potable'][50] == 1490.8956036234226
     assert water_storage['storage']['urine'][50] == approx(1.041649)
     assert water_storage['storage']['feces'][50] == approx(0.250)
-    assert water_storage['storage']['treated'][50] == approx(4.71)
+    assert water_storage['storage']['treated'][50] == approx(2.21)
 
     food_storage = agent_records['food_storage']
     assert food_storage['capacity']['wheat']['value'] == 10000
@@ -44,20 +44,20 @@ def test_agent_one_human_radish(one_human_radish):
 
     # Growth
     radish_growth = agent_records['radish']['growth']
-    assert radish_growth['current_growth'][50] == approx(3.7432926e-06)
-    assert radish_growth['growth_rate'][50] == approx(1.3537287e-05)
+    assert radish_growth['current_growth'][50] == approx(3.0096386e-06)
+    assert radish_growth['growth_rate'][50] == approx(1.0884093e-05)
     assert radish_growth['grown'][50] == False
     assert radish_growth['agent_step_num'][50] == 50
 
     # Flows
     radish_flows = agent_records['radish']['flows']
-    assert radish_flows['co2'][30] == approx(3.3584811e-06)
-    assert radish_flows['potable'][30] == approx(5.5887020e-06)
-    assert radish_flows['fertilizer'][30] == approx(4.65550669e-08)
+    assert radish_flows['co2'][30] == approx(2.7214252e-06)
+    assert radish_flows['potable'][30] == approx(7.5320653e-06)
+    assert radish_flows['fertilizer'][30] == approx(3.7724235e-08)
     assert radish_flows['kwh'][10] == approx(7.251227132)
-    assert radish_flows['biomass'][30] == approx(4.4496219e-06)
-    assert radish_flows['o2'][30] == approx(2.4305878e-06)
-    assert radish_flows['h2o'][30] == approx(4.9326557e-06)
+    assert radish_flows['biomass'][30] == approx(3.6055921e-06)
+    assert radish_flows['o2'][30] == approx(1.96954003e-06)
+    assert radish_flows['h2o'][30] == approx(6.6478915e-06)
     assert radish_flows['radish'][30] == 0
 
     # Buffer
@@ -71,7 +71,7 @@ def test_agent_disaster(disaster):
     disaster_converted['seed'] = 12345
     model = AgentModel.from_config(disaster_converted, data_collection=True)
     model.step_to(n_steps=100)
-    # export_data(model, 'agent_records_disaster.json')
+    export_data(model, 'agent_records_disaster.json')
     agent_records = model.get_data(debug=True)
 
     # Amount
@@ -82,8 +82,8 @@ def test_agent_disaster(disaster):
 
     # Growth
     growth_test={
-        'current_growth': [1.8609994e-8, 2.7605967e-8],
-        'growth_rate': [6.7301404e-8, 9.9834545e-8],
+        'current_growth': [1.7431033e-8, 2.5857127e-8],
+        'growth_rate': [6.3037796e-8, 9.3510023e-8],
         'grown': [False, False],
         'agent_step_num': [5.0, 6.0]
     }
@@ -93,13 +93,13 @@ def test_agent_disaster(disaster):
 
     # Flows
     radish_flows = agent_records['radish']['flows']
-    assert radish_flows['co2'][5] == approx(3.8724123e-06)
-    assert radish_flows['potable'][5] == approx(9.4116543e-06)
-    assert radish_flows['fertilizer'][5] == approx(5.3679150e-08)
+    assert radish_flows['co2'][5] == approx(3.6270955e-06)
+    assert radish_flows['potable'][5] == approx(1.0038681e-05)
+    assert radish_flows['fertilizer'][5] == approx(5.0278583e-08)
     assert radish_flows['kwh'][5] == approx(0)
-    assert radish_flows['biomass'][5] == approx(2.9409183e-06)
-    assert radish_flows['o2'][5] == approx(2.8025282e-06)
-    assert radish_flows['h2o'][5] == approx(8.3068393e-06)
+    assert radish_flows['biomass'][5] == approx(2.7546116e-06)
+    assert radish_flows['o2'][5] == approx(2.6249884e-06)
+    assert radish_flows['h2o'][5] == approx(8.8602610e-06)
     assert radish_flows['radish'][5] == 0
 
     # Deprive
@@ -155,7 +155,7 @@ def test_agent_variation(one_human_radish):
     assert dehumidifier.initial_variable == d_var
     assert dehumidifier.attrs['in_h2o'] == d_var * 4
     assert dehumidifier.attrs['in_kwh'] == d_var * 0.5
-    assert dehumidifier.attrs['out_treated'] == d_var * 0.5
+    assert dehumidifier.attrs['out_treated'] == d_var * 4
 
     radish = model.get_agents_by_type('radish')[0]
     r_var = 0.9866809472733392
