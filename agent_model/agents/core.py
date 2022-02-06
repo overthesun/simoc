@@ -87,7 +87,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
             characteristics = iv.get('characteristics', [])
             if isinstance(upper, dict) or isinstance(lower, dict):
                 # When currency values are specified individually
-                self.initial_variable =  variation_func.get_variable(
+                self.initial_variable = variation_func.get_variable(
                     self.model.random_state, ge, ge, distribution, stdev_range)
                 if self.initial_variable == 1:
                     return
@@ -98,9 +98,9 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
                 x_norm = abs(self.initial_variable - 1)
                 for attr, attr_value in self.attrs.items():
                     prefix, field = attr.split('_', 1)
-                    if prefix in ['in', 'out'] or field in characteristics:
+                    if prefix in {'in', 'out'} or field in characteristics:
                         if field not in y_ref:
-                            raise Exception(f"Missing variation value for {self.agent_type} {field}.")
+                            raise ValueError(f"Missing variation value for {self.agent_type} {field}.")
                         self.attrs[attr] = np.interp(x_norm, [0, 1], [attr_value, y_ref[field]])
             else:
                 # When a scalar is used
@@ -971,8 +971,7 @@ class PlantAgent(GeneralAgent):
                 self.grown = False
                 self.amount = self.full_amount
                 return
-            self.destroy('Lifetime limit has been reached by {}. Killing the agent'.format(
-                self.agent_type))
+            self.destroy(f'Lifetime limit has been reached by {self.agent_type}. Killing the agent.')
 
         if self.agent_step_num >= self.lifetime - 1 > 0:
             self.grown = True  # Complete last flow cycle and terminate next step

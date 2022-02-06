@@ -193,11 +193,7 @@ def parse_agent_conn(active_agents, agent_conn):
     # a specific agent (e.g. 'crew_habitat_small') to accomodate different
     # configurations.
     def get_sub(agent_class):
-        try:
-            agent = next(a for a in active_agents if agent_class in a)
-            return agent
-        except StopIteration as e:
-            return None
+        return next((a for a in active_agents if agent_class in a), None)
     structures_dict = {k: get_sub(k) for k in ['habitat', 'greenhouse']}
     def _substitute_structures(agent_type):
         if agent_type in structures_dict:
@@ -333,7 +329,7 @@ def merge_json(default, user):
         if 'type' not in user[0]:
             return default + user
         merged = []
-        used_types = set([])
+        used_types = set()
         for item in user:
             match = next((d for d in default if d['type'] == item['type']), None)
             if match is not None:

@@ -102,7 +102,8 @@ class AgentModelInitializer():
         if user_agent_desc:
             agent_desc = merge_json(agent_desc, user_agent_desc)
         # Only return agent_desc data for agents included in the config file
-        agent_desc, agents_errors = parse_agent_desc(config, model_data['currency_dict'], agent_desc, _DEFAULT_LOCATION)
+        agent_desc, agents_errors = parse_agent_desc(config, model_data['currency_dict'],
+                                                     agent_desc, _DEFAULT_LOCATION)
         errors['agents'] = agents_errors
 
         # 5. AGENT EVENTS
