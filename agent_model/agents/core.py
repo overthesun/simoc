@@ -5,6 +5,7 @@ import math
 import random
 import operator
 from abc import ABCMeta
+from time import time
 
 import numpy as np
 import quantities as pq
@@ -897,29 +898,47 @@ class PlantAgent(GeneralAgent):
 
     def _calculate_co2_scale(self, step_num, value_eps=1e-12):
         """Calculate a multiplier for each currency exchange based on ambient co2"""
-        co2_ppm = self._get_storage_ratio('co2_ratio_in') * 1e6
-        co2_ppm = min(350, max(1000, co2_ppm)) # Limit effect to 350-1000ppm range
-        t_mean = 25 # Mean temperature for timestep. TODO: Link to connection
 
-        # Calculate the ratio of increased co2 uptake [Vanuytrecht 5]
-        cu_fields = ['co2', 'fertilizer', 'o2', 'biomass', self.agent_type]
-        if self.carbon_fixation == 'c3':
-            tt = (163 - t_mean) / (5 - 0.1 * t_mean) # co2 compensation point
-            numerator = (co2_ppm - tt) * (350 + 2 * tt)
-            denominator = (co2_ppm + 2 * tt) * (350 - tt)
-            co2_uptake_ratio = numerator/denominator
+        # Get/Initialize cache
+        co2 = self.model.storage_ratios.get('co2', None)
+        if not co2:
+            co2 = dict(time=0, co2_uptake_ratio=1, transpiration_efficiency_factor=1)
+            self.model.storage_ratios['co2'] = co2
+
+        # Check for cached value at time, else calculate
+        if co2['time'] == str(self.model.time):
+            co2_uptake_ratio = co2['co2_uptake_ratio']
+            transpiration_efficiency_factor = co2['transpiration_efficiency_factor']
         else:
-            co2_uptake_ratio = 1
+            co2_ppm = self._get_storage_ratio('co2_ratio_in') * 1e6
+            co2_ppm = max(350, min(1000, co2_ppm)) # Limit effect to 350-1000ppm range
+            t_mean = 25 # Mean temperature for timestep. TODO: Link to connection
 
-        # Calculate the ratio of decreased water use [Vanuytrecht 7]
-        te_fields = ['potable', 'h2o']
-        co2_range = [350, 700]
-        te_range = [1, 1.37]
-        transpiration_efficiency_factor = np.interp(co2_ppm, co2_range, te_range)
+            # Calculate the ratio of increased co2 uptake [Vanuytrecht 5]
+            if self.carbon_fixation == 'c3':
+                tt = (163 - t_mean) / (5 - 0.1 * t_mean) # co2 compensation point
+                numerator = (co2_ppm - tt) * (350 + 2 * tt)
+                denominator = (co2_ppm + 2 * tt) * (350 - tt)
+                co2_uptake_ratio = numerator/denominator
+            else:
+                co2_uptake_ratio = 1
+
+            # Calculate the ratio of decreased water use [Vanuytrecht 7]
+            co2_range = [350, 700]
+            te_range = [1, 1.37]
+            transpiration_efficiency_factor = np.interp(co2_ppm, co2_range, te_range)
+
+            # Update cache
+            self.model.storage_ratios['co2'] = dict(
+                time=str(self.model.time),
+                co2_uptake_ratio=co2_uptake_ratio,
+                transpiration_efficiency_factor=transpiration_efficiency_factor)
 
         # Calculate co2-adjusted step values
         sv_baseline = {'in': {}, 'out': {}}
         sv_adjusted = {'in': {}, 'out': {}}
+        cu_fields = ['co2', 'fertilizer', 'o2', 'biomass', self.agent_type]
+        te_fields = ['potable', 'h2o']
         exclude = ['in_biomass', f'out_{self.agent_type}']
         for attr in self.attrs:
             prefix, currency = attr.split('_', 1)

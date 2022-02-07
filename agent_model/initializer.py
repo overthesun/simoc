@@ -260,8 +260,9 @@ class AgentModelInitializer():
     def serialize(self):
         # Serialize np arrays
         if 'random_state' in self.model_data:
-            r0, r1, r2, r3, r4 = self.model_data['random_state']
-            self.model_data['random_state'] = (r0, r1.tolist(), r2, r3, r4)
+            rs_ser = list(self.model_data['random_state'])
+            rs_ser[1] = rs_ser[1].tolist()
+            self.model_data['random_state'] = rs_ser
         for agent_data in self.agent_data.values():
             if 'step_values' in agent_data['instance']:
                 step_values = {}
@@ -280,9 +281,9 @@ class AgentModelInitializer():
                    serialized['init_type'])
 
         # Deserialize np arrays
-        r0, r1, r2, r3, r4 = init.model_data['random_state']
-        r1 = np.ndarray((624), dtype='uint64', buffer=np.array(r1))
-        init.model_data['random_state'] = (r0, r1, r2, r3, r4)
+        rs_ser = list(init.model_data['random_state'])
+        rs_ser[1] = np.ndarray((624), dtype='uint64', buffer=np.array(rs_ser[1]))
+        init.model_data['random_state'] = tuple(rs_ser)
         for agent_data in init.agent_data.values():
             step_values = {}
             for currency, values in agent_data['instance']['step_values'].items():
