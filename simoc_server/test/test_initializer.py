@@ -71,38 +71,8 @@ def test_initializer_save_load(disaster):
 
     _compare(model_records, new_model_records)
 
-def test_initializer_user_agent_desc(one_human):
+def test_initializer_user_agent_desc(one_human, user_agent_desc):
     one_human_converted = convert_configuration(one_human)
-    user_agent_desc = {
-        'eclss': {
-            'co2_removal_SAWD': {
-                'data': {
-                    'input': [
-                        {
-                            'type': 'co2',
-                            'criteria': {
-                                'value': 0.001,
-                                'buffer': 2
-                            }
-                        }
-                    ]
-                }
-            },
-            'co2_makeup_valve': {
-                'data': {
-                    'input': [
-                        {
-                            'type': 'co2',
-                            'criteria': {
-                                'value': 0.001,
-                                'buffer': 2
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-    }
     model = AgentModel.from_config(one_human_converted, agent_desc=user_agent_desc)
     co2_removal_SAWD = model.get_agents_by_type('co2_removal_SAWD')[0]
     assert co2_removal_SAWD.attr_details['in_co2']['criteria_value'] == 0.001

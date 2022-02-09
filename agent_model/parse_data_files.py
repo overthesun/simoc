@@ -1,6 +1,6 @@
 import json
 import random
-from itertools import zip_longest
+from collections import defaultdict
 
 from agent_model.agents import growth_func
 from agent_model.util import location_to_day_length_minutes
@@ -171,7 +171,7 @@ def parse_agent(agent_class, name, data, currencies, location):
                 daily_growth_scale=None if not daily_growth else daily_growth.get('scale', None),
                 daily_growth_steepness=None if not daily_growth else daily_growth.get('steepness', None))
 
-            if attribute_detail['lifetime_growth_type'] in ['norm', 'normal'] \
+            if attribute_detail['lifetime_growth_type'] in ['norm', 'normal', 'sig', 'sigmoid'] \
                     and attribute_detail['lifetime_growth_scale'] is None:
                 lifetime = agent_data['attributes'].get('char_lifetime', 1)
                 lgmv = calculate_lifetime_growth_max_value(attr_value,
@@ -216,18 +216,12 @@ def parse_agent_conn(active_agents, agent_conn):
         # Add agents to dict
         for agent in [from_agent, to_agent]:
             if agent not in connections_dict.keys():
-                connections_dict[agent] = {'in': {}, 'out': {}}
+                connections_dict[agent] = {k: defaultdict(list) for k in ['in', 'out']}
         # Add currencies/connections by agent
         to_record = dict(agent_type=to_agent, priority=priority)
-        if from_currency not in connections_dict[from_agent]['out']:
-            connections_dict[from_agent]['out'][from_currency] = [to_record]
-        else:
-            connections_dict[from_agent]['out'][from_currency].append(to_record)
+        connections_dict[from_agent]['out'][from_currency].append(to_record)
         from_record = dict(agent_type=from_agent, priority=priority)
-        if to_currency not in connections_dict[to_agent]['in']:
-            connections_dict[to_agent]['in'][to_currency] = [from_record]
-        else:
-            connections_dict[to_agent]['in'][to_currency].append(from_record)
+        connections_dict[to_agent]['in'][to_currency].append(from_record)
 
     # 3. COMPILE CONNECTIONS FOR ACTIVE AGENTS
     active_connections = {}
@@ -244,20 +238,21 @@ def parse_agent_conn(active_agents, agent_conn):
     return active_connections, conn_errors
 
 def calculate_lifetime_growth_max_value(attr_value, attr_details, lifetime, location):
-    """Calculate the highest point on a normal bell curve"""
-    mean_value = float(attr_value)
+    """Calculate the highest point on a bell or sigmoid curve"""
     day_length_minutes = location_to_day_length_minutes(location)
     day_length_hours = day_length_minutes / 60
     num_values = int(lifetime * day_length_hours + 1)
-    center = attr_details['lifetime_growth_center'] or num_values // 2
-    min_value = attr_details['lifetime_growth_min_value'] or 0
-    invert = attr_details['lifetime_growth_invert']
-    res = growth_func.optimize_bell_curve_mean(mean_value=mean_value,
-                                                num_values=num_values,
-                                                center=center,
-                                                min_value=min_value,
-                                                invert=invert,
-                                                noise=False)
+    kwargs = dict(mean_value=float(attr_value),
+                  num_values=num_values,
+                  center=attr_details['lifetime_growth_center'] or num_values // 2,
+                  min_value=attr_details['lifetime_growth_min_value'] or 0,
+                  noise=attr_details['lifetime_growth_noise'])
+    growth_type = attr_details['lifetime_growth_type']
+    if growth_type in ['norm', 'normal']:
+        kwargs['invert'] = attr_details['lifetime_growth_invert']
+        res = growth_func.optimize_bell_curve_mean(**kwargs)
+    elif growth_type in ['sig', 'sigmoid']:
+        res = growth_func.optimize_sigmoid_curve_mean(**kwargs)
     # Rounding is not technically necessary, but it was rounded under the old
     # system and I do it here for continuity of test results.
     return round(float(res['max_value']), 8)

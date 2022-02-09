@@ -143,7 +143,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
 
 
 class StorageAgent(BaseAgent):
-    """Initializes and manages storage capacity
+    """Initialize and manage storage capacity
 
     Attributes:
         id:             int
@@ -157,7 +157,7 @@ class StorageAgent(BaseAgent):
     """
 
     def __init__(self, *args, **kwargs):
-        """Sets initial currency balances; creates new attributes for class capacities
+        """Set initial currency balances; create new attributes for class capacities
 
         Args:
           id:           int     storage-specific id
@@ -192,7 +192,7 @@ class StorageAgent(BaseAgent):
         self._calculate_storage_ratios()
 
     def step(self):
-        """Calculates storage ratios"""
+        """Calculate storage ratios"""
         # TODO: This should be moved to self.increment() and streamlined
         if self.has_storage:
             self._calculate_storage_ratios()
@@ -341,13 +341,13 @@ class GeneralAgent(StorageAgent):
 
 
     def _init_currency_exchange(self, n_steps=None):
-        """Initializes all values related to currency exchanges
+        """Initialize all values related to currency exchanges
 
         This includes making connections to other live Agents, so it must be
         isolated from __init__ and called after all Agents are initialized.
         """
         # For PlantAgents, n_steps is calculated in PlantAgent.__init__ and passed
-        n_steps = int(self.model.day_length_hours) if not n_steps else n_steps
+        n_steps = n_steps or int(self.model.day_length_hours)
         hours_per_step = self.model.hours_per_step
         day_length_hours = self.model.day_length_hours
         for attr in self.attrs:
@@ -629,7 +629,7 @@ class GeneralAgent(StorageAgent):
 
 
     def step(self, value_eps=1e-12, value_round=6):
-        """The main step function for SIMOC agents. Calculates step value and processes exchange.
+        """The main step function for SIMOC agents. Calculate step values and process exchanges.
 
         """
         super().step()
@@ -737,7 +737,8 @@ class GeneralAgent(StorageAgent):
                 # 8.3 GROWTH
                 # TODO: This technically belongs in the PlantAgent class, but under the current
                 # get_step_logs system, growth process is collected from the record produced below.
-                if hasattr(self, 'growth_criteria') and attr == self.growth_criteria and not skip_step:
+                growth_criteria = getattr(self, 'growth_criteria', None)
+                if attr == growth_criteria and not skip_step:
                     self.agent_step_num += self.model.hours_per_step
                     self.current_growth += (actual_value / self.amount)
                     self.growth_rate = self.current_growth / self.total_growth
@@ -798,7 +799,7 @@ class GeneralAgent(StorageAgent):
 
 
     def kill(self, reason):
-        """Destroys the agent and removes it from the model
+        """Destroy the agent and remove it from the model
 
         Args:
           reason: str, cause of death
@@ -807,28 +808,27 @@ class GeneralAgent(StorageAgent):
 
 
 class PlantAgent(GeneralAgent):
-    """Initializes and manages growth, amount and reproduction
+    """Initialize and manage growth, amount and reproduction
 
     Attributes:
-        Static Attributes:
+        Constant Attributes:
             full_amount:        int     maximum/reset amount as defined in agent_desc
             lifetime:           int     hours to complete growth cycle.
             reproduce:          bool
             growth_criteria:    str     which item determines growth
             total_growth:       float   sum of lifetime values for growth_criteria item
-        Dynamic Attributes:
+        Variable Attributes:
+            delay_start:        int     hours to wait before starting growth
             agent_step_num:     int     current step in growth cycle, as limited by growth_critera
             current_growth:     int     accumulated values for growth_criteria item
             growth_rate:        int     accumulated % for growth_criteria item
             grown:              bool    whether growth is complete
-
-    Methods:
-        step(): manage age, trigger reproduction/death
-        destroy(reason)
     """
 
-    def __init__(self, *args, **kwargs):
-        """Sets the age and amount, parses attributes and intializes growth-tracking fields
+    def __init__(self, *args, delay_start=0, full_amount=None, agent_step_num=0,
+                 total_growth=0, current_growth=0, growth_rate=0, grown=False,
+                 **kwargs):
+        """Set the age and amount, parse attributes and intialize growth-tracking fields
 
         Args (optional):
           full_amount:      int
@@ -840,13 +840,13 @@ class PlantAgent(GeneralAgent):
           ...[attributes & attribute_details inherited from BaseAgent]
         """
         super().__init__(*args, **kwargs)
-        self.delay_start = kwargs.get('delay_start', 0)
-        self.full_amount = kwargs.get('full_amount', self.amount)
-        self.agent_step_num = kwargs.pop('agent_step_num', 0)
-        self.total_growth = kwargs.get('total_growth', 0)
-        self.current_growth = kwargs.get('current_growth', 0)
-        self.growth_rate = kwargs.get('growth_rate', 0)
-        self.grown = kwargs.get('grown', False)
+        self.delay_start = delay_start
+        self.full_amount = full_amount or self.amount
+        self.agent_step_num = agent_step_num
+        self.total_growth = total_growth
+        self.current_growth = current_growth
+        self.growth_rate = growth_rate
+        self.grown = grown
 
         if 'char_lifetime' in self.attrs:
             lifetime = self.attrs['char_lifetime']

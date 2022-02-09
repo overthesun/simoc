@@ -10,12 +10,11 @@ from pytest import approx
 from simoc_server.front_end_routes import convert_configuration
 from agent_model import AgentModel
 
-
-def test_agent_one_human_radish(one_human_radish):
+def test_agent_one_human_radish(one_human_radish, random_seed):
     one_human_radish_converted = convert_configuration(one_human_radish)
     # export_config(one_human_radish_converted, 'config_1hrad.json')
     one_human_radish_converted['agents']['food_storage']['wheat'] = 2
-    one_human_radish_converted['seed'] = 12345
+    one_human_radish_converted['seed'] = random_seed
     model = AgentModel.from_config(one_human_radish_converted, data_collection=True)
     model.step_to(n_steps=50)
     export_data(model, 'agent_records_baseline.json')
@@ -65,10 +64,10 @@ def test_agent_one_human_radish(one_human_radish):
     assert agent_records['co2_removal_SAWD']['buffer']['in_co2'][41] == 1
 
 
-def test_agent_disaster(disaster):
+def test_agent_disaster(disaster, random_seed):
     disaster_converted = convert_configuration(disaster)
     # export_config(disaster_converted, 'config_disaster.json')
-    disaster_converted['seed'] = 12345
+    disaster_converted['seed'] = random_seed
     model = AgentModel.from_config(disaster_converted, data_collection=True)
     model.step_to(n_steps=100)
     export_data(model, 'agent_records_disaster.json')
@@ -117,16 +116,16 @@ def test_agent_four_humans_garden(four_humans_garden):
     # export_data(model, 'agent_records_fhgarden.json')
 
 
-def test_agent_variation(one_human_radish):
+def test_agent_variation(one_human_radish, random_seed):
     one_human_radish_converted = convert_configuration(one_human_radish)
     one_human_radish_converted['global_entropy'] = 0.5
-    one_human_radish_converted['seed'] = 12345
+    one_human_radish_converted['seed'] = random_seed
     model = AgentModel.from_config(one_human_radish_converted, data_collection=True)
 
     # with open('data_analysis/agent_variation_save.json', 'w') as f:
     #     json.dump(model.save(), f)
     assert model.global_entropy == 0.5
-    assert model.seed == 12345
+    assert model.seed == random_seed
     assert model.random_state.rand(1)[0] == 0.65641118308227
 
     model.step_to(n_steps=10)

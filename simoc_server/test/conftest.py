@@ -106,9 +106,45 @@ def four_humans_garden():
         ],
     }
 
+@pytest.fixture()
+def random_seed():
+    return 12345
+
 # Return a RandomState with constant seed
 @pytest.fixture()
-def random_state():
-    random_seed = 12345
+def random_state(random_seed):
     random_state = np.random.RandomState(random_seed)
     return random_state
+
+@pytest.fixture()
+def user_agent_desc():
+    return {
+        'eclss': {
+            'co2_removal_SAWD': {
+                'data': {
+                    'input': [
+                        {
+                            'type': 'co2',
+                            'criteria': {
+                                'value': 0.001,
+                                'buffer': 2
+                            }
+                        }
+                    ]
+                }
+            },
+            'co2_makeup_valve': {
+                'data': {
+                    'input': [
+                        {
+                            'type': 'co2',
+                            'criteria': {
+                                'value': 0.001,
+                                'buffer': 2
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }

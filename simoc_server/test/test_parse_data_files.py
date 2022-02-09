@@ -100,37 +100,7 @@ def test_parse_agent_desc(four_humans_garden, currency_dict, agent_desc):
     assert out_biomass_details['lifetime_growth_type'] == 'norm'
     assert out_biomass_details['lifetime_growth_max_value'] == 0.00369864
 
-def test_merge_json(agent_desc, currency_desc):
-    user_agent_desc = {
-        'eclss': {
-            'co2_removal_SAWD': {
-                'data': {
-                    'input': [
-                        {
-                            'type': 'co2',
-                            'criteria': {
-                                'value': 0.001,
-                                'buffer': 2
-                            }
-                        }
-                    ]
-                }
-            },
-            'co2_makeup_valve': {
-                'data': {
-                    'input': [
-                        {
-                            'type': 'co2',
-                            'criteria': {
-                                'value': 0.001,
-                                'buffer': 2
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-    }
+def test_merge_json(agent_desc, currency_desc, user_agent_desc):
     merged = merge_json(agent_desc, user_agent_desc)
     assert len(merged.keys()) == 10
     assert len(merged['eclss'].keys()) == 10

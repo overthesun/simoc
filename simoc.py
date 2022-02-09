@@ -275,6 +275,7 @@ def adminer(db=None):
 
 
 # Jupyter Notebook environment
+# TODO: Needs Fixing
 def launch_env(envname):
     """Launch simoc virtualenv"""
     return run(['python3', f'{envname}/bin/activate_this.py'])
@@ -292,8 +293,7 @@ def jupyter(envname='simoc_env', kernelname='simoc'):
     """Open jupyter notebook in virtualenv"""
     if not pathlib.Path(envname).exists():
         setup_env(envname, kernelname)
-    else:
-        launch_env(envname)
+    launch_env(envname)
     return run(['jupyter', 'notebook', f'--GatewayKernelSpecManager.allowed_kernelspecs={kernelname}'])
 
 # others
