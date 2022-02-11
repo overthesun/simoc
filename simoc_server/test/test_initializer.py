@@ -70,3 +70,14 @@ def test_initializer_save_load(disaster):
                 assert item_a == item_b
 
     _compare(model_records, new_model_records)
+
+def test_initializer_user_agent_desc(one_human, user_agent_desc):
+    one_human_converted = convert_configuration(one_human)
+    model = AgentModel.from_config(one_human_converted, agent_desc=user_agent_desc)
+    co2_removal_SAWD = model.get_agents_by_type('co2_removal_SAWD')[0]
+    assert co2_removal_SAWD.attr_details['in_co2']['criteria_value'] == 0.001
+    assert co2_removal_SAWD.attr_details['in_co2']['criteria_buffer'] == 2
+
+    co2_makeup_valve = model.get_agents_by_type('co2_makeup_valve')[0]
+    assert co2_makeup_valve.attr_details['in_co2']['criteria_value'] == 0.001
+    assert co2_makeup_valve.attr_details['in_co2']['criteria_buffer'] == 2

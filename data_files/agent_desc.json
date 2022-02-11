@@ -5,7 +5,7 @@
         "input": [
           {
             "type": "o2",
-            "value": 0.021583,
+            "value": 0.037083,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -17,7 +17,7 @@
           },
           {
             "type": "potable",
-            "value": 0.165833,
+            "value": 0.137083,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -29,7 +29,7 @@
           },
           {
             "type": "food",
-            "value": 0.062917,
+            "value": 0.065,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -43,7 +43,7 @@
         "output": [
           {
             "type": "co2",
-            "value": 0.025916,
+            "value": 0.045,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -51,7 +51,7 @@
           },
           {
             "type": "h2o",
-            "value": 0.079167,
+            "value": 0.128333,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -59,7 +59,7 @@
           },
           {
             "type": "urine",
-            "value": 0.0625,
+            "value": 0.060833,
             "requires": [
               "potable"
             ],
@@ -70,7 +70,7 @@
           },
           {
             "type": "feces",
-            "value": 0.087083,
+            "value": 0.005,
             "requires": [
               "food"
             ],
@@ -83,7 +83,7 @@
         "characteristics": [
           {
             "type": "mass",
-            "value": 60.0,
+            "value": 82.0,
             "unit": "kg"
           },
           {
@@ -488,8 +488,8 @@
             "criteria": {
               "name": "co2_ratio_in",
               "limit": ">",
-              "value": 0.001,
-              "buffer": 8
+              "value": 0.0007,
+              "buffer": 1
             }
           },
           {
@@ -548,8 +548,8 @@
             "criteria": {
               "name": "co2_ratio_out",
               "limit": "<",
-              "value": 0.0005,
-              "buffer": 8
+              "value": 0.0007,
+              "buffer": 1
             }
           }
         ],
@@ -661,7 +661,7 @@
         "output": [
           {
             "type": "treated",
-            "value": 0.5,
+            "value": 4,
             "requires": [
               "h2o"
             ],
@@ -823,17 +823,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.77095,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -872,16 +871,30 @@
           },
           {
             "type": "rice",
-            "value": 0.77095,
-            "weighted": "growth_rate",
+            "value": 0.30003,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.69997,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -907,6 +920,10 @@
             "value": "food_cers"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
@@ -918,6 +935,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1010,17 +1032,16 @@
           },
           {
             "type": "biomass",
-            "value": 1.58,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1059,16 +1080,30 @@
           },
           {
             "type": "wheat",
-            "value": 1.58,
-            "weighted": "growth_rate",
+            "value": 0.4,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.6,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -1094,6 +1129,10 @@
             "value": "food_cers"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "growth_criteria",
             "value": "out_biomass"
           },
@@ -1105,6 +1144,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1197,17 +1241,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.5151,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1246,16 +1289,30 @@
           },
           {
             "type": "cabbage",
-            "value": 0.5151,
-            "weighted": "growth_rate",
+            "value": 0.90045,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.09955,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -1281,6 +1338,10 @@
             "value": "food_leaf"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040.0,
             "unit": "hour"
@@ -1292,6 +1353,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1384,17 +1450,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.315,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1433,16 +1498,30 @@
           },
           {
             "type": "chard",
-            "value": 0.315,
-            "weighted": "growth_rate",
+            "value": 0.64995,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.35005,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -1468,6 +1547,10 @@
             "value": "food_leaf"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 1080,
             "unit": "hour"
@@ -1479,6 +1562,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1571,17 +1659,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.77475,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1620,16 +1707,30 @@
           },
           {
             "type": "celery",
-            "value": 0.77475,
-            "weighted": "growth_rate",
+            "value": 0.89983,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.10017,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -1655,6 +1756,10 @@
             "value": "food_leaf"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 1800,
             "unit": "hour"
@@ -1666,6 +1771,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1758,17 +1868,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.18396,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1807,16 +1916,30 @@
           },
           {
             "type": "lettuce",
-            "value": 0.18396,
-            "weighted": "growth_rate",
+            "value": 0.9,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.1,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -1842,6 +1965,10 @@
             "value": "food_leaf"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 672,
             "unit": "hour"
@@ -1853,6 +1980,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -1945,17 +2077,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.1971,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -1994,16 +2125,30 @@
           },
           {
             "type": "spinach",
-            "value": 0.1971,
-            "weighted": "growth_rate",
+            "value": 0.9,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.1,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2029,6 +2174,10 @@
             "value": "food_leaf"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 720,
             "unit": "hour"
@@ -2040,6 +2189,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -2132,17 +2286,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.85,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -2181,16 +2334,30 @@
           },
           {
             "type": "dry_bean",
-            "value": 0.85,
-            "weighted": "growth_rate",
+            "value": 0.4,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.6,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2216,6 +2383,10 @@
             "value": "food_legu"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
@@ -2227,6 +2398,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -2319,17 +2495,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.58552,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -2368,16 +2543,30 @@
           },
           {
             "type": "peanut",
-            "value": 0.58552,
-            "weighted": "growth_rate",
+            "value": 0.25011,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.74989,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2403,6 +2592,10 @@
             "value": "food_legu"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2496,
             "unit": "hour"
@@ -2414,6 +2607,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -2506,17 +2704,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.582,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -2555,16 +2752,30 @@
           },
           {
             "type": "soybean",
-            "value": 0.582,
-            "weighted": "growth_rate",
+            "value": 0.46875,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.53125,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2590,6 +2801,10 @@
             "value": "food_legu"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2328,
             "unit": "hour"
@@ -2601,6 +2816,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -2693,17 +2913,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.66215,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -2742,16 +2961,30 @@
           },
           {
             "type": "strawberry",
-            "value": 0.66215,
-            "weighted": "growth_rate",
+            "value": 0.35011,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.64989,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2777,6 +3010,10 @@
             "value": "food_frut"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
@@ -2788,6 +3025,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -2880,17 +3122,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.88655,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -2929,16 +3170,30 @@
           },
           {
             "type": "tomato",
-            "value": 0.88655,
-            "weighted": "growth_rate",
+            "value": 0.45015,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.54985,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -2964,6 +3219,10 @@
             "value": "food_frut"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
@@ -2975,6 +3234,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -3067,17 +3331,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.45,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -3116,16 +3379,30 @@
           },
           {
             "type": "green_onion",
-            "value": 0.45,
-            "weighted": "growth_rate",
+            "value": 0.9,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.1,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -3151,6 +3428,10 @@
             "value": "food_vegi"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 1200,
             "unit": "hour"
@@ -3162,6 +3443,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -3254,17 +3540,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.45,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -3303,16 +3588,30 @@
           },
           {
             "type": "onion",
-            "value": 0.45,
-            "weighted": "growth_rate",
+            "value": 0.8,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.2,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -3338,6 +3637,10 @@
             "value": "food_vegi"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 1200,
             "unit": "hour"
@@ -3349,6 +3652,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -3441,17 +3749,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.80475,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -3490,16 +3797,30 @@
           },
           {
             "type": "pea",
-            "value": 0.80475,
-            "weighted": "growth_rate",
+            "value": 0.39993,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.60007,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -3525,6 +3846,10 @@
             "value": "food_vegi"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 1800,
             "unit": "hour"
@@ -3536,6 +3861,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -3628,17 +3958,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.88655,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -3677,16 +4006,30 @@
           },
           {
             "type": "pepper",
-            "value": 0.88655,
-            "weighted": "growth_rate",
+            "value": 0.45015,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.54985,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -3712,6 +4055,10 @@
             "value": "food_vegi"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
@@ -3723,6 +4070,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -3815,17 +4167,16 @@
           },
           {
             "type": "biomass",
-            "value": 1.0098,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -3864,16 +4215,30 @@
           },
           {
             "type": "snap_bean",
-            "value": 1.0098,
-            "weighted": "growth_rate",
+            "value": 0.4,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.6,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -3899,6 +4264,10 @@
             "value": "food_vegi"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
@@ -3910,6 +4279,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -4002,17 +4376,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.1375,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -4050,20 +4423,6 @@
             }
           },
           {
-            "type": "radish",
-            "value": 0.1375,
-            "weighted": "growth_rate",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
-            }
-          },
-          {
             "type": "biomass",
             "value": 0.000458333,
             "flow_rate": {
@@ -4078,12 +4437,58 @@
                 "type": "norm"
               }
             }
+          },
+          {
+            "type": "radish",
+            "value": 0.5,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.5,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.5,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
           }
         ],
         "characteristics": [
           {
             "type": "category",
             "value": "food_root"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
           },
           {
             "type": "growth_criteria",
@@ -4097,6 +4502,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -4189,17 +4599,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.247,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -4238,16 +4647,30 @@
           },
           {
             "type": "red_beet",
-            "value": 0.247,
-            "weighted": "growth_rate",
+            "value": 0.65,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.35,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -4273,6 +4696,10 @@
             "value": "food_root"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 912,
             "unit": "hour"
@@ -4284,6 +4711,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -4376,17 +4808,16 @@
           },
           {
             "type": "biomass",
-            "value": 0.6735,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -4425,16 +4856,30 @@
           },
           {
             "type": "carrot",
-            "value": 0.6735,
-            "weighted": "growth_rate",
+            "value": 0.59987,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.40013,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -4460,6 +4905,10 @@
             "value": "food_root"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 1800,
             "unit": "hour"
@@ -4471,6 +4920,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -4563,17 +5017,16 @@
           },
           {
             "type": "biomass",
-            "value": 1.275,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -4612,16 +5065,30 @@
           },
           {
             "type": "sweet_potato",
-            "value": 1.275,
-            "weighted": "growth_rate",
+            "value": 0.4,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.6,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -4647,6 +5114,10 @@
             "value": "food_vegi"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 2040,
             "unit": "hour"
@@ -4658,6 +5129,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -4750,17 +5226,16 @@
           },
           {
             "type": "biomass",
-            "value": 2.7799,
-            "required": "desired",
-            "weighted": "growth_rate",
+            "value": 1,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
@@ -4799,16 +5274,30 @@
           },
           {
             "type": "white_potato",
-            "value": 2.7799,
-            "weighted": "growth_rate",
+            "value": 0.6999,
+            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "criteria": {
-              "name": "growth_rate",
-              "limit": ">",
-              "value": 1
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.3001,
+            "weighted": "current_growth",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           },
           {
@@ -4834,6 +5323,10 @@
             "value": "food_root"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
             "type": "lifetime",
             "value": 3168,
             "unit": "hour"
@@ -4845,6 +5338,11 @@
           {
             "type": "reproduce",
             "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 100,
+            "unit": "kg"
           }
         ]
       }
@@ -5680,7 +6178,7 @@
         "output": [],
         "characteristics": [
           {
-            "type": "capacity_biomass",
+            "type": "capacity_inedible_biomass",
             "value": 10000,
             "unit": "kg"
           },

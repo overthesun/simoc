@@ -175,7 +175,13 @@
     },
     {
         "from": "greenhouse.co2",
-        "to": "rice.co2"
+        "to": "rice.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "rice.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -190,8 +196,12 @@
         "to": "rice.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "rice.biomass",
         "to": "rice.biomass"
+    },
+    {
+        "from": "rice.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "rice.o2",
@@ -206,12 +216,14 @@
         "to": "food_storage.rice"
     },
     {
-        "from": "rice.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "wheat.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "wheat.co2"
+        "from": "co2_storage.co2",
+        "to": "wheat.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -226,8 +238,12 @@
         "to": "wheat.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "wheat.biomass",
         "to": "wheat.biomass"
+    },
+    {
+        "from": "wheat.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "wheat.o2",
@@ -242,12 +258,14 @@
         "to": "food_storage.wheat"
     },
     {
-        "from": "wheat.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "cabbage.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "cabbage.co2"
+        "from": "co2_storage.co2",
+        "to": "cabbage.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -262,8 +280,12 @@
         "to": "cabbage.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "cabbage.biomass",
         "to": "cabbage.biomass"
+    },
+    {
+        "from": "cabbage.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "cabbage.o2",
@@ -278,12 +300,14 @@
         "to": "food_storage.cabbage"
     },
     {
-        "from": "cabbage.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "chard.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "chard.co2"
+        "from": "co2_storage.co2",
+        "to": "chard.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -298,8 +322,12 @@
         "to": "chard.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "chard.biomass",
         "to": "chard.biomass"
+    },
+    {
+        "from": "chard.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "chard.o2",
@@ -314,12 +342,14 @@
         "to": "food_storage.chard"
     },
     {
-        "from": "chard.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "celery.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "celery.co2"
+        "from": "co2_storage.co2",
+        "to": "celery.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -334,8 +364,12 @@
         "to": "celery.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "celery.biomass",
         "to": "celery.biomass"
+    },
+    {
+        "from": "celery.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "celery.o2",
@@ -350,12 +384,14 @@
         "to": "food_storage.celery"
     },
     {
-        "from": "celery.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "lettuce.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "lettuce.co2"
+        "from": "co2_storage.co2",
+        "to": "lettuce.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -370,8 +406,12 @@
         "to": "lettuce.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "lettuce.biomass",
         "to": "lettuce.biomass"
+    },
+    {
+        "from": "lettuce.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "lettuce.o2",
@@ -386,12 +426,14 @@
         "to": "food_storage.lettuce"
     },
     {
-        "from": "lettuce.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "spinach.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "spinach.co2"
+        "from": "co2_storage.co2",
+        "to": "spinach.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -406,8 +448,12 @@
         "to": "spinach.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "spinach.biomass",
         "to": "spinach.biomass"
+    },
+    {
+        "from": "spinach.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "spinach.o2",
@@ -422,12 +468,14 @@
         "to": "food_storage.spinach"
     },
     {
-        "from": "spinach.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "dry_bean.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "dry_bean.co2"
+        "from": "co2_storage.co2",
+        "to": "dry_bean.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -442,8 +490,12 @@
         "to": "dry_bean.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "dry_bean.biomass",
         "to": "dry_bean.biomass"
+    },
+    {
+        "from": "dry_bean.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "dry_bean.o2",
@@ -458,12 +510,14 @@
         "to": "food_storage.dry_bean"
     },
     {
-        "from": "dry_bean.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "peanut.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "peanut.co2"
+        "from": "co2_storage.co2",
+        "to": "peanut.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -478,8 +532,12 @@
         "to": "peanut.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "peanut.biomass",
         "to": "peanut.biomass"
+    },
+    {
+        "from": "peanut.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "peanut.o2",
@@ -494,12 +552,14 @@
         "to": "food_storage.peanut"
     },
     {
-        "from": "peanut.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "soybean.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "soybean.co2"
+        "from": "co2_storage.co2",
+        "to": "soybean.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -514,8 +574,12 @@
         "to": "soybean.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "soybean.biomass",
         "to": "soybean.biomass"
+    },
+    {
+        "from": "soybean.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "soybean.o2",
@@ -530,12 +594,14 @@
         "to": "food_storage.soybean"
     },
     {
-        "from": "soybean.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "strawberry.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "strawberry.co2"
+        "from": "co2_storage.co2",
+        "to": "strawberry.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -550,8 +616,12 @@
         "to": "strawberry.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "strawberry.biomass",
         "to": "strawberry.biomass"
+    },
+    {
+        "from": "strawberry.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "strawberry.o2",
@@ -566,12 +636,14 @@
         "to": "food_storage.strawberry"
     },
     {
-        "from": "strawberry.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "tomato.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "tomato.co2"
+        "from": "co2_storage.co2",
+        "to": "tomato.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -586,8 +658,12 @@
         "to": "tomato.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "tomato.biomass",
         "to": "tomato.biomass"
+    },
+    {
+        "from": "tomato.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "tomato.o2",
@@ -602,12 +678,14 @@
         "to": "food_storage.tomato"
     },
     {
-        "from": "tomato.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "green_onion.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "green_onion.co2"
+        "from": "co2_storage.co2",
+        "to": "green_onion.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -622,8 +700,12 @@
         "to": "green_onion.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "green_onion.biomass",
         "to": "green_onion.biomass"
+    },
+    {
+        "from": "green_onion.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "green_onion.o2",
@@ -638,12 +720,14 @@
         "to": "food_storage.green_onion"
     },
     {
-        "from": "green_onion.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "onion.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "onion.co2"
+        "from": "co2_storage.co2",
+        "to": "onion.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -658,8 +742,12 @@
         "to": "onion.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "onion.biomass",
         "to": "onion.biomass"
+    },
+    {
+        "from": "onion.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "onion.o2",
@@ -674,12 +762,14 @@
         "to": "food_storage.onion"
     },
     {
-        "from": "onion.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "pea.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "pea.co2"
+        "from": "co2_storage.co2",
+        "to": "pea.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -694,8 +784,12 @@
         "to": "pea.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "pea.biomass",
         "to": "pea.biomass"
+    },
+    {
+        "from": "pea.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "pea.o2",
@@ -710,12 +804,14 @@
         "to": "food_storage.pea"
     },
     {
-        "from": "pea.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "pepper.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "pepper.co2"
+        "from": "co2_storage.co2",
+        "to": "pepper.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -730,8 +826,12 @@
         "to": "pepper.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "pepper.biomass",
         "to": "pepper.biomass"
+    },
+    {
+        "from": "pepper.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "pepper.o2",
@@ -746,12 +846,14 @@
         "to": "food_storage.pepper"
     },
     {
-        "from": "pepper.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "snap_bean.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "snap_bean.co2"
+        "from": "co2_storage.co2",
+        "to": "snap_bean.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -766,8 +868,12 @@
         "to": "snap_bean.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "snap_bean.biomass",
         "to": "snap_bean.biomass"
+    },
+    {
+        "from": "snap_bean.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "snap_bean.o2",
@@ -782,12 +888,14 @@
         "to": "food_storage.snap_bean"
     },
     {
-        "from": "snap_bean.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "radish.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "radish.co2"
+        "from": "co2_storage.co2",
+        "to": "radish.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -800,10 +908,6 @@
     {
         "from": "power_storage.kwh",
         "to": "radish.kwh"
-    },
-    {
-        "from": "nutrient_storage.biomass",
-        "to": "radish.biomass"
     },
     {
         "from": "radish.o2",
@@ -819,11 +923,21 @@
     },
     {
         "from": "radish.biomass",
-        "to": "nutrient_storage.biomass"
+        "to": "radish.biomass"
+    },
+    {
+        "from": "radish.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "greenhouse.co2",
-        "to": "red_beet.co2"
+        "to": "red_beet.co2",
+        "priority": 0
+    },
+    {
+        "from": "co2_storage.co2",
+        "to": "red_beet.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -838,8 +952,12 @@
         "to": "red_beet.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "red_beet.biomass",
         "to": "red_beet.biomass"
+    },
+    {
+        "from": "red_beet.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "red_beet.o2",
@@ -854,12 +972,14 @@
         "to": "food_storage.red_beet"
     },
     {
-        "from": "red_beet.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "carrot.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "carrot.co2"
+        "from": "co2_storage.co2",
+        "to": "carrot.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -874,8 +994,12 @@
         "to": "carrot.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "carrot.biomass",
         "to": "carrot.biomass"
+    },
+    {
+        "from": "carrot.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "carrot.o2",
@@ -890,12 +1014,14 @@
         "to": "food_storage.carrot"
     },
     {
-        "from": "carrot.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "sweet_potato.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "sweet_potato.co2"
+        "from": "co2_storage.co2",
+        "to": "sweet_potato.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -910,8 +1036,12 @@
         "to": "sweet_potato.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "sweet_potato.biomass",
         "to": "sweet_potato.biomass"
+    },
+    {
+        "from": "sweet_potato.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "sweet_potato.o2",
@@ -926,12 +1056,14 @@
         "to": "food_storage.sweet_potato"
     },
     {
-        "from": "sweet_potato.biomass",
-        "to": "nutrient_storage.biomass"
+        "from": "greenhouse.co2",
+        "to": "white_potato.co2",
+        "priority": 0
     },
     {
-        "from": "greenhouse.co2",
-        "to": "white_potato.co2"
+        "from": "co2_storage.co2",
+        "to": "white_potato.co2",
+        "priority": 1
     },
     {
         "from": "water_storage.potable",
@@ -946,8 +1078,12 @@
         "to": "white_potato.kwh"
     },
     {
-        "from": "nutrient_storage.biomass",
+        "from": "white_potato.biomass",
         "to": "white_potato.biomass"
+    },
+    {
+        "from": "white_potato.inedible_biomass",
+        "to": "nutrient_storage.inedible_biomass"
     },
     {
         "from": "white_potato.o2",
@@ -960,10 +1096,6 @@
     {
         "from": "white_potato.white_potato",
         "to": "food_storage.white_potato"
-    },
-    {
-        "from": "white_potato.biomass",
-        "to": "nutrient_storage.biomass"
     },
     {
         "from": "power_storage.kwh",

@@ -75,10 +75,6 @@ class AgentModelInstance():
                         # No duliicate connections
                         instance_connections = [a.agent_type for a in instance.selected_storage[prefix][currency]]
                         assert len(instance_connections) == len(set(instance_connections))
-                        # Connections match config file
-                        assert 'connections' in agent_config_data
-                        expected_connections = agent_config_data['connections'][prefix][currency]
-                        assert expected_connections == instance_connections
 
 
             if 'characteristics' in agent_desc_data and len(agent_desc_data['characteristics']) > 0:

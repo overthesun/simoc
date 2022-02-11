@@ -1,4 +1,5 @@
 import json
+import numpy as np
 
 import pytest
 from agent_model.parse_data_files import parse_currency_desc
@@ -28,6 +29,11 @@ def currency_desc():
 def currency_dict(currency_desc):
     currency_desc, currency_errors = parse_currency_desc(currency_desc)
     return currency_desc
+
+@pytest.fixture(scope="session")
+def agent_conn():
+    with open('data_files/agent_conn.json') as f:
+        yield json.load(f)
 
 # Matches the 'One Human' preset
 @pytest.fixture()
@@ -98,4 +104,47 @@ def four_humans_garden():
             {'species': 'red_beet', 'amount': 50},
             {'species': 'onion', 'amount': 50}
         ],
+    }
+
+@pytest.fixture()
+def random_seed():
+    return 12345
+
+# Return a RandomState with constant seed
+@pytest.fixture()
+def random_state(random_seed):
+    random_state = np.random.RandomState(random_seed)
+    return random_state
+
+@pytest.fixture()
+def user_agent_desc():
+    return {
+        'eclss': {
+            'co2_removal_SAWD': {
+                'data': {
+                    'input': [
+                        {
+                            'type': 'co2',
+                            'criteria': {
+                                'value': 0.001,
+                                'buffer': 2
+                            }
+                        }
+                    ]
+                }
+            },
+            'co2_makeup_valve': {
+                'data': {
+                    'input': [
+                        {
+                            'type': 'co2',
+                            'criteria': {
+                                'value': 0.001,
+                                'buffer': 2
+                            }
+                        }
+                    ]
+                }
+            }
+        }
     }

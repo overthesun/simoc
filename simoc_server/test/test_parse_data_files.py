@@ -4,12 +4,13 @@ import pytest
 from pytest import approx
 
 from simoc_server.front_end_routes import convert_configuration
-from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc
+from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc, \
+                                         parse_agent_conn, merge_json
 
 def test_parse_currency_desc(currency_desc):
     currencies, currency_errors = parse_currency_desc(currency_desc)
 
-    assert len(currencies) == 42
+    assert len(currencies) == 43
     # with open('data_analysis/parsed_currency_desc.json', 'w') as f:
     #     json.dump(currencies, f)
 
@@ -79,11 +80,11 @@ def test_parse_agent_desc(four_humans_garden, currency_dict, agent_desc):
     assert kwh_details['daily_growth_max_threshold'] == 0.75
 
     in_biomass, in_biomass_details = _attr('in_biomass')
-    assert in_biomass == 0.66215
-    assert in_biomass_details['weighted'] == 'growth_rate'
-    assert in_biomass_details['criteria_name'] == 'growth_rate'
-    assert in_biomass_details['criteria_limit'] == '>'
-    assert in_biomass_details['criteria_value'] == 1
+    assert in_biomass == 1
+    assert in_biomass_details['weighted'] == 'current_growth'
+    assert in_biomass_details['criteria_name'] == 'grown'
+    assert in_biomass_details['criteria_limit'] == '='
+    assert in_biomass_details['criteria_value'] == True
 
     o2, _ = _attr('out_o2')
     assert o2 == 0.0005763666242
@@ -92,9 +93,46 @@ def test_parse_agent_desc(four_humans_garden, currency_dict, agent_desc):
     assert h2o == 0.0047265009912
 
     strawberry, _ = _attr('out_strawberry')
-    assert strawberry == 0.66215
+    assert strawberry == 0.35011
 
     out_biomass, out_biomass_details = _attr('out_biomass')
     assert out_biomass == 0.000927083
     assert out_biomass_details['lifetime_growth_type'] == 'norm'
     assert out_biomass_details['lifetime_growth_max_value'] == 0.00369864
+
+def test_merge_json(agent_desc, currency_desc, user_agent_desc):
+    merged = merge_json(agent_desc, user_agent_desc)
+    assert len(merged.keys()) == 10
+    assert len(merged['eclss'].keys()) == 10
+    assert merged['eclss']['co2_makeup_valve']['data']['input'][0]['criteria']['value'] == 0.001
+    assert merged['eclss']['co2_makeup_valve']['data']['input'][0]['criteria']['buffer'] == 2
+    assert merged['eclss']['co2_removal_SAWD']['data']['input'][0]['criteria']['value'] == 0.001
+    assert merged['eclss']['co2_removal_SAWD']['data']['input'][0]['criteria']['buffer'] == 2
+
+    user_currency_desc = {
+        "food": {
+            "mushroom": {
+                "label": "Mushroom"
+            },
+            "rice": {
+                "label": "Not rice"
+            }
+        }
+    }
+    merged = merge_json(currency_desc, user_currency_desc)
+    food = merged['food']
+    assert len(food) == 24
+    assert food['mushroom']['label'] == 'Mushroom'
+    assert food['rice']['label'] == 'Not rice'
+
+def test_parse_agent_conn(four_humans_garden, agent_desc, currency_dict, agent_conn):
+    config = convert_configuration(four_humans_garden)
+    active_agents = list(config['agents'].keys())
+    connections, conn_errors = parse_agent_conn(active_agents, agent_conn)
+
+    for agent in connections.values():
+        for direction in ['in', 'out']:
+            for currency, connected_agents in agent[direction].items():
+                assert currency in currency_dict
+                for conn in connected_agents:
+                    assert conn in connections

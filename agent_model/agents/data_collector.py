@@ -8,14 +8,15 @@ class AgentDataCollector():
         # Static Fields
         self.agent = agent
         self.name = agent.agent_type
-        self.lifetime = agent.lifetime
-        self.full_amount = self.agent.full_amount
-        self.reproduce = agent.reproduce
-        # Dynamic Fields
         self.age = [0]
         self.amount = [self.agent.amount]
-        self.snapshot_attrs = ['name', 'lifetime', 'full_amount', 'reproduce',
-                               'age', 'amount']
+        self.snapshot_attrs = ['name', 'age', 'amount']
+        # Plant-Specific Fields
+        for attr in ['lifetime', 'full_amount', 'reproduce']:
+            if hasattr(self.agent, attr):
+                self.snapshot_attrs.append(attr)
+                setattr(self, attr, getattr(self.agent, attr))
+        # Dynamic Fields
         for attr, attr_value in self.agent.attrs.items():
             if attr_value == 0:
                 continue
@@ -40,14 +41,15 @@ class AgentDataCollector():
                     class_attr = f"char_capacity_{currency_class}"
                     self.capacity[currency_class] = dict(value=self.agent[class_attr],
                                                          unit=self.agent.attr_details[class_attr]['unit'])
-            # Growth
+            # Plants
             if attr.startswith('char_growth_criteria'):
-                self.snapshot_attrs += ['total_growth', 'growth']
+                self.snapshot_attrs += ['total_growth', 'growth', 'co2_scale']
                 self.total_growth = self.agent.total_growth,
                 self.growth = dict(current_growth=[self.agent.current_growth],
                                    growth_rate=[self.agent.growth_rate],
                                    grown=[self.agent.grown],
                                    agent_step_num=[self.agent.agent_step_num])
+                self.co2_scale = {k: [] for k in self.agent.co2_scale.keys()}
             # Flows
             if attr.startswith(('in', 'out')):
                 if 'flows' not in self.snapshot_attrs:
@@ -70,7 +72,7 @@ class AgentDataCollector():
                     if 'deprive' not in self.snapshot_attrs:
                         self.snapshot_attrs.append('deprive')
                         self.deprive = {}
-                    self.deprive[attr] = [deprive_value * self.full_amount]
+                    self.deprive[attr] = [deprive_value * self.amount[0]]
             # Events
             if attr.startswith('event'):
                 if 'events' not in self.snapshot_attrs:
@@ -98,7 +100,10 @@ class AgentDataCollector():
                 record.append(self.agent.model.storage_ratios[self.name][currency + '_ratio'])
         if 'growth' in self.snapshot_attrs:
             for field, record in self.growth.items():
-                record.append(self.agent[field])
+                record.append(getattr(self.agent, field))
+        if 'co2_scale' in self.snapshot_attrs:
+            for field, record in self.co2_scale.items():
+                record.append(self.agent.co2_scale[field])
         if 'flows' in self.snapshot_attrs:
             for currency, record in self.flows.items():
                 record.append(self.agent.last_flow[currency])

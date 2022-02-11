@@ -1,5 +1,6 @@
 import json
 import random
+from collections import defaultdict
 
 from agent_model.agents import growth_func
 from agent_model.util import location_to_day_length_minutes
@@ -170,7 +171,7 @@ def parse_agent(agent_class, name, data, currencies, location):
                 daily_growth_scale=None if not daily_growth else daily_growth.get('scale', None),
                 daily_growth_steepness=None if not daily_growth else daily_growth.get('steepness', None))
 
-            if attribute_detail['lifetime_growth_type'] in ['norm', 'normal'] \
+            if attribute_detail['lifetime_growth_type'] in ['norm', 'normal', 'sig', 'sigmoid'] \
                     and attribute_detail['lifetime_growth_scale'] is None:
                 lifetime = agent_data['attributes'].get('char_lifetime', 1)
                 lgmv = calculate_lifetime_growth_max_value(attr_value,
@@ -183,21 +184,75 @@ def parse_agent(agent_class, name, data, currencies, location):
 
     return agent_data, agent_errors
 
+def parse_agent_conn(active_agents, agent_conn):
+    """Returns active_connections dict from active_agent list and raw agent_conn.json"""
+    conn_errors = {}
+
+    # 1. SUBSTITUTE STRUCTURES
+    # Some connections specify a structure class (e.g. 'habitat') rather than
+    # a specific agent (e.g. 'crew_habitat_small') to accomodate different
+    # configurations.
+    def get_sub(agent_class):
+        return next((a for a in active_agents if agent_class in a), None)
+    structures_dict = {k: get_sub(k) for k in ['habitat', 'greenhouse']}
+    def _substitute_structures(agent_type):
+        if agent_type in structures_dict:
+            return structures_dict[agent_type]
+        return agent_type
+
+    # 2. PARSE RELEVANT CONNECTIONS INTO DICT
+    # Connections are specified in a long list and don't specify outbound or
+    # inbound. Here we parse the list into a dict, indexed by agent names, for
+    # both the from- and to- agent.
+    connections_dict = {}
+    for conn in agent_conn:
+        from_agent, from_currency = conn['from'].split(".")
+        to_agent, to_currency = conn['to'].split(".")
+        priority = int(conn.get('priority', 0))
+        from_agent = _substitute_structures(from_agent)
+        to_agent = _substitute_structures(to_agent)
+        if from_agent not in active_agents or to_agent not in active_agents:
+            continue
+        # Add agents to dict
+        for agent in [from_agent, to_agent]:
+            if agent not in connections_dict.keys():
+                connections_dict[agent] = {k: defaultdict(list) for k in ['in', 'out']}
+        # Add currencies/connections by agent
+        to_record = dict(agent_type=to_agent, priority=priority)
+        connections_dict[from_agent]['out'][from_currency].append(to_record)
+        from_record = dict(agent_type=from_agent, priority=priority)
+        connections_dict[to_agent]['in'][to_currency].append(from_record)
+
+    # 3. COMPILE CONNECTIONS FOR ACTIVE AGENTS
+    active_connections = {}
+    for agent in active_agents:
+        if agent not in connections_dict:
+            continue
+        connections = connections_dict[agent]
+        for prefix in ['in', 'out']:
+            for currency, conns in connections[prefix].items():
+                _sorted = sorted(conns, key=lambda c: c['priority'])
+                connections[prefix][currency] = [c['agent_type'] for c in _sorted]
+        active_connections[agent] = connections
+
+    return active_connections, conn_errors
+
 def calculate_lifetime_growth_max_value(attr_value, attr_details, lifetime, location):
-    """Calculate the highest point on a normal bell curve"""
-    mean_value = float(attr_value)
+    """Calculate the highest point on a bell or sigmoid curve"""
     day_length_minutes = location_to_day_length_minutes(location)
     day_length_hours = day_length_minutes / 60
     num_values = int(lifetime * day_length_hours + 1)
-    center = attr_details['lifetime_growth_center'] or num_values // 2
-    min_value = attr_details['lifetime_growth_min_value'] or 0
-    invert = attr_details['lifetime_growth_invert']
-    res = growth_func.optimize_bell_curve_mean(mean_value=mean_value,
-                                                num_values=num_values,
-                                                center=center,
-                                                min_value=min_value,
-                                                invert=invert,
-                                                noise=False)
+    kwargs = dict(mean_value=float(attr_value),
+                  num_values=num_values,
+                  center=attr_details['lifetime_growth_center'] or num_values // 2,
+                  min_value=attr_details['lifetime_growth_min_value'] or 0,
+                  noise=attr_details['lifetime_growth_noise'])
+    growth_type = attr_details['lifetime_growth_type']
+    if growth_type in ['norm', 'normal']:
+        kwargs['invert'] = attr_details['lifetime_growth_invert']
+        res = growth_func.optimize_bell_curve_mean(**kwargs)
+    elif growth_type in ['sig', 'sigmoid']:
+        res = growth_func.optimize_sigmoid_curve_mean(**kwargs)
     # Rounding is not technically necessary, but it was rounded under the old
     # system and I do it here for continuity of test results.
     return round(float(res['max_value']), 8)
@@ -253,3 +308,37 @@ def parse_agent_events(agent_events):
                 agents_errors[agent] = agent_errors
     return agents_data, agents_errors
 
+def merge_json(default, user):
+    """Recursively merge a default data_file object with user data"""
+    if isinstance(user, dict):
+        for field, values in user.items():
+            if field in default:
+                default[field] = merge_json(default[field], values)
+            else:
+                default[field] = values
+        return default
+    elif isinstance(user, list):
+        # There are three possible cases for lists:
+        # 1. If list elements don't have a 'type' attribute, just concatinate
+        #    the lists (e.g. connections in agent_conn.json)
+        if 'type' not in user[0]:
+            return default + user
+        merged = []
+        used_types = set()
+        for item in user:
+            match = next((d for d in default if d['type'] == item['type']), None)
+            if match is not None:
+                # 2. If the 'type' in user element matches a default element,
+                #    merge the two (e.g. inputs/outputs in agent_desc.json)
+                used_types.add(match['type'])
+                merged.append(merge_json(match, item))
+            else:
+                # 3. Else, add a new item to the list (e.g. characteristics
+                #    in agent_desc.json)
+                merged.append(item)
+        for item in default:
+            if item['type'] not in used_types:
+                merged.append(item)
+        return merged
+    elif isinstance(user, (str, int, float, bool)):
+        return user
