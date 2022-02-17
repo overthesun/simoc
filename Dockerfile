@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:21.10
 
 MAINTAINER Iurii Milovanov "duruku@gmail.com"
 
@@ -6,7 +6,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python3-pip \
     python3-setuptools \
-    curl
+    curl && \
+    python3 -m pip install --upgrade pip
 
 COPY ./requirements.txt /simoc/requirements.txt
 RUN python3 -m pip install -r /simoc/requirements.txt
