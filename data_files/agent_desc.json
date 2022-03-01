@@ -488,8 +488,8 @@
             "criteria": {
               "name": "co2_ratio_in",
               "limit": ">",
-              "value": 0.0007,
-              "buffer": 1
+              "value": 0.001,
+              "buffer": 8
             }
           },
           {
@@ -548,8 +548,8 @@
             "criteria": {
               "name": "co2_ratio_out",
               "limit": "<",
-              "value": 0.0007,
-              "buffer": 1
+              "value": 0.0002,
+              "buffer": 8
             }
           }
         ],
