@@ -58,7 +58,7 @@ class AgentModel(Model, AttributeHolder):
         initializer, errors = AgentModelInitializer.from_new(config, currency_desc, agent_desc, connections)
         for category in ['model', 'agents', 'currencies']:
             if len(errors[category]) > 0:
-                return errors
+                raise AgentModelInitializationError(errors)
         return cls(initializer, data_collection)
 
     def save(self):
