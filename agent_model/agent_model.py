@@ -15,7 +15,7 @@ from agent_model.agents.core import GeneralAgent, PlantAgent
 from agent_model.agents.data_collector import AgentDataCollector
 from agent_model.attribute_meta import AttributeHolder
 from agent_model.util import timedelta_to_hours, location_to_day_length_minutes
-from agent_model.exceptions import AgentModelInitializationError
+from agent_model.exceptions import AgentModelConfigError, AgentModelInitializationError
 
 class AgentModel(Model, AttributeHolder):
     """The core class that describes the SIMOC's Agent Model interface.
@@ -56,9 +56,9 @@ class AgentModel(Model, AttributeHolder):
             agent_conn      dict    User-specified connections
         """
         initializer, errors = AgentModelInitializer.from_new(config, currency_desc, agent_desc, connections)
-        for category in ['model', 'agents', 'currencies']:
-            if len(errors[category]) > 0:
-                raise AgentModelInitializationError(errors)
+        categories = ['model', 'agents', 'currencies']
+        if any(len(errors[c]) > 0 for c in categories):
+            raise AgentModelConfigError(errors)
         return cls(initializer, data_collection)
 
     def save(self):
