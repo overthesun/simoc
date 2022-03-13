@@ -1,0 +1,37 @@
+{
+    "title": "agent_desc.json",
+    "description": "Contains agent specifications, grouped by agent class.\n",
+    "type": "object",
+    "properties": {
+        "inhabitants": { "$ref": "#/definitions/agent_class"}
+    },
+    "definitions": {
+        "agent_class": {
+            "type": "object",
+            "description": "Contains all agents of some class.",
+            "properties": {
+                "(agent name...)": { "$ref": "#/definitions/agent" }
+            }
+        },
+        "agent": {
+            "type": "object",
+            "properties": {
+                "description": "string",
+                "data": {
+                    "inputs": { "$ref": "#/definitions/inputs"},
+                    "outputs": { "$ref": "#/definitions/outputs"},
+                    "characteristics": { "$ref": "#/definitions/characteristics"}
+                }
+            }
+        },
+        "inputs": {
+            "type": "object"
+        },
+        "outputs": {
+            "type": "object"
+        },
+        "characteristics": {
+            "type": "list"
+        }
+    }
+}

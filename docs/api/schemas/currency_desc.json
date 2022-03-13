@@ -1,0 +1,28 @@
+{
+    "title": "currency_desc.json",
+    "description": "Contains currency specifications, grouped by currency class.\n",
+    "type": "object",
+    "properties": {
+        "atmosphere": { "$ref": "#/definitions/currency_class"}
+    },
+    "definitions": {
+        "currency_class": {
+            "type": "object",
+            "description": "Contains all currencies of some class.",
+            "properties": {
+                "(agent name...)": { "$ref": "#/definitions/currency" }
+            }
+        },
+        "currency": {
+            "type": "object",
+            "properties": {
+                "label": "string",
+                "nutrition": {
+                    "protein": "number",
+                    "carbohydrate": "number",
+                    "fat": "number"
+                }
+            }
+        }
+    }
+}
