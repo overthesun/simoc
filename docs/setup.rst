@@ -15,8 +15,7 @@ you need to follow the following steps:
 3. Run ``python3 simoc.py setup``
 4. Access SIMOC at http://127.0.0.1:8000/
 
-To clone and install SIMOC, you will also need access to the
-`SIMOC GitHub repository <https://github.com/overthesun/simoc>`_.
+For more information see also :ref:`repo-setup`.
 
 
 Using ``simoc.py``
