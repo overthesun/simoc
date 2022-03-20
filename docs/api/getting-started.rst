@@ -7,8 +7,8 @@ Basic Case
 
 .. code-block:: python
 
-    from agent_model import AgentModel
     import json
+    from agent_model import AgentModel
 
     with open('data_files/config_1hrad.json') as f:
         config = json.load(f)
@@ -34,7 +34,8 @@ when initializing AgentModel.
                                    agent_desc=agent_desc,
                                    agent_conn=agent_conn)
 
-**Example**: Mushrooms
+Example: Mushrooms
+------------------
 
 Target behavior:
 * Consumes 10g o2 and 10g inedible_biomass per hour (sigmoid)
@@ -44,7 +45,7 @@ Target behavior:
 
 First, define two new currencies: food/mushroom, and nutrients/mushroom_waste.
 Create a currency_desc object that mirrors the structure of the defualt
-`currency_desc.json` file.
+``currency_desc.json`` file.
 
 .. code-block:: python
 
@@ -60,7 +61,7 @@ Create a currency_desc object that mirrors the structure of the defualt
         }
     }
 
-Next, add the new agent to an object hat mirrors the default `agent_desc.json`.
+Next, add the new agent to an object hat mirrors the default ``agent_desc.json``.
 
 Also, add storage capacity for the new currencies. Existing agents can be
 modified by mirroring their structure, and changing or adding specific fields.
@@ -213,7 +214,7 @@ modified by mirroring their structure, and changing or adding specific fields.
         }
     }
 
-Then create a new agent_conn, mirroring the default `agent_conn.json`.
+Then create a new agent_conn, mirroring the default ``agent_conn.json``.
 
 .. code-block:: python
 
@@ -244,18 +245,18 @@ Finally, add them to a new model.
 
 .. code-block:: python
 
-    from agent_model import AgentModel
     import json
+    from agent_model import AgentModel
 
     with open('data_files/config_1hrad.json') as f:
         config = json.load(f)
     config['agents']['mushroom'] = {'amount': 10}
     config['agents']['nutrient_storage']['inedible_biomass'] = 200
     model = AgentModel.from_config(config,
-                                data_collection=True,
-                                currency_desc=currency_desc,
-                                agent_desc=agent_desc,
-                                connections=agent_conn)
+                                   data_collection=True,
+                                   currency_desc=currency_desc,
+                                   agent_desc=agent_desc,
+                                   connections=agent_conn)
     model.step_to(n_steps=721)
     data = model.get_data(debug=True)
 
@@ -272,9 +273,9 @@ Available groups vary by agent based on function, and may include: growth, stora
     def plot_group(group, exclude=[], i=None, j=None):
         plt.figure(figsize=(12,6))
         length = len(next(iter(group.values())))
-        i = i if i else 0
-        j = j if j else length-1
-        steps = [i for i in range(j-i)]
+        i = i or 0
+        j = j or length-1
+        steps = range(j-i)
         for currency, values in group.items():
             if sum(values) == 0 or currency in exclude:
                 continue
@@ -311,7 +312,7 @@ Plot all flows of a particular currency
                     at_least_one = False
                     for record in step:
                         if agent_name not in flows:
-                            flows[agent_name] = [] + [0] * n
+                            flows[agent_name] = [0] * n
                         if not at_least_one:
                             at_least_one = True
                             flows[agent_name].append(-record['amount'])
@@ -325,9 +326,9 @@ Plot all flows of a particular currency
             return
 
         plt.figure(figsize=(12,6))
-        i = i if i else 0
-        j = j if j else length
-        steps = [x for x in range(j-i)]
+        i = i or 0
+        j = j or length
+        steps = range(j-i)
         for agent_name, agent_data in flows.items():
             if agent_name in exclude:
                 continue

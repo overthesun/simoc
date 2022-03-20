@@ -4,8 +4,8 @@
    contain the root `toctree` directive.
 
 
-SIMOC API
-=========
+SIMOC Advanced User's Guide
+===========================
 
 .. toctree::
    :maxdepth: 2
