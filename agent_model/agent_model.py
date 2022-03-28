@@ -263,7 +263,7 @@ class AgentModel(Model, AttributeHolder):
         self.scheduler.add(agent)
 
     def step(self):
-        """TODO"""
+        """Execute a single step."""
         self.time += self.timedelta_per_step
         self.daytime = int(self.time.total_seconds() / 60) % self.day_length_minutes
         # Check termination conditions; stop if true
@@ -312,10 +312,14 @@ class AgentModel(Model, AttributeHolder):
                 self.step()
 
     def get_data(self, debug=False, clear_cache=False):
-        """Return data from model
+        """Return data from model.
 
         Args:
-            * ``debug``: bool
+            * ``debug``: bool. If True, return all available fields. Else, return only 'flows', 'storage' and 'growth.
+            * ``clear_cache``: bool. Remove all staved data from data collector.
+
+        Returns:
+            * ``data``: :ref:`model-data`
         """
         data = {}
         if not self.data_collection:
@@ -336,7 +340,7 @@ class AgentModel(Model, AttributeHolder):
             * ``agent_type``: Agent name
 
         Returns:
-            * ``[Agent...]``: :ref:`general-agent` :ref:`plant-agent'
+            * ``[Agent...]``: List of :ref:`general-agent` or :ref:`plant-agent`
         """
         if agent_type is None:
             return self.scheduler.agents
