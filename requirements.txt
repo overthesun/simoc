@@ -3,7 +3,7 @@ flask
 flask-login
 flask_socketio
 flask-sqlalchemy
-gevent==1.4.0
+gevent
 gunicorn
 jinja2
 mesa
