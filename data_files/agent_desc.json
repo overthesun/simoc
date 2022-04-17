@@ -548,7 +548,7 @@
             "criteria": {
               "name": "co2_ratio_out",
               "limit": "<",
-              "value": 0.0002,
+              "value": 0.0004,
               "buffer": 8
             }
           }

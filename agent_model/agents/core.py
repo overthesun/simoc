@@ -983,12 +983,21 @@ class PlantAgent(GeneralAgent):
             return
         if self.grown:
             if self.reproduce:
+                # Delay start until 'hour 0' so daylight cycles remain aligned
+                # TODO: Any shortfall of currency delays aging and causes
+                # disalignment; this will require a deeper redesign to fix.
+                step_num = int(self.age)
+                day_length = int(self.model.day_length_hours)
+                current_hour = step_num % day_length
+                delay = day_length - current_hour - 1
+
                 self.age = 0
                 self.current_growth = 0
                 self.growth_rate = 0
                 self.agent_step_num = 0
                 self.grown = False
                 self.amount = self.full_amount
+                self.delay_start = delay
                 return
             self.destroy(f'Lifetime limit has been reached by {self.agent_type}. Killing the agent.')
 
