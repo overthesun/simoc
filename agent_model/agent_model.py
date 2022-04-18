@@ -24,38 +24,53 @@ class AgentModel(Model, AttributeHolder):
     care of all agent management and orchestration, model initialization, persistence and
     monitoring.
 
-    Attributes:
-          config: int,
-          day_length_hours: int,
-          day_length_minutes: int,
-          daytime: int,
-          is_terminated: int,
-          location: int,
-          minutes_per_step: int,
-          storage_ratios: Dict,
-          priorities: int,
-          random_state: int,
-          scheduler: int,
-          seed: int,
-          single_agent: int,
-          snapshot_branch: int,
-          termination: int,
-          time: int,
+    ====================== ============== ===============
+          Attribute        Type               Description
+    ====================== ============== ===============
+    ``seed``               int            Initialize ``random_state``
+    ``global_entropy``     float          0-1: Activate and scale variation & event
+    ``single_agent``       int            1
+    ``termination``        list           ``[<termination_case>]``
+    ``priorities``         list           ``[<agent class>]``
+    ``location``           str            'mars'
+    ``minutes_per_step``   int            60
+    ``hours_per_step``     float          1
+    ``currency_dict``      dict           ``{<currency>, <currency class>}``
+    ``data_collection``    bool           False
+    ``random_state``       np.RandomState
+    ``time``               timdelta
+    ``starting_step_num``  int
+    ``storage_ratios``     dict           ``{<agent>: {<currency>: 0.5}}``
+    ``is_terminated``      bool
+    ``termination_reason`` str
+    ``scheduler``          mesa.Scheduler
+    ====================== ============== ===============
     """
 
     @classmethod
-    def from_config(cls, config, data_collection=False, currency_desc=None, agent_desc=None, connections=None):
+    def from_config(cls, config, data_collection=False, currency_desc=None,
+                    agent_desc=None, agent_conn=None, agent_variation=None,
+                    agent_events=None):
         """Takes configuration files, return an initialized model
 
-        Args (required):
-            config          dict    A properly-formatted config object
+        Args:
+           * ``config``: :ref:`simoc-config`
 
-        Kwargs (optional):
-            currency_desc   dict    User-specified currencies
-            agent_desc      dict    User-specified agents
-            agent_conn      dict    User-specified connections
+        Kwargs:
+            * ``data_collection``: bool
+            * ``currency_desc``: :ref:`currency-desc`
+            * ``agent_desc``: :ref:`agent-desc`
+            * ``agent_conn``: :ref:`agent-conn`
+            * ``agent_variation``: :ref:`agent-variation`
+            * ``agent_events``: :ref:`agent-events`
+
+        Returns:
+            * ``AgentModel``: :ref:`agent-model`
+
         """
-        initializer, errors = AgentModelInitializer.from_new(config, currency_desc, agent_desc, connections)
+        initializer, errors = AgentModelInitializer.from_new(config, currency_desc,
+                                                             agent_desc, agent_conn,
+                                                             agent_variation, agent_events)
         categories = ['model', 'agents', 'currencies']
         if any(len(errors[c]) > 0 for c in categories):
             raise AgentModelConfigError(errors)
@@ -73,11 +88,7 @@ class AgentModel(Model, AttributeHolder):
         return cls(initializer, data_collection)
 
     def __init__(self, initializer, data_collection=False):
-        """Creates an Agent Model object.
-
-        Args:
-          initializer: AgentModelInitializer, contains all setup data
-        """
+        """Creates an Agent Model object."""
         super(Model, self).__init__()
         #------------------------------
         #    INITIALIZE MODEL DATA
@@ -160,13 +171,7 @@ class AgentModel(Model, AttributeHolder):
     #     return app.logger
 
     def get_step_logs(self):
-        """TODO
-
-        Called from:
-            game_runner.py GameRunner.step_to.step_loop
-
-        Returns
-        """
+        """Called from game_runner.py GameRunner.step_to.step_loop"""
         record_id = random.getrandbits(63)
         model_record = dict(id=record_id,
                             step_num=self.step_num,
@@ -207,13 +212,7 @@ class AgentModel(Model, AttributeHolder):
         return model_record, agent_type_counts, storage_capacities
 
     def get_agent_type_counts(self):
-        """TODO
-
-        TODO
-
-        Returns:
-          TODO
-        """
+        """TODO"""
         counter = {}
         for agent in self.get_agents_by_role(role="flows"):
             agent_type = agent.agent_type
@@ -225,13 +224,8 @@ class AgentModel(Model, AttributeHolder):
         return counter
 
     def get_storage_capacities(self, value_round=6):
-        """TODO
-
-        Formats the agent storages and currencies for easier access to the step information later.
-
-        Returns:
-          A dictionary of the storages information for this step
-        """
+        """Formats the agent storages and currencies for easier access
+        to the step information later."""
         storages = []
         for storage in self.get_agents_by_role(role="storage"):
             entity = {"agent_type": storage.agent_type,
@@ -259,36 +253,17 @@ class AgentModel(Model, AttributeHolder):
 
     @classmethod
     def create_new(cls, model_init_params, agent_init_recipe):
-        """TODO
-
-        TODO
-
-        Args:
-            model_init_params: TODO
-            agent_init_recipe: TODO
-
-        Returns:
-          TODO
-        """
+        """TODO"""
         model = AgentModel(model_init_params)
         agent_init_recipe.init_agents(model)
         return model
 
     def add_agent(self, agent):
-        """TODO
-
-        TODO
-
-        Args:
-            agent: TODO
-        """
+        """TODO"""
         self.scheduler.add(agent)
 
     def step(self):
-        """TODO
-
-        TODO
-        """
+        """Execute a single step."""
         self.time += self.timedelta_per_step
         self.daytime = int(self.time.total_seconds() / 60) % self.day_length_minutes
         # Check termination conditions; stop if true
@@ -318,10 +293,17 @@ class AgentModel(Model, AttributeHolder):
                 agent.data_collector.step()
         # app.logger.info("{0} step_num {1}".format(self, self.step_num))  # TODO: Fix logger
 
-    def step_to(self, n_steps=None, termination=None, timeout=365*24):
+    def step_to(self, n_steps=None, termination=None, max_steps=365*24):
+        """Execute a fixed number of steps, or until termination
+
+        Args:
+            * ``n_steps``: int
+            * ``termination``: bool
+            * ``max_steps``: int
+        """
         if not n_steps and not termination:
             return
-        for i in range(timeout):
+        for i in range(max_steps):
             if i == n_steps:
                 return
             elif self.is_terminated:
@@ -330,6 +312,15 @@ class AgentModel(Model, AttributeHolder):
                 self.step()
 
     def get_data(self, debug=False, clear_cache=False):
+        """Return data from model.
+
+        Args:
+            * ``debug``: bool. If True, return all available fields. Else, return only 'flows', 'storage' and 'growth.
+            * ``clear_cache``: bool. Remove all staved data from data collector.
+
+        Returns:
+            * ``data``: :ref:`model-data`
+        """
         data = {}
         if not self.data_collection:
             return data
@@ -343,15 +334,13 @@ class AgentModel(Model, AttributeHolder):
         # self.scheduler.remove(agent)
 
     def get_agents_by_type(self, agent_type=None):
-        """TODO
-
-        TODO
+        """Returns a list of agents matching search term, or all agent
 
         Args:
-            agent_type: TODO
+            * ``agent_type``: Agent name
 
         Returns:
-          TODO
+            * ``[Agent...]``: List of :ref:`general-agent` or :ref:`plant-agent`
         """
         if agent_type is None:
             return self.scheduler.agents

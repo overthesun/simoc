@@ -17,24 +17,7 @@ from agent_model.agents import custom_funcs
 from agent_model.exceptions import AgentInitializationError
 
 class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
-    """Initializes and manages refs, metadata, currency_dict, and AttributeHolder
-
-    Attributes:
-        model:              AgentModel
-        agent_type:         str
-        unique_id:          int
-        active:             bool
-        agent_class:        str
-        agent_type_id:      int
-        attrs:              dict    e.g. self.attrs['char_lifetime'] = 1000
-        attr_details:       dict    e.g. self.attr_details['char_lifetime']['unit'] = 'hour'
-        currency_dict:      dict
-
-    Methods:
-        _attr(name, default_value, _type): inherited from AttributeHolder
-        add_currency_to_dict(currency): copies currency and currency_class data from model
-        destroy(): sets active to false, removes from model.scheduler
-    """
+    """Initializes and manages refs, metadata, currency_dict, and AttributeHolder"""
 
     def __init__(self, *args, **kwargs):
         """Sets refs and metadata, initializes currency_dict and AttributeHolder
@@ -143,18 +126,7 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
 
 
 class StorageAgent(BaseAgent):
-    """Initialize and manage storage capacity
-
-    Attributes:
-        id:             int
-        has_storage:    bool    true if 1 or more storages have been initialized
-        ...[currency]   int     current balance of the currency
-
-    Methods:
-        step(): Calculates storage ratios
-        view(view): Returns current balances for a currency or currency class
-        increment(view, increment_amount)
-    """
+    """Initialize and manage storage capacity """
 
     def __init__(self, *args, **kwargs):
         """Set initial currency balances; create new attributes for class capacities
@@ -279,33 +251,38 @@ class StorageAgent(BaseAgent):
 
 
 class GeneralAgent(StorageAgent):
-    """TODO
+    """The base class for a SIMOC agent.
 
-    TODO
+    Stores and manages a stateful representation of a single SIMOC agent;
+    manages storage and currency exchanges.
 
-    Attributes:
-        has_flows:          bool
-        connections:        dict
-        selected_storage:   dict
-        deprive:            dict
-        criteria:           list
-        step_values:        dict
-
-    Methods:
-        step()
-        kill()
-
+    ====================== ============== ===============
+          Attribute        Type               Description
+    ====================== ============== ===============
+    ``agent_type``         str            Agent name, e.g. 'rice'
+    ``agent_type_id``      int            Randomly-generated id for agent_type
+    ``unique_id``          int            Randomly-generated id for instance
+    ``agent_class``        str            Agent class, e.g. 'plants'
+    ``active``             bool           Whether step function is called
+    ``attrs``              dict           A dict containing key:value pairs or currency exchanges and characteriscits; see :ref:`agent-desc`
+    ``attr_details``       dict           Extra information about attrs, e.g. 'unit'
+    ``currency_dict``      dict           A subset of the currency_dict in :ref:`agent-model` with only currencies used by this agent
+    ``id``                 int            Index for storage type (not used)
+    ``has_storage``        bool           Whether agent has storage characteristics
+    ``...[currency]``      float          Current storage balance of a currency
+    ``has_flows``          bool           Whether agent has currency exchanges
+    ``connections``        dict           A list of all connected agents
+    ``selected_storage``   dict           Lists of connected agents sorted by direction, currency
+    ``buffer``             dict           Current buffer size (i.e. steps before activate/deactivate) per currency
+    ``deprive``            dict           Current deprive available (i.e. steps before death) per currency
+    ``step_values``        dict           Step values for each currency with lifetime/daily growth applied
+    ``events``             dict           A list of event instances by type
+    ``event_multipliers``  dict           A list of multipliers from events, applied to every currency exchange
+    ====================== ============== ===============
     """
 
     def __init__(self, *args, **kwargs):
-        """Initialize currency exchange fields and copy relevant data
-
-        Args:
-          connections:      dict
-          buffer:           dict
-          deprive:          dict
-          step_values:      dict
-        """
+        """Initialize currency exchange fields and copy relevant data"""
         super().__init__(*args, **kwargs)
         self.age = kwargs.pop("age", 0)
         self.has_flows = False
@@ -810,35 +787,25 @@ class GeneralAgent(StorageAgent):
 class PlantAgent(GeneralAgent):
     """Initialize and manage growth, amount and reproduction
 
-    Attributes:
-        Constant Attributes:
-            full_amount:        int     maximum/reset amount as defined in agent_desc
-            lifetime:           int     hours to complete growth cycle.
-            reproduce:          bool
-            growth_criteria:    str     which item determines growth
-            total_growth:       float   sum of lifetime values for growth_criteria item
-        Variable Attributes:
-            delay_start:        int     hours to wait before starting growth
-            agent_step_num:     int     current step in growth cycle, as limited by growth_critera
-            current_growth:     int     accumulated values for growth_criteria item
-            growth_rate:        int     accumulated % for growth_criteria item
-            grown:              bool    whether growth is complete
+    ====================== ============== ===============
+          Attribute        Type               Description
+    ====================== ============== ===============
+    ``full_amount``        str            Maximum/reset amount as defined in agent_desc
+    ``lifetime``           int            Hours to complete growth cycle.
+    ``reproduce``          bool
+    ``growth_criteria``    str            Which currency/attribute determines growth
+    ``delay_start``        int            Hours to wait before starting growth
+    ``agent_step_num``     int            Current step in growth cycle, as limited by growth_critera
+    ``currenct_growth``    int            Accumulated values for growth_criteria item
+    ``growth_rate``        int            Accumulated % for growth_criteria item
+    ``grown``              bool           Whether growth is complete
+    ====================== ============== ===============
     """
 
     def __init__(self, *args, delay_start=0, full_amount=None, agent_step_num=0,
                  total_growth=0, current_growth=0, growth_rate=0, grown=False,
                  **kwargs):
-        """Set the age and amount, parse attributes and intialize growth-tracking fields
-
-        Args (optional):
-          full_amount:      int
-          agent_step_num:   int
-          total_growth:     float
-          current_growth:   float
-          growth_rate:      float
-          grown:            bool
-          ...[attributes & attribute_details inherited from BaseAgent]
-        """
+        """Set the age and amount, parse attributes and intialize growth-tracking fields"""
         super().__init__(*args, **kwargs)
         self.delay_start = delay_start
         self.full_amount = full_amount or self.amount
