@@ -3,21 +3,30 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+
+SIMOC Advanced User's Guide
+===========================
+
+.. toctree::
+   :maxdepth: 2
+
+   api/getting-started
+   api/classes
+   api/data-objects
+
 SIMOC Developer's Guide
 =======================
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
-   setup
-   architecture
-   git
-   deployment
-   docker-deployment
-   gcp-deployment
-   local-deployment
-
+   developer/setup
+   developer/architecture
+   developer/git
+   developer/deployment
+   developer/docker-deployment
+   developer/gcp-deployment
+   developer/local-deployment
 
 Indices and tables
 ==================

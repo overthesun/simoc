@@ -1,0 +1,69 @@
+{
+    "inhabitants": {
+        "initial": {
+            "upper": {
+                "o2": 0.045,
+                "potable": 0.182917,
+                "food": 0.08,
+                "co2": 0.054583,
+                "h2o": 0.1875,
+                "urine": 0.060833,
+                "feces": 0.005,
+                "mass": 99
+            },
+            "lower": {
+                "o2": 0.025417,
+                "potable": 0.095,
+                "food": 0.043333,
+                "co2": 0.030833,
+                "h2o": 0.067083,
+                "urine": 0.060833,
+                "feces": 0.005,
+                "mass": 54
+            },
+            "distribution": "normal",
+            "stdev_range": 1.65,
+            "characteristics": [
+                "mass"
+            ]
+        },
+        "step": {
+            "upper": 0.1,
+            "lower": 0.1,
+            "distribution": "normal"
+        }
+    },
+    "eclss": {
+        "initial": {
+            "lower": 0.05,
+            "distribution": "exponential"
+        },
+        "step": {
+            "lower": 0.1,
+            "distribution": "exponential"
+        }
+    },
+    "plants": {
+        "initial": {
+            "upper": 0.5,
+            "lower": 0.5,
+            "distribution": "normal"
+        },
+        "step": {
+            "upper": 0.1,
+            "lower": 0.1,
+            "distribution": "normal"
+        }
+    },
+    "power_generation": {
+        "initial": {
+            "upper": 0.1,
+            "lower": 0.1,
+            "distribution": "normal"
+        },
+        "step": {
+            "lower": 0.5,
+            "distribution": "exponential"
+        }
+    }
+}

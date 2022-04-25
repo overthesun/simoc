@@ -3,10 +3,10 @@ import random
 
 from . import util
 from simoc_server import db
-from simoc_server.agent_model.agents import growth_func
+from agent_model.agents import growth_func
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute, \
     AgentTypeAttributeDetails, CurrencyType
-from simoc_server.util import location_to_day_length_minutes
+from agent_model.util import location_to_day_length_minutes
 
 _GLOBAL_CURRENCY_LIST = {}
 

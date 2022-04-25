@@ -1,0 +1,232 @@
+{
+    "agents": {
+        "solar_pv_array_mars": {
+            "amount": 10,
+            "connections": {
+                "in": {},
+                "out": {
+                    "kwh": [
+                        "power_storage"
+                    ]
+                }
+            }
+        },
+        "crew_habitat_small": {
+            "id": 1,
+            "amount": 1,
+            "n2": 976.05,
+            "o2": 261.825,
+            "co2": 0.51665,
+            "ch4": 0.0023375,
+            "h2": 0.0006875,
+            "h2o": 12.5,
+            "total_capacity": {
+                "value": 1250.0,
+                "unit": "kg"
+            },
+            "connections": {
+                "in": {
+                    "kwh": [
+                        "power_storage"
+                    ],
+                    "atmosphere": [
+                        "atmosphere_equalizer"
+                    ]
+                },
+                "out": {
+                    "atmosphere": [
+                        "atmosphere_equalizer"
+                    ]
+                }
+            }
+        },
+        "greenhouse_small": {
+            "id": 1,
+            "amount": 1,
+            "n2": 478.26450000000006,
+            "o2": 128.29425,
+            "co2": 0.2531585,
+            "ch4": 0.001145375,
+            "h2": 0.00033687500000000004,
+            "h2o": 6.125,
+            "total_capacity": {
+                "value": 612.5,
+                "unit": "kg"
+            },
+            "connections": {
+                "in": {
+                    "o2": [
+                        "radish"
+                    ],
+                    "h2o": [
+                        "radish"
+                    ],
+                    "kwh": [
+                        "power_storage"
+                    ],
+                    "atmosphere": [
+                        "atmosphere_equalizer"
+                    ]
+                },
+                "out": {
+                    "co2": [
+                        "radish"
+                    ],
+                    "atmosphere": [
+                        "atmosphere_equalizer"
+                    ]
+                }
+            }
+        },
+        "atmosphere_equalizer": {
+            "id": 1,
+            "amount": 1,
+            "connections": {
+                "in": {
+                    "atmosphere": [
+                        "crew_habitat_small",
+                        "greenhouse_small"
+                    ]
+                },
+                "out": {
+                    "atmosphere": [
+                        "crew_habitat_small",
+                        "greenhouse_small"
+                    ]
+                }
+            }
+        },
+        "water_storage": {
+            "id": 1,
+            "amount": 1,
+            "potable": 1341.0,
+            "treated": 149.0,
+            "total_capacity": {
+                "value": 1490.0,
+                "unit": "kg"
+            },
+            "urine": 0,
+            "feces": 0,
+            "connections": {
+                "in": {},
+                "out": {
+                    "potable": [
+                        "radish"
+                    ]
+                }
+            }
+        },
+        "nutrient_storage": {
+            "id": 1,
+            "amount": 1,
+            "fertilizer": 300,
+            "biomass": 0,
+            "waste": 0,
+            "connections": {
+                "in": {
+                    "biomass": [
+                        "radish"
+                    ]
+                },
+                "out": {
+                    "fertilizer": [
+                        "radish"
+                    ],
+                    "biomass": [
+                        "radish"
+                    ]
+                }
+            }
+        },
+        "ration_storage": {
+            "id": 1,
+            "amount": 1,
+            "ration": 100
+        },
+        "power_storage": {
+            "id": 1,
+            "amount": 1,
+            "kwh": 1,
+            "connections": {
+                "in": {
+                    "kwh": [
+                        "solar_pv_array_mars"
+                    ]
+                },
+                "out": {
+                    "kwh": [
+                        "radish",
+                        "crew_habitat_small",
+                        "greenhouse_small"
+                    ]
+                }
+            }
+        },
+        "radish": {
+            "amount": 400,
+            "connections": {
+                "in": {
+                    "co2": [
+                        "greenhouse_small"
+                    ],
+                    "potable": [
+                        "water_storage"
+                    ],
+                    "fertilizer": [
+                        "nutrient_storage"
+                    ],
+                    "kwh": [
+                        "power_storage"
+                    ],
+                    "biomass": [
+                        "nutrient_storage"
+                    ]
+                },
+                "out": {
+                    "o2": [
+                        "greenhouse_small"
+                    ],
+                    "h2o": [
+                        "greenhouse_small"
+                    ],
+                    "radish": [
+                        "food_storage"
+                    ],
+                    "biomass": [
+                        "nutrient_storage"
+                    ]
+                }
+            }
+        },
+        "food_storage": {
+            "id": 1,
+            "amount": 1,
+            "radish": 0,
+            "connections": {
+                "in": {
+                    "radish": [
+                        "radish"
+                    ]
+                },
+                "out": {}
+            }
+        }
+    },
+    "termination": [
+        {
+            "condition": "time",
+            "value": 30,
+            "unit": "day"
+        }
+    ],
+    "single_agent": 1,
+    "priorities": [
+        "structures",
+        "storage",
+        "power_generation",
+        "inhabitants",
+        "eclss",
+        "plants"
+    ],
+    "total_amount": 10
+}

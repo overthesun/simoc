@@ -23,7 +23,7 @@ app.logger.setLevel(gunicorn_logger.level)
 
 app.config.from_object(config_obj)
 
-app.config['AGENT_CONFIG'] = os.environ.get('AGENT_CONFIG', 'agent_desc.json')
+app.config['AGENT_CONFIG'] = os.environ.get('AGENT_CONFIG', 'data_files/agent_desc.json')
 
 redis_host = os.environ.get('REDIS_HOST', 'localhost')
 redis_port = os.environ.get('REDIS_PORT', '6379')

@@ -1,0 +1,356 @@
+{
+    "atmosphere": {
+        "o2": {
+            "label": "Oxygen"
+        },
+        "co2": {
+            "label": "Carbon Dioxide"
+        },
+        "h2": {
+            "label": "Hydrogen"
+        },
+        "n2": {
+            "label": "Nitrogen"
+        },
+        "h2o": {
+            "label": "Water Vapor"
+        },
+        "ch4": {
+            "label": "Methane"
+        }
+    },
+    "nutrients": {
+        "fertilizer": {
+            "label": "N-P-K Fertilizer"
+        },
+        "waste": {
+            "label": "Waste"
+        },
+        "biomass": {
+            "label": "Accumulated Biomass"
+        },
+        "inedible_biomass": {
+            "label": "Inedible Biomass"
+        }
+    },
+    "food": {
+        "ration": {
+            "description": "Nutritional Content of Early Mars Diets, Lower Moisture Content Menu",
+            "source": "NASA BVAD Tables 4-66, 4-67",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 3068,
+                "water": 270,
+                "protein": 101,
+                "carbohydrate": 415,
+                "fat": 25
+            },
+            "label": "Food Rations"
+        },
+        "rice": {
+            "description": "Rice, white, regular, cooked",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=796",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 960,
+                "water": 753,
+                "protein": 25,
+                "carbohydrate": 200,
+                "fat": 4
+            },
+            "label": "Rice"
+        },
+        "wheat": {
+            "description": "Wheat flour, whole grain",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=809",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 3460,
+                "water": 145,
+                "protein": 114,
+                "carbohydrate": 698,
+                "fat": 15
+            },
+            "label": "Wheat"
+        },
+        "cabbage": {
+            "description": "Cabbage, white, raw",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=597",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 270,
+                "water": 910,
+                "protein": 15,
+                "carbohydrate": 38,
+                "fat": 2
+            },
+            "label": "Cabbage"
+        },
+        "chard": {
+            "description": "Chard, swiss, raw",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=862",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 230,
+                "water": 905,
+                "protein": 18,
+                "carbohydrate": 35,
+                "fat": 30
+            },
+            "label": "Chard"
+        },
+        "celery": {
+            "description": "Celery, raw",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=850",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 170,
+                "water": 931,
+                "protein": 7,
+                "carbohydrate": 35,
+                "fat": 1
+            },
+            "label": "Celery"
+        },
+        "lettuce": {
+            "description": "Lettuce, iceberg",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=549",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 110,
+                "water": 957,
+                "protein": 12,
+                "carbohydrate": 9,
+                "fat": 1
+            },
+            "label": "Lettuce"
+        },
+        "spinach": {
+            "description": "Spinach, cooked",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=1147",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 160,
+                "water": 921,
+                "protein": 36,
+                "carbohydrate": 6,
+                "fat": 0
+            },
+            "label": "Spinach"
+        },
+        "dry_bean": {
+            "description": "Lima beans, cooked, boiled",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=748",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 1370,
+                "water": 618,
+                "protein": 82,
+                "carbohydrate": 210,
+                "fat": 5
+            },
+            "label": "Dry Beans"
+        },
+        "peanut": {
+            "description": "Peanuts, raw, unsalted",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=779",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 6230,
+                "water": 28,
+                "protein": 260,
+                "carbohydrate": 112,
+                "fat": 520
+            },
+            "label": "Peanuts"
+        },
+        "soybean": {
+            "description": "Soybeans, dried",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=864",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 4280,
+                "water": 95,
+                "protein": 370,
+                "carbohydrate": 295,
+                "fat": 180
+            },
+            "label": "Soybeans"
+        },
+        "strawberry": {
+            "description": "Strawberries, fresh",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=27",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 360,
+                "water": 893,
+                "protein": 8,
+                "carbohydrate": 65,
+                "fat": 4
+            },
+            "label": "Strawberries"
+        },
+        "tomato": {
+            "description": "Tomatoes, red, raw",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=82",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 190,
+                "water": 939,
+                "protein": 10,
+                "carbohydrate": 29,
+                "fat": 2
+            },
+            "label": "Tomatoes"
+        },
+        "green_onion": {
+            "description": "Chive, fresh",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=631",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 580,
+                "water": 844,
+                "protein": 36,
+                "carbohydrate": 85,
+                "fat": 7
+            },
+            "label": "Green Onions"
+        },
+        "onion": {
+            "description": "Onions, raw",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=573",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 360,
+                "water": 890,
+                "protein": 12,
+                "carbohydrate": 61,
+                "fat": 2
+            },
+            "label": "Onions"
+        },
+        "pea": {
+            "description": "Peas, green, cooked",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=273",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 1060,
+                "water": 711,
+                "protein": 66,
+                "carbohydrate": 165,
+                "fat": 5
+            },
+            "label": "Peas"
+        },
+        "pepper": {
+            "description": "Bell pepper, mixed, varieties",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=763",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 260,
+                "water": 915,
+                "protein": 10,
+                "carbohydrate": 45,
+                "fat": 0
+            },
+            "label": "Peppers"
+        },
+        "snap_bean": {
+            "description": "Green beans, flat pod, cooked",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=1146",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 210,
+                "water": 902,
+                "protein": 18,
+                "carbohydrate": 36,
+                "fat": 0
+            },
+            "label": "Snap Beans"
+        },
+        "radish": {
+            "description": "Radishes, fresh",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=790",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 180,
+                "water": 941,
+                "protein": 10,
+                "carbohydrate": 25,
+                "fat": 2
+            },
+            "label": "Radishes"
+        },
+        "red_beet": {
+            "description": "Beetroot, red, cooked",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=1143",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 340,
+                "water": 892,
+                "protein": 14,
+                "carbohydrate": 58,
+                "fat": 0
+            },
+            "label": "Red Beets"
+        },
+        "carrot": {
+            "description": "Carrots, cooked",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=1152",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 270,
+                "water": 906,
+                "protein": 8,
+                "carbohydrate": 47,
+                "fat": 0
+            },
+            "label": "Carrots"
+        },
+        "sweet_potato": {
+            "description": "Sweet potato, raw",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=1071",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 960,
+                "water": 741,
+                "protein": 13,
+                "carbohydrate": 210,
+                "fat": 1
+            },
+            "label": "Sweet Potatoes"
+        },
+        "white_potato": {
+            "description": "Potatoes, raw",
+            "source": "http://www.nutritiontable.com/nutritions/nutrient/?id=1153",
+            "unit": "kg",
+            "nutrition": {
+                "kcal": 850,
+                "water": 767,
+                "protein": 20,
+                "carbohydrate": 176,
+                "fat": 1
+            },
+            "label": "White Potatoes"
+        }
+    },
+    "water": {
+        "treated": {
+            "label": "Treated Water"
+        },
+        "potable": {
+            "label": "Potable Water"
+        },
+        "urine": {
+            "label": "Urine"
+        },
+        "feces": {
+            "label": "Waste"
+        }
+    },
+    "energy": {
+        "kwh": {
+            "label": "Kilowatt-Hours"
+        }
+    }
+}

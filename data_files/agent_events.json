@@ -1,0 +1,30 @@
+{
+    "solar_pv_array_mars": [
+        {
+            "type": "duststorm",
+            "function": "multiplier",
+            "scope": "group",
+            "probability": {
+                "value": 0.0004566210046,
+                "unit": "hour"
+            },
+            "magnitude": {
+                "value": 1,
+                "variation": {
+                    "upper": 0,
+                    "lower": 0.9,
+                    "distribution": "normal"
+                }
+            },
+            "duration": {
+                "value": 24,
+                "unit": "hour",
+                "variation": {
+                    "upper": 60,
+                    "lower": 1,
+                    "distribution": "exponential"
+                }
+            }
+        }
+    ]
+}

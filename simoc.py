@@ -14,7 +14,7 @@ import subprocess
 import generate_docker_configs
 
 ENV_FILE = 'simoc_docker.env'
-AGENT_DESC = 'agent_desc.json'
+AGENT_DESC = 'data_files/agent_desc.json'
 
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_FE_COMPOSE_FILE = 'docker-compose.dev-fe.yml'
@@ -245,7 +245,7 @@ def test(*args):
         init_test_db = lambda: True
     return (up() and init_test_db() and
             docker_compose('exec', 'flask-app',
-                                   'pytest', '-v', '--pyargs',
+                                   'pytest', '-v', '--pyargs', '--durations=0',
                                    'simoc_server', *args))
 
 @cmd
@@ -273,6 +273,28 @@ def adminer(db=None):
            '-e', 'ADMINER_DESIGN=dracula', 'adminer']
     return up() and show_info() and run(cmd)
 
+
+# Jupyter Notebook environment
+# TODO: Needs Fixing
+def launch_env(envname):
+    """Launch simoc virtualenv"""
+    return run(['python3', f'{envname}/bin/activate_this.py'])
+
+def setup_env(envname, kernelname):
+    """Create simoc virtualenv, install packages and ipython kernel"""
+    run(['virtualenv', envname])
+    launch_env(envname)
+    print("* Installing simoc requirements...")
+    run(['pip', 'install', '-r', 'requirements-jupyter.txt'])
+    run(['ipython', 'kernel', 'install', '--name', kernelname, '--user'])
+
+@cmd
+def jupyter(envname='simoc_env', kernelname='simoc'):
+    """Open jupyter notebook in virtualenv"""
+    if not pathlib.Path(envname).exists():
+        setup_env(envname, kernelname)
+    launch_env(envname)
+    return run(['jupyter', 'notebook', f'--GatewayKernelSpecManager.allowed_kernelspecs={kernelname}'])
 
 # others
 @cmd
