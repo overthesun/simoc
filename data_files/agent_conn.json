@@ -314,7 +314,7 @@
         "to": "greenhouse.h2o"
     },
     {
-        "from": "chart.chard",
+        "from": "chard.chard",
         "to": "food_storage.chard"
     },
     {
