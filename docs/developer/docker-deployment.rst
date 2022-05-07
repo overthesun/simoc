@@ -39,6 +39,7 @@ Update web server configuration:
 * ``HTTPS_PORT`` - https port to listen on (default: ``8443``)
 * ``USE_SSL`` - ``1`` to enable SSL access (default: ``0``)
 * ``USE_CERTBOT`` - ``1`` to use Let's Encrypt certificates (default: ``0``)
+* ``REDIS_USE_BITNAMI`` = ``1`` use the Bitnami Docker image (default: ``1``)
 * ``REDIRECT_TO_SSL`` - ``1`` to redirect all HTTP traffic to HTTPS
   (default: ``0``)
 * ``ADD_BASIC_AUTH`` - ``1`` to enable Basic HTTP authentication

@@ -22,6 +22,7 @@ if __name__ == "__main__":
               "auth_username": os.environ.get('AUTH_USERNAME', ''),
               "auth_password": os.environ.get('AUTH_PASSWORD', ''),
               "static_ip_name": os.environ.get('STATIC_IP_NAME', ''),
+              "redis_use_bitnami": os.environ.get('REDIS_USE_BITNAMI', ''),
               "redis_host": os.environ.get('REDIS_HOST', ''),
               "redis_port": os.environ.get('REDIS_PORT', ''),
               "redis_use_password": int(os.environ.get('REDIS_USE_PASSWORD', False)),
