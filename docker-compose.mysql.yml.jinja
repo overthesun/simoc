@@ -54,7 +54,11 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
   redis:
+    {% if redis_use_bitnami %}
     image: bitnami/redis:latest
+    {% else %}
+    image: redis:latest
+    {% endif %}
     restart: always
     ports:
       - 6379:6379
@@ -62,6 +66,15 @@ services:
       - simoc-net
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+    {% if not redis_use_bitnami %}
+    command: [
+          "bash", "-c",
+          '
+           docker-entrypoint.sh
+           --requirepass $REDIS_PASSWORD
+          '
+    ]
+    {% endif %}
   celery-worker:
     {% if use_dockerhub %}
     image: {{ docker_repo }}/simoc_celery:{{ version }}

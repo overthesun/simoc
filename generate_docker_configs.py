@@ -17,6 +17,7 @@ def main(env=os.environ):
         "http_port": env.get('HTTP_PORT', 8000),
         "https_port": env.get('HTTPS_PORT', 8443),
         "use_certbot": int(env.get('USE_CERTBOT', False)),
+        "redis_use_bitnami": int(env.get('REDIS_USE_BITNAMI', 1)),
         "redirect_to_ssl": int(env.get('REDIRECT_TO_SSL', False)),
         "add_basic_auth": int(env.get('ADD_BASIC_AUTH', False)),
         "use_node_dev": int(env.get('USE_NODE_DEV', False)),
