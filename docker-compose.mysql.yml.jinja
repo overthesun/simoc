@@ -67,13 +67,7 @@ services:
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     {% if not redis_use_bitnami %}
-    command: [
-          "bash", "-c",
-          '
-           docker-entrypoint.sh
-           --requirepass $REDIS_PASSWORD
-          '
-    ]
+    command: ["bash", "-c", 'docker-entrypoint.sh --requirepass $REDIS_PASSWORD']
     {% endif %}
   celery-worker:
     {% if use_dockerhub %}
