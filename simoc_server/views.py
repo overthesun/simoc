@@ -56,13 +56,7 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
     n_steps = int(data.get("n_steps", 1e6))
     min_step_num = int(data.get("min_step_num", 0))
     max_step_num = min_step_num + n_steps
-    total_consumption = data.get("total_consumption", None)
-    total_production = data.get("total_production", None)
-    agent_growth = data.get("agent_growth", None)
-    total_agent_count = data.get("total_agent_count", None)
-    storage_ratios = data.get("storage_ratios", None)
-    storage_capacities = data.get("storage_capacities", None)
-    details_per_agent = data.get("details_per_agent", None)
+    batch_num = 0 if min_step_num == 0 else None
     retries_left = max_retries
     step_count = max(0, min_step_num - 1)
     steps_sent = False
@@ -76,12 +70,10 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
             if stop_task:
                 app.logger.info("Bg task closed")
                 break
-            output = retrieve_steps(game_id, user_id, min_step_num, max_step_num,
-                                    storage_capacities, storage_ratios, total_consumption,
-                                    total_production, agent_growth, total_agent_count,
-                                    details_per_agent)
-            step_count += len(output)
-            if len(output) == 0:
+            output = retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num)
+            batch_num += output.pop('n_batches', 0)
+            step_count += output['n_steps']
+            if step_count == 0:
                 retries_left -= 1
             else:
                 socketio.emit('step_data_handler',
@@ -303,6 +295,8 @@ def new_game():
 @login_required
 def get_steps():
     """
+    **CURRENTLY NOT USED**
+
     Gets the step with the requested 'step_num', if not specified, uses current model step.
     total_production, total_consumption and model_stats are not calculated by default. They must be
     requested as per the examples below. By default, "agent_type_counters" and "storage_capacities"
@@ -376,69 +370,37 @@ def get_game_config(game_id):
     game_config = redis_conn.get(f'game_config:{game_id}')
     return json.loads(game_config.decode("utf-8")) if game_config else game_config
 
-
-def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities=False,
-                   storage_ratios=False, total_consumption=False, total_production=False,
-                   agent_growth=False, total_agent_count=False, details_per_agent=False):
-    steps = get_steps_list(game_id, user_id, min_step_num, max_step_num)
-    model_record_steps = get_model_records(game_id, user_id, steps)
-    step_record_steps = get_step_records(game_id, user_id, steps)
-
-    if details_per_agent:
-        agent_types = details_per_agent.get('agent_types', [])
-        currency_types = details_per_agent.get('currency_types', [])
-        directions = details_per_agent.get('directions', [])
-        directions = directions if directions else ['in', 'out']
-        if not agent_types:
-            game_config = get_game_config(game_id)
-            agent_types = list(game_config['agents'].keys()) if game_config else []
-        output_template = {k: {} for k in directions}
-        for agent_name in agent_types:
-            agent_type = AgentType.query.filter_by(name=agent_name).first()
-            for type_attribute in agent_type.agent_type_attributes:
-                name = type_attribute['name']
-                prefix, currency = name.split('_', 1)
-                if prefix in directions:
-                    if currency_types and currency not in currency_types:
-                        continue
-                    if currency not in output_template[prefix]:
-                        output_template[prefix][currency] = {}
-                    output_template[prefix][currency][agent_name] = {'value': 0, 'unit': ''}
-
-    step_record_dict = dict()
-    for record in step_record_steps:
-        step_num = record['step_num']
-        if step_num not in step_record_dict:
-            step_record_dict[step_num] = [record]
-        else:
-            step_record_dict[step_num].append(record)
-
-    output = {}
-    for record in model_record_steps:
-        step_num = record['step_num']
-        if step_num in step_record_dict:
-            step_record_data = step_record_dict[step_num]
-        else:
-            continue
-        if agent_growth:
-            record["agent_growth"] = get_growth_rates(agent_growth, step_record_data)
-        if total_agent_count:
-            record["total_agent_count"] = count_agents_in_step(total_agent_count, record)
-        if total_production:
-            record["total_production"] = calc_step_in_out("out", total_production, step_record_data)
-        if total_consumption:
-            record["total_consumption"] = calc_step_in_out("in", total_consumption, step_record_data)
-        if storage_ratios:
-            record["storage_ratios"] = calc_step_storage_ratios(storage_ratios, record)
-        if details_per_agent:
-            output_template_copy = copy.deepcopy(output_template)
-            record["details_per_agent"] = calc_step_per_agent(step_record_data, output_template_copy,
-                                                              agent_types, currency_types,
-                                                              directions)
-        if isinstance(storage_capacities, dict):
-            record["storage_capacities"] = calc_step_storage_capacities(storage_capacities, record)
-        output[int(step_num)] = record
-
+def retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num):
+    # Return all newly available batches merged together
+    batches = []
+    total_steps = 0
+    batch = batch_num or 0
+    while True:
+        records = redis_conn.get(f'model_records:{user_id}:{game_id}:{int(batch)}')
+        if not records:
+            break
+        records = json.loads(records)
+        steps = records.get("n_steps", 0)
+        if steps == 0:
+            break
+        total_steps += steps
+        batches.append(records)
+        batch += 1
+    if len(batches) == 0:
+        return dict(n_steps=0, n_batches=0)
+    elif len(batches) == 1:
+        output = batches[0]
+    elif len(batches) > 1:
+        def merge_batches(b1, b2):
+            if type(b1) in (str, int, float):
+                return b1
+            elif type(b1) == list:
+                return b1 + b2
+            elif type (b1) == dict:
+                return {k: merge_batches(b1[k], b2[k]) for k in b1.keys()}
+        output = functools.reduce(lambda a, b: merge_batches(a, b), batches)
+    output['n_steps'] = total_steps
+    output['n_batches'] = len(batches)
     return output
 
 

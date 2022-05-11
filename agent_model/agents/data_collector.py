@@ -127,13 +127,25 @@ class AgentDataCollector():
                     self.event_multipliers[event].append('-')
 
 
-    def get_data(self, debug=False, clear_cache=False):
-        default_fields = ['flows', 'storage', 'growth']
-        if debug:
+    def get_data(self, step_range=(0, None), fields=None, debug=False, clear_cache=False):
+        """Return all data (default) or specified range/fields."""
+        if debug or fields == None:
             fields = self.snapshot_attrs
         else:
-            fields = [f for f in default_fields if hasattr(self, f)]
-        data = {a: getattr(self, a) for a in fields}
+            fields = [f for f in fields if self.snapshot_attrs.includes(f)]
+
+        def _copy_range(data, start, end):
+            """Recursively segment lists"""
+            if type(data) in (str, int, float):
+                return data
+            if type(data) == list:
+                return data[start:end]
+            elif type(data) == dict:
+                return {k: _copy_range(v, start, end) for k, v in data.items()}
+        start = step_range[0] or 0
+        end = step_range[1] or len(self.age)
+        data = {f: _copy_range(getattr(self, f), start, end) for f in fields}
+
         if clear_cache:
             def _clear(section):
                 """Recursively clear lists while retaining and dict structures and strs"""

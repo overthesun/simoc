@@ -48,7 +48,7 @@ class AgentModel(Model, AttributeHolder):
     """
 
     @classmethod
-    def from_config(cls, config, data_collection=False, currency_desc=None,
+    def from_config(cls, config, data_collection=True, currency_desc=None,
                     agent_desc=None, agent_conn=None, agent_variation=None,
                     agent_events=None):
         """Takes configuration files, return an initialized model
@@ -311,7 +311,7 @@ class AgentModel(Model, AttributeHolder):
             else:
                 self.step()
 
-    def get_data(self, debug=False, clear_cache=False):
+    def get_data(self, **kwargs):
         """Return data from model.
 
         Args:
@@ -321,12 +321,13 @@ class AgentModel(Model, AttributeHolder):
         Returns:
             * ``data``: :ref:`model-data`
         """
-        data = {}
+        data = dict(game_id=self.game_id, 
+                    step_num=self.step_num)
         if not self.data_collection:
             return data
         else:
             for agent in self.scheduler.agents:
-                data[agent.agent_type] = agent.data_collector.get_data(debug, clear_cache)
+                data[agent.agent_type] = agent.data_collector.get_data(**kwargs)
             return data
 
     def remove(self, agent):

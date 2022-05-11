@@ -754,25 +754,25 @@ class GeneralAgent(StorageAgent):
                     influx.add(currency)
                 self.last_flow[currency] = actual_value
                 self.flows[currency] = flows
-                for flow in flows:
-                    record = {"step_num": self.model.step_num + 1,
-                              "game_id": self.model.game_id,
-                              "user_id": self.model.user_id,
-                              "agent_type": self.agent_type,
-                              "agent_type_id": self.agent_type_id,
-                              "agent_id": self.unique_id,
-                              "direction": prefix,
-                              "agent_amount": self.amount,
-                              "currency_type": flow['currency'],
-                              "currency_type_id": self.model.currency_dict[flow['currency']]['id'],
-                              "value": abs(round(flow['amount'], value_round)),
-                              "growth": growth,
-                              "unit": str(step_value.units),
-                              "storage_type": flow['storage_type'],
-                              "storage_type_id": flow['storage_type_id'],
-                              "storage_agent_id": flow['storage_agent_id'],
-                              "storage_id": flow['storage_id']}
-                    self.model.step_records_buffer.append(record)
+                # for flow in flows:
+                #     record = {"step_num": self.model.step_num + 1,
+                #               "game_id": self.model.game_id,
+                #               "user_id": self.model.user_id,
+                #               "agent_type": self.agent_type,
+                #               "agent_type_id": self.agent_type_id,
+                #               "agent_id": self.unique_id,
+                #               "direction": prefix,
+                #               "agent_amount": self.amount,
+                #               "currency_type": flow['currency'],
+                #               "currency_type_id": self.model.currency_dict[flow['currency']]['id'],
+                #               "value": abs(round(flow['amount'], value_round)),
+                #               "growth": growth,
+                #               "unit": str(step_value.units),
+                #               "storage_type": flow['storage_type'],
+                #               "storage_type_id": flow['storage_type_id'],
+                #               "storage_agent_id": flow['storage_agent_id'],
+                #               "storage_id": flow['storage_id']}
+                #     self.model.step_records_buffer.append(record)
 
 
     def kill(self, reason):
