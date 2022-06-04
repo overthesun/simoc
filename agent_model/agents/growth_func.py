@@ -126,6 +126,18 @@ def optimize_bell_curve_mean(mean_value, num_values, center, min_value, invert,
     return {'max_value': res.x[0]}
 
 
+# this function manually caches some calculations,
+# similarly to the norm_pdf function above
+def calc_y(num_values, width, center, steepness, *, _cache={}):
+    if (num_values, width, center, steepness) in _cache:
+        y = _cache[(num_values, width, center, steepness)].copy()
+    else:
+        center = center or num_values // 2
+        x0 = np.linspace(-width, width, num_values)
+        y = 1 / (1. + np.exp(-steepness * (x0 - x0[center])))
+        _cache[(num_values, width, center, steepness)] = y
+    return y
+
 def get_sigmoid_curve(num_values, min_value, max_value, steepness=1.0, center=None, noise=False,
                       noise_factor=10.0, width=10, clip=False, **kwargs):
     """TODO
@@ -152,9 +164,7 @@ def get_sigmoid_curve(num_values, min_value, max_value, steepness=1.0, center=No
     assert min_value is not None
     assert max_value is not None
     assert steepness is not None
-    center = center or num_values // 2
-    x0 = np.linspace(-width, width, num_values)
-    y = 1 / (1. + np.exp(-steepness * (x0 - x0[center])))
+    y = calc_y(num_values, width, center, steepness)
     y = MinMaxScaler((min_value, max_value)).fit_transform(y.reshape(-1, 1)).reshape(num_values)
     if noise:
         noise = np.random.normal(0, y.std() / noise_factor, num_values)
