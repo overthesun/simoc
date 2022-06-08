@@ -55,6 +55,9 @@ class User(BaseEntity, UserMixin):
     def get_id(self):
         return str(self.id)
 
+    def __repr__(self):
+        return f'<User id={self.id} username={self.username}>'
+
 
 class BaseAttribute(BaseEntity):
     # Base attribute, used to store generic information in string
