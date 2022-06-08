@@ -233,7 +233,7 @@ class GameRunner(object):
 
     def step_to(self, max_step_num, user, buffer_size):
         """Run the agent model to the requested step.
-s
+
         Parameters
         ----------
         max_step_num : int
@@ -334,6 +334,7 @@ class GameRunnerManager(object):
         game_runner_init_params : simoc_server.game_runner.GameRunnerInitializationParams
             initialization parameters for the new game
         """
+        app.logger.info(f'GameRunnerManager: starting new game for {user}')
         game_runner = GameRunner.from_new_game(user, game_runner_init_params)
         self._add_game_runner(user, game_runner)
 
