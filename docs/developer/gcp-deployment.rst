@@ -347,7 +347,67 @@ Inspect the status of a rollout::
     kubectl rollout status deployment simoc-celery-cluster
 
 
-7. Useful commands
+7. Renewing SSL certificates
+============================
+
+
+Certificates must be purchased/renewed on namecheap.com.  There will
+be a button to activate the certificate and a form asking for a CSR
+(see `How to put domain correctly in CSR?
+ <https://www.namecheap.com/support/knowledgebase/article.aspx/9641/67/how-to-put-domain-correctly-in-csr/>`_
+
+To generate the CSR log into the `GCP shell
+   <https://console.cloud.google.com/?cloudshell=true&pli=1>`_ and run::
+
+  openssl req -new -newkey rsa:2048 -nodes -keyout ngs.key -out ngs.csr
+
+Use the following values when prompted:
+* Country Name: ``US``
+* State or Province Name: ``Arizona``
+* Locality Name: ``Phoenix``
+* Organization Name: ``Over The Sun LLC``
+* Organizational Unit Name: (leave empty)
+* Common Name: ``ngs.simoc.space``
+* Email Address: ``admin@overthesun.com``
+
+You can leave the other fields empty.
+
+This will generate two file: the CSR (``ngs.csr``) and the key (``ngs.key``).
+
+Copy the CSR into the form and fill in the other fields.  After submitting
+you will receive a confirmation email with a code that needs to be
+entered in another page, and after that the cert will be sent to you via
+mail as a zip file that includes a ``.crt`` and a ``.ca-bundle``.
+
+To install the certificate you will need both the ``.crt`` file you just
+received and the ``.key`` file created together with the CSR.  From the
+GCP shell, move the two files into a new ``certs`` (the name shouldn't
+matter) dir and rename them ``tls.key`` and ``tls.crt`` respectively
+(the names matter).  To update the existing certificates run::
+
+   kubectl delete secret ngs-tls-secret --ignore-not-found
+   kubectl create secret tls ngs-tls-secret --cert=./certs/tls.crt --key=./certs/tls.key
+
+This will delete the current certificates and replaces them with the new
+ones.  For more info and alternative options, see `this StackOverflow thread
+<https://stackoverflow.com/questions/45879498/how-can-i-update-a-secret-on-kubernetes-when-it-is-generated-from-a-file>`_.
+
+You can check the secrets on GCP on :menuselection:`Kubernetes Engine ->
+Secrets & ConfigMaps -> ngs-tls-secret` (or follow `this link
+<https://console.cloud.google.com/kubernetes/secret/us-east1-b/simoc-ngs/default/ngs-tls-secret>`_).
+
+After running the commands you should see an updated "created" date
+and the two secrets (``tls.key`` and ``tls.crt``) listed at the bottom.
+You can then use a browser to check that the expiration date of the
+cert is updated too.
+
+.. note::
+   We currently purchased certificates that will cover us for 5 years
+   starting from July 2022.  The certificates on NGS will still need
+   to be updated yearly.
+
+
+8. Useful commands
 ==================
 
 Load ``SIMOC`` config into the shell environment::
