@@ -412,7 +412,7 @@ cert is updated too.
 
 .. note::
    We currently purchased certificates that will cover us for 5 years
-   starting from July 2022.  The certificates on NGS will still need
+   starting from June 2022.  The certificates on NGS will still need
    to be updated yearly.
 
 
