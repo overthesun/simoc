@@ -354,11 +354,12 @@ Inspect the status of a rollout::
 7. Renewing SSL certificates
 ============================
 
-
-Certificates must be purchased/renewed on namecheap.com.  There will
-be a button to activate the certificate and a form asking for a CSR
+Certificates must be purchased/renewed on namecheap.com and are provided
+by Sectigo Certificate Authority.  On the namecheap.com website there is
+a button to activate the certificate and a form asking for a CSR
 (see `How to put domain correctly in CSR?
-<https://www.namecheap.com/support/knowledgebase/article.aspx/9641/67/how-to-put-domain-correctly-in-csr/>`_).
+<https://www.namecheap.com/support/knowledgebase/article.aspx/9641/67/how-to-put-domain-correctly-in-csr/>`_ and `Generating CSR on Apache + OpenSSL/ModSSL/Nginx + Heroku
+<https://www.namecheap.com/support/knowledgebase/article.aspx/9446/14/generating-csr-on-apache-opensslmodsslnginx-heroku/>`_ for extra information).
 
 To generate the CSR, log into the `GCP shell
 <https://console.cloud.google.com/?cloudshell=true&pli=1>`_ and run::
@@ -385,8 +386,11 @@ entered in another page, and after that the cert will be sent to you via
 mail as a zip file that includes a ``.crt`` and a ``.ca-bundle``.
 
 To install the certificate you will need both the ``.crt`` file you just
-received and the ``.key`` file created together with the CSR.  From the
-GCP shell, move the two files into a new ``certs`` dir (the name shouldn't
+received and the ``.key`` file created together with the CSR.  You can do
+this from the GCP shell or locally (if you have all the dependencies
+installed).
+
+First move the two files into a new ``certs`` dir (the name shouldn't
 matter) and rename them ``tls.key`` and ``tls.crt`` respectively
 (the names matter).  To update the existing certificates run::
 
