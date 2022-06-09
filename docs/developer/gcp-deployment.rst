@@ -277,6 +277,8 @@ Deploy ``SIMOC`` backend to the ``Kubernetes`` cluster::
       --cert=./certs/ngs_simoc_space.crt \
       --key=./certs/ngs_simoc_space.key
 
+See also the :ref:`Renewing SSL certificates <renew-ssl-certs>` section below.
+
 [``TLS_MODE=custom``] Then, create ``ConfigMap`` to store custom TLS configuration::
 
     kubectl apply -f k8s/ingresses/traefik_dynamic.yaml
@@ -347,6 +349,8 @@ Inspect the status of a rollout::
     kubectl rollout status deployment simoc-celery-cluster
 
 
+.. _renew-ssl-certs:
+
 7. Renewing SSL certificates
 ============================
 
@@ -354,14 +358,15 @@ Inspect the status of a rollout::
 Certificates must be purchased/renewed on namecheap.com.  There will
 be a button to activate the certificate and a form asking for a CSR
 (see `How to put domain correctly in CSR?
- <https://www.namecheap.com/support/knowledgebase/article.aspx/9641/67/how-to-put-domain-correctly-in-csr/>`_
+<https://www.namecheap.com/support/knowledgebase/article.aspx/9641/67/how-to-put-domain-correctly-in-csr/>`_).
 
-To generate the CSR log into the `GCP shell
-   <https://console.cloud.google.com/?cloudshell=true&pli=1>`_ and run::
+To generate the CSR, log into the `GCP shell
+<https://console.cloud.google.com/?cloudshell=true&pli=1>`_ and run::
 
   openssl req -new -newkey rsa:2048 -nodes -keyout ngs.key -out ngs.csr
 
 Use the following values when prompted:
+
 * Country Name: ``US``
 * State or Province Name: ``Arizona``
 * Locality Name: ``Phoenix``
@@ -374,15 +379,15 @@ You can leave the other fields empty.
 
 This will generate two file: the CSR (``ngs.csr``) and the key (``ngs.key``).
 
-Copy the CSR into the form and fill in the other fields.  After submitting
+Copy the CSR into the form and fill in the other fields.  After submitting,
 you will receive a confirmation email with a code that needs to be
 entered in another page, and after that the cert will be sent to you via
 mail as a zip file that includes a ``.crt`` and a ``.ca-bundle``.
 
 To install the certificate you will need both the ``.crt`` file you just
 received and the ``.key`` file created together with the CSR.  From the
-GCP shell, move the two files into a new ``certs`` (the name shouldn't
-matter) dir and rename them ``tls.key`` and ``tls.crt`` respectively
+GCP shell, move the two files into a new ``certs`` dir (the name shouldn't
+matter) and rename them ``tls.key`` and ``tls.crt`` respectively
 (the names matter).  To update the existing certificates run::
 
    kubectl delete secret ngs-tls-secret --ignore-not-found
