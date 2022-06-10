@@ -39,13 +39,13 @@ In order to deploy:
 
 The branch you specify in step 3 can be:
 
-* a named branch (such as `master`)
+* a named branch (such as ``master``)
 * a pull request, by specifying :samp:`refs/pull/{NUM}/head`
   (where *NUM* is the PR number)
 * a specific commit ID
 
-`master` is considered the stable branch for both the `simoc` and
-`simoc-web` repository, and generally only `master` should be
+``master`` is considered the stable branch for both the ``simoc`` and
+``simoc-web`` repository, and generally only ``master`` should be
 deployed on NGS.
 
 
