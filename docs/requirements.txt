@@ -1,0 +1,11 @@
+sphinx
+sphinx-lint
+sphinx_rtd_theme
+sphinx-jsonschema
+
+# required for autodoc
+numpy
+scipy
+sklearn
+mesa
+quantities

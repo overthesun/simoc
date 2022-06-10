@@ -1,8 +1,9 @@
 __pycache__
 *.diff
 
-# Sphinx documentation
+# Sphinx documentation and venv
 docs/_build/
+docs/venv/
 
 certs/
 
