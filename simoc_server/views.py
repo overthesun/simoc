@@ -294,8 +294,7 @@ def new_game():
         if not game_id:
             retries -= 1
         else:
-            game_id_hex = format(int(game_id), 'X')
-            app.logger.info(f'new_game: {user=}, game_id={game_id_hex} '
+            app.logger.info(f'new_game: {user=}, {game_id=:X} '
                             f'(with {retries} retries left)')
             break
         if retries <= 0:
@@ -303,7 +302,7 @@ def new_game():
             app.logger.error(msg)
             raise ServerError(msg)
     redis_conn.set('game_config:{}'.format(game_id), json.dumps(game_config))
-    return status("New game starts.", game_id=format(int(game_id), 'X'),
+    return status("New game starts.", game_id=format(game_id, 'X'),
                   game_config=game_config, currency_desc=default_currencies)
 
 
@@ -480,7 +479,7 @@ def get_db_dump():
 
 def get_user_game_id(user):
     game_id = redis_conn.get(f'user_mapping:{user.id}')
-    return game_id.decode("utf-8") if game_id else game_id
+    return int(game_id.decode("utf-8")) if game_id else game_id
 
 
 @app.route("/get_last_game_id", methods=["POST"])
@@ -489,7 +488,7 @@ def get_last_game_id():
     user = get_standard_user_obj()
     game_id = get_user_game_id(user)
     return status(f'Last game ID for user "{user.username}" retrieved.',
-                  game_id=format(int(game_id), 'X'))
+                  game_id=format(game_id, 'X'))
 
 
 def kill_game_by_id(game_id):
@@ -515,7 +514,7 @@ def kill_game():
         raise BadRequest("game_id is required.")
     game_id = int(input["game_id"], 16)
     kill_game_by_id(game_id)
-    return status(f"Game {game_id} killed.")
+    return status(f"Game {input['game_id']} killed.")
 
 
 @app.route("/kill_all_games", methods=["POST"])
