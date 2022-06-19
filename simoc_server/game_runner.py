@@ -466,7 +466,7 @@ class GameRunnerManager(object):
         """
         old_game = self.get_game_runner(user)
         if old_game is not None:
-            app.logger.info('Aborting current game without saving.')
+            app.logger.info(f'Overriding game runner for {user}')
             # self.save_game(user, allow_repeat_save=False)
         self.game_runners[user.id] = game_runner
 
