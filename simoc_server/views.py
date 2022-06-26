@@ -393,7 +393,7 @@ def retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num):
     elif len(batches) > 1:
         def merge_batches(b1, b2):
             if type(b1) in (str, int, float):
-                return b1
+                return b2 or b1
             elif type(b1) == list:
                 return b1 + b2
             elif type (b1) == dict:
