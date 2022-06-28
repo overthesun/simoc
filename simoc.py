@@ -195,17 +195,17 @@ def ps(*args):
 @cmd
 def logs(*args):
     """Show all logs."""
-    return docker_compose('logs', '-t', '-f', *args)
+    return docker_compose('logs', '-f', *args)
 
 @cmd
-def celery_logs():
+def celery_logs(*args):
     """Show the celery logs."""
-    return docker_compose('logs', '-t', '-f', 'celery-worker')
+    return docker_compose('logs', '-f', 'celery-worker', *args)
 
 @cmd
-def flask_logs():
+def flask_logs(*args):
     """Show the flask logs."""
-    return docker_compose('logs', '-t', '-f', 'flask-app')
+    return docker_compose('logs', '-f', 'flask-app', *args)
 
 
 # install/uninstall

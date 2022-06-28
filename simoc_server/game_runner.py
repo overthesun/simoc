@@ -203,7 +203,7 @@ class GameRunner(object):
 
     def step_to(self, max_step_num, user, buffer_size):
         """Run the agent model to the requested step.
-s
+
         Parameters
         ----------
         max_step_num : int
@@ -304,6 +304,7 @@ class GameRunnerManager(object):
         game_runner_init_params : simoc_server.game_runner.GameRunnerInitializationParams
             initialization parameters for the new game
         """
+        app.logger.info(f'GameRunnerManager: starting new game for {user}')
         game_runner = GameRunner.from_new_game(user, game_runner_init_params)
         self._add_game_runner(user, game_runner)
 
@@ -436,8 +437,8 @@ class GameRunnerManager(object):
         """
         old_game = self.get_game_runner(user)
         if old_game is not None:
-            self.save_game(user, allow_repeat_save=False)
-
+            app.logger.info(f'Overriding game runner for {user}')
+            # self.save_game(user, allow_repeat_save=False)
         self.game_runners[user.id] = game_runner
 
     @staticmethod
