@@ -181,10 +181,11 @@ class GameRunner(object):
     def save_records(records, user_id, batch_num=0, expire=1800):
         pipe = redis_conn.pipeline()
         game_id = records.get('game_id', None)
+        if game_id is None:
+            raise ValueError('Cannot save records, missing game_id')
         label = f'model_records:{user_id}:{game_id}:{batch_num}'
         pipe.set(label, json.dumps(records))
-        pipe.expire(f'model_records:{user_id}:{game_id}:{batch_num}', expire)
-        pipe.expire(f'game_steps:{user_id}:{game_id}', expire)
+        pipe.expire(label, expire)
         pipe.execute()
 
     def step_loop(self, agent_model, max_step_num, buffer_size, user_id):

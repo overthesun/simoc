@@ -399,11 +399,11 @@ def retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num):
         output = batches[0]
     elif len(batches) > 1:
         def merge_batches(b1, b2):
-            if type(b1) in (str, int, float):
+            if isinstance(b1, (str, int, float)):
                 return b2 or b1
-            elif type(b1) == list:
+            elif isinstance(b1, list):
                 return b1 + b2
-            elif type (b1) == dict:
+            elif isinstance (b1, dict):
                 return {k: merge_batches(b1[k], b2[k]) for k in b1.keys()}
         output = functools.reduce(lambda a, b: merge_batches(a, b), batches)
     output['n_steps'] = total_steps

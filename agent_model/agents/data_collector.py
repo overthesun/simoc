@@ -137,14 +137,14 @@ class AgentDataCollector():
         else:
             fields = [f for f in fields if self.snapshot_attrs.includes(f)]
 
-        def _copy_range(data, start, end):
+        def _copy_range(value, start, end):
             """Recursively segment lists"""
-            if type(data) in (str, int, float):
-                return data
-            if type(data) == list:
-                return data[start:end]
-            elif type(data) == dict:
-                return {k: _copy_range(v, start, end) for k, v in data.items()}
+            if isinstance(value, (str, int, float)):
+                return value
+            if isinstance(value, list):
+                return value[start:end]
+            elif isinstance(value, dict):
+                return {k: _copy_range(v, start, end) for k, v in value.items()}
         start = step_range[0] or 0
         end = step_range[1] or len(self.age)
         data = {f: _copy_range(getattr(self, f), start, end) for f in fields}
@@ -152,11 +152,11 @@ class AgentDataCollector():
         if clear_cache:
             def _clear(section):
                 """Recursively clear lists while retaining and dict structures and strs"""
-                if type(section) == str:
+                if isinstance(section, str):
                     return section
-                if type(section) == list:
+                if isinstance(section, list):
                     return []
-                elif type(section) == dict:
+                elif isinstance(section, dict):
                     return {k: _clear(v) for k, v in section.items()}
             for field in self.snapshot_attrs:
                 setattr(self, field, _clear(getattr(self, field)))
