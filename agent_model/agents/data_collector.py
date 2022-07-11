@@ -145,8 +145,10 @@ class AgentDataCollector():
                 return value[start:end]
             elif isinstance(value, dict):
                 return {k: _copy_range(v, start, end) for k, v in value.items()}
-        start = step_range[0] or 0
-        end = step_range[1] or len(self.age)
+        if step_range is None:
+            start, end = 0, len(self.age)
+        else:
+            start, end = step_range
         data = {f: _copy_range(getattr(self, f), start, end) for f in fields}
 
         if clear_cache:

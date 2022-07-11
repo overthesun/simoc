@@ -383,7 +383,7 @@ def retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num):
     total_steps = 0
     batch = batch_num or 0
     while True:
-        records = redis_conn.get(f'model_records:{user_id}:{game_id}:{int(batch)}')
+        records = redis_conn.get(f'model_records:{user_id}:{game_id}:{batch}')
         if not records:
             break
         records = json.loads(records)

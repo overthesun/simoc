@@ -311,7 +311,7 @@ class AgentModel(Model, AttributeHolder):
             else:
                 self.step()
 
-    def get_data(self, **kwargs):
+    def get_data(self, step_range=None, fields=None, debug=False, clear_cache=False):
         """Return data from model.
 
         Args:
@@ -327,7 +327,9 @@ class AgentModel(Model, AttributeHolder):
             return data
         else:
             for agent in self.scheduler.agents:
-                data[agent.agent_type] = agent.data_collector.get_data(**kwargs)
+                data[agent.agent_type] = agent.data_collector.get_data(
+                    step_range=step_range, fields=fields, debug=debug, 
+                    clear_cache=clear_cache)
             return data
 
     def remove(self, agent):
