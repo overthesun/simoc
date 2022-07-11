@@ -8,8 +8,8 @@ class AgentDataCollector():
         # Static Fields
         self.agent = agent
         self.name = agent.agent_type
-        self.age = [0]
-        self.amount = [self.agent.amount]
+        self.age = []
+        self.amount = []
         self.snapshot_attrs = ['name', 'age', 'amount']
         # Plant-Specific Fields
         for attr in ['lifetime', 'full_amount', 'reproduce']:
@@ -53,26 +53,27 @@ class AgentDataCollector():
             # Flows
             if attr.startswith(('in', 'out')):
                 if 'flows' not in self.snapshot_attrs:
-                    self.snapshot_attrs += ['flows', 'flow_records']
-                    self.flows = {}
-                    self.flow_records = {}
-                currency = attr.split('_', 1)[1]
-                self.flows[currency] = [0]
-                self.flow_records[currency] = [{}]
+                    self.snapshot_attrs += ['flows']
+                    self.flows = {'in': {}, 'out': {}}
+                prefix, currency = attr.split('_', 1)
+                if 'currency' not in self.flows[prefix]:
+                    self.flows[prefix][currency] = {}
+                for storage in self.agent.selected_storage[prefix][currency]:
+                    self.flows[prefix][currency][storage.agent_type] = []
                 # Buffer
                 cr_buffer = self.agent.attr_details[attr]['criteria_buffer']
                 if cr_buffer:
                     if 'buffer' not in self.snapshot_attrs:
                         self.snapshot_attrs.append('buffer')
                         self.buffer = {}
-                    self.buffer[attr] = [0]
+                    self.buffer[attr] = []
                 # Deprive
                 deprive_value = self.agent.attr_details[attr]['deprive_value']
                 if deprive_value:
                     if 'deprive' not in self.snapshot_attrs:
                         self.snapshot_attrs.append('deprive')
                         self.deprive = {}
-                    self.deprive[attr] = [deprive_value * self.amount[0]]
+                    self.deprive[attr] = []
             # Events
             if attr.startswith('event'):
                 if 'events' not in self.snapshot_attrs:
@@ -80,15 +81,15 @@ class AgentDataCollector():
                     self.events = {}
                     self.event_multipliers = {}
                 event_type = attr.split('_', 1)[1]
-                self.events[event_type] = [[]]
-                self.event_multipliers[event_type] = ['-']
+                self.events[event_type] = []
+                self.event_multipliers[event_type] = []
         # Variation
         if 'initial_variable' in self.agent:
             self.snapshot_attrs.append('initial_variable')
             self.initial_variable = self.agent.initial_variable
         if 'step_variable' in self.agent:
             self.snapshot_attrs.append('step_variable')
-            self.step_variable = [1]
+            self.step_variable = []
 
     def step(self):
         self.age.append(self.agent.age)
@@ -105,10 +106,12 @@ class AgentDataCollector():
             for field, record in self.co2_scale.items():
                 record.append(self.agent.co2_scale[field])
         if 'flows' in self.snapshot_attrs:
-            for currency, record in self.flows.items():
-                record.append(self.agent.last_flow[currency])
-            for currency, record in self.flow_records.items():
-                record.append(self.agent.flows[currency])
+            for prefix, currencies in self.flows.items():
+                for currency, storages in currencies.items():
+                    step_data = self.agent.step_exchange_buffer[prefix].get(currency)
+                    for agent, record in storages.items():
+                        value = 0 if not step_data else step_data.get(agent, 0)
+                        record.append(value)
         if 'buffer' in self.snapshot_attrs:
             for cr_id, record in self.buffer.items():
                 record.append(self.agent.buffer.get(cr_id, 0))
