@@ -130,7 +130,7 @@ class AgentDataCollector():
                     self.event_multipliers[event].append('-')
 
 
-    def get_data(self, step_range=(0, None), fields=None, debug=False, clear_cache=False):
+    def get_data(self, step_range=None, fields=None, debug=False, clear_cache=False):
         """Return all data (default) or specified range/fields."""
         if debug or fields == None:
             fields = self.snapshot_attrs
