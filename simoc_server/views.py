@@ -56,6 +56,9 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
     n_steps = int(data.get("n_steps", 1e6))
     min_step_num = int(data.get("min_step_num", 0))
     max_step_num = min_step_num + n_steps
+    # TODO: If min_step_num is not 0, batch_num should be set to the batch
+    # that contains that step_num. For now, we don't allow min_step_num to be
+    # set anywhere, so it hasn't been implemented yet.
     batch_num = 0 if min_step_num == 0 else None
     retries_left = max_retries
     step_count = max(0, min_step_num - 1)
