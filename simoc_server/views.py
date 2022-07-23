@@ -83,15 +83,17 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
             step_count += len(output)
             if len(output) == 0:
                 retries_left -= 1
+                app.logger.info(f'0 steps retrieved, {retries_left} retries left.')
             else:
                 socketio.emit('step_data_handler',
                               {'data': output, 'step_count': step_count, 'max_steps': n_steps},
                               room=sid)
                 retries_left = max_retries
             if step_count >= n_steps or retries_left <= 0:
-                socketio.emit('steps_sent', {'message': f'{step_count} steps sent by the server'},
-                              room=sid)
+                msg = f'{step_count}/{n_steps} steps sent by the server'
+                socketio.emit('steps_sent', {'message': msg}, room=sid)
                 steps_sent = True
+                app.logger.info(msg)
             else:
                 min_step_num = step_count + 1
     finally:
@@ -168,6 +170,7 @@ def login():
     user = User.query.filter_by(username=username).first()
     if user and user.validate_password(password):
         login_user(user)
+        app.logger.info(f'User {user} logged in')
         return status("Logged in.")
     raise InvalidLogin("Invalid username or password.")
 
@@ -291,11 +294,15 @@ def new_game():
         if not game_id:
             retries -= 1
         else:
+            app.logger.info(f'new_game: {user=}, {game_id=:X} '
+                            f'(with {retries} retries left)')
             break
         if retries <= 0:
-            raise ServerError(f"Cannot create a new game.")
+            msg = 'Cannot create a new game.'
+            app.logger.error(msg)
+            raise ServerError(msg)
     redis_conn.set('game_config:{}'.format(game_id), json.dumps(game_config))
-    return status("New game starts.", game_id=format(int(game_id), 'X'),
+    return status("New game starts.", game_id=format(game_id, 'X'),
                   game_config=game_config, currency_desc=default_currencies)
 
 
@@ -472,7 +479,7 @@ def get_db_dump():
 
 def get_user_game_id(user):
     game_id = redis_conn.get(f'user_mapping:{user.id}')
-    return game_id.decode("utf-8") if game_id else game_id
+    return int(game_id.decode("utf-8")) if game_id else game_id
 
 
 @app.route("/get_last_game_id", methods=["POST"])
@@ -481,12 +488,13 @@ def get_last_game_id():
     user = get_standard_user_obj()
     game_id = get_user_game_id(user)
     return status(f'Last game ID for user "{user.username}" retrieved.',
-                  game_id=format(int(game_id), 'X'))
+                  game_id=format(game_id, 'X'))
 
 
 def kill_game_by_id(game_id):
     task_id = redis_conn.get('task_mapping:{}'.format(game_id))
     task_id = task_id.decode("utf-8") if task_id else task_id
+    app.logger.info(f"kill_game_by_id({game_id=:X}): revoke {task_id}")
     if task_id:
         celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
 
@@ -506,7 +514,7 @@ def kill_game():
         raise BadRequest("game_id is required.")
     game_id = int(input["game_id"], 16)
     kill_game_by_id(game_id)
-    return status(f"Game {game_id} killed.")
+    return status(f"Game {input['game_id']} killed.")
 
 
 @app.route("/kill_all_games", methods=["POST"])
