@@ -65,13 +65,10 @@ The data returned by ``AgentModel.get_data()``. To return all fields use with
             'step_variable': [1.2, 2.3, ...],
             'storage': {<storage>: [0, ...]},
             'storage_ratios': {<storage>: [1, ...]},
-            'flows': {<exchange>: [1, ...]},
-            'flow_records': [[{
-                'storage_type': 'water_storage',
-                'storage_id': 1,
-                'currency': 'potable',
-                'amount': '1.2'
-            }]],
+            'flows': {
+                'in': {<currency>: [1, ...]},
+                'out': {<currency>: [1, ...]},
+            },
             'buffer': {<currency>: [8, ...]},
             'deprive': {<currency>: [720, ...]},
             'growth': {
