@@ -8,7 +8,7 @@ gunicorn
 jinja2
 mesa
 msgpack-python
-mysql-connector-python
+mysql-connector-python==8.0.29
 nose
 numpy
 pytest
