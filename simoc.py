@@ -97,7 +97,7 @@ def print_env():
 
 # initial setup
 def install_docker():
-    """Install and start docker and docker-compose."""
+    """Install docker and docker-compose and start the docker daemon."""
     if docker_available():
         return True
     print('Installing docker and docker-compose:')
@@ -113,7 +113,7 @@ def install_docker():
         return False
 
 def install_jinja():
-    """Install pip and Jinja2."""
+    """Install Jinja2."""
     try:
         import jinja2
         return True  # Jinja already installed
