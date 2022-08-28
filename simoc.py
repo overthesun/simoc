@@ -152,6 +152,8 @@ def install_jinja():
         if cmd_install:
             print('Installing Jinja2:')
             return run(cmd_install)
+        else:
+            return False
 
 @cmd
 def install_deps():
