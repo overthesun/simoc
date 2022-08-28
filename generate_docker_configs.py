@@ -33,6 +33,8 @@ def main(env=os.environ):
         with open(conf_file, 'w') as f:
             f.write(temp_file.render(**config))
         print(f'  * <{conf_file}> created')
+    print()
+    return True
 
 
 if __name__ == "__main__":

@@ -6,12 +6,12 @@ import os
 import sys
 import time
 import json
+import shutil
 import socket
 import pathlib
 import argparse
 import subprocess
 
-import generate_docker_configs
 
 ENV_FILE = 'simoc_docker.env'
 AGENT_DESC = 'data_files/agent_desc.json'
@@ -48,11 +48,6 @@ CELERY_WORKERS = ENVVARS['CELERY_WORKERS']
 # update environ with the new envvars
 os.environ.update(ENVVARS)
 
-# if the docker-compose file is missing, create it
-if not pathlib.Path(COMPOSE_FILE).exists():
-    generate_docker_configs.main()
-
-
 COMMANDS = {}
 
 def cmd(func):
@@ -71,9 +66,25 @@ def run(args):
     print()
     return not result.returncode
 
+def docker_available():
+    """Return True if docker and docker-compose are installed."""
+    return shutil.which('docker') and shutil.which('docker-compose')
+
+@cmd
+def docker(*args):
+    """Run an arbitrary docker command."""
+    if not docker_available():
+        install_docker()
+    return run(['docker', *args])
+
 @cmd
 def docker_compose(*args):
     """Run an arbitrary docker-compose command."""
+    if not docker_available():
+        install_docker()
+    # if the docker-compose file is missing, create it
+    if not pathlib.Path(COMPOSE_FILE).exists():
+        generate_scripts()
     return run([*DOCKER_COMPOSE_CMD, *args])
 
 @cmd
@@ -85,12 +96,42 @@ def print_env():
 
 
 # initial setup
+def install_docker():
+    """Install docker and docker-compose and start the docker daemon."""
+    if docker_available():
+        return True
+    print('Installing docker and docker-compose:')
+    if not run(['sudo', 'apt', 'install', 'docker', 'docker-compose']):
+        return False
+    ATTEMPTS = 10
+    for attempt in range(ATTEMPTS):
+        time.sleep((attempt+1)*5)
+        print(f'Starting docker (attempt {attempt+1}/{ATTEMPTS}):')
+        if run(['sudo', 'systemctl', 'start', 'docker']):
+            return True
+    else:
+        return False
+
+def install_jinja():
+    """Install Jinja2."""
+    try:
+        import jinja2
+        return True  # Jinja already installed
+    except ImportError:
+        print('Installing Jinja2:')
+        return run(['sudo', 'apt', 'install', 'python3-jinja2'])
+
+@cmd
+def install_deps():
+    """Install dependencies needed by SIMOC."""
+    return install_jinja() and install_docker()
+
 @cmd
 def generate_scripts():
     """Generate simoc_nginx.conf and docker-compose.mysql.yml."""
-    generate_docker_configs.main()
-    print()
-    return True
+    install_jinja()
+    import generate_docker_configs
+    return generate_docker_configs.main()
 
 @cmd
 def make_cert():
@@ -116,9 +157,9 @@ def make_cert():
 @cmd
 def build_images():
     """Build the flask and celery images locally."""
-    return (run(['docker', 'build', '-t', 'simoc_flask', '.']) and
-            run(['docker', 'build', '-f', 'Dockerfile-celery-worker',
-                 '-t', 'simoc_celery', '.']))
+    return (docker('build', '-t', 'simoc_flask', '.') and
+            docker('build', '-f', 'Dockerfile-celery-worker',
+                   '-t', 'simoc_celery', '.'))
 
 @cmd
 def start_services():
@@ -153,7 +194,7 @@ def init_db():
 def remove_db():
     """Remove the volume for the MySQL DB."""
     docker_compose('rm', '--stop', '-v', '-f', 'simoc-db')
-    run(['docker', 'volume', 'rm', 'simoc_db-data'])
+    docker('volume', 'rm', 'simoc_db-data')
     return True  # the volume rm might return False if the volume is missing
 
 
@@ -212,8 +253,8 @@ def flask_logs(*args):
 @cmd
 def setup():
     """Run a complete setup of SIMOC."""
-    return (generate_scripts() and make_cert() and build_images() and
-            start_services() and init_db() and ps())
+    return (install_deps() and generate_scripts() and make_cert() and
+            build_images() and start_services() and init_db() and ps())
 
 @cmd
 def teardown():
@@ -268,10 +309,10 @@ def adminer(db=None):
         print('* Starting adminer at: http://localhost:8081/')
         print('* Connecting to:', cp.stdout.decode('utf-8'))
         return True
-    cmd = ['docker', 'run', '--network', 'simoc_simoc-net',
+    cmd = ['run', '--network', 'simoc_simoc-net',
            '--link', 'simoc_simoc-db_1:db', '-p', '8081:8080',
            '-e', 'ADMINER_DESIGN=dracula', 'adminer']
-    return up() and show_info() and run(cmd)
+    return up() and show_info() and docker(*cmd)
 
 
 # Jupyter Notebook environment
@@ -284,7 +325,7 @@ def setup_env(envname, kernelname):
     """Create simoc virtualenv, install packages and ipython kernel"""
     run(['virtualenv', envname])
     launch_env(envname)
-    print("* Installing simoc requirements...")
+    print("* Installing SIMOC requirements...")
     run(['pip', 'install', '-r', 'requirements-jupyter.txt'])
     run(['ipython', 'kernel', 'install', '--name', kernelname, '--user'])
 
