@@ -10,6 +10,7 @@ import shutil
 import socket
 import pathlib
 import argparse
+import platform
 import subprocess
 
 
@@ -96,18 +97,47 @@ def print_env():
 
 
 # initial setup
+def cmd_for_platform(cmd):
+    """Return platform-specific command if available, else False"""
+    if platform.system() == 'Linux':
+        plt = 'l'
+    elif platform.system() == 'Darwin':  # MacOS
+        plt = 'm'
+    else:
+        print(f'Unsupported platform: {platform.system()}')
+        return False
+    commands = {
+        # Linux commands
+        ('l', 'docker_install'): ['sudo', 'apt', 'install', 'docker','docker-compose'],
+        ('l', 'docker_start'): ['sudo', 'systemctl', 'start', 'docker'],
+        ('l', 'jinja2_install'): ['sudo', 'apt', 'install', 'python3-jinja2'],
+        # MacOS commands
+        ('m', 'docker_install'): ['brew', 'install', 'docker', 'docker-compose'],
+        ('m', 'docker_start'): ['open', '-a', 'docker'],
+        ('m', 'jinja2_install'): ['brew', 'install', 'jinja2-cli'],
+    }
+    return commands.get((plt, cmd), False)
+
 def install_docker():
     """Install docker and docker-compose and start the docker daemon."""
     if docker_available():
         return True
+
+    # Get platform-specific commands
+    cmd_install = cmd_for_platform('docker_install')
+    cmd_start = cmd_for_platform('docker_start')
+    if not (cmd_install and cmd_start):
+        return False
+
+    # Install and start
     print('Installing docker and docker-compose:')
-    if not run(['sudo', 'apt', 'install', 'docker', 'docker-compose']):
+    if not run(cmd_install):
         return False
     ATTEMPTS = 10
     for attempt in range(ATTEMPTS):
         time.sleep((attempt+1)*5)
         print(f'Starting docker (attempt {attempt+1}/{ATTEMPTS}):')
-        if run(['sudo', 'systemctl', 'start', 'docker']):
+        if run(cmd_start):
             return True
     else:
         return False
@@ -118,8 +148,10 @@ def install_jinja():
         import jinja2
         return True  # Jinja already installed
     except ImportError:
-        print('Installing Jinja2:')
-        return run(['sudo', 'apt', 'install', 'python3-jinja2'])
+        cmd_install = cmd_for_platform('jinja2_install')
+        if cmd_install:
+            print('Installing Jinja2:')
+            return run(cmd_install)
 
 @cmd
 def install_deps():
