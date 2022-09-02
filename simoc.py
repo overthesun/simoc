@@ -97,20 +97,27 @@ def print_env():
 
 # initial setup
 def install_docker():
-    """Install docker and docker-compose and start the docker daemon."""
+    """Install docker and docker-compose."""
+    return install_docker_linux()
+
+def install_docker_linux():
+    # this function is duplicated in overthesun/simoc-web/simoc-web.py,
+    # changes to this function should be ported there too
     if docker_available():
         return True
+    # `apt` already creates a `docker` group, but we need to manually
+    # add the current user to it and ask the user to log out/log in
+    # for the change to take place and for `docker` to work without `sudo`
     print('Installing docker and docker-compose:')
-    if not run(['sudo', 'apt', 'install', 'docker', 'docker-compose']):
+    user = os.getenv('USER')
+    if not (run(['sudo', 'apt', 'install', '-y', 'docker', 'docker-compose']) and
+            run(['sudo', 'usermod', '-aG', 'docker', user])):
         return False
-    ATTEMPTS = 10
-    for attempt in range(ATTEMPTS):
-        time.sleep((attempt+1)*5)
-        print(f'Starting docker (attempt {attempt+1}/{ATTEMPTS}):')
-        if run(['sudo', 'systemctl', 'start', 'docker']):
-            return True
-    else:
-        return False
+    print('Please log out and log in again (or restart the machine) '
+          'to complete the Docker installation.')
+    print('After logging back in, you can resume the installation of SIMOC.')
+    print()
+    return False
 
 def install_jinja():
     """Install Jinja2."""
@@ -119,7 +126,7 @@ def install_jinja():
         return True  # Jinja already installed
     except ImportError:
         print('Installing Jinja2:')
-        return run(['sudo', 'apt', 'install', 'python3-jinja2'])
+        return run(['sudo', 'apt', 'install', '-y', 'python3-jinja2'])
 
 @cmd
 def install_deps():
