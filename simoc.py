@@ -257,11 +257,24 @@ def flask_logs(*args):
 
 
 # install/uninstall
+def post_setup_msg():
+    """Print a message and ask to open SIMOC in the browser."""
+    print('Setup completed!')
+    if pathlib.Path('simoc_server', 'dist').exists():
+        url = 'http://localhost:8000/'
+        print(f'You can now access SIMOC at <{url}>.' )
+        ans = input('Do you want to open SIMOC on your browser? [Y/n] ')
+        if ans.lower().strip() != 'n':
+            import webbrowser
+            webbrowser.open_new_tab('http://localhost:8000/')
+    return True
+
 @cmd
 def setup():
     """Run a complete setup of SIMOC."""
     return (install_deps() and generate_scripts() and make_cert() and
-            build_images() and start_services() and init_db() and ps())
+            build_images() and start_services() and init_db() and
+            ps() and post_setup_msg())
 
 @cmd
 def teardown():
