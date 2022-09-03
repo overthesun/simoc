@@ -9,7 +9,7 @@ For SIMOC users
 ---------------
 These instructions explain how to set up SIMOC locally on a Linux machine.
 You will need to install the SIMOC backend (``simoc``) and
-optionally to web frontend (``simoc-web``).
+optionally the web frontend (``simoc-web``).
 
 
 1. Create a GitHub account, request access to the repos, and
@@ -28,8 +28,7 @@ optionally to web frontend (``simoc-web``).
 
 4. To set up the backend run::
 
-      # if you just set up the frontend in simoc-web/ run this first
-      # cd ..
+      # cd ..  # return to parent dir if you are in simoc-web/
       cd simoc
       python3 simoc.py setup
 
