@@ -5,17 +5,59 @@ Setting up SIMOC
 Initial Setup
 =============
 
-In order to set up SIMOC on your local Linux/MacOS machine,
-you need to follow the following steps:
+For SIMOC users
+---------------
+These instructions explain how to set up SIMOC locally on a Linux machine.
+You will need to install the SIMOC backend (``simoc``) and
+optionally the web frontend (``simoc-web``).
 
-1. Clone the SIMOC repository:
-   ``git clone https://github.com/overthesun/simoc.git``
-2. Install ``docker`` and ``docker-compose``:
-   ``apt install docker docker-compose``
-3. Run ``python3 simoc.py setup``
-4. Access SIMOC at http://127.0.0.1:8000/
+
+1. Create a GitHub account, request access to the repos, and
+   then `generate a personal access token <pat_>`_.
+2. Clone the SIMOC repositories using the following commands
+   (enter your GitHub username and personal access token when asked)::
+
+      git clone https://github.com/overthesun/simoc.git
+      git clone https://github.com/overthesun/simoc-web.git  # optional
+
+   The ``simoc-web`` repository is only needed for the web frontend.
+3. (Optional) To set up the web frontend run::
+
+      cd simoc-web
+      python3 simoc-web.py setup
+
+4. To set up the backend run::
+
+      # cd ..  # return to parent dir if you are in simoc-web/
+      cd simoc
+      python3 simoc.py setup
+
+5. Access SIMOC at http://localhost:8000/.
+
+.. note::
+
+   During the setup of either the frontend or backend (steps 3/4),
+   you might be asked to log out and log in again (or restart your machine).
+   After logging back in, you can resume the installation
+   by running the same command again.
+
+
+For SIMOC developers
+--------------------
+
+1. `Generate and upload an SSH key <ssh-key_>`_.
+2. Clone the SIMOC repositories::
+
+      git clone git@github.com:overthesun/simoc.git
+      git clone git@github.com:overthesun/simoc-web.git  # optional
+      git clone git@github.com:overthesun/simoc-sam.git  # optional
+
+3. Follow steps 3-5 from the section above.
 
 For more information see also :ref:`repo-setup`.
+
+.. _pat: https://github.com/settings/tokens/new?description=SIMOC%20token&scopes=repo
+.. _ssh-key: https://github.com/settings/keys
 
 
 Using ``simoc.py``
