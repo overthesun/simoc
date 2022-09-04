@@ -72,6 +72,7 @@ jobs:
       - name: npm install and build
         working-directory: simoc-web
         run: |
+          npm install -g npm@latest
           npm install
           npm run build
       - name: Create Backend Artifacts
