@@ -28,7 +28,7 @@ env:
   DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
   FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
   REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
-  DOCKER_CONFIG: simoc_docker_beta.env
+  DOCKER_ENV: simoc_docker_beta.env
 
 jobs:
   ci:
@@ -118,7 +118,7 @@ jobs:
           python-version: '3.10'
       - name: Create Compose Configs
         run: |-
-          source $DOCKER_CONFIG && export VERSION=${{ github.sha }}
+          source $DOCKER_ENV && export VERSION=${{ github.sha }}
           python3 -m pip install -U jinja2
           python3 generate_docker_configs.py
       - name: Deploy to Docker Host
