@@ -40,12 +40,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Backend Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.be_branch }}
           path: simoc
       - name: Checkout Frontend Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: overthesun/simoc-web
           ref: ${{ github.event.inputs.fe_branch }}
@@ -58,9 +58,10 @@ jobs:
           service_account_key: ${{ secrets.GKE_SA_KEY }}
           project_id: ${{ secrets.GKE_PROJECT }}
       - name: Set up Node Environment
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '12'
+          check-latest: true
       - name: Download preset simdata
         working-directory: simoc-web/src/assets
         run: |
@@ -82,6 +83,7 @@ jobs:
       - name: npm install and build
         working-directory: simoc-web
         run: |
+          npm install -g npm@latest
           npm install
           npm run build
       - name: Create Backend Artifacts
@@ -120,11 +122,11 @@ jobs:
     needs: ci
     steps:
       - name: Checkout Backend Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Python Environment
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: '3.10'
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v0
         with:
