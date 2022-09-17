@@ -15,14 +15,10 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      - name: Install SIMOC Dependencies
-        # these are needed for autodoc
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements.txt
       - name: Install Docs Dependencies
         run: |
-          python3 -m pip install sphinx sphinx-rtd-theme sphinx-jsonschema sphinx-lint
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements-docs.txt
       - name: Build Docs
         run: |
           cd docs

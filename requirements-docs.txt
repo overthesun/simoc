@@ -1,0 +1,11 @@
+mesa
+nose
+numpy
+pytimeparse
+quantities
+scipy
+sklearn
+
+sphinx
+sphinx-rtd-theme
+sphinx-lint

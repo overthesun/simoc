@@ -177,7 +177,6 @@ texinfo_documents = [
 # sphinx-jsonschema produces a formatted description of a JSON object using
 # the JSON-Schema standard.
 extensions = [
-    'sphinx-jsonschema',
     'sphinx_rtd_theme',
     'sphinx.ext.autodoc'
 ]
