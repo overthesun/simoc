@@ -50,7 +50,7 @@ class AgentModel(Model, AttributeHolder):
     @classmethod
     def from_config(cls, config, data_collection=False, currency_desc=None,
                     agent_desc=None, agent_conn=None, agent_variation=None,
-                    agent_events=None):
+                    agent_events=None, merge=True):
         """Takes configuration files, return an initialized model
 
         Args:
@@ -68,9 +68,9 @@ class AgentModel(Model, AttributeHolder):
             * ``AgentModel``: :ref:`agent-model`
 
         """
-        initializer, errors = AgentModelInitializer.from_new(config, currency_desc,
-                                                             agent_desc, agent_conn,
-                                                             agent_variation, agent_events)
+        initializer, errors = AgentModelInitializer.from_new(
+            config, currency_desc, agent_desc, agent_conn, agent_variation,
+            agent_events, merge)
         categories = ['model', 'agents', 'currencies']
         if any(len(errors[c]) > 0 for c in categories):
             raise AgentModelConfigError(errors)

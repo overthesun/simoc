@@ -18,6 +18,7 @@ from flask import request
 
 from simoc_server import app, db, redis_conn
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute
+from agent_model.util import calc_air_storage, calc_water_storage
 
 
 @app.route('/get_mass', methods=['GET'])
@@ -94,34 +95,8 @@ def get_energy():
     return json.dumps(total)
 
 
-def calc_air_storage(volume):
-    # 1 m3 of air weighs ~1.25 kg (depending on temperature and humidity)
-    AIR_DENSITY = 1.25  # kg/m3
-    # convert from m3 to kg
-    mass = volume * AIR_DENSITY
-    # atmosphere component breakdown (see PRD)
-    percentages = {
-        "n2": 78.084,  # nitrogen
-        "o2": 20.946,  # oxygen
-        "co2": 0.041332,  # carbon dioxide
-        "ch4": 0.000187,  # methane
-        "h2": 0.000055,  # hydrogen
-        "h2o": 1,  # water vapor
-        # the followings are not included
-        #"atmo_ar": 0.9340,  # argon
-        #"atmo_ne": 0.001818,  # neon
-        #"atmo_he": 0.000524,  # helium
-        #"atmo_kr": 0.000114,  # krypton
-    }
-    # calculate the mass for each element
-    return dict({label: mass*perc/100 for label, perc in percentages.items()},
-                total_capacity=dict(value=mass, unit='kg'))
-
-
-def calc_water_storage(volume):
-    # the total_capacity is in kg, and it's equal to the volume'
-    return dict({'potable': 0.9 * volume, 'treated': 0.1 * volume},
-                total_capacity=dict(value=volume, unit='kg'))
+# 23 Sept 2022: calc_air_storage and calc_water_storage were moved to
+# simoc_server/front_end_routes so they can be used without running the server.
 
 
 def build_connections_from_agent_desc(fpath):

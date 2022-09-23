@@ -56,7 +56,8 @@ class AgentModelInitializer():
 
     @classmethod
     def from_new(cls, config, user_currency_desc=None, user_agent_desc=None,
-                 user_agent_conn=None, user_agent_variation=None, user_agent_events=None):
+                 user_agent_conn=None, user_agent_variation=None, user_agent_events=None,
+                 merge=True):
 
         # 1. INITIALIZE ERROR DICT
         # Errors from all subsequent steps are compiled into a dict and returned to
@@ -90,26 +91,39 @@ class AgentModelInitializer():
         # will replace or be added to default values.
 
         # 3. CURRENCY DESC
-        currency_desc = load_data_file('currency_desc.json')
-        if user_currency_desc:
-            currency_desc = merge_json(currency_desc, user_currency_desc)
+        if merge is False:
+            currency_desc = user_currency_desc
+        else:
+            currency_desc = None
+            with open('data_files/currency_desc.json') as f:
+                currency_desc = json.load(f)
+            if user_currency_desc:
+                currency_desc = merge_json(currency_desc, user_currency_desc)
+
         currency_desc, currency_errors = parse_currency_desc(currency_desc)
         model_data['currency_dict'] = currency_desc
         errors['currencies'] = currency_errors
 
         # 4. AGENT DESC
-        agent_desc = load_data_file('agent_desc.json')
-        if user_agent_desc:
-            agent_desc = merge_json(agent_desc, user_agent_desc)
+        if merge is False:
+            agent_desc = user_agent_desc
+        else:
+            agent_desc = load_data_file('agent_desc.json')
+            if user_agent_desc:
+                agent_desc = merge_json(agent_desc, user_agent_desc)
         # Only return agent_desc data for agents included in the config file
         agent_desc, agents_errors = parse_agent_desc(config, model_data['currency_dict'],
                                                      agent_desc, _DEFAULT_LOCATION)
         errors['agents'] = agents_errors
 
         # 5. AGENT EVENTS
-        agent_events = load_data_file('agent_events.json')
-        if user_agent_events:
-            agent_events = merge_json(agent_events, user_agent_events)
+        if merge is False:
+            agent_events = user_agent_events or {}
+        else:
+            agent_events = load_data_file('agent_events.json')
+            if user_agent_events:
+                agent_events = merge_json(agent_events, user_agent_events)
+
         agents_events, agents_errors = parse_agent_events(agent_events)
         for agent, errors in agents_errors.items():
             for item, message in errors.items():
@@ -125,9 +139,13 @@ class AgentModelInitializer():
                 agent_data[section] = {**agent_data[section], **events[section]}
 
         # 6. AGENT VARIATION
-        agent_variation = load_data_file('agent_variation.json')
-        if user_agent_variation:
-            agent_variation = merge_json(agent_variation, user_agent_variation)
+        if merge is False:
+            agent_variation = user_agent_variation or {}
+        else:
+            agent_variation = load_data_file('agent_variation.json')
+            if user_agent_variation:
+                agent_variation = merge_json(agent_variation, user_agent_variation)
+
         for agent, agent_data in agent_desc.items():
             if agent in agent_variation:
                 variation = agent_variation[agent]['variation']
@@ -146,11 +164,15 @@ class AgentModelInitializer():
                 agent_data['variation'] = valid_variation
 
         # 7. AGENT CONNECTIONS
-        agent_conn = load_data_file('agent_conn.json')
-        if user_agent_conn:
-            # TODO: This approach may fail if trying to *replace* a connection
-            # with user_agent_conn.
-            agent_conn = user_agent_conn + agent_conn
+        if merge is False:
+            agent_conn = user_agent_conn
+        else:
+            agent_conn = load_data_file('agent_conn.json')
+            if user_agent_conn:
+                # TODO: This approach may fail if trying to *replace* a connection
+                # with user_agent_conn.
+                agent_conn = user_agent_conn + agent_conn
+
         active_agents = list(config['agents'].keys())
         connections, agent_conn_errors = parse_agent_conn(active_agents, agent_conn)
         for agent, error in agent_conn_errors.items():
