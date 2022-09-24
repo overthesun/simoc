@@ -33,6 +33,11 @@ env:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      # workaround to prevent node/vite crashes during the build step
+      # see https://github.com/vitejs/vite/issues/2433#issuecomment-831399876
+      # assume 4GB - 512MB
+      NODE_OPTIONS: '--max-old-space-size=3584'
     steps:
       - name: Checkout Backend Repository
         uses: actions/checkout@v3
