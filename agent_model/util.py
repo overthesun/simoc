@@ -236,3 +236,55 @@ def calc_water_storage(volume):
     # the total_capacity is in kg, and it's equal to the volume'
     return dict({'potable': 0.9 * volume, 'treated': 0.1 * volume},
                 total_capacity=dict(value=volume, unit='kg'))
+
+def molar_mass(currency):
+    molar_mass_ref = {
+        'n2': 0,
+        'o2': 0,
+        'co2': 0,
+        'ch4': 0,
+        'h2': 0,
+        'h2o': 0,
+    }
+    if currency not in molar_mass_ref:
+        raise ValueError(f'No molar mass reference for {currency!r}')
+    return molar_mass_ref[currency]
+
+# Recursive function to extract data at path from arbitrary object
+def parse_data(data, path):
+    """Return what's at the end of the path"""
+    if not data and data != 0:
+        return None
+    elif len(path) == 0:
+        return 0 if data is None else data
+    # Shift the first element of path, pastt on the rest of the path
+    index = path[0]
+    remainder = path[1:]
+    if isinstance(data, list):
+        # LISTS
+        if index == '*':
+            # All Items
+            parsed = [parse_data(d, remainder) for d in data]
+            return [d for d in parsed if d]
+        elif isinstance(index, int):
+            # Single index
+            return parse_data(data[index], remainder)
+        # Range i:j (string)
+        start, end = [int(i) for i in index.split(':')]
+        return [parse_data(d, remainder) for d in data[start:end]]
+    elif isinstance(data, dict):
+        # DICTS
+        if index in ('*', 'SUM'):
+            # All items, either a dict ('*') or a number ('SUM')
+            parsed = [parse_data(d, remainder) for d in data.values()]
+            output = {k: v for k, v in zip(data.keys(), parsed) if v or v == 0}
+            return output if len(output) > 0 else None
+        elif index in data:
+            # Single Key
+            return parse_data(data[index], remainder)
+        elif isinstance(index, str):
+            # Comma-separated list of keys. Return an object with all.
+            indices = [i.strip() for i in index.split(',') if i in data]
+            parsed = [parse_data(data[i], remainder) for i in indices]
+            output = {k: v for k, v in zip(indices, parsed) if v or v == 0}
+            return output if len(output) > 0 else None
