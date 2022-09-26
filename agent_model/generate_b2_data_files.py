@@ -34,25 +34,37 @@ def generate_agent_desc():
 
     # Copy existing agents as placeholders where relevant
     _ = lambda _class, _agent: copy.deepcopy(agent_desc[_class][_agent])
+    # Clone a plant and replace its output name
+    def _plant(ref_plant, new_plant):
+        ref = _('plants', ref_plant)
+        for i, exchange in enumerate(ref['data']['output']):
+            if exchange['type'] == ref_plant:
+                ref['data']['output'][i]['type'] = new_plant
+                return ref
+        raise ValueError('Unable to clone plant')
+
     b2_agent_desc = {
         'inhabitants': {
             'human_agent': _('inhabitants', 'human_agent'),
         },
         'eclss': {
+            'urine_recycling_processor_VCD': _('eclss', 'urine_recycling_processor_VCD'),  # Urine -> Treated, Waste
+            'dehumidifier': _('eclss', 'dehumidifier'),  # Water Vapor -> Treated
+            'multifiltration_purifier_post_treatment': _('eclss', 'multifiltration_purifier_post_treatment'),  # Treated -> Potable
             'co2_removal': _('eclss', 'co2_removal_SAWD'),
             'o2_makeup_valve': {},  # Add manually below
         },
         'plants': {
             'rice': _('plants', 'rice'),
             'wheat': _('plants', 'wheat'),
-    #         'sorghum': _('plants', 'rice'),  # Placeholder
+            'sorghum': _plant('wheat', 'sorghum'),
             'sweet_potato': _('plants', 'sweet_potato'),
-    #         'vegetables': _('plants', 'carrot'),  # Placeholder
+            'vegetables': _plant('carrot', 'vegetables'),  # Placeholder
             'soybean': _('plants', 'soybean'),
             'peanut': _('plants', 'peanut'),
-    #         'corn': _('plants', 'rice'),  # Placeholder
+            'corn': _plant('rice', 'corn'),  # Placeholder
             'dry_bean': _('plants', 'dry_bean'),
-    #         'orchard': _('plants', 'strawberry'),  # Placeholder
+            'orchard': _plant('radish', 'orchard'),  # Placeholder
         },
         'structures': {
             'b2_greenhouse': _('structures', 'greenhouse_large'),
@@ -86,49 +98,66 @@ def generate_agent_desc():
         # There would be max one kwh exchange per direction, so this is safe
         del b2_agent_desc[agent_class][agent]['data'][direction][i]
 
-    # Soil
+    # Update structure sizes
+    # 'Air volume, m3 from Silverstone and Nelson, 'Food Production and Nutrition..' Table 1
+    structure_volumes = {
+        'b2_greenhouse': 35_220,  # Agriculture
+        'b2_crew_habitat': 10_997,  # Habitat
+        # Rainforest, Savannah/ocean, Desert, West lung, South lung
+        'b2_biomes': 24_900 + 41_600 + 17_600 + 15_000 + 15_000,
+    }
+    for structure, volume in structure_volumes.items():
+        chars = b2_agent_desc['structures'][structure]['data']['characteristics']
+        for i, char in enumerate(chars):
+            if char['type'] == 'volume':
+                b2_agent_desc['structures'][structure]['data']['characteristics'][i]['value'] = volume
+            elif char['type'].startswith('capacity'):
+                b2_agent_desc['structures'][structure]['data']['characteristics'][i]['value'] = 1_000_000
+
+    # Soil (values copied from human for now)
     b2_agent_desc['structures']['soil'] = {
         'description': '1 m^3 of respirating organic soil.',
         'data': {
             "input": [{
                 "type": "o2",
-                "value": 0.037083,
+                "value": 0.0036,
                 "flow_rate": {"unit": "kg", "time": "hour"},
             }],
             "output": [{
                 "type": "co2",
-                "value": 0.045,
+                "value": 0.0034,
                 "flow_rate": {"unit": "kg", "time": "hour"},
             }],
             "characteristics": [
                 {"type": "volume", "value": 1, "unit": "m^3"}]}}
 
-    # Concrete
+    # Concrete (from Severinghaus Table 2)
+    exposed_unpainted = 13_000 + 2_800  # Structural + Artificial Rock
+    total_co2 = 750_000  # kg
+    n_days = 620
+    co2_per_hour = total_co2 / n_days / 24
+    co2_per_hour_m2 = co2_per_hour / exposed_unpainted
     b2_agent_desc['structures']['concrete'] = {
         'description': '1 m^3 of calcifying concrete of a specified age',
         'data': {
             "input": [{
                 "type": "co2",
-                "value": 0.05,
+                "value": co2_per_hour_m2,
                 "flow_rate": {"unit": "kg", "time": "hour"},
-                "growth": {
-                    "lifetime": {
-                        "type": "linear",
-                    }
-                }
             }],
             "output": [],
             "characteristics": [
-                {"type": "volume", "value": 1, "unit": "m^3"},
-                {"type": "age_at_start", "value": 0, "unit": "hour"}]}}
+                {"type": "volume", "value": 1, "unit": "m^3"}]}}
 
     # O2 Resupply System
+    o2_added_days_475_494 = 441000
+    o2_per_hour = o2_added_days_475_494 / 20 / 24
     b2_agent_desc['eclss']['o2_makeup_valve'] = {
         'description': 'Release o2 into atmosphere when it drops below 20%',
         "data": {
             "input": [{
                 "type": "o2",
-                "value": 0.085,
+                "value": o2_per_hour,
                 "required": "mandatory",
                 "flow_rate": {"unit": "kg", "time": "hour"},
                 "criteria": {
@@ -139,7 +168,7 @@ def generate_agent_desc():
             }],
             "output": [{
                 "type": "o2",
-                "value": 0.085,
+                "value": o2_per_hour,
                 "required": "mandatory",
                 "requires": ["o2"],
                 "flow_rate": {"unit": "kg", "time": "hour"},
@@ -152,8 +181,16 @@ def generate_agent_desc():
             "output": [],
             "characteristics": [{
                 "type": "capacity_o2",
-                "value": 10000,
+                "value": 1_000_000,
                 "unit": "kg"}]}}
+
+    # CO2 Removal: Reset threshold for co2 scrubber
+    co2_removal_threshold = .0025  # 2500 ppm
+    co2_removal_inputs = b2_agent_desc['eclss']['co2_removal']['data']['input']
+    for i, input in enumerate(co2_removal_inputs):
+        if input['type'] == 'co2':
+            b2_agent_desc['eclss']['co2_removal']['data']['input'][i]['criteria']['value'] = \
+                co2_removal_threshold
 
     # Add food_storage capacity for all plants
     chars = b2_agent_desc['storage']['food_storage']['data']['characteristics']
@@ -164,8 +201,13 @@ def generate_agent_desc():
             'value': 10_000,
             'unit': 'kg'})
     b2_agent_desc['storage']['food_storage']['data']['characteristics'] = chars
-    return b2_agent_desc
 
+    # Increase water storage volumes
+    for i, char in enumerate(b2_agent_desc['storage']['water_storage']['data']['characteristics']):
+        if char['type'].startswith('capacity') or char['type'] == 'volume':
+            b2_agent_desc['storage']['water_storage']['data']['characteristics'][i]['value'] = 1_000_000
+
+    return b2_agent_desc
 
 def generate_currency_desc(b2_agent_desc):
     """Return a currency_desc for SIMOC-B2 based on the original and the
@@ -202,6 +244,18 @@ def generate_currency_desc(b2_agent_desc):
                 b2_currency_desc[curr_class][curr] = cdata
     b2_currency_desc = dict(b2_currency_desc)
 
+    # Add currencies for new plants manually
+    def _food(ref_food, new_food):
+        ref = copy.deepcopy(currency_desc['food'][ref_food])
+        ref['label'] = ' '.join([n.capitalize() for n in new_food.split('_')])
+        ref['description'] = f'{new_food} (copied from {ref_food}'
+        return ref
+    for ref_food, new_food in [('wheat', 'sorghum'),
+                               ('carrot', 'vegetables'),
+                               ('rice', 'corn'),
+                               ('radish', 'orchard')]:
+        b2_currency_desc['food'][new_food] = _food(ref_food, new_food)
+
     # Check for missing currencies
     found_currencies = set()
     for currencies in b2_currency_desc.values():
@@ -225,6 +279,13 @@ def generate_agent_conn(b2_agent_desc):
         {'from': 'human_agent.feces', 'to': 'water_storage.feces'},
 
         # ECLSS
+        {'from': 'water_storage.urine', 'to': 'urine_recycling_processor_VCD.urine'},
+        {'from': 'urine_recycling_processor_VCD.treated', 'to': 'water_storage.treated'},
+        {'from': 'urine_recycling_processor_VCD.waste', 'to': 'nutrient_storage.waste'},
+        {'from': 'b2_greenhouse.treated', 'to': 'dehumidifier.h2o'},
+        {'from': 'dehumidifier.treated', 'to': 'water_storage.treated'},
+        {'from': 'water_storage.treated', 'to': 'multifiltration_purifier_post_treatment.treated'},
+        {'from': 'multifiltration_purifier_post_treatment.potable', 'to': 'water_storage.potable'},
         {'from': 'b2_greenhouse.co2', 'to': 'co2_removal.co2'},
         {'from': 'co2_removal.co2', 'to': 'co2_storage.co2'},
         {'from': 'o2_storage.o2', 'to': 'o2_makeup_valve.o2'},
@@ -235,14 +296,14 @@ def generate_agent_conn(b2_agent_desc):
     for plant in b2_agent_desc['plants']:
         # Plants
         b2_agent_conn += [
-        {"from": "b2_greenhouse.co2", "to": f"{plant}.co2"},
-        {"from": "water_storage.potable", "to": f"{plant}.potable"},
-        {"from": "nutrient_storage.fertilizer", "to": f"{plant}.fertilizer"},
-        {"from": f"{plant}.biomass", "to": f"{plant}.biomass"},
-        {"from": f"{plant}.inedible_biomass", "to": "nutrient_storage.inedible_biomass"},
-        {"from": f"{plant}.o2", "to": "b2_greenhouse.o2"},
-        {"from": f"{plant}.h2o", "to": "b2_greenhouse.h2o"},
-        {"from": f"{plant}.{plant}", "to": f"food_storage.{plant}"},
+            {"from": "b2_greenhouse.co2", "to": f"{plant}.co2"},
+            {"from": "water_storage.potable", "to": f"{plant}.potable"},
+            {"from": "nutrient_storage.fertilizer", "to": f"{plant}.fertilizer"},
+            {"from": f"{plant}.biomass", "to": f"{plant}.biomass"},
+            {"from": f"{plant}.inedible_biomass", "to": "nutrient_storage.inedible_biomass"},
+            {"from": f"{plant}.o2", "to": "b2_greenhouse.o2"},
+            {"from": f"{plant}.h2o", "to": "b2_greenhouse.h2o"},
+            {"from": f"{plant}.{plant}", "to": f"food_storage.{plant}"},
         ]
 
     # Structures
@@ -294,23 +355,25 @@ def generate_config(b2_agent_desc):
 
             # Inhabitants
             'human_agent': {'amount': 1},
-            'soil': {'amount': 1},
 
             # ECLSS
+            'urine_recycling_processor_VCD': {'amount': 50},
+            'dehumidifier': {'amount': 50},
+            'multifiltration_purifier_post_treatment': {'amount': 50},
             'co2_removal': {'amount': 1},
             'o2_makeup_valve': {'amount': 1},
 
             # Plants
-            'rice': {'amount': 80},
-            'wheat': {'amount': 80},
-    #         'sorghum': {'amount': 80},
-            'sweet_potato': {'amount': 80},
-    #         'vegetables': {'amount': 80},
-            'soybean': {'amount': 80},
-            'peanut': {'amount': 80},
-    #         'corn': {'amount': 80},
-            'dry_bean': {'amount': 80},
-    #         'orchard': {'amount': 80},
+            'dry_bean': {'amount': 90},
+            'soybean': {'amount': 132},
+            'rice': {'amount': 215},
+            'vegetables': {'amount': 141},
+            'sorghum': {'amount': 106},
+            'peanut': {'amount': 68},
+            'corn': {'amount': 198},
+            'wheat': {'amount': 150},
+            'orchard': {'amount': 262},
+            'sweet_potato': {'amount': 106},
 
             # Structures
             'b2_greenhouse': calc_air_storage(volume('b2_greenhouse')),
@@ -318,14 +381,15 @@ def generate_config(b2_agent_desc):
             'b2_biomes': calc_air_storage(volume('b2_biomes')),
             'atm_eq_gh_crew': {'amount': 1},
             'atm_eq_gh_biomes': {'amount': 1},
-            'concrete': {'amount': 1},
+            'concrete': {'amount': 13_000 + 2_800},  # m2 exposed, Structural + Artificial Rock
+            'soil': {'amount': 2_720 + 6_000 + 4_000 + 4_000},  # Agriculture + Rainforest + Savannah/Ocean + Desert
 
             # Storage
-            'water_storage': calc_water_storage(volume('water_storage')),
-            'nutrient_storage': {'amount': 1, "fertilizer": 10_000},
+            'water_storage': {**calc_water_storage(volume('water_storage')), 'amount': 50},
+            'nutrient_storage': {'amount': 50, "fertilizer": 10_000},
             'food_storage': {plant: 50 for plant in b2_agent_desc['plants']},
             'co2_storage': {},
-            'o2_storage': {'o2': 2_000},
+            'o2_storage': {'o2': 0},
         }
     }
 
@@ -342,6 +406,7 @@ def generate_config(b2_agent_desc):
         **base_config,
         'termination': [{'condition': 'time', 'value': mission_1b_days, 'unit': 'day',}],
     }
+    mission_1b_config['agents']['o2_storage']['o2'] = 441_000  # Severinghaus Table 2
 
     mission_2_days = pd.date_range(mission_2_start_date,
                                    mission_2_end_date, freq='D').shape[0]
@@ -369,4 +434,3 @@ if __name__ == '__main__':
         (mission_2_config, 'config_mission_2')]:
         with open(data_files_path + f'b2/{name}.json', 'w') as f:
             json.dump(item, f)
-            

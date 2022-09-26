@@ -12,7 +12,7 @@ def atmosphere_equalizer(agent):
     habitat_gasses = habitat.view(view='atmosphere')
     greenhouse_gasses = greenhouse.view(view='atmosphere')
     combined_gasses = {**habitat_gasses, **greenhouse_gasses}.keys()
-    max_flow = 50
+    max_flow = 10_000  # Set very high for B2
     deltas = {}
     for gas in combined_gasses:
         net_mass = getattr(habitat, gas, 0) + getattr(greenhouse, gas, 0)
