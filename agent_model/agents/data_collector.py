@@ -26,11 +26,11 @@ class AgentDataCollector():
                     self.snapshot_attrs.append('storage')
                     self.storage = {}
                 currency = attr.split('_', 2)[2]
-                self.storage[currency] = [self.agent[currency]]
+                self.storage[currency] = []
                 if 'storage_ratios' not in self.snapshot_attrs:
                     self.snapshot_attrs.append('storage_ratios')
                     self.storage_ratios = {}
-                self.storage_ratios[currency] = [self.agent.model.storage_ratios[self.name][currency + '_ratio']]
+                self.storage_ratios[currency] = []
                 if 'capacity' not in self.snapshot_attrs:
                     self.snapshot_attrs.append('capacity')
                     self.capacity = {}
@@ -45,10 +45,8 @@ class AgentDataCollector():
             if attr.startswith('char_growth_criteria'):
                 self.snapshot_attrs += ['total_growth', 'growth', 'co2_scale']
                 self.total_growth = self.agent.total_growth,
-                self.growth = dict(current_growth=[self.agent.current_growth],
-                                   growth_rate=[self.agent.growth_rate],
-                                   grown=[self.agent.grown],
-                                   agent_step_num=[self.agent.agent_step_num])
+                self.growth = dict(current_growth=[], growth_rate=[],
+                                   grown=[], agent_step_num=[])
                 self.co2_scale = {k: [] for k in self.agent.co2_scale.keys()}
             # Flows
             if attr.startswith(('in', 'out')):

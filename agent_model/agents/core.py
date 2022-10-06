@@ -755,6 +755,7 @@ class PlantAgent(GeneralAgent):
     ``lifetime``           int            Hours to complete growth cycle.
     ``reproduce``          bool
     ``growth_criteria``    str            Which currency/attribute determines growth
+    ``total_growth``       int            The sum of all step values for growth_criteria currency
     ``delay_start``        int            Hours to wait before starting growth
     ``agent_step_num``     int            Current step in growth cycle, as limited by growth_critera
     ``currenct_growth``    int            Accumulated values for growth_criteria item
