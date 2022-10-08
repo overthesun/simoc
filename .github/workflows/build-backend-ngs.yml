@@ -92,7 +92,7 @@ jobs:
           cp -r simoc-web/dist simoc/simoc_server/
           tar -cvf simoc_bundle.tar simoc/
       - name: Save Backend Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: simoc-bundle
           path: simoc_bundle.tar
