@@ -66,8 +66,8 @@ The data returned by ``AgentModel.get_data()``. To return all fields use with
             'storage': {<storage>: [0, ...]},
             'storage_ratios': {<storage>: [1, ...]},
             'flows': {
-                'in': {<currency>: [1, ...]},
-                'out': {<currency>: [1, ...]},
+                'in': {<currency>: {<storage>: [1, ...]}},
+                'out': {<currency>: {<storage>: [1, ...]}},
             },
             'buffer': {<currency>: [8, ...]},
             'deprive': {<currency>: [720, ...]},
