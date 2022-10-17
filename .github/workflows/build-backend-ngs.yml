@@ -38,6 +38,11 @@ env:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      # workaround to prevent node/vite crashes during the build step
+      # see https://github.com/vitejs/vite/issues/2433#issuecomment-831399876
+      # assume 4GB - 512MB
+      NODE_OPTIONS: '--max-old-space-size=3584'
     steps:
       - name: Checkout Backend Repository
         uses: actions/checkout@v3
@@ -60,32 +65,41 @@ jobs:
       - name: Set up Node Environment
         uses: actions/setup-node@v3
         with:
-          node-version: '12'
+          node-version: 'lts/*'
           check-latest: true
       - name: Download preset simdata
         working-directory: simoc-web/src/assets
         run: |
           mkdir simdata
           cd simdata
-          wget -r -nH --cut-dirs=2 --no-parent --accept="*.json" -erobots=off -q --show-progress https://simoc.space/download/simdata/
-      - name: Download models
-        working-directory: simoc-web/src/assets
-        run: |
-          mkdir models
-          cd models
-          wget -r -nH --cut-dirs=2 --no-parent --accept="*.glb" -erobots=off -q --show-progress https://simoc.space/download/models/
+          wget -r -nH --cut-dirs=2 --no-parent --accept="*.json" -erobots=off -q https://simoc.space/download/simdata/
+          ls
       - name: Download skybox
         working-directory: simoc-web/src/assets
         run: |
           mkdir skybox
           cd skybox
-          wget -r -nH --cut-dirs=2 --no-parent --accept="*.jpg" -erobots=off -q --show-progress https://simoc.space/download/skybox/
-      - name: npm install and build
+          wget -r -nH --cut-dirs=2 --no-parent --accept="*.jpg" -erobots=off -q https://simoc.space/download/skybox/
+          ls
+      - name: Download models
+        working-directory: simoc-web/src/assets
+        run: |
+          mkdir models
+          cd models
+          wget -r -nH --cut-dirs=2 --no-parent --accept="*.glb" -erobots=off -q https://simoc.space/download/models/
+          ls
+      - name: npm install
         working-directory: simoc-web
         run: |
-          npm install -g npm@latest
-          npm install
-          npm run build
+          npm install --no-fund --no-audit -g npm@latest
+          npm install --no-fund
+      - name: Print info
+        run: |
+          echo "Current branch: $GITHUB_HEAD_REF"
+          echo "node $(node --version); npm $(npm --version)"
+      - name: Build
+        working-directory: simoc-web
+        run: npm run build
       - name: Create Backend Artifacts
         run: |-
           rm -rf simoc/simoc_server/dist
