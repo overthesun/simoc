@@ -1,0 +1,20 @@
+version: 2
+updates:
+
+  # Maintain dependencies for pip
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "ezio-melotti"
+    open-pull-requests-limit: 10
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "ezio-melotti"
+    open-pull-requests-limit: 10
