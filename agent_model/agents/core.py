@@ -333,10 +333,6 @@ class GeneralAgent(StorageAgent):
                 continue
             if not self.has_flows:
                 self.has_flows = True
-                self.last_flow = {}
-                self.flows = {}
-            self.last_flow[currency] = 0
-            self.flows[currency] = []
             self.add_currency_to_dict(currency)
             attr_details = self.attr_details[attr]
             attr_unit = attr_details['flow_unit']
@@ -610,6 +606,13 @@ class GeneralAgent(StorageAgent):
 
         """
         super().step()
+
+        # Log actual exchanges from each step. Reset at the beginning of each
+        # step, and used afterwards by DataCollector to log actual values.
+        # If no value is found in the step_exchange_buffer, DataCollector logs
+        # a 0.
+        self.step_exchange_buffer = {'in': {}, 'out': {}}
+
         self.age += self.model.hours_per_step
         for attr, attr_value in self.attrs.items():
             # 1. CHECK THRESHOLDS
@@ -642,11 +645,9 @@ class GeneralAgent(StorageAgent):
 
         # ITERATE THROUGH EACH INPUT AND OUTPUT
         influx = set()     # For 'requires' field
-        skip_step = False  # Stalls growth if 'required = desired' field is missing
+        self.missing_desired = False  # Stalls growth if 'required = desired' field is missing
         for prefix in ['in', 'out']:
             for currency, selected_storages in self.selected_storage[prefix].items():
-                self.flows[currency] = []
-                self.last_flow[currency] = 0
                 attr = f"{prefix}_{currency}"
                 attr_details = self.attr_details[attr]
 
@@ -692,7 +693,7 @@ class GeneralAgent(StorageAgent):
                         return
                     elif is_required == 'desired':
                         # e.g. Plants: If one or more desired inputs is missing, growth stalls.
-                        skip_step = True
+                        self.missing_desired = True
                 # 8.2 DEPRIVE
                 deprive_value = attr_details.get('deprive_value') or 0
                 if has_deficit and deprive_value > 0:
@@ -711,20 +712,8 @@ class GeneralAgent(StorageAgent):
                 elif deprive_value > 0:
                     self.deprive[attr] = min(deprive_value * self.amount,
                                              self.deprive[attr] + deprive_value)
-                # 8.3 GROWTH
-                # TODO: This technically belongs in the PlantAgent class, but under the current
-                # get_step_logs system, growth process is collected from the record produced below.
-                growth_criteria = getattr(self, 'growth_criteria', None)
-                if attr == growth_criteria and not skip_step:
-                    self.agent_step_num += self.model.hours_per_step
-                    self.current_growth += (actual_value / self.amount)
-                    self.growth_rate = self.current_growth / self.total_growth
-                    growth = self.growth_rate
-                else:
-                    growth = None
 
                 # 9. PROCESS EXCHANGE
-                flows = []
                 remaining_value = actual_value
                 for conn in available_conns:
                     storage = conn['agent']
@@ -735,44 +724,16 @@ class GeneralAgent(StorageAgent):
                         conn_delta = remaining_value / len(available_conns)
                         flow = storage.increment(currency, conn_delta)
                     remaining_value -= conn_delta
-                    for k, v in flow.items():
-                        if v == 0:
-                            continue
-                        flows.append({"storage_type": storage.agent_type,
-                                      "storage_type_id": storage.agent_type_id,
-                                      "storage_agent_id": storage.unique_id,
-                                      "storage_id": storage.id,
-                                      "currency": k,
-                                      "amount": v})
-                    if remaining_value <= 0:
-                        break
-
-                # 10. UPDATE RECORDS
-                if actual_value < value_eps:  # ignore values less than 1e-12
-                    continue
-                if prefix == 'in' and currency not in influx:
-                    influx.add(currency)
-                self.last_flow[currency] = actual_value
-                self.flows[currency] = flows
-                for flow in flows:
-                    record = {"step_num": self.model.step_num + 1,
-                              "game_id": self.model.game_id,
-                              "user_id": self.model.user_id,
-                              "agent_type": self.agent_type,
-                              "agent_type_id": self.agent_type_id,
-                              "agent_id": self.unique_id,
-                              "direction": prefix,
-                              "agent_amount": self.amount,
-                              "currency_type": flow['currency'],
-                              "currency_type_id": self.model.currency_dict[flow['currency']]['id'],
-                              "value": abs(round(flow['amount'], value_round)),
-                              "growth": growth,
-                              "unit": str(step_value.units),
-                              "storage_type": flow['storage_type'],
-                              "storage_type_id": flow['storage_type_id'],
-                              "storage_agent_id": flow['storage_agent_id'],
-                              "storage_id": flow['storage_id']}
-                    self.model.step_records_buffer.append(record)
+                    if actual_value < value_eps:  # ignore values less than 1e-12
+                        continue
+                    # Log exchanged values
+                    if prefix == 'in':
+                        influx.add(currency)
+                    buf = self.step_exchange_buffer[prefix]
+                    for _currency, _amount in flow.items():
+                        if _currency not in buf:
+                            buf[_currency] = {}
+                        buf[_currency][storage.agent_type] = abs(_amount)
 
 
     def kill(self, reason):
@@ -794,6 +755,7 @@ class PlantAgent(GeneralAgent):
     ``lifetime``           int            Hours to complete growth cycle.
     ``reproduce``          bool
     ``growth_criteria``    str            Which currency/attribute determines growth
+    ``total_growth``       int            The sum of all step values for growth_criteria currency
     ``delay_start``        int            Hours to wait before starting growth
     ``agent_step_num``     int            Current step in growth cycle, as limited by growth_critera
     ``currenct_growth``    int            Accumulated values for growth_criteria item
@@ -976,3 +938,15 @@ class PlantAgent(GeneralAgent):
             self.co2_scale = self._calculate_co2_scale(step_num)
 
         super().step()
+
+        if not self.missing_desired:
+            # Advance life cycle
+            self.agent_step_num += self.model.hours_per_step
+            # Calculated updated growth
+            growth_criteria = getattr(self, 'growth_criteria', None)
+            prefix, currency = growth_criteria.split('_', 1)
+            step_data = self.step_exchange_buffer[prefix].get(currency)
+            if step_data:
+                growth_value = sum(step_data.values())
+                self.current_growth += (growth_value / self.amount)
+                self.growth_rate = self.current_growth / self.total_growth
