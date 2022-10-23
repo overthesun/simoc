@@ -195,7 +195,7 @@ class GameRunner(object):
             target_step = min(step_num + buffer_size, max_step_num)
             n_steps = target_step - step_num
             agent_model.step_to(n_steps=n_steps)
-            records = agent_model.get_data(step_range=(step_num, target_step))
+            records = agent_model.get_data(step_range=(0, n_steps), clear_cache=True)
             # Include the number of steps so views.py knows when it's finished
             records['n_steps'] = n_steps
             self.save_records(records, user_id, batch_num)
