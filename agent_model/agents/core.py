@@ -119,10 +119,15 @@ class BaseAgent(Agent, AttributeHolder, metaclass=ABCMeta):
                 self.add_currency_to_dict(currency_data['class'])
 
     def destroy(self, reason):
-        """Destroys the agent and removes it from the model"""
+        """Destroys the agent"""
         self.cause_of_death = reason
-        self.active = False
-        self.model.remove(self)
+
+        # When an agent is destroyed, data collection must continue such that
+        # placeholder values are inserted.
+        self.active = False  # Prevents scheduler from calling agent.step()
+        self.amount = 0  # In some scenarios (e.g. threshold) this isn't set
+        self.step_exchange_buffer = {'in': {}, 'out': {}}  # Future flows are 0
+
 
 
 class StorageAgent(BaseAgent):
