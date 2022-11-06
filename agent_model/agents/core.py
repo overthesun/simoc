@@ -668,6 +668,12 @@ class GeneralAgent(StorageAgent):
                 # 6. CALCULATE TARGET VALUE
                 step_num = int(self.age)
                 step_value = self._get_step_value(attr, step_num)     # type pq.Quantity
+
+                weighted = self.attr_details[attr]['weighted']
+                if weighted is not None:
+                    for weight in weighted:
+                        step_value *= getattr(self, weight)
+
                 step_value = step_value * self.step_variable
                 step_value = step_value * np.prod(list(self.event_multipliers.values()))
                 step_mag = step_value.magnitude.tolist()    # type float
@@ -770,15 +776,12 @@ class PlantAgent(GeneralAgent):
     """
 
     def __init__(self, *args, delay_start=0, full_amount=None, agent_step_num=0,
-                 total_growth=0, current_growth=0, growth_rate=0, grown=False,
-                 **kwargs):
+                 growth_rate=0, grown=False, **kwargs):
         """Set the age and amount, parse attributes and intialize growth-tracking fields"""
         super().__init__(*args, **kwargs)
         self.delay_start = delay_start
         self.full_amount = full_amount or self.amount
         self.agent_step_num = agent_step_num
-        self.total_growth = total_growth
-        self.current_growth = current_growth
         self.growth_rate = growth_rate
         self.grown = grown
 
@@ -793,6 +796,16 @@ class PlantAgent(GeneralAgent):
         self.growth_criteria = self.attrs.get('char_growth_criteria', None)
         self.carbon_fixation = self.attrs.get('char_carbon_fixation', None)
 
+        # Daily growth: % of daily growth which occurs each hour.
+        # This is effectively a 'switch' curve with an average of 1, with
+        # 0s in the off-hours and >1s during the photoperiod.
+        hours_per_day = int(self.model.day_length_hours)
+        self.daily_growth = np.zeros(hours_per_day)
+        photoperiod = self.attrs['char_photoperiod']
+        photo_start = int((hours_per_day // 2) - (photoperiod // 2))
+        photo_end = int(photo_start + photoperiod)
+        photo_rate = hours_per_day / photoperiod
+        self.daily_growth[photo_start:photo_end] = photo_rate
 
     def _init_currency_exchange(self):
         n_steps = int(self.lifetime)
@@ -822,93 +835,52 @@ class PlantAgent(GeneralAgent):
         step_num = int(self.agent_step_num)
         step_value = super()._get_step_value(attr, step_num)
 
-        weighted = self.attr_details[attr]['weighted']
-        if weighted and weighted in self:
-            step_value *= self[weighted]
-        if attr in self.co2_scale:
-            step_value *= self.co2_scale[attr]
         return step_value
 
 
-    def _calculate_co2_scale(self, step_num, value_eps=1e-12):
+    def _calculate_co2_response(self):
         """Calculate a multiplier for each currency exchange based on ambient co2"""
 
-        # Get/Initialize cache
-        co2 = self.model.storage_ratios.get('co2', None)
-        if not co2:
+        # To avoid intra-step fluctuations in co2 response, response variables
+        # are cached each step. They are stored in `model.storage_ratios`, which
+        # are used to cache the same for structures, out of convenience.
+        co2 = self.model.storage_ratios.get('co2', None)  # Get from cache
+        if co2 is None:                                   # or initialize
             co2 = dict(time=0, co2_uptake_ratio=1, transpiration_efficiency_factor=1)
             self.model.storage_ratios['co2'] = co2
 
-        # Check for cached value at time, else calculate
+        # If the cached values are for this time, use them
+        # TODO: Need to save different values for c3/c4 crops. Currently
+        # the carbon_fixation type of the first plant called by model.step()
+        # is used for all plants that step.
         if co2['time'] == str(self.model.time):
             co2_uptake_ratio = co2['co2_uptake_ratio']
             transpiration_efficiency_factor = co2['transpiration_efficiency_factor']
         else:
-            co2_ppm = self._get_storage_ratio('co2_ratio_in') * 1e6
-            co2_ppm = max(350, min(1000, co2_ppm)) # Limit effect to 350-1000ppm range
-            t_mean = 25 # Mean temperature for timestep. TODO: Link to connection
+            co2_concentration = self._get_storage_ratio('co2_ratio_in') * 1e6
+            co2_ideal = 700 # ppm
+            co2_actual = max(350, min(co2_concentration, co2_ideal))
 
-            # Calculate the ratio of increased co2 uptake [Vanuytrecht 5]
-            if self.carbon_fixation == 'c3':
+            # CO2 Response Factor: Decrease growth if actual < ideal
+            if self.attrs['char_carbon_fixation'] == 'c3':
+                # Standard equation found in research; gives *increase* in growth for eCO2
+                t_mean = 25 # Mean temperature for timestep.
                 tt = (163 - t_mean) / (5 - 0.1 * t_mean) # co2 compensation point
-                numerator = (co2_ppm - tt) * (350 + 2 * tt)
-                denominator = (co2_ppm + 2 * tt) * (350 - tt)
+                numerator = (co2_actual - tt) * (350 + 2 * tt)
+                denominator = (co2_actual + 2 * tt) * (350 - tt)
                 co2_uptake_ratio = numerator/denominator
-            else:
-                co2_uptake_ratio = 1
+                # Invert the above to give *decrease* in growth for less than ideal CO2
+                crf_ideal = 1.2426059597016264  # At 700ppm, the above equation gives this value
+                co2_uptake_ratio = co2_uptake_ratio / crf_ideal
+            elif self.attrs['char_carbon_fixation'] == 'c4':
+                co2_uptake_ratio = 1  # c4 crops (corn, sorghum) don't benefit
 
-            # Calculate the ratio of decreased water use [Vanuytrecht 7]
+            # Transpiration Efficiency Factor: Increase water usage if actual < ideal
             co2_range = [350, 700]
-            te_range = [1, 1.37]
-            transpiration_efficiency_factor = np.interp(co2_ppm, co2_range, te_range)
+            te_range = [1/1.37, 1]  # Inverse of previously used
+            transpiration_efficiency_factor = np.interp(co2_actual, co2_range, te_range)
 
-            # Update cache
-            self.model.storage_ratios['co2'] = dict(
-                time=str(self.model.time),
-                co2_uptake_ratio=co2_uptake_ratio,
-                transpiration_efficiency_factor=transpiration_efficiency_factor)
-
-        # Calculate co2-adjusted step values
-        sv_baseline = {'in': {}, 'out': {}}
-        sv_adjusted = {'in': {}, 'out': {}}
-        cu_fields = ['co2', 'fertilizer', 'o2', 'biomass', self.agent_type]
-        te_fields = ['potable', 'h2o']
-        exclude = ['in_biomass', f'out_{self.agent_type}']
-        for attr in self.attrs:
-            prefix, currency = attr.split('_', 1)
-            if prefix not in ['in', 'out']:
-                continue
-            step_value = self.step_values[attr][step_num]
-            sv_baseline[prefix][currency] = step_value
-            if attr in exclude:
-                continue
-            elif currency in cu_fields:
-                sv_adjusted[prefix][currency] = step_value * co2_uptake_ratio
-            elif currency in te_fields:
-                sv_adjusted[prefix][currency] = step_value * (1 / transpiration_efficiency_factor)
-
-        # Calculate error (difference between total inputs and outputs)
-        net_inputs = sum(sv_adjusted['in'].values())
-        net_outputs = sum(sv_adjusted['out'].values())
-        sv_error = net_inputs - net_outputs
-
-        # Remove error proportionally from outputs
-        if sv_error > value_eps:
-            corrected = {}
-            for currency, value in sv_adjusted['out'].items():
-                correction = (value / net_outputs) * sv_error
-                corrected[currency] = value + correction
-            sv_adjusted['out'] = corrected
-
-        # Convert to scale factors (1 = no change)
-        sv_scale = {}
-        for prefix in ['in', 'out']:
-            for currency, baseline in sv_baseline[prefix].items():
-                attr_name = f"{prefix}_{currency}"
-                adjusted = sv_adjusted[prefix].get(currency, None)
-                sv_scale[attr_name] = 1 if not adjusted else adjusted / baseline
-        return sv_scale
-
+        return co2_uptake_ratio, transpiration_efficiency_factor
 
     def step(self):
         """TODO"""
@@ -917,41 +889,36 @@ class PlantAgent(GeneralAgent):
             return
         if self.grown:
             if self.reproduce:
-                # Delay start until 'hour 0' so daylight cycles remain aligned
-                # TODO: Any shortfall of currency delays aging and causes
-                # disalignment; this will require a deeper redesign to fix.
-                step_num = int(self.age)
-                day_length = int(self.model.day_length_hours)
-                current_hour = step_num % day_length
-                delay = day_length - current_hour - 1
-
                 self.age = 0
-                self.current_growth = 0
                 self.growth_rate = 0
                 self.agent_step_num = 0
                 self.grown = False
                 self.amount = self.full_amount
-                self.delay_start = delay
+                self['biomass'] = 0
                 return
             self.destroy(f'Lifetime limit has been reached by {self.agent_type}. Killing the agent.')
 
+        # Update lifecycle
         if self.agent_step_num >= self.lifetime - 1 > 0:
             self.grown = True  # Complete last flow cycle and terminate next step
-        elif self.carbon_fixation:
-            # Calculate co2 multipliers for each currency for the next step
-            step_num = int(self.agent_step_num + 1)
-            self.co2_scale = self._calculate_co2_scale(step_num)
+
+        # Update Weights
+        self.growth_rate = self['biomass'] / self.attrs['char_capacity_biomass']
+        hour_of_day = self.model.step_num % int(self.model.day_length_hours)
+        self.daily_growth_factor = self.daily_growth[hour_of_day]
+        self.cu_factor, self.te_factor = self._calculate_co2_response()
+        # Light response
+        light_type = self.connections['in']['par'][0]
+        light_agent = self.model.get_agents_by_type(light_type)[0]
+        par_available = light_agent['par']
+        par_ideal = self.attrs['char_par_baseline'] * self.daily_growth_factor
+        par_actual = min(par_available, par_ideal)
+        if par_actual > 0:
+            light_agent.increment('par', -par_actual)
+        self.par_factor = min(1, par_actual / par_ideal)
 
         super().step()
 
         if not self.missing_desired:
             # Advance life cycle
             self.agent_step_num += self.model.hours_per_step
-            # Calculated updated growth
-            growth_criteria = getattr(self, 'growth_criteria', None)
-            prefix, currency = growth_criteria.split('_', 1)
-            step_data = self.step_exchange_buffer[prefix].get(currency)
-            if step_data:
-                growth_value = sum(step_data.values())
-                self.current_growth += (growth_value / self.amount)
-                self.growth_rate = self.current_growth / self.total_growth

@@ -43,11 +43,9 @@ class AgentDataCollector():
                                                          unit=self.agent.attr_details[class_attr]['unit'])
             # Plants
             if attr.startswith('char_growth_criteria'):
-                self.snapshot_attrs += ['total_growth', 'growth', 'co2_scale']
-                self.total_growth = self.agent.total_growth,
-                self.growth = dict(current_growth=[], growth_rate=[],
+                self.snapshot_attrs += ['growth']
+                self.growth = dict(par_factor=[], growth_rate=[],
                                    grown=[], agent_step_num=[])
-                self.co2_scale = {k: [] for k in self.agent.co2_scale.keys()}
             # Flows
             if attr.startswith(('in', 'out')):
                 if 'flows' not in self.snapshot_attrs:

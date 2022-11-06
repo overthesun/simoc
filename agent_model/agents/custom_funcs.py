@@ -22,3 +22,6 @@ def atmosphere_equalizer(agent):
         amount_adj = amount * flow_rate
         habitat[gas] -= amount_adj
         greenhouse[gas] += amount_adj
+
+def electric_light(agent):
+    agent['par'] = 1000

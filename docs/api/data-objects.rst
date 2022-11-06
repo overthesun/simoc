@@ -165,7 +165,7 @@ Agent Description
             }
         },
         'requires': ['h2'],             # If input is missing, skip flow
-        'weighted': 'current_growth'    # Multiply value by agent storage amount or attribute
+        'weighted': ['growth_rate']     # Multiply value by agent storage amounts or attributes
         'criteria': {                   # Activate flow based on view of a connected agent
             'name': 'co2_ratio_in',     # '<currency>_<view>_<direction>'
             'limit': '>',               # '=', '>', '<'

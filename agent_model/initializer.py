@@ -240,9 +240,8 @@ class AgentModelInitializer():
                 delay_start=agent.delay_start,
                 agent_step_num=agent.agent_step_num,
                 full_amount=agent.full_amount,
-                total_growth=agent.total_growth,
-                current_growth=agent.current_growth,
                 growth_rate=agent.growth_rate,
+                par_factor=agent.par_factor,
                 grown=agent.grown,
             )
             instance = {**instance, **plant_fields}
