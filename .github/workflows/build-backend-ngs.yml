@@ -57,7 +57,7 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           path: simoc-web
       - name: Set up gcloud CLI
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v1
         with:
           version: '290.0.1'
           service_account_key: ${{ secrets.GKE_SA_KEY }}
@@ -142,7 +142,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Set up gcloud CLI
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v1
         with:
           version: '290.0.1'
           service_account_key: ${{ secrets.GKE_SA_KEY }}
