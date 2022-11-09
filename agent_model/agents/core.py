@@ -915,10 +915,10 @@ class PlantAgent(GeneralAgent):
         par_actual = min(par_available, par_ideal)
         if par_actual > 0:
             light_agent.increment('par', -par_actual)
-        self.par_factor = min(1, par_actual / par_ideal)
+        self.par_factor = 0 if par_ideal == 0 else min(1, par_actual / par_ideal)
 
         super().step()
 
-        if not self.missing_desired:
-            # Advance life cycle
-            self.agent_step_num += self.model.hours_per_step
+        # if not self.missing_desired:
+        #     # Advance life cycle
+        self.agent_step_num += self.model.hours_per_step
