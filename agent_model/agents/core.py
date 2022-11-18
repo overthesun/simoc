@@ -672,7 +672,13 @@ class GeneralAgent(StorageAgent):
                 weighted = self.attr_details[attr]['weighted']
                 if weighted is not None:
                     for weight in weighted:
-                        step_value *= getattr(self, weight)
+                        weight_value = getattr(self, weight)
+                        # If weighted by some currency, must first divide by
+                        # amount, because it's multiplied by amount again later
+                        if (weight in self.currency_dict and
+                            self.currency_dict[currency]['type'] == 'currency'):
+                            weight_value /= self.amount
+                        step_value *= weight_value
 
                 step_value = step_value * self.step_variable
                 step_value = step_value * np.prod(list(self.event_multipliers.values()))
@@ -903,7 +909,7 @@ class PlantAgent(GeneralAgent):
             self.grown = True  # Complete last flow cycle and terminate next step
 
         # Update Weights
-        self.growth_rate = self['biomass'] / self.attrs['char_capacity_biomass']
+        self.growth_rate = (self['biomass'] / self.amount) / self.attrs['char_capacity_biomass']
         hour_of_day = self.model.step_num % int(self.model.day_length_hours)
         self.daily_growth_factor = self.daily_growth[hour_of_day]
         self.cu_factor, self.te_factor = self._calculate_co2_response()

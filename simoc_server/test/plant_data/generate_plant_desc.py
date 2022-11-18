@@ -6,12 +6,11 @@ This script updates the plant agents in agent_desc.json and agent_conn.json
 based on the values in 'simoc-plant-exchanges.csv'
 """
 
-def build_plant_desc(exchanges_path, agent_desc_path, agent_conn_path,
-                     currency_desc_path):
+def build_plant_desc(exchanges_path, data_files_path):
 
     # Load agent_desc file or create new
     try:
-        with open(agent_desc_path) as f:
+        with open(data_files_path + '/agent_desc.json') as f:
             agent_desc = json.load(f)
     except:
         print('Source agent_desc not found, generating new')
@@ -21,6 +20,11 @@ def build_plant_desc(exchanges_path, agent_desc_path, agent_conn_path,
     plant_exchanges = pd.read_csv(exchanges_path)
     for i, row in plant_exchanges.iterrows():
         plant_name = '_'.join(row['plant'].split(' '))
+        def val(field):
+            v = row[field]
+            if isinstance(v, (int, float)):
+                v = round(v, 6)
+            return v
 
         # Convert to agent_desc schema
         plant_desc = {'data': {
@@ -31,21 +35,21 @@ def build_plant_desc(exchanges_path, agent_desc_path, agent_conn_path,
                     'flow_rate': {'unit': 'mol', 'time': 'hour'},
                 }, {
                     'type': 'co2',
-                    'value': row['in_co2'],
+                    'value': val('in_co2'),
                     'required': 'desired',
                     'flow_rate': {'unit': 'kg', 'time': 'hour'},
                     'deprive': {'value': 72, 'unit': 'hour'},
                     'weighted': ['daily_growth_factor', 'par_factor', 'growth_rate', 'cu_factor']
                 }, {
                     'type': 'potable',
-                    'value': row['in_potable'],
+                    'value': val('in_potable'),
                     'required': 'desired',
                     'flow_rate': {'unit': 'kg', 'time': 'hour'},
                     'deprive': {'value': 72, 'unit': 'hour'},
                     'weighted': ['daily_growth_factor', 'par_factor', 'growth_rate', 'te_factor']
                 }, {
                     'type': 'fertilizer',
-                    'value': row['in_fertilizer'],
+                    'value': val('in_fertilizer'),
                     'required': 'desired',
                     'flow_rate': {'unit': 'kg', 'time': 'hour'},
                     'deprive': {'value': 72, 'unit': 'hour'},
@@ -55,44 +59,44 @@ def build_plant_desc(exchanges_path, agent_desc_path, agent_conn_path,
             'output': [
                 {
                     'type': 'o2',
-                    'value': row['out_o2'],
+                    'value': val('out_o2'),
                     'flow_rate': {'unit': 'kg', 'time': 'hour'},
                     'weighted': ['daily_growth_factor', 'par_factor', 'growth_rate', 'cu_factor']
                 }, {
                     'type': 'h2o',
-                    'value': row['out_h2o'],
+                    'value': val('out_h2o'),
                     'flow_rate': {'unit': 'kg', 'time': 'hour'},
                     'weighted': ['daily_growth_factor', 'par_factor', 'growth_rate', 'te_factor']
                 }, {
                     'type': 'biomass',
-                    'value': row['out_biomass'],
+                    'value': val('out_biomass'),
                     'flow_rate': {'unit': 'kg', 'time': 'hour'},
                     "growth": {"lifetime": {"type": "norm"}},
                     'weighted': ['daily_growth_factor', 'par_factor', 'cu_factor']
                 }, {
                     # HARVEST
                     'type': plant_name,  # Food
-                    'value': row['char_harvest_index'],
+                    'value': val('char_harvest_index'),
                     'flow_rate': {'unit': 'kg', 'time': 'hour'},
-                    'weighted': ['growth_rate'],
+                    'weighted': ['biomass'],
                     'criteria': {'name': 'grown', 'limit': '=', 'value': True},
                 }, {
                     'type': 'inedible_biomass',
-                    'value': 1 - row['char_harvest_index'],
+                    'value': 1 - val('char_harvest_index'),
                     'flow_rate': {'unit': 'kg', 'time': 'hour'},
-                    'weighted': ['growth_rate'],
+                    'weighted': ['biomass'],
                     'criteria': {'name': 'grown', 'limit': '=', 'value': True},
                 }
             ],
             'characteristics': [
-                {'type': 'par_baseline', 'value': row['char_par_baseline'], 'unit': 'mol'},
-                {'type': 'photoperiod', 'value': row[f'char_photoperiod'], 'unit': 'hour'},
-                {'type': 'lifetime', 'value': row[f'char_lifetime']*24, 'unit': 'hour'},
-                {'type': 'carbon_fixation', 'value': row['char_carbon_fixation']},
-                {'type': 'harvest_index', 'value': row['char_harvest_index']},
+                {'type': 'par_baseline', 'value': val('char_par_baseline'), 'unit': 'mol'},
+                {'type': 'photoperiod', 'value': val(f'char_photoperiod'), 'unit': 'hour'},
+                {'type': 'lifetime', 'value': val(f'char_lifetime')*24, 'unit': 'hour'},
+                {'type': 'carbon_fixation', 'value': val('char_carbon_fixation')},
+                {'type': 'harvest_index', 'value': val('char_harvest_index')},
                 {'type': 'reproduce', 'value': True},
                 {'type': 'capacity_biomass',
-                 'value': round(row['out_biomass'] * row['char_lifetime'] * 24, 6),
+                 'value': round(val('out_biomass') * val('char_lifetime') * 24, 6),
                  'unit': 'kg'},
             ]
         }}
@@ -131,19 +135,29 @@ def build_plant_desc(exchanges_path, agent_desc_path, agent_conn_path,
         }
     }
 
+    # Update CO2 regulation system to higher baseline
+    for agent, value in {('co2_removal_SAWD', .0025),
+                         ('co2_makeup_valve', .002)}:
+        inputs = agent_desc['eclss'][agent]['data']['input']
+        for i, input in enumerate(inputs):
+            if input['type'] == 'co2':
+                inputs[i]['criteria']['value'] = value
+        agent_desc['eclss'][agent]['data']['input'] = inputs
+
     # Save updated agent_desc
-    with open(agent_desc_path, 'w') as f:
+    with open(data_files_path + '/agent_desc.json', 'w') as f:
         json.dump(agent_desc, f)
 
     # Connections -------------------------------------------------------------
     try:
-        with open(agent_conn_path) as f:
+        with open(data_files_path + '/agent_conn.json') as f:
             agent_conn = json.load(f)
     except:
         agent_conn = []
 
     # Remove existing connections for plants
-    all_plants = {p for p in agent_desc['plants']}
+    all_plants = [p for p in agent_desc['plants']]
+    all_plants.sort()
     def is_plant_connection(conn):
          _from, _to = conn['from'].split('.')[0], conn['to'].split('.')[0]
          return _from in all_plants or _to in all_plants
@@ -164,12 +178,12 @@ def build_plant_desc(exchanges_path, agent_desc_path, agent_conn_path,
         ]
 
     # Save updated agent_conn
-    with open(agent_conn_path, 'w') as f:
+    with open(data_files_path + '/agent_conn.json', 'w') as f:
         json.dump(agent_conn, f)
 
     # Currencies -------------------------------------------------------------
     try:
-        with open(currency_desc_path) as f:
+        with open(data_files_path + '/currency_desc.json') as f:
             currency_desc = json.load(f)
     except:
         currency_desc = {'food': {}}
@@ -183,8 +197,38 @@ def build_plant_desc(exchanges_path, agent_desc_path, agent_conn_path,
     currency_desc['energy']['par'] = {
         'label': 'Photosynthetically Active Radiation', 'unit': 'moles/m2-h'}
 
-    with open(currency_desc_path, 'w') as f:
+    with open(data_files_path + '/currency_desc.json', 'w') as f:
         json.dump(currency_desc, f)
+
+
+    # Preset Configurations ---------------------------------------------------
+    """
+    1. Add light agent
+    2. Increase co2_makeup_valve amount, co2_storage starting co2
+    3. Update agent_desc for co2_removal_SAWD and valve to higher thresholds
+    """
+    update_config = {
+        # '1h': {},
+        '1hg_sam': {'makeup_valves': 3, 'starting_co2': 200},
+        '1hrad': {'makeup_valves': 3, 'starting_co2': 200},
+        # '4h': {},
+        '4hg': {'makeup_valves': 3, 'starting_co2': 200},
+        'disaster': {'makeup_valves': 3, 'starting_co2': 200},
+    }
+    for config_name, changes in update_config.items():
+        fpath = f'{data_files_path}/config_{config_name}.json'
+        with open(fpath) as f:
+            config = json.load(f)
+
+        # Add a light agent
+        config['agents']['light'] = {'amount': 1}
+
+        # Increase the number of co2 makeup valves to keep up with
+        config['agents']['co2_makeup_valve']['amount'] = changes['makeup_valves']
+        config['agents']['co2_storage']['co2'] = changes['starting_co2']
+
+        with open(fpath, 'w') as f:
+            json.dump(config, f)
 
 if __name__ == '__main__':
     """TODO: Add ArgParser to select source and desination explicitly"""
@@ -192,8 +236,6 @@ if __name__ == '__main__':
     # A .csv file with rows matching currency exchanges / characteristics
     exchanges_path = 'simoc_server/test/plant_data/simoc-plant-exchanges.csv'
     # A .json file (new or existing) following the SIMOC json schemas
-    agent_desc_path = 'data_files/agent_desc.json'
-    agent_conn_path = 'data_files/agent_conn.json'
-    currency_desc_path = 'data_files/currency_desc.json'
+    data_files_path = 'data_files'
 
-    build_plant_desc(exchanges_path, agent_desc_path, agent_conn_path, currency_desc_path)
+    build_plant_desc(exchanges_path, data_files_path)

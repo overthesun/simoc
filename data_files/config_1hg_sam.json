@@ -89,11 +89,12 @@
         },
         "co2_makeup_valve": {
             "id": 1,
-            "amount": 1
+            "amount": 3
         },
         "co2_storage": {
             "id": 1,
-            "amount": 1
+            "amount": 1,
+            "co2": 200
         },
         "co2_reduction_sabatier": {
             "id": 1,
@@ -126,6 +127,9 @@
             "cabbage": 0,
             "tomato": 0,
             "sweet_potato": 0
+        },
+        "light": {
+            "amount": 1
         }
     },
     "termination": [

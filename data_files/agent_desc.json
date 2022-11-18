@@ -488,7 +488,7 @@
                         "criteria": {
                             "name": "co2_ratio_in",
                             "limit": ">",
-                            "value": 0.001,
+                            "value": 0.0025,
                             "buffer": 8
                         }
                     },
@@ -548,7 +548,7 @@
                         "criteria": {
                             "name": "co2_ratio_out",
                             "limit": "<",
-                            "value": 0.0004,
+                            "value": 0.002,
                             "buffer": 8
                         }
                     }
@@ -859,7 +859,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -875,7 +875,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1045,7 +1045,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1061,7 +1061,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1231,7 +1231,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1247,7 +1247,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1417,7 +1417,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1433,7 +1433,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1603,7 +1603,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1619,7 +1619,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1789,7 +1789,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1805,7 +1805,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1975,7 +1975,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -1991,7 +1991,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -2161,7 +2161,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -2177,7 +2177,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -2347,7 +2347,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -2363,7 +2363,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -2533,7 +2533,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -2549,7 +2549,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -2719,7 +2719,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -2735,7 +2735,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -2905,7 +2905,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -2921,7 +2921,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -3091,7 +3091,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -3107,7 +3107,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -3277,7 +3277,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -3293,7 +3293,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -3463,7 +3463,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -3479,7 +3479,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -3649,7 +3649,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -3665,7 +3665,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -3835,7 +3835,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -3851,7 +3851,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4021,7 +4021,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4037,7 +4037,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4207,7 +4207,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4223,7 +4223,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4393,7 +4393,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4409,7 +4409,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4579,7 +4579,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4595,7 +4595,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4765,7 +4765,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4781,7 +4781,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4951,7 +4951,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -4967,7 +4967,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -5137,7 +5137,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -5153,7 +5153,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -5323,7 +5323,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -5339,7 +5339,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -5509,7 +5509,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
@@ -5525,7 +5525,7 @@
                             "time": "hour"
                         },
                         "weighted": [
-                            "growth_rate"
+                            "biomass"
                         ],
                         "criteria": {
                             "name": "grown",
