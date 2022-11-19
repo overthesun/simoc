@@ -73,7 +73,7 @@
         },
         "multifiltration_purifier_post_treatment": {
             "id": 1,
-            "amount": 2
+            "amount": 3
         },
         "oxygen_generation_SFWE": {
             "id": 1,
@@ -106,7 +106,7 @@
         },
         "dehumidifier": {
             "id": 1,
-            "amount": 4
+            "amount": 3
         },
         "rice": {
             "amount": 2

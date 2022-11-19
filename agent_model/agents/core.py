@@ -650,7 +650,7 @@ class GeneralAgent(StorageAgent):
             self.step_variable = self.generate_step_variable()
 
         # ITERATE THROUGH EACH INPUT AND OUTPUT
-        influx = set()     # For 'requires' field
+        influx = {}     # For 'requires' field
         self.missing_desired = False  # Stalls growth if 'required = desired' field is missing
         for prefix in ['in', 'out']:
             for currency, selected_storages in self.selected_storage[prefix].items():
@@ -662,29 +662,28 @@ class GeneralAgent(StorageAgent):
                     # e.g. Atmosphere Equalizer: uses custom_func, has dummy flow to initialize connections
                     continue
                 requires = attr_details.get('requires') or []
-                if len(requires) > 0 and len(set(requires).difference(influx)) > 0:
+                if any(_currency not in influx for _currency in requires):
                     # e.g. Human: if not consume potable water, don't produce urine
                     continue
 
                 # 6. CALCULATE TARGET VALUE
                 step_num = int(self.age)
                 step_value = self._get_step_value(attr, step_num)     # type pq.Quantity
-
-                weighted = self.attr_details[attr]['weighted']
-                if weighted is not None:
-                    for weight in weighted:
-                        weight_value = getattr(self, weight)
-                        if (weight in self.currency_dict and
-                            # If weighted by some currency, must first divide by
-                            # amount, because it's multiplied by amount again later
-                            self.currency_dict[currency]['type'] == 'currency'):
-                            weight_value /= self.amount
-                        elif weight == 'growth_rate':
-                            # If weighted by growth rate, multiply by 2 because
-                            # for an un-skewed sigmoid curve, max height is
-                            # equal to 2x mean height
-                            weight_value *= 2
-                        step_value *= weight_value
+                for _currency in requires:
+                    step_value *= influx.get(_currency,)  # scale outputs to inputs
+                weighted = attr_details.get('weighted') or []
+                for weight in weighted:
+                    weight_value = getattr(self, weight)
+                    if (weight in self.currency_dict and
+                        # If weighted by some currency, must first divide by
+                        # amount, because it's multiplied by amount again later
+                        self.currency_dict[currency]['type'] == 'currency'):
+                        weight_value /= self.amount
+                    elif weight == 'growth_rate':
+                        # If weighted by growth rate, multiply by 2 because for
+                        # an un-skewed sigmoid curve, max height is 2x mean
+                        weight_value *= 2
+                    step_value *= weight_value
 
                 step_value = step_value * self.step_variable
                 step_value = step_value * np.prod(list(self.event_multipliers.values()))
@@ -737,6 +736,10 @@ class GeneralAgent(StorageAgent):
                                              self.deprive[attr] + deprive_value)
 
                 # 9. PROCESS EXCHANGE
+                if actual_value < value_eps:  # ignore values less than 1e-12
+                    continue
+                if prefix == 'in':  # log input ratios to scale outputs
+                    influx[currency] = actual_value / target_value
                 remaining_value = actual_value
                 for conn in available_conns:
                     storage = conn['agent']
@@ -747,17 +750,13 @@ class GeneralAgent(StorageAgent):
                         conn_delta = remaining_value / len(available_conns)
                         flow = storage.increment(currency, conn_delta)
                     remaining_value -= conn_delta
-                    if actual_value < value_eps:  # ignore values less than 1e-12
-                        continue
-                    # Log exchanged values
-                    if prefix == 'in':
-                        influx.add(currency)
                     buf = self.step_exchange_buffer[prefix]
                     for _currency, _amount in flow.items():
                         if _currency not in buf:
                             buf[_currency] = {}
                         buf[_currency][storage.agent_type] = abs(_amount)
-
+        if any(i != 1.0 for i in influx.values()):
+            print(self.agent_type, influx)
 
     def kill(self, number, reason):
         """Destroy the agent and remove it from the model

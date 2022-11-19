@@ -60,16 +60,19 @@ def build_plant_desc(exchanges_path, data_files_path):
                 {
                     'type': 'o2',
                     'value': val('out_o2'),
+                    'requires': ['co2'],
                     'flow_rate': {'unit': 'kg', 'time': 'hour'},
                     'weighted': ['daily_growth_factor', 'par_factor', 'growth_rate', 'cu_factor']
                 }, {
                     'type': 'h2o',
                     'value': val('out_h2o'),
+                    'requires': ['potable'],
                     'flow_rate': {'unit': 'kg', 'time': 'hour'},
                     'weighted': ['daily_growth_factor', 'par_factor', 'growth_rate', 'te_factor']
                 }, {
                     'type': 'biomass',
                     'value': val('out_biomass'),
+                    # 'requires': ['co2', 'potable', 'fertilizer'],  # Causes actual to be zero??
                     'flow_rate': {'unit': 'kg', 'time': 'hour'},
                     "growth": {"lifetime": {"type": "norm"}},
                     'weighted': ['daily_growth_factor', 'par_factor', 'cu_factor']
@@ -209,10 +212,10 @@ def build_plant_desc(exchanges_path, data_files_path):
     """
     update_config = {
         # '1h': dict(),
-        '1hg_sam': dict(makeup_valves=3, starting_co2=200, dehumidifiers=4, purifiers=2),
-        '1hrad': dict(makeup_valves=3, starting_co2=200, dehumidifiers=4, purifiers=2),
+        '1hg_sam': dict(makeup_valves=3, starting_co2=200, dehumidifiers=3, purifiers=3),
+        '1hrad': dict(makeup_valves=3, starting_co2=200, dehumidifiers=3, purifiers=3),
         # '4h': dict(),
-        '4hg': dict(makeup_valves=3, starting_co2=200, dehumidifiers=4, purifiers=2),
+        '4hg': dict(makeup_valves=3, starting_co2=200, dehumidifiers=3, purifiers=3),
         # 'disaster': dict(),
     }
     for config_name, changes in update_config.items():

@@ -1,1 +1,160 @@
-{"agents": {"human_agent": {"amount": 4}, "solar_pv_array_mars": {"amount": 400}, "crew_habitat_medium": {"id": 1, "amount": 1, "n2": 2205.873, "o2": 591.7245, "co2": 1.167629, "ch4": 0.00528275, "h2": 0.00155375, "h2o": 28.25, "total_capacity": {"value": 2825.0, "unit": "kg"}}, "greenhouse_small": {"id": 1, "amount": 1, "n2": 478.2645, "o2": 128.29425, "co2": 0.2531585, "ch4": 0.001145375, "h2": 0.000336875, "h2o": 6.125, "total_capacity": {"value": 612.5, "unit": "kg"}}, "atmosphere_equalizer": {"id": 1, "amount": 1}, "water_storage": {"id": 1, "amount": 1, "potable": 2475.0, "treated": 275.0, "total_capacity": {"value": 2750.0, "unit": "kg"}, "urine": 0, "feces": 0}, "nutrient_storage": {"id": 1, "amount": 1, "fertilizer": 300, "biomass": 0, "waste": 0}, "ration_storage": {"id": 1, "amount": 1, "ration": 1200}, "power_storage": {"id": 1, "amount": 2, "kwh": 2000}, "solid_waste_aerobic_bioreactor": {"id": 1, "amount": 1}, "multifiltration_purifier_post_treatment": {"id": 1, "amount": 2}, "oxygen_generation_SFWE": {"id": 1, "amount": 1}, "urine_recycling_processor_VCD": {"id": 1, "amount": 1}, "co2_removal_SAWD": {"id": 1, "amount": 1}, "co2_makeup_valve": {"id": 1, "amount": 3}, "co2_storage": {"id": 1, "amount": 1, "co2": 200}, "co2_reduction_sabatier": {"id": 1, "amount": 1}, "ch4_removal_agent": {"id": 1, "amount": 1}, "dehumidifier": {"id": 1, "amount": 4}, "wheat": {"amount": 20}, "cabbage": {"amount": 30}, "strawberry": {"amount": 10}, "radish": {"amount": 50}, "red_beet": {"amount": 50}, "onion": {"amount": 50}, "food_storage": {"id": 1, "amount": 1, "wheat": 0, "cabbage": 0, "strawberry": 0, "onion": 0, "radish": 0, "red_beet": 0}, "light": {"amount": 1}}, "termination": [{"condition": "time", "value": 100, "unit": "day"}], "single_agent": 1, "priorities": ["structures", "storage", "power_generation", "inhabitants", "eclss", "plants"], "total_amount": 26}
+{
+    "agents": {
+        "human_agent": {
+            "amount": 4
+        },
+        "solar_pv_array_mars": {
+            "amount": 400
+        },
+        "crew_habitat_medium": {
+            "id": 1,
+            "amount": 1,
+            "n2": 2205.873,
+            "o2": 591.7245,
+            "co2": 1.167629,
+            "ch4": 0.00528275,
+            "h2": 0.00155375,
+            "h2o": 28.25,
+            "total_capacity": {
+                "value": 2825.0,
+                "unit": "kg"
+            }
+        },
+        "greenhouse_small": {
+            "id": 1,
+            "amount": 1,
+            "n2": 478.2645,
+            "o2": 128.29425,
+            "co2": 0.2531585,
+            "ch4": 0.001145375,
+            "h2": 0.000336875,
+            "h2o": 6.125,
+            "total_capacity": {
+                "value": 612.5,
+                "unit": "kg"
+            }
+        },
+        "atmosphere_equalizer": {
+            "id": 1,
+            "amount": 1
+        },
+        "water_storage": {
+            "id": 1,
+            "amount": 1,
+            "potable": 2475.0,
+            "treated": 275.0,
+            "total_capacity": {
+                "value": 2750.0,
+                "unit": "kg"
+            },
+            "urine": 0,
+            "feces": 0
+        },
+        "nutrient_storage": {
+            "id": 1,
+            "amount": 1,
+            "fertilizer": 300,
+            "biomass": 0,
+            "waste": 0
+        },
+        "ration_storage": {
+            "id": 1,
+            "amount": 1,
+            "ration": 1200
+        },
+        "power_storage": {
+            "id": 1,
+            "amount": 2,
+            "kwh": 2000
+        },
+        "solid_waste_aerobic_bioreactor": {
+            "id": 1,
+            "amount": 1
+        },
+        "multifiltration_purifier_post_treatment": {
+            "id": 1,
+            "amount": 3
+        },
+        "oxygen_generation_SFWE": {
+            "id": 1,
+            "amount": 1
+        },
+        "urine_recycling_processor_VCD": {
+            "id": 1,
+            "amount": 1
+        },
+        "co2_removal_SAWD": {
+            "id": 1,
+            "amount": 1
+        },
+        "co2_makeup_valve": {
+            "id": 1,
+            "amount": 3
+        },
+        "co2_storage": {
+            "id": 1,
+            "amount": 1,
+            "co2": 200
+        },
+        "co2_reduction_sabatier": {
+            "id": 1,
+            "amount": 1
+        },
+        "ch4_removal_agent": {
+            "id": 1,
+            "amount": 1
+        },
+        "dehumidifier": {
+            "id": 1,
+            "amount": 3
+        },
+        "wheat": {
+            "amount": 20
+        },
+        "cabbage": {
+            "amount": 30
+        },
+        "strawberry": {
+            "amount": 10
+        },
+        "radish": {
+            "amount": 50
+        },
+        "red_beet": {
+            "amount": 50
+        },
+        "onion": {
+            "amount": 50
+        },
+        "food_storage": {
+            "id": 1,
+            "amount": 1,
+            "wheat": 0,
+            "cabbage": 0,
+            "strawberry": 0,
+            "onion": 0,
+            "radish": 0,
+            "red_beet": 0
+        },
+        "light": {
+            "amount": 1
+        }
+    },
+    "termination": [
+        {
+            "condition": "time",
+            "value": 100,
+            "unit": "day"
+        }
+    ],
+    "single_agent": 1,
+    "priorities": [
+        "structures",
+        "storage",
+        "power_generation",
+        "inhabitants",
+        "eclss",
+        "plants"
+    ],
+    "total_amount": 26
+}
