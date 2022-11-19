@@ -216,7 +216,7 @@ def parse_data(data, path):
         if index == '*':
             # All Items
             parsed = [parse_data(d, remainder) for d in data]
-            return [d for d in parsed if d]
+            return [d for d in parsed if d is not None]
         elif isinstance(index, int):
             # Single index
             return parse_data(data[index], remainder)

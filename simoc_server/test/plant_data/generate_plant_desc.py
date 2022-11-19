@@ -208,12 +208,12 @@ def build_plant_desc(exchanges_path, data_files_path):
     3. Update agent_desc for co2_removal_SAWD and valve to higher thresholds
     """
     update_config = {
-        # '1h': {},
-        '1hg_sam': {'makeup_valves': 3, 'starting_co2': 200},
-        '1hrad': {'makeup_valves': 3, 'starting_co2': 200},
-        # '4h': {},
-        '4hg': {'makeup_valves': 3, 'starting_co2': 200},
-        'disaster': {'makeup_valves': 3, 'starting_co2': 200},
+        # '1h': dict(),
+        '1hg_sam': dict(makeup_valves=3, starting_co2=200, dehumidifiers=4, purifiers=2),
+        '1hrad': dict(makeup_valves=3, starting_co2=200, dehumidifiers=4, purifiers=2),
+        # '4h': dict(),
+        '4hg': dict(makeup_valves=3, starting_co2=200, dehumidifiers=4, purifiers=2),
+        # 'disaster': dict(),
     }
     for config_name, changes in update_config.items():
         fpath = f'{data_files_path}/config_{config_name}.json'
@@ -226,6 +226,10 @@ def build_plant_desc(exchanges_path, data_files_path):
         # Increase the number of co2 makeup valves to keep up with
         config['agents']['co2_makeup_valve']['amount'] = changes['makeup_valves']
         config['agents']['co2_storage']['co2'] = changes['starting_co2']
+
+        # Increase water management
+        config['agents']['dehumidifier']['amount'] = changes['dehumidifiers']
+        config['agents']['multifiltration_purifier_post_treatment']['amount'] = changes['purifiers']
 
         with open(fpath, 'w') as f:
             json.dump(config, f)

@@ -568,7 +568,7 @@ class GeneralAgent(StorageAgent):
                 continue
             # Add instance
             if attr_value == 'termination':
-                self.kill(f"Agent died due to {event_type}")
+                self.kill(self.amount, f"Agent died due to {event_type}")
             elif attr_value == 'multiplier':
                 magnitude = attr_details['magnitude_value']
                 magnitude_variation_distribution = attr_details.get('magnitude_variation_distribution')
@@ -630,8 +630,9 @@ class GeneralAgent(StorageAgent):
                             storage_ratio = self.model.storage_ratios[agent_id][currency + '_ratio']
                             opp = {'upper': operator.gt, 'lower': operator.lt}[threshold_type]
                             if opp(storage_ratio, attr_value):
-                                self.kill('Threshold {} met for {}. Killing the agent'.format(
-                                    currency, self.agent_type))
+                                self.kill(self.amount,
+                                          f'Threshold {currency} met for '
+                                          f'{self.agent_type}. Killing the agent')
                                 return
             # 2. EXECUTE CUSTOM FUNCTIONS
             if attr == 'char_custom_function':
@@ -673,11 +674,16 @@ class GeneralAgent(StorageAgent):
                 if weighted is not None:
                     for weight in weighted:
                         weight_value = getattr(self, weight)
-                        # If weighted by some currency, must first divide by
-                        # amount, because it's multiplied by amount again later
                         if (weight in self.currency_dict and
+                            # If weighted by some currency, must first divide by
+                            # amount, because it's multiplied by amount again later
                             self.currency_dict[currency]['type'] == 'currency'):
                             weight_value /= self.amount
+                        elif weight == 'growth_rate':
+                            # If weighted by growth rate, multiply by 2 because
+                            # for an un-skewed sigmoid curve, max height is
+                            # equal to 2x mean height
+                            weight_value *= 2
                         step_value *= weight_value
 
                 step_value = step_value * self.step_variable
@@ -722,9 +728,9 @@ class GeneralAgent(StorageAgent):
                     n_survive = min(n_deprived, max_survive)
                     self.deprive[attr] -= delta_per_step * n_survive
                     n_die = n_deprived - n_survive
-                    self.amount -= n_die
-                    if self.amount <= 0:
-                        self.kill(f'All {self.agent_type} died from lack of {currency}. Killing the agent')
+                    self.kill(n_die, f'All {self.agent_type} died from lack of'
+                              f' {currency}. Killing the agent')
+                    if self.amount == 0:
                         return
                 elif deprive_value > 0:
                     self.deprive[attr] = min(deprive_value * self.amount,
@@ -753,13 +759,15 @@ class GeneralAgent(StorageAgent):
                         buf[_currency][storage.agent_type] = abs(_amount)
 
 
-    def kill(self, reason):
+    def kill(self, number, reason):
         """Destroy the agent and remove it from the model
 
         Args:
           reason: str, cause of death
         """
-        self.destroy(reason)
+        self.amount -= number
+        if self.amount == 0:
+            self.destroy(reason)
 
 
 class PlantAgent(GeneralAgent):
@@ -928,3 +936,10 @@ class PlantAgent(GeneralAgent):
         # if not self.missing_desired:
         #     # Advance life cycle
         self.agent_step_num += self.model.hours_per_step
+
+    def kill(self, number, reason):
+        dead_biomass = (number / self.amount) * self.biomass
+        self.biomass -= dead_biomass
+        self.selected_storage['out']['inedible_biomass'][0].increment(
+            'inedible_biomass', dead_biomass)
+        super().kill(number, reason)
