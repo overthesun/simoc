@@ -255,6 +255,8 @@ def convert_configuration(game_config, save_output=False):
             working_config[structure_type] = dict(id=1, amount=1, **atmosphere)
     if 'habitat' in structures_dict and 'greenhouse' in structures_dict:
         working_config['atmosphere_equalizer'] = dict(id=1, amount=1)
+    # With plant growth update, a light agent is required
+    working_config['light'] = dict(amount=1)
     # Default Storages: Some listed, some not. Need to calculate amount.
     # 'food_storage' now holds fresh food, and 'ration_storage' holds the rations. Rations are
     # still pre-loaded to 'food_storage' on the front-end though, so need to change the label.
@@ -293,7 +295,17 @@ def convert_configuration(game_config, save_output=False):
         amount = eclss.get('amount', 0) or 0
         if amount:
             for eclss_agent in eclss_agents:
-                working_config[eclss_agent] = dict(id=1, amount=amount)
+                this_amount = amount
+                if eclss_agent in {'co2_makeup_valve', 'dehumidifier',
+                                   'multifiltration_purifier_post_treatment'}:
+                    # With the updated plant growth model, extra capacity is
+                    # needed for these 3 agents in order to run successfully.
+                    this_amount *= 3
+                working_config[eclss_agent] = dict(id=1, amount=this_amount)
+                if eclss_agent == 'co2_storage':
+                    # With update, a higher CO2 concentration is maintained
+                    # and supplemental CO2 is required to keep it there
+                    working_config[eclss_agent]['co2'] = 200
     # Plants: A list of objects with 'species' and 'amount'
     plants_in_config = []
     if 'plants' in working_config and isinstance(working_config['plants'], list):
@@ -326,9 +338,9 @@ def convert_configuration(game_config, save_output=False):
         if not isinstance(attrs, dict):
             print(f"Attributes for agent type {agent_type} must be a dict")
             continue
-        if agent_type not in db_agents:
-            print(f"Agent type {agent_type} not found in database")
-            continue
+        # if agent_type not in db_agents:
+        #     print(f"Agent type {agent_type} not found in database")
+        #     continue
         full_game_config['agents'][agent_type] = attrs
     # Calculate the total number of agents. Used in `views.py` to enforce a
     # maximum number of agents per simulation (currently 50).

@@ -760,8 +760,6 @@ class GeneralAgent(StorageAgent):
                         if _currency not in buf:
                             buf[_currency] = {}
                         buf[_currency][storage.agent_type] = abs(_amount)
-        if any(i != 1.0 for i in influx.values()):
-            print(self.agent_type, influx)
 
     def kill(self, number, reason):
         """Destroy the agent and remove it from the model
