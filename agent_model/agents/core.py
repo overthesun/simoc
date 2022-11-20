@@ -322,16 +322,13 @@ class GeneralAgent(StorageAgent):
                 self.attr_details[attr]['duration_delta_per_step'] = self.model.hours_per_step * multiplier
 
 
-    def _init_currency_exchange(self, n_steps=None):
+    def _init_currency_exchange(self):
         """Initialize all values related to currency exchanges
 
         This includes making connections to other live Agents, so it must be
         isolated from __init__ and called after all Agents are initialized.
         """
         # For PlantAgents, n_steps is calculated in PlantAgent.__init__ and passed
-        n_steps = n_steps or int(self.model.day_length_hours)
-        hours_per_step = self.model.hours_per_step
-        day_length_hours = self.model.day_length_hours
         for attr in self.attrs:
             prefix, currency = attr.split('_', 1)
             if prefix not in ['in', 'out']:
@@ -375,10 +372,9 @@ class GeneralAgent(StorageAgent):
 
             # Step Values
             if attr not in self.step_values:
-                step_values = self._calculate_step_values(attr, n_steps, hours_per_step, day_length_hours)
-                self.step_values[attr] = step_values
+                self.step_values[attr] = self._calculate_step_values(attr)
 
-    def _calculate_step_values(self, attr, n_steps, hours_per_step, day_length_hours):
+    def _calculate_step_values(self, attr):
         """Calculate lifetime step values based on growth functions and add to self.step_values
 
         """
@@ -404,6 +400,15 @@ class GeneralAgent(StorageAgent):
         lifetime_growth_scale = ad['lifetime_growth_scale']
         daily_growth_steepness = ad['daily_growth_steepness']
         lifetime_growth_steepness = ad['lifetime_growth_steepness']
+
+        if lifetime_growth_type is not None:
+            n_steps = int(self.lifetime)
+        elif daily_growth_type is not None:
+            n_steps = int(self.model.day_length_hours)
+        else:
+            n_steps = 1
+        hours_per_step = self.model.hours_per_step
+        day_length_hours = self.model.day_length_hours
 
         multiplier = 1
         if agent_flow_time == 'min':
@@ -540,8 +545,8 @@ class GeneralAgent(StorageAgent):
                 if cr_buffer > 0:
                     self.buffer[attr] = cr_buffer
                 return pq.Quantity(0.0, agent_unit)
-        if step_num >= self.step_values[attr].shape[0]:
-            step_num = step_num % int(self.model.day_length_hours)
+        cached_steps = self.step_values[attr].shape[0]
+        step_num = step_num % int(cached_steps)
         agent_value = self.step_values[attr][step_num]
         return pq.Quantity(agent_value, agent_unit)
 
@@ -778,12 +783,9 @@ class PlantAgent(GeneralAgent):
     ``full_amount``        str            Maximum/reset amount as defined in agent_desc
     ``lifetime``           int            Hours to complete growth cycle.
     ``reproduce``          bool
-    ``growth_criteria``    str            Which currency/attribute determines growth
-    ``total_growth``       int            The sum of all step values for growth_criteria currency
     ``delay_start``        int            Hours to wait before starting growth
     ``agent_step_num``     int            Current step in growth cycle, as limited by growth_critera
-    ``currenct_growth``    int            Accumulated values for growth_criteria item
-    ``growth_rate``        int            Accumulated % for growth_criteria item
+    ``growth_rate``        int            Accumulated % of ideal lifetime biomass
     ``grown``              bool           Whether growth is complete
     ====================== ============== ===============
     """
@@ -806,7 +808,6 @@ class PlantAgent(GeneralAgent):
         else:
             self.lifetime = 0
         self.reproduce = self.attrs.get('char_reproduce', 0)
-        self.growth_criteria = self.attrs.get('char_growth_criteria', None)
         self.carbon_fixation = self.attrs.get('char_carbon_fixation', None)
 
         # Daily growth: % of daily growth which occurs each hour.
@@ -821,10 +822,7 @@ class PlantAgent(GeneralAgent):
         self.daily_growth[photo_start:photo_end] = photo_rate
 
     def _init_currency_exchange(self):
-        n_steps = int(self.lifetime)
-        super()._init_currency_exchange(n_steps)
-        if self.growth_criteria and self.total_growth == 0:
-            self.total_growth = float(np.sum(self.step_values[self.growth_criteria]))
+        super()._init_currency_exchange()
         self.co2_scale = {}
         for attr in self.attrs:
             prefix, _ = attr.split('_', 1)
