@@ -66,31 +66,32 @@ def get_energy():
 
     agent_name = request.args.get('agent_name', type=str)
     agent_quantity = request.args.get('quantity', 1, type=int) or 1
-    attribute_name = 'in_kwh'
-    value_type = 'energy_input'
+    agent_desc = load_from_basedir('data_files/agent_desc.json')
     total = {}
-    if agent_name == 'eclss':
-        total_eclss = 0
-        for agent in db.session.query(AgentType, AgentTypeAttribute) \
-          .filter(AgentType.id == AgentTypeAttribute.agent_type_id) \
-          .filter(AgentTypeAttribute.name == 'in_kwh') \
-          .filter(AgentType.agent_class == 'eclss').all():
-            total_eclss += float(agent.AgentTypeAttribute.value)
-        value = total_eclss * agent_quantity
-        total = {value_type : value}
+    if agent_name == 'solar_pv_array_mars':
+        value_type = 'energy_output'
+        data = agent_desc['power_generation'][agent_name]
+        total_kwh = next((float(e['value'])
+                          for e in data['data']['output']
+                          if e['type'] == 'kwh'), 0)
+    elif agent_name == 'power_storage':
+        value_type = 'energy_capacity'
+        data = agent_desc['storage']['power_storage']
+        total_kwh = next((float(e['value'])
+                          for e in data['data']['characteristics']
+                          if e['type'] == 'capacity_kwh'), 0)
     else:
-        if agent_name == 'solar_pv_array_mars':
-            attribute_name = 'out_kwh'
-            value_type = 'energy_output'
-        elif agent_name == 'power_storage':
-            attribute_name = 'char_capacity_kwh'
-            value_type = 'energy_capacity'
-        for agent in db.session.query(AgentType, AgentTypeAttribute) \
-          .filter(AgentType.id == AgentTypeAttribute.agent_type_id) \
-          .filter(AgentTypeAttribute.name == attribute_name).all():
-            if agent.AgentType.name == agent_name:
-                value = float(agent.AgentTypeAttribute.value) * agent_quantity
-                total = { value_type : value}
+        value_type = 'energy_input'
+        total_kwh = 0
+        for agent_class, agents in agent_desc.items():
+            for name, data in agents.items():
+                if (agent_name == 'eclss' == agent_class or
+                    agent_name == name):
+                    total_kwh += next((float(e['value'])
+                                       for e in data['data']['input']
+                                       if e['type'] == 'kwh'), 0)
+    value = total_kwh * agent_quantity
+    total = {value_type : value}
     return json.dumps(total)
 
 
@@ -176,7 +177,7 @@ def build_connections_from_agent_desc(fpath):
         agent_desc = json.dump(arrows, f)
     return arrows
 
-def convert_configuration(game_config, save_output=False):
+def convert_configuration(game_config, agent_desc=None, save_output=False):
     """
     This method converts the json configuration from a post into a more complete configuration
     with connections.
@@ -195,6 +196,11 @@ def convert_configuration(game_config, save_output=False):
     # Create a working_config which will be modified by this function, so as
     # not to modify the original.
     working_config = copy.deepcopy(game_config)
+
+    # Load the agent_desc to validate agents in config and get structure volume
+    # November '22: This was formerly done by the database.
+    if agent_desc is None:
+        agent_desc = load_from_basedir('data_files/agent_desc.json')
 
     ###########################################################################
     #                   STEP 1: Add non-agent fields                          #
@@ -236,20 +242,18 @@ def convert_configuration(game_config, save_output=False):
     structures_dict = {}  # Used to replace generic connections
     total_volume = 0  # Used to calcualte starting water_storage
     if 'habitat' in working_config or 'greenhouse' in working_config:
-        structures = db.session.query(AgentType).filter_by(agent_class='structures').all()
-        structures = [agent.name for agent in structures]
+        valid_structures = list(agent_desc['structures'].keys())
         for structure in ['habitat', 'greenhouse']:
             if structure not in working_config or not isinstance(working_config[structure], str):
                 continue
             structure_type = working_config.pop(structure)
-            if structure_type not in structures:
+            if structure_type not in valid_structures:
                 continue
             structures_dict[structure] = structure_type
-            agent_type, type_attribute = db.session.query(AgentType, AgentTypeAttribute) \
-                .filter_by(name=structure_type) \
-                .filter(AgentType.id == AgentTypeAttribute.agent_type_id) \
-                .filter(AgentTypeAttribute.name == 'char_volume').first()
-            volume = float(type_attribute.value)
+            volume = next((
+                char['value'] for char in
+                agent_desc['structures'][structure_type]['data']['characteristics']
+                if char['type'] == 'volume'), 0)
             total_volume += volume  # Used below to calculate starting water
             atmosphere = calc_air_storage(volume)  # Fill with earth-normal atmosphere
             working_config[structure_type] = dict(id=1, amount=1, **atmosphere)
@@ -276,13 +280,13 @@ def convert_configuration(game_config, save_output=False):
             amount = max(1, storage.pop('amount'))
         else:
             amount = 1
-        agent_type = AgentType.query.filter_by(name=storage_type).first()
-        for attr in agent_type.agent_type_attributes:
-            if attr.name.startswith('char_capacity'):
-                currency = attr.name.split('_', 2)[2]
+        storage_desc = agent_desc['storage'][storage_type]
+        for char in storage_desc['data']['characteristics']:
+            if char['type'].startswith('capacity'):
+                currency = char['type'].split('_', 1)[1]
                 if currency not in storage:
                     storage[currency] = 0
-                capacity = int(attr.value)
+                capacity = int(char['value'])
                 amount = max(amount, math.ceil(storage[currency] / capacity))
         working_config[storage_type] = dict(id=1, amount=amount, **storage)
     # ECLSS: A single item with an amount; needs to be broken into component agents
@@ -319,10 +323,10 @@ def convert_configuration(game_config, save_output=False):
                     working_config[plant_type] = dict(amount=amount)
     if len(plants_in_config) > 0:
         food_storage = {}
-        food_storage_data = AgentType.query.filter_by(name='food_storage').first()
-        for attr in food_storage_data.agent_type_attributes:
-            if attr.name.startswith('char_capacity'):
-                currency = attr.name.split('_', 2)[2]
+        food_storage_desc = agent_desc['storage']['food_storage']
+        for char in food_storage_desc['data']['characteristics']:
+            if char['type'].startswith('capacity'):
+                currency = char['type'].split('_', 1)[1]
                 if currency in plants_in_config:
                     food_storage[currency] = 0
         if len(food_storage.keys()) > 0:
@@ -333,14 +337,17 @@ def convert_configuration(game_config, save_output=False):
     #                   STEP 3: Add all agents to output                      #
     ###########################################################################
 
-    db_agents = [agent.name for agent in db.session.query(AgentType).all()]
+    valid_agents = set()
+    for agents in agent_desc.values():
+        for agent in agents:
+            valid_agents.add(agent)
     for agent_type, attrs in working_config.items():
         if not isinstance(attrs, dict):
             print(f"Attributes for agent type {agent_type} must be a dict")
             continue
-        # if agent_type not in db_agents:
-        #     print(f"Agent type {agent_type} not found in database")
-        #     continue
+        if agent_type not in valid_agents:
+            print(f"Agent type {agent_type} not found in agent_desc")
+            continue
         full_game_config['agents'][agent_type] = attrs
     # Calculate the total number of agents. Used in `views.py` to enforce a
     # maximum number of agents per simulation (currently 50).
@@ -545,3 +552,20 @@ def get_growth_rates(agent_types, step_record_data):
             if not output[agent_type] or step['growth'] > output[agent_type]:
                 output[agent_type] = step['growth']
     return output
+
+
+def load_from_basedir(fname):
+    basedir = pathlib.Path(app.root_path).resolve().parent
+    path = basedir / fname
+    result = {}
+    try:
+        with path.open() as f:
+            result = json.load(f)
+    except OSError as e:
+        app.logger.exception(f'Error opening {fname}: {e}')
+    except ValueError as e:
+        app.logger.exception(f'Error reading {fname}: {e}')
+    except Exception as e:
+        app.logger.exception(f'Unexpected error handling {fname}: {e}')
+    finally:
+        return result

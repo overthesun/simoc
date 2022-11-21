@@ -37,7 +37,7 @@ def create(agent_conf):
     for model in models:
         db.session.query(model).delete()
     db.session.commit()
-    seed_agents.seed(agent_conf)
+    # seed_agents.seed(agent_conf)
 
 
 if __name__ == "__main__":
