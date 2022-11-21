@@ -20,7 +20,7 @@ from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadR
 from simoc_server.serialize import serialize_response
 from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
     calc_step_storage_ratios, count_agents_in_step, calc_step_storage_capacities, \
-    get_growth_rates, calc_step_per_agent
+    get_growth_rates, calc_step_per_agent, load_from_basedir
 
 from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
@@ -508,26 +508,28 @@ def get_num_steps():
 
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
-    args, results = {}, []
-    agent_class = request.args.get("agent_class", type=str)
-    agent_name = request.args.get("agent_name", type=str)
-    if agent_class:
-        args["agent_class"] = agent_class
-    if agent_name:
-        args["name"] = agent_name
-    for agent in AgentType.query.filter_by(**args).all():
-        entry = {"agent_class": agent.agent_class, "name": agent.name}
-        for attr in agent.agent_type_attributes:
-            prefix, currency = attr.name.split('_', 1)
-            if prefix not in entry:
-                entry[prefix] = []
-            if prefix in ['in', 'out']:
-                entry[prefix].append(currency)
-            else:
-                entry[prefix].append(
-                    # FIXME: see issue #68, "units": attr.details
-                    {"name": currency, "value": attr.value})
-        results.append(entry)
+    results = []
+    get_agent_class = request.args.get("agent_class", type=str)
+    get_agent_name = request.args.get("agent_name", type=str)
+    agent_desc = load_from_basedir('data_files/agent_desc.json')
+    for agent_class, agents in agent_desc.items():
+        if get_agent_class and agent_class != get_agent_class:
+            continue
+        for agent_name, agent_data in agents.items():
+            if get_agent_name and agent_name != get_agent_name:
+                continue
+            entry = {"agent_class": agent_class, "name": agent_name}
+            for prefix, items in agent_data['data'].items():
+                for item in items:
+                    if prefix not in entry:
+                        entry[prefix] = []
+                    if prefix in ['in', 'out']:
+                        entry[prefix].append(item['type'])
+                    else:
+                        entry[prefix].append(
+                            # FIXME: see issue #68, "units": attr.details
+                            {"name": item['type'], "value": item['value']})
+            results.append(entry)
     return json.dumps(results)
 
 
@@ -564,22 +566,6 @@ def get_currency_desc():
     currency_desc = load_from_basedir('data_files/currency_desc.json')
     return status("Currency desc retrieved", currency_desc=currency_desc)
 
-
-def load_from_basedir(fname):
-    basedir = Path(app.root_path).resolve().parent
-    path = basedir / fname
-    result = {}
-    try:
-        with path.open() as f:
-            result = json.load(f)
-    except OSError as e:
-        app.logger.exception(f'Error opening {fname}: {e}')
-    except ValueError as e:
-        app.logger.exception(f'Error reading {fname}: {e}')
-    except Exception as e:
-        app.logger.exception(f'Unexpected error handling {fname}: {e}')
-    finally:
-        return result
 
 # TODO: This route needs to be re-designed since `worker_direct` is no longer activated
 # @app.route("/save_game", methods=["POST"])
