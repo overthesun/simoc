@@ -321,14 +321,14 @@ class AgentModel(Model, AttributeHolder):
         Returns:
             * ``data``: :ref:`model-data`
         """
-        data = dict(game_id=self.game_id, 
+        data = dict(game_id=self.game_id,
                     step_num=self.step_num)
         if not self.data_collection:
             return data
         else:
             for agent in self.scheduler.agents:
                 data[agent.agent_type] = agent.data_collector.get_data(
-                    step_range=step_range, fields=fields, debug=debug, 
+                    step_range=step_range, fields=fields, debug=debug,
                     clear_cache=clear_cache)
             return data
 
@@ -364,7 +364,8 @@ class AgentModel(Model, AttributeHolder):
         if agent_class is None:
             return self.scheduler.agents
         else:
-            return [agent for agent in self.scheduler.agents if isinstance(agent, agent_class)]
+            return [agent for agent in self.scheduler.agents
+                    if agent.agent_class == agent_class]
 
     def agent_by_id(self, id):
         """TODO

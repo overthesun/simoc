@@ -16,6 +16,13 @@ class AgentDataCollector():
             if hasattr(self.agent, attr):
                 self.snapshot_attrs.append(attr)
                 setattr(self, attr, getattr(self.agent, attr))
+        # Plants
+        if agent.agent_class == 'plants':
+            self.snapshot_attrs.append('growth')
+            self.growth = dict(par_factor=[], cu_factor=[],
+                               te_factor=[], growth_rate=[],
+                               grown=[], agent_step_num=[])
+
         # Dynamic Fields
         for attr, attr_value in self.agent.attrs.items():
             if attr_value == 0:
@@ -41,17 +48,10 @@ class AgentDataCollector():
                     class_attr = f"char_capacity_{currency_class}"
                     self.capacity[currency_class] = dict(value=self.agent[class_attr],
                                                          unit=self.agent.attr_details[class_attr]['unit'])
-            # Plants
-            if attr.startswith('char_growth_criteria'):
-                self.snapshot_attrs += ['total_growth', 'growth', 'co2_scale']
-                self.total_growth = self.agent.total_growth,
-                self.growth = dict(current_growth=[], growth_rate=[],
-                                   grown=[], agent_step_num=[])
-                self.co2_scale = {k: [] for k in self.agent.co2_scale.keys()}
             # Flows
             if attr.startswith(('in', 'out')):
                 if 'flows' not in self.snapshot_attrs:
-                    self.snapshot_attrs += ['flows']
+                    self.snapshot_attrs.append('flows')
                     self.flows = {'in': {}, 'out': {}}
                 prefix, currency = attr.split('_', 1)
                 if 'currency' not in self.flows[prefix]:
