@@ -1,6 +1,6 @@
 import datetime
 import importlib
-
+# import matplotlib.pyplot as plt
 
 class NotLoaded(object):
 
@@ -200,3 +200,93 @@ def location_to_day_length_minutes(location):
         return (24 * 60) + 39
     else:
         raise Exception("Unknown location: {}".format(location))
+
+def parse_data(data, path):
+    """Recursive function to extract data at path from arbitrary object"""
+    if not data and data != 0:
+        return None
+    elif len(path) == 0:
+        return 0 if data is None else data
+    # Shift the first element of path, pastt on the rest of the path
+    index = path[0]
+    remainder = path[1:]
+    if isinstance(data, list):
+        # LISTS
+        if index == '*':
+            # All Items
+            parsed = [parse_data(d, remainder) for d in data]
+            return [d for d in parsed if d is not None]
+        elif isinstance(index, int):
+            # Single index
+            return parse_data(data[index], remainder)
+        # Range i:j (string)
+        start, end = [int(i) for i in index.split(':')]
+        return [parse_data(d, remainder) for d in data[start:end]]
+    elif isinstance(data, dict):
+        # DICTS
+        if index in ('*', 'SUM'):
+            # All items, either a dict ('*') or a number ('SUM')
+            parsed = [parse_data(d, remainder) for d in data.values()]
+            output = {k: v for k, v in zip(data.keys(), parsed) if v or v == 0}
+            if len(output) == 0:
+                return None
+            elif index == '*':
+                return output
+            else:
+                if isinstance(next(iter(output.values())), list):
+                    return [sum(x) for x in zip(*output.values())]
+                else:
+                    return sum(output.values())
+        elif index in data:
+            # Single Key
+            return parse_data(data[index], remainder)
+        elif isinstance(index, str):
+            # Comma-separated list of keys. Return an object with all.
+            indices = [i.strip() for i in index.split(',') if i in data]
+            parsed = [parse_data(data[i], remainder) for i in indices]
+            output = {k: v for k, v in zip(indices, parsed) if v or v == 0}
+            return output if len(output) > 0 else None
+
+
+# def plot_agent(data, agent, category, exclude=[], i=None, j=None, ax=None):
+#     """Helper function for plotting model data
+
+#     Plotting function which takes model-exported data, agent name,
+#     one of (flows, growth, storage, deprive), exclude, and i:j
+#     """
+#     i = i if i is not None else 0
+#     j = j if j is not None else data['step_num']
+#     ax = ax if ax is not None else plt
+#     if category == 'flows':
+#         path = [agent, 'flows', '*', '*', 'SUM', f'{i}:{j}']
+#         flows = parse_data(data, path)
+#         for direction in ('in', 'out'):
+#             if direction not in flows:
+#                 continue
+#             for currency, values in flows[direction].items():
+#                 label = f'{direction}_{currency}'
+#                 if currency in exclude or label in exclude:
+#                     continue
+#                 ax.plot(range(i, j), values, label=label)
+#     elif category == 'storage':
+#         path = [agent, 'storage', '*', f'{i}:{j}']
+#         storage = parse_data(data, path)
+#         for currency, values in storage.items():
+#             if currency in exclude:
+#                 continue
+#             ax.plot(range(i, j), values, label=currency)
+#     elif category == 'deprive':
+#         path = [agent, 'deprive', '*', f'{i}:{j}']
+#         deprive = parse_data(data, path)
+#         for currency, values in deprive.items():
+#             if currency in exclude:
+#                 continue
+#             ax.plot(range(i, j), values, label=currency)
+#     elif category == 'growth':
+#         path = [agent, 'growth', '*', f'{i}:{j}']
+#         deprive = parse_data(data, path)
+#         for field, values in deprive.items():
+#             if field in exclude:
+#                 continue
+#             ax.plot(range(i, j), values, label=field)
+#     ax.legend()
