@@ -332,6 +332,22 @@
                 "fat": 1
             },
             "label": "White Potatoes"
+        },
+        "corn": {
+            "label": "Corn",
+            "unit": "kg"
+        },
+        "orchard": {
+            "label": "Orchard",
+            "unit": "kg"
+        },
+        "sorghum": {
+            "label": "Sorghum",
+            "unit": "kg"
+        },
+        "vegetables": {
+            "label": "Vegetables",
+            "unit": "kg"
         }
     },
     "water": {
@@ -351,6 +367,10 @@
     "energy": {
         "kwh": {
             "label": "Kilowatt-Hours"
+        },
+        "par": {
+            "label": "Photosynthetically Active Radiation",
+            "unit": "moles/m2-h"
         }
     }
 }

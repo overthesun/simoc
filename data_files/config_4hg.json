@@ -4,7 +4,7 @@
             "amount": 4
         },
         "solar_pv_array_mars": {
-            "amount": 400
+            "amount": 500
         },
         "crew_habitat_medium": {
             "id": 1,
@@ -73,7 +73,7 @@
         },
         "multifiltration_purifier_post_treatment": {
             "id": 1,
-            "amount": 1
+            "amount": 3
         },
         "oxygen_generation_SFWE": {
             "id": 1,
@@ -85,11 +85,11 @@
         },
         "co2_removal_SAWD": {
             "id": 1,
-            "amount": 1
+            "amount": 2
         },
         "co2_makeup_valve": {
             "id": 1,
-            "amount": 1
+            "amount": 4
         },
         "co2_storage": {
             "id": 1,
@@ -105,7 +105,7 @@
         },
         "dehumidifier": {
             "id": 1,
-            "amount": 1
+            "amount": 5
         },
         "wheat": {
             "amount": 20
@@ -134,6 +134,9 @@
             "onion": 0,
             "radish": 0,
             "red_beet": 0
+        },
+        "light": {
+            "amount": 1
         }
     },
     "termination": [
