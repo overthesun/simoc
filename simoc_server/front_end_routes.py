@@ -202,6 +202,10 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     if agent_desc is None:
         agent_desc = load_from_basedir('data_files/agent_desc.json')
 
+    # Initialize supplemental agent_desc and agent_conn
+    user_agent_desc = {}
+    user_agent_conn = []
+
     ###########################################################################
     #                   STEP 1: Add non-agent fields                          #
     ###########################################################################
@@ -287,17 +291,6 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                 capacity = int(char['value'])
                 amount = max(amount, math.ceil(storage[currency] / capacity))
         working_config[storage_type] = dict(id=1, amount=amount, **storage)
-    # ECLSS: A single item with an amount; needs to be broken into component agents
-    eclss_agents = ['solid_waste_aerobic_bioreactor', 'multifiltration_purifier_post_treatment',
-                    'oxygen_generation_SFWE', 'urine_recycling_processor_VCD', 'co2_removal_SAWD',
-                    'co2_makeup_valve', 'co2_storage', 'co2_reduction_sabatier',
-                    'ch4_removal_agent', 'dehumidifier']
-    if 'eclss' in working_config and isinstance(working_config['eclss'], dict):
-        eclss = working_config.pop('eclss')
-        amount = eclss.get('amount', 0) or 0
-        if amount:
-            for eclss_agent in eclss_agents:
-                working_config[eclss_agent] = dict(id=1, amount=amount)
     # Plants: A list of objects with 'species' and 'amount'
     plants_in_config = []
     if 'plants' in working_config and isinstance(working_config['plants'], list):
@@ -319,6 +312,64 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                     food_storage[currency] = 0
         if len(food_storage.keys()) > 0:
             working_config['food_storage'] = dict(id=1, amount=1, **food_storage)
+
+        # Replace generic light with species-specific lights
+        if 'light' in working_config:
+            del working_config['light']
+        user_agent_desc['structures'] = {}
+        for species in plants_in_config:
+            new_light_agent = copy.deepcopy(agent_desc['structures']['light'])
+            # Set baseline PAR equal to species' baseline PAR
+            species_desc = agent_desc['plants'][species]
+            for i, char in enumerate(species_desc['data']['characteristics']):
+                if char['type'] == 'par_baseline':
+                    par_baseline = char['value']
+                    break
+            for i, char in enumerate(new_light_agent['data']['characteristics']):
+                if char['type'] == 'par_baseline':
+                    new_light_agent['data']['characteristics'][i]['value'] = par_baseline
+                    break
+            # Set amount equal to number of species
+            species_amount = working_config[species]['amount']
+            working_config[f'{species}_light'] = {'amount': species_amount}
+            # Add a custom agent_desc and agent_conn for new light
+            user_agent_desc['structures'][f'{species}_light'] = new_light_agent
+            user_agent_conn += [
+                {'from': 'power_storage.kwh', 'to': f'{species}_light.kwh'},
+                {'from': f'{species}_light.par', 'to': f'{species}_light.par'},
+                {'from': f'{species}_light.par', 'to': f'{species}.par'},
+            ]
+    # ECLSS: A single item with an amount; needs to be broken into component agents
+    eclss_agents = ['solid_waste_aerobic_bioreactor', 'multifiltration_purifier_post_treatment',
+                    'oxygen_generation_SFWE', 'urine_recycling_processor_VCD', 'co2_removal_SAWD',
+                    'co2_makeup_valve', 'co2_storage', 'co2_reduction_sabatier',
+                    'ch4_removal_agent', 'dehumidifier']
+    if 'eclss' in working_config and isinstance(working_config['eclss'], dict):
+        eclss = working_config.pop('eclss')
+        amount = eclss.get('amount', 0) or 0
+        if amount:
+            plant_area = (0 if not plants_in_config else
+                          sum([working_config[p]['amount'] for p in plants_in_config]))
+            human_amount = working_config['human_agent']['amount']
+            for eclss_agent in eclss_agents:
+                this_amount = amount
+                # Scale certain components based on plant area
+                scale_with_plants = dict(  # Based on minimum required for 4hg preset
+                    multifiltration_purifier_post_treatment=3/200,
+                    co2_makeup_valve=4/200,
+                    dehumidifier=5/200,
+                )
+                if eclss_agent in scale_with_plants:
+                    required_amount = round(scale_with_plants[eclss_agent] * plant_area)
+                    this_amount = max(this_amount, required_amount)
+                # Scale certain components based on number of humans
+                scale_with_humans = dict(
+                    co2_removal_SAWD=2/4,
+                )
+                if eclss_agent in scale_with_humans:
+                    required_amount = round(scale_with_humans[eclss_agent] * human_amount)
+                    this_amount = max(this_amount, required_amount)
+                working_config[eclss_agent] = dict(id=1, amount=this_amount)
     # 'human_agent' and 'solar_pv...' are already in the correct format.
 
     ###########################################################################
@@ -329,6 +380,10 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     for agents in agent_desc.values():
         for agent in agents:
             valid_agents.add(agent)
+    if len(user_agent_desc) > 0:
+        for agents in user_agent_desc.values():
+            for agent in agents:
+                valid_agents.add(agent)
     for agent_type, attrs in working_config.items():
         if not isinstance(attrs, dict):
             print(f"Attributes for agent type {agent_type} must be a dict")
@@ -352,7 +407,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
         with open(f"full_game_config_{timestamp}.json", "w") as f:
             json.dump(full_game_config, f)
 
-    return full_game_config
+    return full_game_config, user_agent_desc, user_agent_conn
 
 
 def calc_step_per_agent(step_record_data, output, agent_types=(), currency_types=(), directions=(),
