@@ -54,7 +54,15 @@ def test_plant_growth_values(reference_data, species,
     config['agents']['co2_storage']['co2'] = 200
     config['agents']['greenhouse_small']['co2'] *= 10
 
-    model = AgentModel.from_config(config)
+    # Run at higher CO2 to ensure full growth
+    user_agent_desc = {
+        'eclss': {
+            'co2_removal_SAWD': {'data': {'input': [{'type': 'co2', 'criteria': {'value': 2500}}]}},
+            'co2_makeup_valve': {'data': {'input': [{'type': 'co2', 'criteria': {'value': 2000}}]}},
+        }
+    }
+
+    model = AgentModel.from_config(config, agent_desc=user_agent_desc)
     model.step_to(n_steps=lifetime + 1)
 
     # Check total food produced

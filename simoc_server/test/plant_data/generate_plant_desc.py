@@ -120,18 +120,18 @@ def build_plant_desc(exchanges_path, data_files_path):
             chars.append(char)
         agent_desc['storage']['food_storage']['data']['characteristics'] = chars
 
-    # Add a light
+    # Add a lamp
     # These factors are taken from the equation in column R of the
     # plant_nutrient_use-WHEELER spreadsheet and represent the conversion from
-    # electric light to usable PAR.
-    light_power_factor_1 = 1.66e-6
-    light_power_factor_2 = 3.6e6
-    agent_desc['structures']['light'] = {
+    # electric lamp to usable PAR.
+    lamp_power_factor_1 = 1.66e-6
+    lamp_power_factor_2 = 3.6e6
+    agent_desc['structures']['lamp'] = {
         'data': {
             'input': [
                 {
                     'type': 'kwh',
-                    'value': (1/light_power_factor_1)/light_power_factor_2,  # 0.19522...
+                    'value': (1/lamp_power_factor_1)/lamp_power_factor_2,  # 0.19522...
                     'required': 'desired',
                     'flow_rate': {'unit': 'kWh', 'time': 'hour'},
                     'weighted': ['par_baseline', 'daily_growth_factor'],
@@ -157,15 +157,15 @@ def build_plant_desc(exchanges_path, data_files_path):
                     'unit': 'mol',
                 }, {
                     'type': 'custom_function',
-                    'value': 'electric_light',
+                    'value': 'electric_lamp',
                 }
             ],
         }
     }
 
     # Update CO2 regulation system to higher baseline
-    for agent, value in {('co2_removal_SAWD', .0025),
-                         ('co2_makeup_valve', .002)}:
+    for agent, value in {('co2_removal_SAWD', .001),
+                         ('co2_makeup_valve', .0007)}:
         inputs = agent_desc['eclss'][agent]['data']['input']
         for i, input in enumerate(inputs):
             if input['type'] == 'co2':
@@ -197,7 +197,7 @@ def build_plant_desc(exchanges_path, data_files_path):
             {'from': 'greenhouse.co2', 'to': f'{plant}.co2'},
             {'from': 'water_storage.potable', 'to': f'{plant}.potable'},
             {'from': 'nutrient_storage.fertilizer', 'to': f'{plant}.fertilizer'},
-            {'from': 'light.par', 'to': f'{plant}.par'},
+            {'from': 'lamp.par', 'to': f'{plant}.par'},
             {'from': f'{plant}.biomass', 'to': f'{plant}.biomass'},
             {'from': f'{plant}.inedible_biomass', 'to': 'nutrient_storage.inedible_biomass'},
             {'from': f'{plant}.o2', 'to': 'greenhouse.o2'},
@@ -205,14 +205,14 @@ def build_plant_desc(exchanges_path, data_files_path):
             {'from': f'{plant}.{plant}', 'to': f'food_storage.{plant}'},
         ]
 
-    # Add power connection to light
-    def is_light_connection(conn):
+    # Add power connection to lamp
+    def is_lamp_connection(conn):
         _to = conn['to'].split('.')[0]
-        return _to == 'light'
-    agent_conn = [c for c in agent_conn if not is_light_connection(c)]
+        return _to == 'lamp'
+    agent_conn = [c for c in agent_conn if not is_lamp_connection(c)]
     agent_conn += [
-        {'from': 'power_storage.kwh', 'to': 'light.kwh'},
-        {'from': 'light.par', 'to': 'light.par'},
+        {'from': 'power_storage.kwh', 'to': 'lamp.kwh'},
+        {'from': 'lamp.par', 'to': 'lamp.par'},
     ]
 
     # Change dehumidifier connection from crew habitat to greenhouse
@@ -253,7 +253,7 @@ def build_plant_desc(exchanges_path, data_files_path):
     with open(fname) as f:
         config = json.load(f)
     # Increase ECLSS to handle updated plant growth
-    config['agents']['light'] = dict(amount=1)
+    config['agents']['lamp'] = dict(amount=1)
     config['agents']['co2_makeup_valve']['amount'] = 1
     config['agents']['dehumidifier']['amount'] = 3
     config['agents']['multifiltration_purifier_post_treatment']['amount'] = 1
@@ -264,7 +264,7 @@ def build_plant_desc(exchanges_path, data_files_path):
     fname = data_files_path / 'config_1hrad.json'
     with open(fname) as f:
         config = json.load(f)
-    config['agents']['light'] = dict(amount=1)
+    config['agents']['lamp'] = dict(amount=1)
     config['agents']['co2_removal_SAWD']['amount'] = 1
     config['agents']['co2_makeup_valve']['amount'] = 1
     config['agents']['dehumidifier']['amount'] = 3
@@ -277,7 +277,7 @@ def build_plant_desc(exchanges_path, data_files_path):
     fname = data_files_path / 'config_4hg.json'
     with open(fname) as f:
         config = json.load(f)
-    config['agents']['light'] = dict(amount=1)
+    config['agents']['lamp'] = dict(amount=1)
     config['agents']['co2_removal_SAWD']['amount'] = 2
     config['agents']['co2_makeup_valve']['amount'] = 4
     config['agents']['dehumidifier']['amount'] = 5

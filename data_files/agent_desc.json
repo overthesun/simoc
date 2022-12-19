@@ -488,7 +488,7 @@
             "criteria": {
               "name": "co2_ratio_in",
               "limit": ">",
-              "value": 0.0025,
+              "value": 0.001,
               "buffer": 8
             }
           },
@@ -548,7 +548,7 @@
             "criteria": {
               "name": "co2_ratio_out",
               "limit": "<",
-              "value": 0.002,
+              "value": 0.0007,
               "buffer": 8
             }
           }
@@ -6278,7 +6278,7 @@
       },
       "description": "Balances the atmosphere elements of habitat & greenhouse every step."
     },
-    "light": {
+    "lamp": {
       "data": {
         "input": [
           {
@@ -6325,7 +6325,7 @@
           },
           {
             "type": "custom_function",
-            "value": "electric_light"
+            "value": "electric_lamp"
           }
         ]
       }

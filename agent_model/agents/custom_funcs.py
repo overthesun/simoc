@@ -23,19 +23,19 @@ def atmosphere_equalizer(agent):
         habitat[gas] -= amount_adj
         greenhouse[gas] += amount_adj
 
-def electric_light(agent):
-    """Control the output of electric lights
+def electric_lamp(agent):
+    """Control the output of electric lamps
 
     Available light is represented by stored 'par' (photosynthetically active
     radiation). Lights 'step' before plants; each step old par is removed and
     new par is added.
 
-    Two types of electric lights are supported:
-    - Generic light agent (included in agent_desc). Amount is adjusted to the
+    Two types of electric lamps are supported:
+    - Generic lamp agent (included in agent_desc). Amount is adjusted to the
       number of plants, operate 24h/day.
-    - Plant-specific agents (custom). Lights can be assigned to an indiviudal
+    - Plant-specific agents (custom). Lamps can be assigned to an individual
       plant species by duplicating the generic light from the agent_desc and
-      re-naming as e.g. 'potato_light'. In this case light operation matches
+      re-naming as e.g. 'potato_lamp'. In this case lamp operation matches
       the target plant's daily_growth_factor.
     """
     # Initialize
@@ -44,11 +44,11 @@ def electric_light(agent):
         agent.daily_growth_factor = 1
         agent.par_baseline = agent.attrs['char_par_baseline']
 
-        # Lights may be assigned to specific plants by adding the name of the
-        # plant in the agent_type, e.g. 'potato_light'. If this is done, the
-        # code below will adjust light's operation based on the connected
+        # lamps may be assigned to specific plants by adding the name of the
+        # plant in the agent_type, e.g. 'potato_lamp'. If this is done, the
+        # code below will adjust lamp's operation based on the connected
         # plant's growth schedule and amount.
-        named_agent = [a for a in agent.agent_type.split('_') if a != 'light']
+        named_agent = [a for a in agent.agent_type.split('_') if a != 'lamp']
         if len(named_agent) == 0:
             agent.target_plant = None
             plant_agents = agent.model.get_agents_by_class('plants')
@@ -57,7 +57,7 @@ def electric_light(agent):
             named_agent = '_'.join(named_agent)
             target_plant = agent.model.get_agents_by_type(named_agent)[0]
             if not target_plant.agent_class == 'plants':
-                raise ValueError('lights can only be assigned to plant agents')
+                raise ValueError('lamps can only be assigned to plant agents')
             agent.target_plant = target_plant
 
     # Remove all (leftover) par from storage every step

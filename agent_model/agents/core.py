@@ -351,9 +351,9 @@ class GeneralAgent(StorageAgent):
                 else:
                     storage_agent = self.model.get_agents_by_type(agent_type=agent_type)[0]
                 if f'char_capacity_{currency}' not in storage_agent.attr_details:
-                    # There are two connections from plant_light.par:
+                    # There are two connections from plant_lamp.par:
                     # one to itself for generating/storing light, another to the plant
-                    # for the plant's taking light. The plant_lights try to initialize both
+                    # for the plant's taking light. The plant_lamps try to initialize both
                     # for its output.par exchange, but fails on plant because the plant
                     # doesn't have par storage.
 

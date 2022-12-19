@@ -222,6 +222,14 @@
         "to": "lab_equipment.kwh"
     },
     {
+        "from": "power_storage.kwh",
+        "to": "light.kwh"
+    },
+    {
+        "from": "light.par",
+        "to": "light.par"
+    },
+    {
         "from": "greenhouse.co2",
         "to": "cabbage.co2"
     },
@@ -234,7 +242,7 @@
         "to": "cabbage.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "cabbage.par"
     },
     {
@@ -270,7 +278,7 @@
         "to": "carrot.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "carrot.par"
     },
     {
@@ -306,7 +314,7 @@
         "to": "celery.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "celery.par"
     },
     {
@@ -342,7 +350,7 @@
         "to": "chard.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "chard.par"
     },
     {
@@ -378,7 +386,7 @@
         "to": "corn.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "corn.par"
     },
     {
@@ -414,7 +422,7 @@
         "to": "dry_bean.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "dry_bean.par"
     },
     {
@@ -450,7 +458,7 @@
         "to": "green_onion.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "green_onion.par"
     },
     {
@@ -486,7 +494,7 @@
         "to": "lettuce.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "lettuce.par"
     },
     {
@@ -522,7 +530,7 @@
         "to": "onion.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "onion.par"
     },
     {
@@ -558,7 +566,7 @@
         "to": "orchard.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "orchard.par"
     },
     {
@@ -594,7 +602,7 @@
         "to": "pea.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "pea.par"
     },
     {
@@ -630,7 +638,7 @@
         "to": "peanut.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "peanut.par"
     },
     {
@@ -666,7 +674,7 @@
         "to": "pepper.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "pepper.par"
     },
     {
@@ -702,7 +710,7 @@
         "to": "radish.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "radish.par"
     },
     {
@@ -738,7 +746,7 @@
         "to": "red_beet.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "red_beet.par"
     },
     {
@@ -774,7 +782,7 @@
         "to": "rice.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "rice.par"
     },
     {
@@ -810,7 +818,7 @@
         "to": "snap_bean.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "snap_bean.par"
     },
     {
@@ -846,7 +854,7 @@
         "to": "sorghum.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "sorghum.par"
     },
     {
@@ -882,7 +890,7 @@
         "to": "soybean.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "soybean.par"
     },
     {
@@ -918,7 +926,7 @@
         "to": "spinach.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "spinach.par"
     },
     {
@@ -954,7 +962,7 @@
         "to": "strawberry.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "strawberry.par"
     },
     {
@@ -990,7 +998,7 @@
         "to": "sweet_potato.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "sweet_potato.par"
     },
     {
@@ -1026,7 +1034,7 @@
         "to": "tomato.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "tomato.par"
     },
     {
@@ -1062,7 +1070,7 @@
         "to": "vegetables.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "vegetables.par"
     },
     {
@@ -1098,7 +1106,7 @@
         "to": "wheat.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "wheat.par"
     },
     {
@@ -1134,7 +1142,7 @@
         "to": "white_potato.fertilizer"
     },
     {
-        "from": "light.par",
+        "from": "lamp.par",
         "to": "white_potato.par"
     },
     {
@@ -1159,11 +1167,11 @@
     },
     {
         "from": "power_storage.kwh",
-        "to": "light.kwh"
+        "to": "lamp.kwh"
     },
     {
-        "from": "light.par",
-        "to": "light.par"
+        "from": "lamp.par",
+        "to": "lamp.par"
     },
     {
         "from": "greenhouse.h2o",

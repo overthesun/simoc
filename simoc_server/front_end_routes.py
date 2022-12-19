@@ -313,31 +313,31 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
         if len(food_storage.keys()) > 0:
             working_config['food_storage'] = dict(id=1, amount=1, **food_storage)
 
-        # Replace generic light with species-specific lights
-        if 'light' in working_config:
-            del working_config['light']
+        # Replace generic lamp with species-specific lamps
+        if 'lamp' in working_config:
+            del working_config['lamp']
         user_agent_desc['structures'] = {}
         for species in plants_in_config:
-            new_light_agent = copy.deepcopy(agent_desc['structures']['light'])
+            new_lamp_agent = copy.deepcopy(agent_desc['structures']['lamp'])
             # Set baseline PAR equal to species' baseline PAR
             species_desc = agent_desc['plants'][species]
             for i, char in enumerate(species_desc['data']['characteristics']):
                 if char['type'] == 'par_baseline':
                     par_baseline = char['value']
                     break
-            for i, char in enumerate(new_light_agent['data']['characteristics']):
+            for i, char in enumerate(new_lamp_agent['data']['characteristics']):
                 if char['type'] == 'par_baseline':
-                    new_light_agent['data']['characteristics'][i]['value'] = par_baseline
+                    new_lamp_agent['data']['characteristics'][i]['value'] = par_baseline
                     break
             # Set amount equal to number of species
             species_amount = working_config[species]['amount']
-            working_config[f'{species}_light'] = {'amount': species_amount}
-            # Add a custom agent_desc and agent_conn for new light
-            user_agent_desc['structures'][f'{species}_light'] = new_light_agent
+            working_config[f'{species}_lamp'] = {'amount': species_amount}
+            # Add a custom agent_desc and agent_conn for new lamp
+            user_agent_desc['structures'][f'{species}_lamp'] = new_lamp_agent
             user_agent_conn += [
-                {'from': 'power_storage.kwh', 'to': f'{species}_light.kwh'},
-                {'from': f'{species}_light.par', 'to': f'{species}_light.par'},
-                {'from': f'{species}_light.par', 'to': f'{species}.par'},
+                {'from': 'power_storage.kwh', 'to': f'{species}_lamp.kwh'},
+                {'from': f'{species}_lamp.par', 'to': f'{species}_lamp.par'},
+                {'from': f'{species}_lamp.par', 'to': f'{species}.par'},
             ]
     # ECLSS: A single item with an amount; needs to be broken into component agents
     eclss_agents = ['solid_waste_aerobic_bioreactor', 'multifiltration_purifier_post_treatment',
