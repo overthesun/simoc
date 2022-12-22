@@ -80,6 +80,17 @@ def get_energy():
         total_kwh = next((float(e['value'])
                           for e in data['data']['characteristics']
                           if e['type'] == 'capacity_kwh'), 0)
+    elif agent_name in agent_desc['plants']:
+        # kwh consumption for the electric lamps used by plant
+        value_type = 'energy_input'
+        plant_desc = agent_desc['plants'][agent_name]
+        par_baseline = next(char['value']
+                            for char in plant_desc['data']['characteristics']
+                            if char['type'] == 'par_baseline')  # 24h average
+        lamp_desc = agent_desc['structures']['lamp']
+        kwh_per_par = next(flow['value'] for flow in lamp_desc['data']['input']
+                           if flow['type'] == 'kwh')  # Default output is 1 par
+        total_kwh = par_baseline * kwh_per_par  # Output scaled by custom_func
     else:
         value_type = 'energy_input'
         total_kwh = 0
