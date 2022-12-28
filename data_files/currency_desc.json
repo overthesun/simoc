@@ -335,19 +335,51 @@
         },
         "corn": {
             "label": "Corn",
-            "unit": "kg"
+            "unit": "kg",
+            "source": "wheat",
+            "nutrition": {
+                "kcal": 3460,
+                "water": 145,
+                "protein": 114,
+                "carbohydrate": 698,
+                "fat": 15
+            }
         },
         "orchard": {
             "label": "Orchard",
-            "unit": "kg"
+            "unit": "kg",
+            "source": "tomato,radish,strawberry",
+            "nutrition": {
+                "kcal": 243,
+                "water": 924,
+                "protein": 9,
+                "carbohydrate": 40,
+                "fat": 3
+            }
         },
         "sorghum": {
             "label": "Sorghum",
-            "unit": "kg"
+            "unit": "kg",
+            "source": "wheat",
+            "nutrition": {
+                "kcal": 3460,
+                "water": 145,
+                "protein": 114,
+                "carbohydrate": 698,
+                "fat": 15
+            }
         },
         "vegetables": {
             "label": "Vegetables",
-            "unit": "kg"
+            "unit": "kg",
+            "source": "lettuce,spinach,chard",
+            "nutrition": {
+                "kcal": 167,
+                "water": 928,
+                "protein": 22,
+                "carbohydrate": 17,
+                "fat": 10
+            }
         }
     },
     "water": {

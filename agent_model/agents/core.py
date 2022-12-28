@@ -820,6 +820,7 @@ class PlantAgent(GeneralAgent):
             self.lifetime = 0
         self.reproduce = self.attrs.get('char_reproduce', 0)
         self.carbon_fixation = self.attrs.get('char_carbon_fixation', None)
+        self.density_factor = self.attrs.get('char_density_factor', 1)
 
         # Create the `daily_growth` attribute:
         # - Length is equal to the number of steps per day (e.g. 24)

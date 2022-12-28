@@ -19,9 +19,8 @@ class AgentDataCollector():
         # Plants
         if agent.agent_class == 'plants':
             self.snapshot_attrs.append('growth')
-            self.growth = dict(par_factor=[], cu_factor=[],
-                               te_factor=[], growth_rate=[],
-                               grown=[], agent_step_num=[])
+            self.growth = dict(par_factor=[], cu_factor=[], te_factor=[],
+                density_factor=[], growth_rate=[], grown=[], agent_step_num=[])
 
         # Dynamic Fields
         for attr, attr_value in self.agent.attrs.items():
