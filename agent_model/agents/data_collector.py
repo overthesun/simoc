@@ -53,10 +53,19 @@ class AgentDataCollector():
                     self.snapshot_attrs.append('flows')
                     self.flows = {'in': {}, 'out': {}}
                 prefix, currency = attr.split('_', 1)
-                if 'currency' not in self.flows[prefix]:
+                currency_desc = self.agent.model.currency_dict.get(currency)
+                # Regular currencies
+                if currency_desc['type'] == 'currency':
                     self.flows[prefix][currency] = {}
-                for storage in self.agent.selected_storage[prefix][currency]:
-                    self.flows[prefix][currency][storage.agent_type] = []
+                    for storage in self.agent.selected_storage[prefix][currency]:
+                        self.flows[prefix][currency][storage.agent_type] = []
+                # Currency classes
+                elif currency_desc['type'] == 'currency_class':
+                    for class_currency in currency_desc['currencies']:
+                        self.flows[prefix][class_currency] = {}
+                    for storage in self.agent.selected_storage[prefix][currency]:
+                        for class_currency in currency_desc['currencies']:
+                            self.flows[prefix][class_currency][storage.agent_type] = []
                 # Buffer
                 cr_buffer = self.agent.attr_details[attr]['criteria_buffer']
                 if cr_buffer:

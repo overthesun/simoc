@@ -6482,6 +6482,209 @@
           }
         ]
       }
+    },
+    "greenhouse_b2": {
+      "description": "The Intensive Agricultural Biome at Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "category",
+            "value": "greenhouse"
+          },
+          {
+            "type": "volume",
+            "value": 35220
+          },
+          {
+            "type": "capacity_co2",
+            "value": 44025.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 44025.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 44025.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 44025.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 44025.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 44025.0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "crew_habitat_b2": {
+      "description": "The crew habitat at Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "category",
+            "value": "habitat"
+          },
+          {
+            "type": "volume",
+            "value": 10997
+          },
+          {
+            "type": "capacity_co2",
+            "value": 13746.25,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 13746.25,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 13746.25,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 13746.25,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 13746.25,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 13746.25,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "b2_biomes": {
+      "description": "The Rainforest, Savannah/ocean, Desert, West Lung, South Lung of Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "category",
+            "value": "biome"
+          },
+          {
+            "type": "volume",
+            "value": 118100
+          },
+          {
+            "type": "capacity_co2",
+            "value": 147625.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 147625.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 147625.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 147625.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 147625.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 147625.0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "atmosphere_equalizer_gh_biomes": {
+      "data": {
+        "input": [
+          {
+            "type": "atmosphere",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "atmosphere",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "custom_function",
+            "value": "atmosphere_equalizer"
+          }
+        ]
+      },
+      "description": "Balances the atmosphere elements of habitat & greenhouse every step."
+    },
+    "atmosphere_equalizer_gh_crew": {
+      "data": {
+        "input": [
+          {
+            "type": "atmosphere",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "atmosphere",
+            "value": 0,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "custom_function",
+            "value": "atmosphere_equalizer"
+          }
+        ]
+      },
+      "description": "Balances the atmosphere elements of habitat & greenhouse every step."
     }
   },
   "fabrication": {},
