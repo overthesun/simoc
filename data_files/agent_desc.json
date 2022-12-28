@@ -6329,6 +6329,29 @@
           }
         ]
       }
+    },
+    "b2_sun": {
+      "description": "Sunlight available to plants in the greenhouse_b2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "par_baseline",
+            "value": 1,
+            "unit": "mol/m2-hr"
+          },
+          {
+            "type": "capacity_par",
+            "value": 5,
+            "unit": "mol"
+          },
+          {
+            "type": "custom_function",
+            "value": "b2_sun"
+          }
+        ]
+      }
     }
   },
   "fabrication": {},

@@ -243,7 +243,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "cabbage.par"
+        "to": "cabbage.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "cabbage.par",
+        "priority": 0
     },
     {
         "from": "cabbage.biomass",
@@ -279,7 +285,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "carrot.par"
+        "to": "carrot.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "carrot.par",
+        "priority": 0
     },
     {
         "from": "carrot.biomass",
@@ -315,7 +327,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "celery.par"
+        "to": "celery.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "celery.par",
+        "priority": 0
     },
     {
         "from": "celery.biomass",
@@ -351,7 +369,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "chard.par"
+        "to": "chard.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "chard.par",
+        "priority": 0
     },
     {
         "from": "chard.biomass",
@@ -387,7 +411,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "corn.par"
+        "to": "corn.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "corn.par",
+        "priority": 0
     },
     {
         "from": "corn.biomass",
@@ -423,7 +453,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "dry_bean.par"
+        "to": "dry_bean.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "dry_bean.par",
+        "priority": 0
     },
     {
         "from": "dry_bean.biomass",
@@ -459,7 +495,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "green_onion.par"
+        "to": "green_onion.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "green_onion.par",
+        "priority": 0
     },
     {
         "from": "green_onion.biomass",
@@ -495,7 +537,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "lettuce.par"
+        "to": "lettuce.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "lettuce.par",
+        "priority": 0
     },
     {
         "from": "lettuce.biomass",
@@ -531,7 +579,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "onion.par"
+        "to": "onion.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "onion.par",
+        "priority": 0
     },
     {
         "from": "onion.biomass",
@@ -567,7 +621,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "orchard.par"
+        "to": "orchard.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "orchard.par",
+        "priority": 0
     },
     {
         "from": "orchard.biomass",
@@ -603,7 +663,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "pea.par"
+        "to": "pea.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "pea.par",
+        "priority": 0
     },
     {
         "from": "pea.biomass",
@@ -639,7 +705,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "peanut.par"
+        "to": "peanut.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "peanut.par",
+        "priority": 0
     },
     {
         "from": "peanut.biomass",
@@ -675,7 +747,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "pepper.par"
+        "to": "pepper.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "pepper.par",
+        "priority": 0
     },
     {
         "from": "pepper.biomass",
@@ -711,7 +789,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "radish.par"
+        "to": "radish.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "radish.par",
+        "priority": 0
     },
     {
         "from": "radish.biomass",
@@ -747,7 +831,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "red_beet.par"
+        "to": "red_beet.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "red_beet.par",
+        "priority": 0
     },
     {
         "from": "red_beet.biomass",
@@ -783,7 +873,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "rice.par"
+        "to": "rice.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "rice.par",
+        "priority": 0
     },
     {
         "from": "rice.biomass",
@@ -819,7 +915,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "snap_bean.par"
+        "to": "snap_bean.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "snap_bean.par",
+        "priority": 0
     },
     {
         "from": "snap_bean.biomass",
@@ -855,7 +957,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "sorghum.par"
+        "to": "sorghum.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "sorghum.par",
+        "priority": 0
     },
     {
         "from": "sorghum.biomass",
@@ -891,7 +999,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "soybean.par"
+        "to": "soybean.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "soybean.par",
+        "priority": 0
     },
     {
         "from": "soybean.biomass",
@@ -927,7 +1041,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "spinach.par"
+        "to": "spinach.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "spinach.par",
+        "priority": 0
     },
     {
         "from": "spinach.biomass",
@@ -963,7 +1083,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "strawberry.par"
+        "to": "strawberry.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "strawberry.par",
+        "priority": 0
     },
     {
         "from": "strawberry.biomass",
@@ -999,7 +1125,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "sweet_potato.par"
+        "to": "sweet_potato.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "sweet_potato.par",
+        "priority": 0
     },
     {
         "from": "sweet_potato.biomass",
@@ -1035,7 +1167,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "tomato.par"
+        "to": "tomato.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "tomato.par",
+        "priority": 0
     },
     {
         "from": "tomato.biomass",
@@ -1071,7 +1209,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "vegetables.par"
+        "to": "vegetables.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "vegetables.par",
+        "priority": 0
     },
     {
         "from": "vegetables.biomass",
@@ -1107,7 +1251,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "wheat.par"
+        "to": "wheat.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "wheat.par",
+        "priority": 0
     },
     {
         "from": "wheat.biomass",
@@ -1143,7 +1293,13 @@
     },
     {
         "from": "lamp.par",
-        "to": "white_potato.par"
+        "to": "white_potato.par",
+        "priority": 1
+    },
+    {
+        "from": "b2_sun.par",
+        "to": "white_potato.par",
+        "priority": 0
     },
     {
         "from": "white_potato.biomass",

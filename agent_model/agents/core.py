@@ -934,12 +934,19 @@ class PlantAgent(GeneralAgent):
         self.daily_growth_factor = self.daily_growth[hour_of_day]
         self.cu_factor, self.te_factor = self._calculate_co2_response()
         # Light response
+        # 12/22/22: Electric lamps and sunlight work differently.
+        # - Lamp.par is multiplied by the lamp amount (to scale kwh consumption)
+        # - Sun.par is not, because there's nothing to scale and plants can't
+        #   compete over it. Sunlight also can't be incremented.
         light_type = self.connections['in']['par'][0]
         light_agent = self.model.get_agents_by_type(light_type)[0]
+        is_electric = True if 'lamp' in light_type else False
+        par_ideal = self.attrs['char_par_baseline'] * self.daily_growth_factor
+        if is_electric:
+            par_ideal *= self.amount
         par_available = light_agent['par']
-        par_ideal = self.attrs['char_par_baseline'] * self.daily_growth_factor * self.amount
         par_actual = min(par_available, par_ideal)
-        if par_actual > 0:
+        if is_electric and par_actual > 0:
             light_agent.increment('par', -par_actual)
         self.par_factor = 0 if par_ideal == 0 else min(1, par_actual / par_ideal)
 
