@@ -1,0 +1,160 @@
+{
+    "priorities": [
+        "structures",
+        "storage",
+        "power_generation",
+        "inhabitants",
+        "eclss",
+        "plants"
+    ],
+    "seed": 12345,
+    "global_entropy": 0,
+    "location": "earth",
+    "minutes_per_step": 60,
+    "single_agent": 1,
+    "start_time": "1993-01-12",
+    "termination": [
+        {
+            "condition": "time",
+            "value": 257,
+            "unit": "day"
+        }
+    ],
+    "agents": {
+        "human_agent": {
+            "amount": 8
+        },
+        "solid_waste_aerobic_bioreactor": {
+            "amount": 1
+        },
+        "urine_recycling_processor_VCD": {
+            "amount": 1
+        },
+        "multifiltration_purifier_post_treatment": {
+            "amount": 50
+        },
+        "co2_removal_SAWD": {
+            "amount": 5
+        },
+        "dehumidifier": {
+            "amount": 50
+        },
+        "o2_makeup_valve": {
+            "amount": 180
+        },
+        "rice": {
+            "amount": 214
+        },
+        "wheat": {
+            "amount": 149
+        },
+        "sorghum": {
+            "amount": 105
+        },
+        "peanut": {
+            "amount": 68
+        },
+        "corn": {
+            "amount": 197
+        },
+        "dry_bean": {
+            "amount": 784
+        },
+        "sweet_potato": {
+            "amount": 784
+        },
+        "vegetables": {
+            "amount": 141
+        },
+        "soybean": {
+            "amount": 132
+        },
+        "orchard": {
+            "amount": 261
+        },
+        "greenhouse_b2": {
+            "o2": 6302.117382066324,
+            "co2": 136.34381721381757,
+            "h2o": 381.05671536808563,
+            "n2": 35312.45249999999,
+            "total_capacity": {
+                "value": 44025.0,
+                "unit": "kg"
+            },
+            "h2": 0.0,
+            "ch4": 0.04774463384798903
+        },
+        "crew_habitat_b2": {
+            "o2": 1967.4531877071017,
+            "co2": 42.64863263677257,
+            "h2o": 120.2526260963652,
+            "n2": 11025.867125000006,
+            "total_capacity": {
+                "value": 13746.25,
+                "unit": "kg"
+            },
+            "h2": 0.0,
+            "ch4": 0.014907658671957279
+        },
+        "b2_biomes": {
+            "o2": 21134.86557608902,
+            "co2": 452.0488599210562,
+            "h2o": 1277.7625804932115,
+            "n2": 118410.01249999998,
+            "total_capacity": {
+                "value": 147625.0,
+                "unit": "kg"
+            },
+            "h2": 0.0,
+            "ch4": 0.16009770748005409
+        },
+        "atmosphere_equalizer_gh_biomes": {
+            "amount": 1
+        },
+        "atmosphere_equalizer_gh_crew": {
+            "amount": 1
+        },
+        "b2_sun": {
+            "amount": 1
+        },
+        "concrete": {
+            "amount": 15800
+        },
+        "soil": {
+            "amount": 16720
+        },
+        "b2_power_gen": {
+            "amount": 1
+        },
+        "water_storage": {
+            "amount": 50,
+            "potable": 10000
+        },
+        "nutrient_storage": {
+            "amount": 50,
+            "fertilizer": 10000
+        },
+        "food_storage": {
+            "amount": 1
+        },
+        "ration_storage": {
+            "amount": 1,
+            "ration": 500
+        },
+        "co2_storage": {
+            "amount": 1,
+            "co2": 0
+        },
+        "o2_storage": {
+            "amount": 1,
+            "o2": 11288.894400000001
+        },
+        "power_storage": {
+            "amount": 10,
+            "kwh": 1000
+        },
+        "red_beet": {
+            "amount": 784
+        }
+    }
+}
