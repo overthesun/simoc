@@ -2,12 +2,14 @@ import numpy as np
 import json
 import random
 import pathlib
+from dateutil import parser
 
 from agent_model.exceptions import AgentModelInitializationError
 from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc, \
                                          parse_agent_events, parse_agent_conn, merge_json
 
 _DEFAULT_LOCATION = 'mars'
+_DEFAULT_START_TIME = '01-01-1991 00:00:00'
 _DATA_FILES_DIR = pathlib.Path(__file__).parent.parent / 'data_files'
 def load_data_file(fname):
     try:
@@ -51,7 +53,8 @@ class AgentModelInitializer():
             termination=[],
             priorities=[],
             location=_DEFAULT_LOCATION,
-            minutes_per_step=60
+            minutes_per_step=60,
+            start_time=parser.parse(_DEFAULT_START_TIME),
         )
 
     @classmethod
@@ -80,6 +83,8 @@ class AgentModelInitializer():
                         errors['model']['seed'] = 'seed must be an integer'
                         continue
                     value = value % 2**32
+                elif key == 'start_time':
+                    value = parser.parse(value)
                 model_data[key] = value
             else:
                 errors['model'][key] = 'unrecognized'

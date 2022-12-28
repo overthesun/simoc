@@ -293,7 +293,7 @@ class AgentModel(Model, AttributeHolder):
                 agent.data_collector.step()
         # app.logger.info("{0} step_num {1}".format(self, self.step_num))  # TODO: Fix logger
 
-    def step_to(self, n_steps=None, termination=None, max_steps=365*24):
+    def step_to(self, n_steps=None, termination=None, max_steps=365*24*2):
         """Execute a fixed number of steps, or until termination
 
         Args:
