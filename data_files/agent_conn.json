@@ -127,7 +127,13 @@
     },
     {
         "from": "habitat.co2",
-        "to": "co2_removal_SAWD.co2"
+        "to": "co2_removal_SAWD.co2",
+        "priority": 1
+    },
+    {
+        "from": "greenhouse.co2",
+        "to": "co2_removal_SAWD.co2",
+        "priority": 0
     },
     {
         "from": "power_storage.kwh",
@@ -143,7 +149,13 @@
     },
     {
         "from": "co2_makeup_valve.co2",
-        "to": "habitat.co2"
+        "to": "habitat.co2",
+        "priority": 1
+    },
+    {
+        "to": "greenhouse.co2",
+        "from": "co2_makeup_valve.co2",
+        "priority": 0
     },
     {
         "from": "habitat.cont",
@@ -1370,5 +1382,29 @@
     {
         "from": "crew_habitat_b2.atmosphere",
         "to": "atmosphere_equalizer_gh_crew.atmosphere"
+    },
+    {
+        "from": "greenhouse.o2",
+        "to": "soil.o2"
+    },
+    {
+        "from": "soil.co2",
+        "to": "greenhouse.co2"
+    },
+    {
+        "from": "greenhouse.co2",
+        "to": "concrete.co2"
+    },
+    {
+        "from": "b2_power_gen.kwh",
+        "to": "power_storage.kwh"
+    },
+    {
+        "from": "o2_storage.o2",
+        "to": "o2_makeup_valve.o2"
+    },
+    {
+        "from": "o2_makeup_valve.o2",
+        "to": "greenhouse.o2"
     }
 ]

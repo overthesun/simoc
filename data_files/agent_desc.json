@@ -732,6 +732,55 @@
         ]
       },
       "description": "Vents methane from the habitat, removing it from the system."
+    },
+    "o2_makeup_valve": {
+      "description": "Add O2 gas from o2_storage back into connected structure",
+      "data": {
+        "input": [
+          {
+            "type": "o2",
+            "value": 0.085,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "required": "mandatory",
+            "criteria": {
+              "name": "o2_ratio_out",
+              "limit": "<",
+              "value": 0.2
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 0.085,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "o2"
+            ]
+          }
+        ],
+        "characteristics": []
+      }
+    },
+    "o2_storage": {
+      "description": "Pressurized O2 storage",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "capacity_o2",
+            "value": 100000,
+            "unit": "kg"
+          }
+        ]
+      }
     }
   },
   "plants": {
@@ -6498,17 +6547,12 @@
             "value": 35220
           },
           {
-            "type": "capacity_co2",
-            "value": 44025.0,
-            "unit": "kg"
-          },
-          {
             "type": "capacity_n2",
             "value": 44025.0,
             "unit": "kg"
           },
           {
-            "type": "capacity_ch4",
+            "type": "capacity_o2",
             "value": 44025.0,
             "unit": "kg"
           },
@@ -6523,7 +6567,12 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_o2",
+            "type": "capacity_co2",
+            "value": 44025.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
             "value": 44025.0,
             "unit": "kg"
           }
@@ -6545,17 +6594,12 @@
             "value": 10997
           },
           {
-            "type": "capacity_co2",
-            "value": 13746.25,
-            "unit": "kg"
-          },
-          {
             "type": "capacity_n2",
             "value": 13746.25,
             "unit": "kg"
           },
           {
-            "type": "capacity_ch4",
+            "type": "capacity_o2",
             "value": 13746.25,
             "unit": "kg"
           },
@@ -6570,7 +6614,12 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_o2",
+            "type": "capacity_co2",
+            "value": 13746.25,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
             "value": 13746.25,
             "unit": "kg"
           }
@@ -6592,17 +6641,12 @@
             "value": 118100
           },
           {
-            "type": "capacity_co2",
-            "value": 147625.0,
-            "unit": "kg"
-          },
-          {
             "type": "capacity_n2",
             "value": 147625.0,
             "unit": "kg"
           },
           {
-            "type": "capacity_ch4",
+            "type": "capacity_o2",
             "value": 147625.0,
             "unit": "kg"
           },
@@ -6617,7 +6661,12 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_o2",
+            "type": "capacity_co2",
+            "value": 147625.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
             "value": 147625.0,
             "unit": "kg"
           }
@@ -6685,6 +6734,61 @@
         ]
       },
       "description": "Balances the atmosphere elements of habitat & greenhouse every step."
+    },
+    "soil": {
+      "description": "One cubic meter of soil in Biosphere 2",
+      "data": {
+        "input": [
+          {
+            "type": "o2",
+            "value": 4.5528872125327985e-05,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "co2",
+            "value": 0.00011710357501157585,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "volume",
+            "value": 1,
+            "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "concrete": {
+      "description": "1 m^2 of exposed calcifying concrete",
+      "data": {
+        "input": [
+          {
+            "type": "co2",
+            "value": 0.00010295656390363414,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "area",
+            "value": 1,
+            "unit": "m^2"
+          }
+        ]
+      }
     }
   },
   "fabrication": {},
@@ -6811,6 +6915,28 @@
             "type": "volume",
             "value": 0,
             "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "b2_power_gen": {
+      "description": "The Biosphere 2 power generation facility",
+      "data": {
+        "input": [],
+        "output": [
+          {
+            "type": "kwh",
+            "value": 1000,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "category",
+            "value": "power"
           }
         ]
       }
