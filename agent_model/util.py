@@ -208,8 +208,7 @@ def parse_data(data, path):
     elif len(path) == 0:
         return 0 if data is None else data
     # Shift the first element of path, pastt on the rest of the path
-    index = path[0]
-    remainder = path[1:]
+    index, *remainder = path
     if isinstance(data, list):
         # LISTS
         if index == '*':
@@ -219,12 +218,13 @@ def parse_data(data, path):
         elif isinstance(index, int):
             # Single index
             return parse_data(data[index], remainder)
-        # Range i:j (string)
-        start, end = [int(i) for i in index.split(':')]
-        return [parse_data(d, remainder) for d in data[start:end]]
+        else:
+            # Range i:j (string)
+            start, end = [int(i) for i in index.split(':')]
+            return [parse_data(d, remainder) for d in data[start:end]]
     elif isinstance(data, dict):
         # DICTS
-        if index in ('*', 'SUM'):
+        if index in {'*', 'SUM'}:
             # All items, either a dict ('*') or a number ('SUM')
             parsed = [parse_data(d, remainder) for d in data.values()]
             output = {k: v for k, v in zip(data.keys(), parsed) if v or v == 0}
