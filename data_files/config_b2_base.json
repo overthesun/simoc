@@ -12,7 +12,7 @@
     "location": "earth",
     "minutes_per_step": 60,
     "single_agent": 1,
-    "start_time": "1/1/1991",
+    "start_time": "1991-01-01",
     "termination": [
         {
             "condition": "time",
