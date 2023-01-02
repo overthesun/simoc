@@ -96,7 +96,7 @@ monthly_par = [  # Maringo fig. 2c & 4, mean hourly par, monthly from Jan91 - De
 ]
 
 def b2_sun(agent):
-    """Controls the output of the sun at B2"""
+    """Control the output of the sun at B2."""
 
     # Production Data
     time = agent.model.start_time + agent.model.time

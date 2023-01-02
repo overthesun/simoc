@@ -941,7 +941,7 @@ class PlantAgent(GeneralAgent):
         #   compete over it. Sunlight also can't be incremented.
         light_type = self.connections['in']['par'][0]
         light_agent = self.model.get_agents_by_type(light_type)[0]
-        is_electric = True if 'lamp' in light_type else False
+        is_electric = ('lamp' in light_type)
         par_ideal = self.attrs['char_par_baseline'] * self.daily_growth_factor
         if is_electric:
             par_ideal *= self.amount
