@@ -6547,16 +6547,6 @@
             "value": 35220
           },
           {
-            "type": "capacity_n2",
-            "value": 44025.0,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_o2",
-            "value": 44025.0,
-            "unit": "kg"
-          },
-          {
             "type": "capacity_h2",
             "value": 44025.0,
             "unit": "kg"
@@ -6567,12 +6557,22 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_co2",
+            "type": "capacity_ch4",
             "value": 44025.0,
             "unit": "kg"
           },
           {
-            "type": "capacity_ch4",
+            "type": "capacity_o2",
+            "value": 44025.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 44025.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
             "value": 44025.0,
             "unit": "kg"
           }
@@ -6594,16 +6594,6 @@
             "value": 10997
           },
           {
-            "type": "capacity_n2",
-            "value": 13746.25,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_o2",
-            "value": 13746.25,
-            "unit": "kg"
-          },
-          {
             "type": "capacity_h2",
             "value": 13746.25,
             "unit": "kg"
@@ -6614,12 +6604,22 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_co2",
+            "type": "capacity_ch4",
             "value": 13746.25,
             "unit": "kg"
           },
           {
-            "type": "capacity_ch4",
+            "type": "capacity_o2",
+            "value": 13746.25,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 13746.25,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
             "value": 13746.25,
             "unit": "kg"
           }
@@ -6641,16 +6641,6 @@
             "value": 118100
           },
           {
-            "type": "capacity_n2",
-            "value": 147625.0,
-            "unit": "kg"
-          },
-          {
-            "type": "capacity_o2",
-            "value": 147625.0,
-            "unit": "kg"
-          },
-          {
             "type": "capacity_h2",
             "value": 147625.0,
             "unit": "kg"
@@ -6661,12 +6651,22 @@
             "unit": "kg"
           },
           {
-            "type": "capacity_co2",
+            "type": "capacity_ch4",
             "value": 147625.0,
             "unit": "kg"
           },
           {
-            "type": "capacity_ch4",
+            "type": "capacity_o2",
+            "value": 147625.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 147625.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
             "value": 147625.0,
             "unit": "kg"
           }

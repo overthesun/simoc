@@ -170,7 +170,7 @@
         }
     },
     "plants": {
-        "area": {
+        "rice": {
             "data": {
                 "characteristics": [
                     {
@@ -180,7 +180,87 @@
                 ]
             }
         },
-        "crop": {
+        "wheat": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "sorghum": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "peanut": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "corn": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "dry_bean": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "sweet_potato": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "vegetables": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "soybean": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "orchard": {
             "data": {
                 "characteristics": [
                     {

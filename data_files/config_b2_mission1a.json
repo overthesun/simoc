@@ -22,547 +22,55 @@
     ],
     "agents": {
         "human_agent": {
-            "amount": 8,
-            "connections": {
-                "in": {
-                    "o2": [
-                        "crew_habitat_b2"
-                    ],
-                    "potable": [
-                        "water_storage"
-                    ],
-                    "food": [
-                        "food_storage",
-                        "ration_storage"
-                    ]
-                },
-                "out": {
-                    "co2": [
-                        "crew_habitat_b2"
-                    ],
-                    "h2o": [
-                        "crew_habitat_b2"
-                    ],
-                    "urine": [
-                        "water_storage"
-                    ],
-                    "feces": [
-                        "water_storage"
-                    ]
-                }
-            }
+            "amount": 8
         },
         "solid_waste_aerobic_bioreactor": {
-            "amount": 1,
-            "connections": {
-                "in": {
-                    "feces": [
-                        "water_storage"
-                    ],
-                    "o2": [
-                        "crew_habitat_b2"
-                    ],
-                    "kwh": [
-                        "power_storage"
-                    ]
-                },
-                "out": {
-                    "fertilizer": [
-                        "nutrient_storage"
-                    ],
-                    "urine": [
-                        "water_storage"
-                    ],
-                    "co2": [
-                        "crew_habitat_b2"
-                    ],
-                    "ch4": [
-                        "crew_habitat_b2"
-                    ]
-                }
-            }
+            "amount": 1
         },
         "urine_recycling_processor_VCD": {
-            "amount": 1,
-            "connections": {
-                "in": {
-                    "urine": [
-                        "water_storage"
-                    ],
-                    "kwh": [
-                        "power_storage"
-                    ]
-                },
-                "out": {
-                    "treated": [
-                        "water_storage"
-                    ],
-                    "waste": [
-                        "nutrient_storage"
-                    ]
-                }
-            }
+            "amount": 1
         },
         "multifiltration_purifier_post_treatment": {
-            "amount": 50,
-            "connections": {
-                "in": {
-                    "treated": [
-                        "water_storage"
-                    ],
-                    "kwh": [
-                        "power_storage"
-                    ]
-                },
-                "out": {
-                    "potable": [
-                        "water_storage"
-                    ]
-                }
-            }
+            "amount": 50
         },
         "co2_removal_SAWD": {
-            "amount": 5,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2",
-                        "crew_habitat_b2"
-                    ],
-                    "kwh": [
-                        "power_storage"
-                    ]
-                },
-                "out": {
-                    "co2": [
-                        "co2_storage"
-                    ]
-                }
-            }
+            "amount": 5
         },
         "dehumidifier": {
-            "amount": 50,
-            "connections": {
-                "in": {
-                    "kwh": [
-                        "power_storage"
-                    ],
-                    "h2o": [
-                        "greenhouse_b2",
-                        "crew_habitat_b2"
-                    ]
-                },
-                "out": {
-                    "treated": [
-                        "water_storage"
-                    ]
-                }
-            }
+            "amount": 50
         },
         "o2_makeup_valve": {
-            "amount": 180,
-            "connections": {
-                "in": {
-                    "o2": [
-                        "o2_storage"
-                    ]
-                },
-                "out": {
-                    "o2": [
-                        "greenhouse_b2"
-                    ]
-                }
-            }
+            "amount": 180
         },
         "rice": {
-            "amount": 530,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ],
-                    "potable": [
-                        "water_storage"
-                    ],
-                    "fertilizer": [
-                        "nutrient_storage"
-                    ],
-                    "par": [
-                        "b2_sun"
-                    ],
-                    "biomass": [
-                        "rice"
-                    ]
-                },
-                "out": {
-                    "biomass": [
-                        "rice"
-                    ],
-                    "inedible_biomass": [
-                        "nutrient_storage"
-                    ],
-                    "o2": [
-                        "greenhouse_b2"
-                    ],
-                    "h2o": [
-                        "greenhouse_b2"
-                    ],
-                    "rice": [
-                        "food_storage"
-                    ]
-                }
-            }
+            "amount": 530
         },
         "wheat": {
-            "amount": 370,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ],
-                    "potable": [
-                        "water_storage"
-                    ],
-                    "fertilizer": [
-                        "nutrient_storage"
-                    ],
-                    "par": [
-                        "b2_sun"
-                    ],
-                    "biomass": [
-                        "wheat"
-                    ]
-                },
-                "out": {
-                    "biomass": [
-                        "wheat"
-                    ],
-                    "inedible_biomass": [
-                        "nutrient_storage"
-                    ],
-                    "o2": [
-                        "greenhouse_b2"
-                    ],
-                    "h2o": [
-                        "greenhouse_b2"
-                    ],
-                    "wheat": [
-                        "food_storage"
-                    ]
-                }
-            }
+            "amount": 370
         },
         "sorghum": {
-            "amount": 261,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ],
-                    "potable": [
-                        "water_storage"
-                    ],
-                    "fertilizer": [
-                        "nutrient_storage"
-                    ],
-                    "par": [
-                        "b2_sun"
-                    ],
-                    "biomass": [
-                        "sorghum"
-                    ]
-                },
-                "out": {
-                    "biomass": [
-                        "sorghum"
-                    ],
-                    "inedible_biomass": [
-                        "nutrient_storage"
-                    ],
-                    "o2": [
-                        "greenhouse_b2"
-                    ],
-                    "h2o": [
-                        "greenhouse_b2"
-                    ],
-                    "sorghum": [
-                        "food_storage"
-                    ]
-                }
-            }
+            "amount": 261
         },
         "peanut": {
-            "amount": 168,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ],
-                    "potable": [
-                        "water_storage"
-                    ],
-                    "fertilizer": [
-                        "nutrient_storage"
-                    ],
-                    "par": [
-                        "b2_sun"
-                    ],
-                    "biomass": [
-                        "peanut"
-                    ]
-                },
-                "out": {
-                    "biomass": [
-                        "peanut"
-                    ],
-                    "inedible_biomass": [
-                        "nutrient_storage"
-                    ],
-                    "o2": [
-                        "greenhouse_b2"
-                    ],
-                    "h2o": [
-                        "greenhouse_b2"
-                    ],
-                    "peanut": [
-                        "food_storage"
-                    ]
-                }
-            }
+            "amount": 168
         },
         "corn": {
-            "amount": 488,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ],
-                    "potable": [
-                        "water_storage"
-                    ],
-                    "fertilizer": [
-                        "nutrient_storage"
-                    ],
-                    "par": [
-                        "b2_sun"
-                    ],
-                    "biomass": [
-                        "corn"
-                    ]
-                },
-                "out": {
-                    "biomass": [
-                        "corn"
-                    ],
-                    "inedible_biomass": [
-                        "nutrient_storage"
-                    ],
-                    "o2": [
-                        "greenhouse_b2"
-                    ],
-                    "h2o": [
-                        "greenhouse_b2"
-                    ],
-                    "corn": [
-                        "food_storage"
-                    ]
-                }
-            }
+            "amount": 488
         },
         "dry_bean": {
-            "amount": 222,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ],
-                    "potable": [
-                        "water_storage"
-                    ],
-                    "fertilizer": [
-                        "nutrient_storage"
-                    ],
-                    "par": [
-                        "b2_sun"
-                    ],
-                    "biomass": [
-                        "dry_bean"
-                    ]
-                },
-                "out": {
-                    "biomass": [
-                        "dry_bean"
-                    ],
-                    "inedible_biomass": [
-                        "nutrient_storage"
-                    ],
-                    "o2": [
-                        "greenhouse_b2"
-                    ],
-                    "h2o": [
-                        "greenhouse_b2"
-                    ],
-                    "dry_bean": [
-                        "food_storage"
-                    ]
-                }
-            }
+            "amount": 222
         },
         "sweet_potato": {
-            "amount": 261,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ],
-                    "potable": [
-                        "water_storage"
-                    ],
-                    "fertilizer": [
-                        "nutrient_storage"
-                    ],
-                    "par": [
-                        "b2_sun"
-                    ],
-                    "biomass": [
-                        "sweet_potato"
-                    ]
-                },
-                "out": {
-                    "biomass": [
-                        "sweet_potato"
-                    ],
-                    "inedible_biomass": [
-                        "nutrient_storage"
-                    ],
-                    "o2": [
-                        "greenhouse_b2"
-                    ],
-                    "h2o": [
-                        "greenhouse_b2"
-                    ],
-                    "sweet_potato": [
-                        "food_storage"
-                    ]
-                }
-            }
+            "amount": 261
         },
         "vegetables": {
-            "amount": 348,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ],
-                    "potable": [
-                        "water_storage"
-                    ],
-                    "fertilizer": [
-                        "nutrient_storage"
-                    ],
-                    "par": [
-                        "b2_sun"
-                    ],
-                    "biomass": [
-                        "vegetables"
-                    ]
-                },
-                "out": {
-                    "biomass": [
-                        "vegetables"
-                    ],
-                    "inedible_biomass": [
-                        "nutrient_storage"
-                    ],
-                    "o2": [
-                        "greenhouse_b2"
-                    ],
-                    "h2o": [
-                        "greenhouse_b2"
-                    ],
-                    "vegetables": [
-                        "food_storage"
-                    ]
-                }
-            }
+            "amount": 348
         },
         "soybean": {
-            "amount": 326,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ],
-                    "potable": [
-                        "water_storage"
-                    ],
-                    "fertilizer": [
-                        "nutrient_storage"
-                    ],
-                    "par": [
-                        "b2_sun"
-                    ],
-                    "biomass": [
-                        "soybean"
-                    ]
-                },
-                "out": {
-                    "biomass": [
-                        "soybean"
-                    ],
-                    "inedible_biomass": [
-                        "nutrient_storage"
-                    ],
-                    "o2": [
-                        "greenhouse_b2"
-                    ],
-                    "h2o": [
-                        "greenhouse_b2"
-                    ],
-                    "soybean": [
-                        "food_storage"
-                    ]
-                }
-            }
+            "amount": 326
         },
         "orchard": {
-            "amount": 646,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ],
-                    "potable": [
-                        "water_storage"
-                    ],
-                    "fertilizer": [
-                        "nutrient_storage"
-                    ],
-                    "par": [
-                        "b2_sun"
-                    ],
-                    "biomass": [
-                        "orchard"
-                    ]
-                },
-                "out": {
-                    "biomass": [
-                        "orchard"
-                    ],
-                    "inedible_biomass": [
-                        "nutrient_storage"
-                    ],
-                    "o2": [
-                        "greenhouse_b2"
-                    ],
-                    "h2o": [
-                        "greenhouse_b2"
-                    ],
-                    "orchard": [
-                        "food_storage"
-                    ]
-                }
-            }
+            "amount": 646
         },
         "greenhouse_b2": {
             "o2": 8254.6875,
@@ -572,71 +80,6 @@
             "total_capacity": {
                 "value": 44025.0,
                 "unit": "kg"
-            },
-            "connections": {
-                "in": {
-                    "kwh": [
-                        "power_storage"
-                    ],
-                    "o2": [
-                        "corn",
-                        "dry_bean",
-                        "orchard",
-                        "peanut",
-                        "rice",
-                        "sorghum",
-                        "soybean",
-                        "sweet_potato",
-                        "vegetables",
-                        "wheat",
-                        "o2_makeup_valve"
-                    ],
-                    "h2o": [
-                        "corn",
-                        "dry_bean",
-                        "orchard",
-                        "peanut",
-                        "rice",
-                        "sorghum",
-                        "soybean",
-                        "sweet_potato",
-                        "vegetables",
-                        "wheat"
-                    ],
-                    "atmosphere": [
-                        "atmosphere_equalizer_gh_biomes",
-                        "atmosphere_equalizer_gh_crew"
-                    ],
-                    "co2": [
-                        "soil"
-                    ]
-                },
-                "out": {
-                    "co2": [
-                        "co2_removal_SAWD",
-                        "corn",
-                        "dry_bean",
-                        "orchard",
-                        "peanut",
-                        "rice",
-                        "sorghum",
-                        "soybean",
-                        "sweet_potato",
-                        "vegetables",
-                        "wheat",
-                        "concrete"
-                    ],
-                    "h2o": [
-                        "dehumidifier"
-                    ],
-                    "atmosphere": [
-                        "atmosphere_equalizer_gh_biomes",
-                        "atmosphere_equalizer_gh_crew"
-                    ],
-                    "o2": [
-                        "soil"
-                    ]
-                }
             }
         },
         "crew_habitat_b2": {
@@ -647,41 +90,6 @@
             "total_capacity": {
                 "value": 13746.25,
                 "unit": "kg"
-            },
-            "connections": {
-                "in": {
-                    "co2": [
-                        "human_agent",
-                        "solid_waste_aerobic_bioreactor"
-                    ],
-                    "h2o": [
-                        "human_agent"
-                    ],
-                    "ch4": [
-                        "solid_waste_aerobic_bioreactor"
-                    ],
-                    "kwh": [
-                        "power_storage"
-                    ],
-                    "atmosphere": [
-                        "atmosphere_equalizer_gh_crew"
-                    ]
-                },
-                "out": {
-                    "o2": [
-                        "human_agent",
-                        "solid_waste_aerobic_bioreactor"
-                    ],
-                    "co2": [
-                        "co2_removal_SAWD"
-                    ],
-                    "h2o": [
-                        "dehumidifier"
-                    ],
-                    "atmosphere": [
-                        "atmosphere_equalizer_gh_crew"
-                    ]
-                }
             }
         },
         "b2_biomes": {
@@ -692,296 +100,52 @@
             "total_capacity": {
                 "value": 147625.0,
                 "unit": "kg"
-            },
-            "connections": {
-                "in": {
-                    "atmosphere": [
-                        "atmosphere_equalizer_gh_biomes"
-                    ]
-                },
-                "out": {
-                    "atmosphere": [
-                        "atmosphere_equalizer_gh_biomes"
-                    ]
-                }
             }
         },
         "atmosphere_equalizer_gh_biomes": {
-            "amount": 1,
-            "connections": {
-                "in": {
-                    "atmosphere": [
-                        "greenhouse_b2",
-                        "b2_biomes"
-                    ]
-                },
-                "out": {
-                    "atmosphere": [
-                        "greenhouse_b2",
-                        "b2_biomes"
-                    ]
-                }
-            }
+            "amount": 1
         },
         "atmosphere_equalizer_gh_crew": {
-            "amount": 1,
-            "connections": {
-                "in": {
-                    "atmosphere": [
-                        "greenhouse_b2",
-                        "crew_habitat_b2"
-                    ]
-                },
-                "out": {
-                    "atmosphere": [
-                        "greenhouse_b2",
-                        "crew_habitat_b2"
-                    ]
-                }
-            }
+            "amount": 1
         },
         "b2_sun": {
-            "amount": 1,
-            "connections": {
-                "in": {},
-                "out": {
-                    "par": [
-                        "corn",
-                        "dry_bean",
-                        "orchard",
-                        "peanut",
-                        "rice",
-                        "sorghum",
-                        "soybean",
-                        "sweet_potato",
-                        "vegetables",
-                        "wheat"
-                    ]
-                }
-            }
+            "amount": 1
         },
         "concrete": {
-            "amount": 15800,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ]
-                },
-                "out": {}
-            }
+            "amount": 15800
         },
         "soil": {
-            "amount": 16720,
-            "connections": {
-                "in": {
-                    "o2": [
-                        "greenhouse_b2"
-                    ]
-                },
-                "out": {
-                    "co2": [
-                        "greenhouse_b2"
-                    ]
-                }
-            }
+            "amount": 16720
         },
         "b2_power_gen": {
-            "amount": 1,
-            "connections": {
-                "in": {},
-                "out": {
-                    "kwh": [
-                        "power_storage"
-                    ]
-                }
-            }
+            "amount": 1
         },
         "water_storage": {
             "amount": 50,
-            "potable": 10000,
-            "connections": {
-                "in": {
-                    "urine": [
-                        "human_agent",
-                        "solid_waste_aerobic_bioreactor"
-                    ],
-                    "feces": [
-                        "human_agent"
-                    ],
-                    "treated": [
-                        "urine_recycling_processor_VCD",
-                        "dehumidifier"
-                    ],
-                    "potable": [
-                        "multifiltration_purifier_post_treatment"
-                    ]
-                },
-                "out": {
-                    "potable": [
-                        "human_agent",
-                        "corn",
-                        "dry_bean",
-                        "orchard",
-                        "peanut",
-                        "rice",
-                        "sorghum",
-                        "soybean",
-                        "sweet_potato",
-                        "vegetables",
-                        "wheat"
-                    ],
-                    "feces": [
-                        "solid_waste_aerobic_bioreactor"
-                    ],
-                    "urine": [
-                        "urine_recycling_processor_VCD"
-                    ],
-                    "treated": [
-                        "multifiltration_purifier_post_treatment"
-                    ]
-                }
-            }
+            "potable": 10000
         },
         "nutrient_storage": {
             "amount": 50,
-            "fertilizer": 10000,
-            "connections": {
-                "in": {
-                    "fertilizer": [
-                        "solid_waste_aerobic_bioreactor"
-                    ],
-                    "waste": [
-                        "urine_recycling_processor_VCD"
-                    ],
-                    "inedible_biomass": [
-                        "corn",
-                        "dry_bean",
-                        "orchard",
-                        "peanut",
-                        "rice",
-                        "sorghum",
-                        "soybean",
-                        "sweet_potato",
-                        "vegetables",
-                        "wheat"
-                    ]
-                },
-                "out": {
-                    "fertilizer": [
-                        "corn",
-                        "dry_bean",
-                        "orchard",
-                        "peanut",
-                        "rice",
-                        "sorghum",
-                        "soybean",
-                        "sweet_potato",
-                        "vegetables",
-                        "wheat"
-                    ]
-                }
-            }
+            "fertilizer": 10000
         },
         "food_storage": {
-            "amount": 1,
-            "connections": {
-                "in": {
-                    "corn": [
-                        "corn"
-                    ],
-                    "dry_bean": [
-                        "dry_bean"
-                    ],
-                    "orchard": [
-                        "orchard"
-                    ],
-                    "peanut": [
-                        "peanut"
-                    ],
-                    "rice": [
-                        "rice"
-                    ],
-                    "sorghum": [
-                        "sorghum"
-                    ],
-                    "soybean": [
-                        "soybean"
-                    ],
-                    "sweet_potato": [
-                        "sweet_potato"
-                    ],
-                    "vegetables": [
-                        "vegetables"
-                    ],
-                    "wheat": [
-                        "wheat"
-                    ]
-                },
-                "out": {
-                    "food": [
-                        "human_agent"
-                    ]
-                }
-            }
+            "amount": 1
         },
         "ration_storage": {
             "amount": 1,
-            "ration": 500,
-            "connections": {
-                "in": {},
-                "out": {
-                    "food": [
-                        "human_agent"
-                    ]
-                }
-            }
+            "ration": 500
         },
         "co2_storage": {
             "amount": 1,
-            "co2": 0,
-            "connections": {
-                "in": {
-                    "co2": [
-                        "co2_removal_SAWD"
-                    ]
-                },
-                "out": {}
-            }
+            "co2": 0
         },
         "o2_storage": {
             "amount": 1,
-            "o2": 0,
-            "connections": {
-                "in": {},
-                "out": {
-                    "o2": [
-                        "o2_makeup_valve"
-                    ]
-                }
-            }
+            "o2": 0
         },
         "power_storage": {
             "amount": 10,
-            "kwh": 1000,
-            "connections": {
-                "in": {
-                    "kwh": [
-                        "b2_power_gen"
-                    ]
-                },
-                "out": {
-                    "kwh": [
-                        "solid_waste_aerobic_bioreactor",
-                        "urine_recycling_processor_VCD",
-                        "multifiltration_purifier_post_treatment",
-                        "co2_removal_SAWD",
-                        "dehumidifier",
-                        "crew_habitat_b2",
-                        "greenhouse_b2"
-                    ]
-                }
-            }
+            "kwh": 1000
         }
     }
 }
