@@ -904,7 +904,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -975,6 +976,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -1101,7 +1106,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -1172,6 +1178,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -1298,7 +1308,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -1369,6 +1380,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -1495,7 +1510,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -1566,6 +1582,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -1692,7 +1712,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -1763,6 +1784,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -1889,7 +1914,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -1960,6 +1986,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -2086,7 +2116,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -2157,6 +2188,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -2283,7 +2318,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -2354,6 +2390,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -2480,7 +2520,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -2551,6 +2592,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -2677,7 +2722,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -2748,6 +2794,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -2874,7 +2924,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -2945,6 +2996,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -3071,7 +3126,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -3142,6 +3198,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -3268,7 +3328,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -3339,6 +3400,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -3465,7 +3530,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -3536,6 +3602,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -3662,7 +3732,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -3733,6 +3804,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -3859,7 +3934,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -3930,6 +4006,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -4056,7 +4136,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -4127,6 +4208,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -4253,7 +4338,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -4324,6 +4410,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -4450,7 +4540,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -4521,6 +4612,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -4647,7 +4742,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -4718,6 +4814,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -4844,7 +4944,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -4915,6 +5016,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -5041,7 +5146,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -5112,6 +5218,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -5238,7 +5348,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -5309,6 +5420,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -5435,7 +5550,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -5506,6 +5622,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -5632,7 +5752,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -5703,6 +5824,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -5829,7 +5954,8 @@
               "daily_growth_factor",
               "par_factor",
               "cu_factor",
-              "density_factor"
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -5900,6 +6026,10 @@
           },
           {
             "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
             "value": 1
           }
         ]
@@ -6777,7 +6907,10 @@
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
-            }
+            },
+            "weighted": [
+              "calcification_rate"
+            ]
           }
         ],
         "output": [],
@@ -6786,6 +6919,10 @@
             "type": "area",
             "value": 1,
             "unit": "m^2"
+          },
+          {
+            "type": "custom_function",
+            "value": "concrete"
           }
         ]
       }
