@@ -77,11 +77,13 @@ def get_user(username, num_retries=30, interval=1):
 
 
 @app.task
-def new_game(username, game_config, num_steps, expire=3600):
+def new_game(username, game_config, num_steps, user_agent_desc=None,
+             user_agent_conn=None, expire=3600):
     logger.info(f'Starting new game for {username=}, {num_steps=}')
     user = get_user(username)
     try:
-        game_runner_manager.new_game(user, game_config)
+        game_runner_manager.new_game(user, game_config, user_agent_desc,
+                                     user_agent_conn)
     except Exception as err:
         db.session.rollback()
         logger.error(f'Exception in task.new_game ({err}): rolling back')

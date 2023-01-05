@@ -119,7 +119,8 @@ class GameRunner(object):
         return GameRunner.load_from_state(user, agent_model_state)
 
     @classmethod
-    def from_new_game(cls, user, game_config):  #game_runner_init_params):
+    def from_new_game(cls, user, game_config, user_agent_desc=None,
+                      user_agent_conn=None):
         """Creates a new game runner.
 
         Parameters
@@ -134,7 +135,9 @@ class GameRunner(object):
         GameRunner
             loaded GameRunner instance
         """
-        agent_model = AgentModel.from_config(game_config)
+        agent_model = AgentModel.from_config(game_config,
+                                             agent_desc=user_agent_desc,
+                                             agent_conn=user_agent_conn)
         return GameRunner(agent_model, user, None)
 
     def save_game(self, save_name):
@@ -294,7 +297,8 @@ class GameRunnerManager(object):
             self._handler_partial()
             remove_exit_handler(self._handler_partial)
 
-    def new_game(self, user, game_runner_init_params):
+    def new_game(self, user, game_config, user_agent_desc=None,
+                 user_agent_conn=None):
         """Create a new game and add it to internal game_runners dict.
         If the user already holds a game instance, it is saved, if needed and removed.
 
@@ -302,11 +306,17 @@ class GameRunnerManager(object):
         ----------
         user : simoc_server.database.db_model.User
             The user requesting the new game.
-        game_runner_init_params : simoc_server.game_runner.GameRunnerInitializationParams
+        game_config : dict
             initialization parameters for the new game
+        user_agent_desc : dict
+            supplemental agents to be added to the game
+        user_agent_conn : list
+            supplemental connections to be added to the game
         """
         app.logger.info(f'GameRunnerManager: starting new game for {user}')
-        game_runner = GameRunner.from_new_game(user, game_runner_init_params)
+        game_runner = GameRunner.from_new_game(user, game_config,
+                                               user_agent_desc,
+                                               user_agent_conn)
         self._add_game_runner(user, game_runner)
 
     def load_game(self, user, saved_game):

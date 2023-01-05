@@ -271,7 +271,8 @@ def new_game():
         raise BadRequest("step_num is required.")
     step_num = int(input["step_num"])
     try:
-        game_config = convert_configuration(input["game_config"])
+        data_files = convert_configuration(input["game_config"])
+        game_config, user_agent_desc, user_agent_conn = data_files
     except BadRequest as e:
         raise BadRequest(f"Cannot retrieve game config. Reason: {e}")
     if game_config['total_amount'] >= MAX_NUMBER_OF_AGENTS:
@@ -282,7 +283,8 @@ def new_game():
     user_cleanup(user)
     # Import and load default currencies list
     default_currencies = load_from_basedir('data_files/currency_desc.json')
-    tasks.new_game.apply_async(args=[user.username, game_config, step_num])
+    tasks.new_game.apply_async(args=[user.username, game_config, step_num,
+                                     user_agent_desc, user_agent_conn])
     while True:
         time.sleep(0.5)
         game_id = get_user_game_id(user)

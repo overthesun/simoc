@@ -548,7 +548,7 @@
             "criteria": {
               "name": "co2_ratio_out",
               "limit": "<",
-              "value": 0.0004,
+              "value": 0.0007,
               "buffer": 8
             }
           }
@@ -740,143 +740,133 @@
         "input": [
           {
             "type": "co2",
-            "value": 0.0015399905754,
+            "value": 0.001571,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.0079341666667,
+            "value": 0.116286,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 2.347e-05,
+            "value": 6.6e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.2300870147,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0011201294643,
+            "value": 0.001143,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0071179138073,
+            "value": 0.11576,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.00102,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "rice",
-            "value": 0.30003,
-            "weighted": "current_growth",
+            "value": 0.3,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -885,670 +875,31 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.69997,
-            "weighted": "current_growth",
+            "value": 0.7,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.001259583,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_cers"
+            "type": "par_baseline",
+            "value": 1.4,
+            "unit": "mol"
           },
           {
-            "type": "carbon_fixation",
-            "value": "c3"
-          },
-          {
-            "type": "lifetime",
-            "value": 2040,
+            "type": "photoperiod",
+            "value": 12,
             "unit": "hour"
-          },
-          {
-            "type": "growth_criteria",
-            "value": "out_biomass"
-          },
-          {
-            "type": "reproduce",
-            "value": true
-          },
-          {
-            "type": "capacity_biomass",
-            "value": 100,
-            "unit": "kg"
-          }
-        ]
-      }
-    },
-    "wheat": {
-      "data": {
-        "input": [
-          {
-            "type": "co2",
-            "value": 0.002547123016,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "potable",
-            "value": 0.01125,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "fertilizer",
-            "value": 3.882e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "kwh",
-            "value": 0.8018183846,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kWh",
-              "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          }
-        ],
-        "output": [
-          {
-            "type": "o2",
-            "value": 0.0018526785714,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          },
-          {
-            "type": "h2o",
-            "value": 0.0098999291113,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          },
-          {
-            "type": "wheat",
-            "value": 0.4,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          },
-          {
-            "type": "inedible_biomass",
-            "value": 0.6,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 0.002083333,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          }
-        ],
-        "characteristics": [
-          {
-            "type": "category",
-            "value": "food_cers"
-          },
-          {
-            "type": "carbon_fixation",
-            "value": "c3"
-          },
-          {
-            "type": "growth_criteria",
-            "value": "out_biomass"
-          },
-          {
-            "type": "lifetime",
-            "value": 1896,
-            "unit": "hour"
-          },
-          {
-            "type": "reproduce",
-            "value": true
-          },
-          {
-            "type": "capacity_biomass",
-            "value": 100,
-            "unit": "kg"
-          }
-        ]
-      }
-    },
-    "cabbage": {
-      "data": {
-        "input": [
-          {
-            "type": "co2",
-            "value": 0.0003777302131,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "potable",
-            "value": 0.00025529166667,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "fertilizer",
-            "value": 1.293e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "kwh",
-            "value": 0.1952253458,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kWh",
-              "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          }
-        ],
-        "output": [
-          {
-            "type": "o2",
-            "value": 0.0002752949011,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          },
-          {
-            "type": "h2o",
-            "value": 8.78642873e-05,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          },
-          {
-            "type": "cabbage",
-            "value": 0.90045,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          },
-          {
-            "type": "inedible_biomass",
-            "value": 0.09955,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 0.000280416,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          }
-        ],
-        "characteristics": [
-          {
-            "type": "category",
-            "value": "food_leaf"
-          },
-          {
-            "type": "carbon_fixation",
-            "value": "c3"
-          },
-          {
-            "type": "lifetime",
-            "value": 2040.0,
-            "unit": "hour"
-          },
-          {
-            "type": "growth_criteria",
-            "value": "out_biomass"
-          },
-          {
-            "type": "reproduce",
-            "value": true
-          },
-          {
-            "type": "capacity_biomass",
-            "value": 100,
-            "unit": "kg"
-          }
-        ]
-      }
-    },
-    "chard": {
-      "data": {
-        "input": [
-          {
-            "type": "co2",
-            "value": 0.0006044805936,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "potable",
-            "value": 0.0014133333333,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "fertilizer",
-            "value": 1.785e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "kwh",
-            "value": 0.1185296743,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kWh",
-              "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          }
-        ],
-        "output": [
-          {
-            "type": "o2",
-            "value": 0.000440553653,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          },
-          {
-            "type": "h2o",
-            "value": 0.0011463648685,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          },
-          {
-            "type": "chard",
-            "value": 0.64995,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          },
-          {
-            "type": "inedible_biomass",
-            "value": 0.35005,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 0.00044875,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          }
-        ],
-        "characteristics": [
-          {
-            "type": "category",
-            "value": "food_leaf"
-          },
-          {
-            "type": "carbon_fixation",
-            "value": "c3"
           },
           {
             "type": "lifetime",
@@ -1556,8 +907,12 @@
             "unit": "hour"
           },
           {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.3
           },
           {
             "type": "reproduce",
@@ -1565,154 +920,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 1.1016,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
-    "celery": {
+    "wheat": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0006443302892,
+            "value": 0.002547,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
+            "value": 0.18849,
             "required": "desired",
-            "value": 0.00043,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 1.903e-05,
+            "value": 0.000107,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1185296743,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0004695966514,
+            "value": 0.001853,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0001454319429,
+            "value": 0.18764,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.001654,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
-            "type": "celery",
-            "value": 0.89983,
-            "weighted": "current_growth",
+            "type": "wheat",
+            "value": 0.29,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -1721,21 +1067,165 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.10017,
-            "weighted": "current_growth",
+            "value": 0.71,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "par_baseline",
+            "value": 3.53,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 20,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 2016,
+            "unit": "hour"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.29
+          },
+          {
+            "type": "reproduce",
+            "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 3.334464,
+            "unit": "kg"
+          }
+        ]
+      },
+      "description": ""
+    },
+    "cabbage": {
+      "data": {
+        "input": [
+          {
+            "type": "co2",
+            "value": 0.000336,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "potable",
+            "value": 0.049222,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "fertilizer",
+            "value": 2.8e-05,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "par",
+            "value": 0,
+            "flow_rate": {
+              "unit": "mol",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 0.000245,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "h2o",
+            "value": 0.04911,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "biomass",
-            "value": 0.000478333,
+            "value": 0.000227,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -1743,21 +1233,441 @@
             "growth": {
               "lifetime": {
                 "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
               }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "cabbage",
+            "value": 0.9,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.09999999999999998,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
             }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_leaf"
+            "type": "par_baseline",
+            "value": 0.72,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 16,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 2040,
+            "unit": "hour"
           },
           {
             "type": "carbon_fixation",
             "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.9
+          },
+          {
+            "type": "reproduce",
+            "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 0.46308,
+            "unit": "kg"
+          }
+        ]
+      },
+      "description": ""
+    },
+    "chard": {
+      "data": {
+        "input": [
+          {
+            "type": "co2",
+            "value": 0.000537,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "potable",
+            "value": 0.07877,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "fertilizer",
+            "value": 4.5e-05,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "par",
+            "value": 0,
+            "flow_rate": {
+              "unit": "mol",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 0.000392,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "h2o",
+            "value": 0.0786,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000363,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "norm"
+              }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "chard",
+            "value": 0.6,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.4,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "par_baseline",
+            "value": 0.72,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 16,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 1080,
+            "unit": "hour"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.6
+          },
+          {
+            "type": "reproduce",
+            "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 0.39204,
+            "unit": "kg"
+          }
+        ]
+      },
+      "description": ""
+    },
+    "celery": {
+      "data": {
+        "input": [
+          {
+            "type": "co2",
+            "value": 0.000573,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "potable",
+            "value": 0.083963,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "fertilizer",
+            "value": 4.8e-05,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "par",
+            "value": 0,
+            "flow_rate": {
+              "unit": "mol",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 0.000418,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "h2o",
+            "value": 0.08378,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000387,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "norm"
+              }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "celery",
+            "value": 0.9,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.09999999999999998,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "par_baseline",
+            "value": 0.72,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 16,
+            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -1765,8 +1675,12 @@
             "unit": "hour"
           },
           {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.9
           },
           {
             "type": "reproduce",
@@ -1774,154 +1688,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 0.6966,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "lettuce": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0004097222222,
+            "value": 0.00041,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.00027375,
+            "value": 0.06005,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 1.21e-05,
+            "value": 3.4e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1185296743,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0002986111111,
+            "value": 0.000299,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 9.27964444e-05,
+            "value": 0.05991,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000277,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "lettuce",
-            "value": 0.9,
-            "weighted": "current_growth",
+            "value": 0.93,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -1930,252 +1835,31 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.1,
-            "weighted": "current_growth",
+            "value": 0.06999999999999995,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.000304166,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_leaf"
+            "type": "par_baseline",
+            "value": 0.7,
+            "unit": "mol"
           },
           {
-            "type": "carbon_fixation",
-            "value": "c3"
-          },
-          {
-            "type": "lifetime",
-            "value": 672,
+            "type": "photoperiod",
+            "value": 16,
             "unit": "hour"
-          },
-          {
-            "type": "growth_criteria",
-            "value": "out_biomass"
-          },
-          {
-            "type": "reproduce",
-            "value": true
-          },
-          {
-            "type": "capacity_biomass",
-            "value": 100,
-            "unit": "kg"
-          }
-        ]
-      }
-    },
-    "spinach": {
-      "data": {
-        "input": [
-          {
-            "type": "co2",
-            "value": 0.0004097222222,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "potable",
-            "value": 0.00027375,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "fertilizer",
-            "value": 1.21e-05,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "kwh",
-            "value": 0.1185296743,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kWh",
-              "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          }
-        ],
-        "output": [
-          {
-            "type": "o2",
-            "value": 0.0002986111111,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          },
-          {
-            "type": "h2o",
-            "value": 9.27964444e-05,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          },
-          {
-            "type": "spinach",
-            "value": 0.9,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          },
-          {
-            "type": "inedible_biomass",
-            "value": 0.1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 0.000304166,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
-          }
-        ],
-        "characteristics": [
-          {
-            "type": "category",
-            "value": "food_leaf"
-          },
-          {
-            "type": "carbon_fixation",
-            "value": "c3"
           },
           {
             "type": "lifetime",
@@ -2183,8 +1867,12 @@
             "unit": "hour"
           },
           {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.93
           },
           {
             "type": "reproduce",
@@ -2192,106 +1880,161 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 0.19944,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
-    "dry_bean": {
+    "spinach": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0020616319444,
+            "value": 0.000364,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.005625,
+            "value": 0.053391,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 3.433e-05,
+            "value": 3.1e-05,
             "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "par",
+            "value": 0,
+            "flow_rate": {
+              "unit": "mol",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 0.000266,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "h2o",
+            "value": 0.05327,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000246,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
             },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1673360107,
-            "required": "desired",
-            "flow_rate": {
-              "unit": "kWh",
-              "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
+            "type": "spinach",
+            "value": 0.9,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.09999999999999998,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -2299,47 +2042,175 @@
             }
           }
         ],
+        "characteristics": [
+          {
+            "type": "par_baseline",
+            "value": 0.72,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 16,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 720,
+            "unit": "hour"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.9
+          },
+          {
+            "type": "reproduce",
+            "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 0.17712,
+            "unit": "kg"
+          }
+        ]
+      },
+      "description": ""
+    },
+    "dry_bean": {
+      "data": {
+        "input": [
+          {
+            "type": "co2",
+            "value": 0.001424,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "potable",
+            "value": 0.508549,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "fertilizer",
+            "value": 0.000156,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "par",
+            "value": 0,
+            "flow_rate": {
+              "unit": "mol",
+              "time": "hour"
+            }
+          }
+        ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0015010127315,
+            "value": 0.001037,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0051782865307,
+            "value": 0.50825,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000844,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "dry_bean",
             "value": 0.4,
-            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -2349,51 +2220,43 @@
           {
             "type": "inedible_biomass",
             "value": 0.6,
-            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.001041666,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_legu"
+            "type": "par_baseline",
+            "value": 1.01,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 18,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 672,
+            "unit": "hour"
           },
           {
             "type": "carbon_fixation",
             "value": "c3"
           },
           {
-            "type": "lifetime",
-            "value": 2040,
-            "unit": "hour"
-          },
-          {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "harvest_index",
+            "value": 0.4
           },
           {
             "type": "reproduce",
@@ -2401,154 +2264,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 0.567168,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "peanut": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0018562934028,
+            "value": 0.001282,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.0063258333333,
+            "value": 0.457898,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 3.091e-05,
+            "value": 0.000141,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.188253012,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0013515118634,
+            "value": 0.000933,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0059236125255,
+            "value": 0.45763,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.00076,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "peanut",
-            "value": 0.25011,
-            "weighted": "current_growth",
+            "value": 0.25,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -2557,52 +2411,44 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.74989,
-            "weighted": "current_growth",
+            "value": 0.75,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.000937916,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_legu"
+            "type": "par_baseline",
+            "value": 1.13,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 12,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 840,
+            "unit": "hour"
           },
           {
             "type": "carbon_fixation",
             "value": "c3"
           },
           {
-            "type": "lifetime",
-            "value": 2496,
-            "unit": "hour"
-          },
-          {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "harvest_index",
+            "value": 0.25
           },
           {
             "type": "reproduce",
@@ -2610,154 +2456,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 0.6384,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "soybean": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0010555555556,
+            "value": 0.000528,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.0025516666667,
+            "value": 0.18849,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 1.758e-05,
+            "value": 5.8e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1952253458,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0007685185185,
+            "value": 0.000384,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0023229493705,
+            "value": 0.18838,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000313,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "soybean",
-            "value": 0.46875,
-            "weighted": "current_growth",
+            "value": 0.38,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -2766,52 +2603,44 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.53125,
-            "weighted": "current_growth",
+            "value": 0.62,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.00053329,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_legu"
+            "type": "par_baseline",
+            "value": 1.54,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 12,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 2160,
+            "unit": "hour"
           },
           {
             "type": "carbon_fixation",
             "value": "c3"
           },
           {
-            "type": "lifetime",
-            "value": 2328,
-            "unit": "hour"
-          },
-          {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "harvest_index",
+            "value": 0.38
           },
           {
             "type": "reproduce",
@@ -2819,154 +2648,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 0.67608,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "strawberry": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0007907178481,
+            "value": 0.001129,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.0054183333333,
+            "value": 0.156993,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 2.09e-05,
+            "value": 9.3e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1533913432,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0005763666242,
+            "value": 0.00082,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0047265009912,
+            "value": 0.15664,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000751,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "strawberry",
-            "value": 0.35011,
-            "weighted": "current_growth",
+            "value": 0.35,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -2975,52 +2795,44 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.64989,
-            "weighted": "current_growth",
+            "value": 0.65,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.000927083,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_frut"
+            "type": "par_baseline",
+            "value": 0.9,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 12,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 1440,
+            "unit": "hour"
           },
           {
             "type": "carbon_fixation",
             "value": "c3"
           },
           {
-            "type": "lifetime",
-            "value": 2040,
-            "unit": "hour"
-          },
-          {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "harvest_index",
+            "value": 0.35
           },
           {
             "type": "reproduce",
@@ -3028,154 +2840,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 1.08144,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "tomato": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.000823412698,
+            "value": 0.001219,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.00477875,
+            "value": 0.16956,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 2.176e-05,
+            "value": 0.000101,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.188253012,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0006001984127,
+            "value": 0.000886,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0040583115556,
+            "value": 0.16919,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000811,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "tomato",
-            "value": 0.45015,
-            "weighted": "current_growth",
+            "value": 0.5,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -3184,52 +2987,44 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.54985,
-            "weighted": "current_growth",
+            "value": 0.5,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.000965416,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_frut"
+            "type": "par_baseline",
+            "value": 1.61,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 12,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 2088,
+            "unit": "hour"
           },
           {
             "type": "carbon_fixation",
             "value": "c3"
           },
           {
-            "type": "lifetime",
-            "value": 2040,
-            "unit": "hour"
-          },
-          {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "harvest_index",
+            "value": 0.5
           },
           {
             "type": "reproduce",
@@ -3237,154 +3032,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 1.693368,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "green_onion": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0005612633181,
+            "value": 0.000506,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.000375,
+            "value": 0.022703,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 1.658e-05,
+            "value": 2.7e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1812806783,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0004090563166,
+            "value": 0.000368,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0001271184169,
+            "value": 0.02253,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000337,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "green_onion",
             "value": 0.9,
-            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -3393,43 +3179,31 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.1,
-            "weighted": "current_growth",
+            "value": 0.09999999999999998,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.000416666,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_vegi"
+            "type": "par_baseline",
+            "value": 1.78,
+            "unit": "mol"
           },
           {
-            "type": "carbon_fixation",
-            "value": "c3"
+            "type": "photoperiod",
+            "value": 14,
+            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -3437,8 +3211,12 @@
             "unit": "hour"
           },
           {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.9
           },
           {
             "type": "reproduce",
@@ -3446,154 +3224,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 0.4044,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "onion": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0006314212329,
+            "value": 0.000569,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.00084375,
+            "value": 0.025541,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 1.865e-05,
+            "value": 3e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1185296743,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0004601883562,
+            "value": 0.000414,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0005648832192,
+            "value": 0.02535,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.00038,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "onion",
             "value": 0.8,
-            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -3602,43 +3371,31 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.2,
-            "weighted": "current_growth",
+            "value": 0.19999999999999996,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.00046875,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_vegi"
+            "type": "par_baseline",
+            "value": 1.78,
+            "unit": "mol"
           },
           {
-            "type": "carbon_fixation",
-            "value": "c3"
+            "type": "photoperiod",
+            "value": 14,
+            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -3646,8 +3403,12 @@
             "unit": "hour"
           },
           {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.8
           },
           {
             "type": "reproduce",
@@ -3655,154 +3416,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 0.456,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "pea": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0015058694825,
+            "value": 0.001528,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.0060375,
+            "value": 0.545775,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 4.448e-05,
+            "value": 0.000168,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1673360107,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0010974980974,
+            "value": 0.001113,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.005372433713,
+            "value": 0.54545,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000906,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "pea",
-            "value": 0.39993,
-            "weighted": "current_growth",
+            "value": 0.4,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -3811,43 +3563,31 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.60007,
-            "weighted": "current_growth",
+            "value": 0.6,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.001117916,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_vegi"
+            "type": "par_baseline",
+            "value": 1.13,
+            "unit": "mol"
           },
           {
-            "type": "carbon_fixation",
-            "value": "c3"
+            "type": "photoperiod",
+            "value": 12,
+            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -3855,8 +3595,12 @@
             "unit": "hour"
           },
           {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.4
           },
           {
             "type": "reproduce",
@@ -3864,154 +3608,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 1.6308,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "pepper": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0013004471081,
+            "value": 0.001175,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.0047775,
+            "value": 0.163484,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 3.841e-05,
+            "value": 9.7e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.188253012,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0009477834855,
+            "value": 0.000854,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0042031583723,
+            "value": 0.16312,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000782,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "pepper",
-            "value": 0.45015,
-            "weighted": "current_growth",
+            "value": 0.45,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -4020,43 +3755,31 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.54985,
-            "weighted": "current_growth",
+            "value": 0.55,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.000965416,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_vegi"
+            "type": "par_baseline",
+            "value": 1.61,
+            "unit": "mol"
           },
           {
-            "type": "carbon_fixation",
-            "value": "c3"
+            "type": "photoperiod",
+            "value": 12,
+            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -4064,8 +3787,12 @@
             "unit": "hour"
           },
           {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.45
           },
           {
             "type": "reproduce",
@@ -4073,154 +3800,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 1.59528,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "snap_bean": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0016669520548,
+            "value": 0.001692,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.0066825,
+            "value": 0.604156,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 0.00043957,
+            "value": 0.000186,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1673360107,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0012148972603,
+            "value": 0.001232,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0059462916986,
+            "value": 0.6038,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.001002,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "snap_bean",
             "value": 0.4,
-            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -4230,42 +3948,30 @@
           {
             "type": "inedible_biomass",
             "value": 0.6,
-            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.0012375,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_vegi"
+            "type": "par_baseline",
+            "value": 1.54,
+            "unit": "mol"
           },
           {
-            "type": "carbon_fixation",
-            "value": "c3"
+            "type": "photoperiod",
+            "value": 12,
+            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -4273,8 +3979,12 @@
             "unit": "hour"
           },
           {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.4
           },
           {
             "type": "reproduce",
@@ -4282,149 +3992,120 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 2.04408,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "radish": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0007452059028,
+            "value": 0.000557,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.0020625,
+            "value": 0.024974,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 1.033e-05,
+            "value": 2.9e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1812806783,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0005393177194,
+            "value": 0.000405,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0018203873194,
+            "value": 0.02478,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "biomass",
-            "value": 0.000458333,
+            "value": 0.000371,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -4432,20 +4113,24 @@
             "growth": {
               "lifetime": {
                 "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "radish",
             "value": 0.5,
-            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -4455,25 +4140,13 @@
           {
             "type": "inedible_biomass",
             "value": 0.5,
-            "weighted": "current_growth",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
-            }
-          },
-          {
-            "type": "inedible_biomass",
-            "value": 0.5,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -4483,16 +4156,14 @@
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_root"
+            "type": "par_baseline",
+            "value": 0.72,
+            "unit": "mol"
           },
           {
-            "type": "carbon_fixation",
-            "value": "c3"
-          },
-          {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "photoperiod",
+            "value": 16,
+            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -4500,159 +4171,158 @@
             "unit": "hour"
           },
           {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.5
+          },
+          {
             "type": "reproduce",
             "value": true
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 0.2226,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "red_beet": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0006774599116,
+            "value": 0.000506,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.0013125,
+            "value": 0.022703,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 1.025e-05,
+            "value": 2.7e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1185296743,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0004902888358,
+            "value": 0.000368,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.001092397563,
+            "value": 0.02253,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000337,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "red_beet",
-            "value": 0.65,
-            "weighted": "current_growth",
+            "value": 0.6,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -4661,43 +4331,31 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.35,
-            "weighted": "current_growth",
+            "value": 0.4,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.000416666,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_root"
+            "type": "par_baseline",
+            "value": 0.72,
+            "unit": "mol"
           },
           {
-            "type": "carbon_fixation",
-            "value": "c3"
+            "type": "photoperiod",
+            "value": 16,
+            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -4705,8 +4363,12 @@
             "unit": "hour"
           },
           {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.6
           },
           {
             "type": "reproduce",
@@ -4714,154 +4376,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 0.307344,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "carrot": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.0010141574877,
+            "value": 0.000758,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.002245,
+            "value": 0.033987,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 1.406e-05,
+            "value": 4e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1952253458,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0007339623872,
+            "value": 0.000552,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0019155066518,
+            "value": 0.03373,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000505,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "carrot",
-            "value": 0.59987,
-            "weighted": "current_growth",
+            "value": 0.6,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -4870,43 +4523,31 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.40013,
-            "weighted": "current_growth",
+            "value": 0.4,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.00062375,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_root"
+            "type": "par_baseline",
+            "value": 1.78,
+            "unit": "mol"
           },
           {
-            "type": "carbon_fixation",
-            "value": "c3"
+            "type": "photoperiod",
+            "value": 14,
+            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -4914,8 +4555,12 @@
             "unit": "hour"
           },
           {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.6
           },
           {
             "type": "reproduce",
@@ -4923,154 +4568,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 0.909,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "sweet_potato": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.002540474668,
+            "value": 0.001898,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.0084375,
+            "value": 0.085137,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 3.522e-05,
+            "value": 0.000101,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1952253458,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0018385831342,
+            "value": 0.001382,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0076121158608,
+            "value": 0.08449,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.001266,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "sweet_potato",
-            "value": 0.4,
-            "weighted": "current_growth",
+            "value": 0.45,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -5079,43 +4715,31 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.6,
-            "weighted": "current_growth",
+            "value": 0.55,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.0015625,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_vegi"
+            "type": "par_baseline",
+            "value": 1.17,
+            "unit": "mol"
           },
           {
-            "type": "carbon_fixation",
-            "value": "c3"
+            "type": "photoperiod",
+            "value": 12,
+            "unit": "hour"
           },
           {
             "type": "lifetime",
@@ -5123,8 +4747,12 @@
             "unit": "hour"
           },
           {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.45
           },
           {
             "type": "reproduce",
@@ -5132,154 +4760,145 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 2.58264,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
     },
     "white_potato": {
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.002038476874,
+            "value": 0.001663,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "potable",
-            "value": 0.0033841666667,
+            "value": 0.07458,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
           },
           {
             "type": "fertilizer",
-            "value": 2.826e-05,
+            "value": 8.8e-05,
             "required": "desired",
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            },
             "deprive": {
               "value": 72,
               "unit": "hour"
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
-            "type": "kwh",
-            "value": 0.1952253458,
-            "required": "desired",
+            "type": "par",
+            "value": 0,
             "flow_rate": {
-              "unit": "kWh",
+              "unit": "mol",
               "time": "hour"
-            },
-            "growth": {
-              "daily": {
-                "type": "switch",
-                "min_threshold": 0.25,
-                "max_threshold": 0.75
-              }
-            },
-            "deprive": {
-              "value": 72,
-              "unit": "hour"
-            }
-          },
-          {
-            "type": "biomass",
-            "value": 1,
-            "weighted": "current_growth",
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "criteria": {
-              "name": "grown",
-              "limit": "=",
-              "value": true
             }
           }
         ],
         "output": [
           {
             "type": "o2",
-            "value": 0.0014752791069,
+            "value": 0.00121,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
-            "growth": {
-              "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
           },
           {
             "type": "h2o",
-            "value": 0.0027218784338,
+            "value": 0.07402,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.001109,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
             "growth": {
               "lifetime": {
-                "type": "sigmoid"
-              },
-              "daily": {
                 "type": "norm"
               }
-            }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
           },
           {
             "type": "white_potato",
-            "value": 0.6999,
-            "weighted": "current_growth",
+            "value": 0.61,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
@@ -5288,52 +4907,44 @@
           },
           {
             "type": "inedible_biomass",
-            "value": 0.3001,
-            "weighted": "current_growth",
+            "value": 0.39,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
             },
+            "weighted": [
+              "biomass"
+            ],
             "criteria": {
               "name": "grown",
               "limit": "=",
               "value": true
             }
-          },
-          {
-            "type": "biomass",
-            "value": 0.00125375,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            },
-            "growth": {
-              "lifetime": {
-                "type": "norm"
-              },
-              "daily": {
-                "type": "norm"
-              }
-            }
           }
         ],
         "characteristics": [
           {
-            "type": "category",
-            "value": "food_root"
+            "type": "par_baseline",
+            "value": 1.78,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 14,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 2520,
+            "unit": "hour"
           },
           {
             "type": "carbon_fixation",
             "value": "c3"
           },
           {
-            "type": "lifetime",
-            "value": 3168,
-            "unit": "hour"
-          },
-          {
-            "type": "growth_criteria",
-            "value": "out_biomass"
+            "type": "harvest_index",
+            "value": 0.61
           },
           {
             "type": "reproduce",
@@ -5341,11 +4952,780 @@
           },
           {
             "type": "capacity_biomass",
-            "value": 100,
+            "value": 2.79468,
             "unit": "kg"
           }
         ]
-      }
+      },
+      "description": ""
+    },
+    "sorghum": {
+      "data": {
+        "input": [
+          {
+            "type": "co2",
+            "value": 0.002547,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "potable",
+            "value": 0.18849,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "fertilizer",
+            "value": 0.000107,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "par",
+            "value": 0,
+            "flow_rate": {
+              "unit": "mol",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 0.001853,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "h2o",
+            "value": 0.18764,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.001654,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "norm"
+              }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "sorghum",
+            "value": 0.29,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.71,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "par_baseline",
+            "value": 3.53,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 20,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 2016,
+            "unit": "hour"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c4"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.29
+          },
+          {
+            "type": "reproduce",
+            "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 3.334464,
+            "unit": "kg"
+          }
+        ]
+      },
+      "description": ""
+    },
+    "vegetables": {
+      "data": {
+        "input": [
+          {
+            "type": "co2",
+            "value": 0.000437,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "potable",
+            "value": 0.06407,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "fertilizer",
+            "value": 3.7e-05,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "par",
+            "value": 0,
+            "flow_rate": {
+              "unit": "mol",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 0.000319,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "h2o",
+            "value": 0.06393,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000296,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "norm"
+              }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "vegetables",
+            "value": 0.81,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.18999999999999995,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "par_baseline",
+            "value": 0.71,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 16,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 840,
+            "unit": "hour"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.81
+          },
+          {
+            "type": "reproduce",
+            "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 0.24864,
+            "unit": "kg"
+          }
+        ]
+      },
+      "description": ""
+    },
+    "corn": {
+      "data": {
+        "input": [
+          {
+            "type": "co2",
+            "value": 0.002547,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "potable",
+            "value": 0.18849,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "fertilizer",
+            "value": 0.000107,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "par",
+            "value": 0,
+            "flow_rate": {
+              "unit": "mol",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 0.001853,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "h2o",
+            "value": 0.18764,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.001654,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "norm"
+              }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "corn",
+            "value": 0.29,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.71,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "par_baseline",
+            "value": 3.53,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 20,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 2016,
+            "unit": "hour"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c4"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.29
+          },
+          {
+            "type": "reproduce",
+            "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 3.334464,
+            "unit": "kg"
+          }
+        ]
+      },
+      "description": ""
+    },
+    "orchard": {
+      "data": {
+        "input": [
+          {
+            "type": "co2",
+            "value": 0.000968,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "potable",
+            "value": 0.11718,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "fertilizer",
+            "value": 7.4e-05,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "deprive": {
+              "value": 72,
+              "unit": "hour"
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "par",
+            "value": 0,
+            "flow_rate": {
+              "unit": "mol",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 0.000704,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "co2"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "h2o",
+            "value": 0.11687,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "potable"
+            ],
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "growth_rate",
+              "te_factor"
+            ]
+          },
+          {
+            "type": "biomass",
+            "value": 0.000644,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "growth": {
+              "lifetime": {
+                "type": "norm"
+              }
+            },
+            "weighted": [
+              "daily_growth_factor",
+              "par_factor",
+              "cu_factor"
+            ]
+          },
+          {
+            "type": "orchard",
+            "value": 0.45,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          },
+          {
+            "type": "inedible_biomass",
+            "value": 0.55,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "weighted": [
+              "biomass"
+            ],
+            "criteria": {
+              "name": "grown",
+              "limit": "=",
+              "value": true
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "par_baseline",
+            "value": 1.08,
+            "unit": "mol"
+          },
+          {
+            "type": "photoperiod",
+            "value": 13,
+            "unit": "hour"
+          },
+          {
+            "type": "lifetime",
+            "value": 1368,
+            "unit": "hour"
+          },
+          {
+            "type": "carbon_fixation",
+            "value": "c3"
+          },
+          {
+            "type": "harvest_index",
+            "value": 0.45
+          },
+          {
+            "type": "reproduce",
+            "value": true
+          },
+          {
+            "type": "capacity_biomass",
+            "value": 0.880992,
+            "unit": "kg"
+          }
+        ]
+      },
+      "description": ""
     }
   },
   "isru": {},
@@ -5897,6 +6277,58 @@
         ]
       },
       "description": "Balances the atmosphere elements of habitat & greenhouse every step."
+    },
+    "lamp": {
+      "data": {
+        "input": [
+          {
+            "type": "kwh",
+            "value": 0.16733601070950468,
+            "required": "desired",
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            },
+            "weighted": [
+              "par_baseline",
+              "daily_growth_factor"
+            ]
+          }
+        ],
+        "output": [
+          {
+            "type": "par",
+            "value": 1,
+            "requires": [
+              "kwh"
+            ],
+            "flow_rate": {
+              "unit": "mol",
+              "time": "hour"
+            },
+            "weighted": [
+              "par_baseline",
+              "daily_growth_factor"
+            ]
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "par_baseline",
+            "value": 5,
+            "unit": "mol/m2-hr"
+          },
+          {
+            "type": "capacity_par",
+            "value": 10000,
+            "unit": "mol"
+          },
+          {
+            "type": "custom_function",
+            "value": "electric_lamp"
+          }
+        ]
+      }
     }
   },
   "fabrication": {},
@@ -6234,6 +6666,16 @@
         "output": [],
         "characteristics": [
           {
+            "type": "mass",
+            "value": 100,
+            "unit": "kg"
+          },
+          {
+            "type": "volume",
+            "value": 100,
+            "unit": "m^3"
+          },
+          {
             "type": "capacity_rice",
             "value": 10000,
             "unit": "kg"
@@ -6344,14 +6786,24 @@
             "unit": "kg"
           },
           {
-            "type": "mass",
-            "value": 100,
+            "type": "capacity_sorghum",
+            "value": 10000,
             "unit": "kg"
           },
           {
-            "type": "volume",
-            "value": 100,
-            "unit": "m^3"
+            "type": "capacity_vegetables",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_corn",
+            "value": 10000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_orchard",
+            "value": 10000,
+            "unit": "kg"
           }
         ]
       }

@@ -322,16 +322,13 @@ class GeneralAgent(StorageAgent):
                 self.attr_details[attr]['duration_delta_per_step'] = self.model.hours_per_step * multiplier
 
 
-    def _init_currency_exchange(self, n_steps=None):
+    def _init_currency_exchange(self):
         """Initialize all values related to currency exchanges
 
         This includes making connections to other live Agents, so it must be
         isolated from __init__ and called after all Agents are initialized.
         """
         # For PlantAgents, n_steps is calculated in PlantAgent.__init__ and passed
-        n_steps = n_steps or int(self.model.day_length_hours)
-        hours_per_step = self.model.hours_per_step
-        day_length_hours = self.model.day_length_hours
         for attr in self.attrs:
             prefix, currency = attr.split('_', 1)
             if prefix not in ['in', 'out']:
@@ -353,6 +350,17 @@ class GeneralAgent(StorageAgent):
                     storage_agent = self
                 else:
                     storage_agent = self.model.get_agents_by_type(agent_type=agent_type)[0]
+                if f'char_capacity_{currency}' not in storage_agent.attr_details:
+                    # There are two connections from plant_lamp.par:
+                    # one to itself for generating/storing light, another to the plant
+                    # for the plant's taking light. The plant_lamps try to initialize both
+                    # for its output.par exchange, but fails on plant because the plant
+                    # doesn't have par storage.
+
+                    # TODO: The proper fix for this is to add another field to
+                    # all connections specifying the direction of the exchange,
+                    # rather than just the two endpoints.
+                    continue
                 storage_unit = storage_agent.attr_details['char_capacity_' + currency]['unit']
                 if storage_unit != attr_unit:
                     raise AgentInitializationError(
@@ -375,10 +383,9 @@ class GeneralAgent(StorageAgent):
 
             # Step Values
             if attr not in self.step_values:
-                step_values = self._calculate_step_values(attr, n_steps, hours_per_step, day_length_hours)
-                self.step_values[attr] = step_values
+                self.step_values[attr] = self._calculate_step_values(attr)
 
-    def _calculate_step_values(self, attr, n_steps, hours_per_step, day_length_hours):
+    def _calculate_step_values(self, attr):
         """Calculate lifetime step values based on growth functions and add to self.step_values
 
         """
@@ -404,6 +411,15 @@ class GeneralAgent(StorageAgent):
         lifetime_growth_scale = ad['lifetime_growth_scale']
         daily_growth_steepness = ad['daily_growth_steepness']
         lifetime_growth_steepness = ad['lifetime_growth_steepness']
+
+        if lifetime_growth_type is not None:
+            n_steps = int(self.lifetime)
+        elif daily_growth_type is not None:
+            n_steps = int(self.model.day_length_hours)
+        else:
+            n_steps = 1
+        hours_per_step = self.model.hours_per_step
+        day_length_hours = self.model.day_length_hours
 
         multiplier = 1
         if agent_flow_time == 'min':
@@ -540,8 +556,8 @@ class GeneralAgent(StorageAgent):
                 if cr_buffer > 0:
                     self.buffer[attr] = cr_buffer
                 return pq.Quantity(0.0, agent_unit)
-        if step_num >= self.step_values[attr].shape[0]:
-            step_num = step_num % int(self.model.day_length_hours)
+        cached_steps = self.step_values[attr].shape[0]
+        step_num = step_num % int(cached_steps)
         agent_value = self.step_values[attr][step_num]
         return pq.Quantity(agent_value, agent_unit)
 
@@ -568,7 +584,7 @@ class GeneralAgent(StorageAgent):
                 continue
             # Add instance
             if attr_value == 'termination':
-                self.kill(f"Agent died due to {event_type}")
+                self.kill(self.amount, f"Agent died due to {event_type}")
             elif attr_value == 'multiplier':
                 magnitude = attr_details['magnitude_value']
                 magnitude_variation_distribution = attr_details.get('magnitude_variation_distribution')
@@ -630,8 +646,9 @@ class GeneralAgent(StorageAgent):
                             storage_ratio = self.model.storage_ratios[agent_id][currency + '_ratio']
                             opp = {'upper': operator.gt, 'lower': operator.lt}[threshold_type]
                             if opp(storage_ratio, attr_value):
-                                self.kill('Threshold {} met for {}. Killing the agent'.format(
-                                    currency, self.agent_type))
+                                self.kill(self.amount,
+                                          f'Threshold {currency} met for '
+                                          f'{self.agent_type}. Killing the agent')
                                 return
             # 2. EXECUTE CUSTOM FUNCTIONS
             if attr == 'char_custom_function':
@@ -649,7 +666,7 @@ class GeneralAgent(StorageAgent):
             self.step_variable = self.generate_step_variable()
 
         # ITERATE THROUGH EACH INPUT AND OUTPUT
-        influx = set()     # For 'requires' field
+        influx = {}     # For 'requires' field
         self.missing_desired = False  # Stalls growth if 'required = desired' field is missing
         for prefix in ['in', 'out']:
             for currency, selected_storages in self.selected_storage[prefix].items():
@@ -661,13 +678,29 @@ class GeneralAgent(StorageAgent):
                     # e.g. Atmosphere Equalizer: uses custom_func, has dummy flow to initialize connections
                     continue
                 requires = attr_details.get('requires') or []
-                if len(requires) > 0 and len(set(requires).difference(influx)) > 0:
+                if any(_currency not in influx for _currency in requires):
                     # e.g. Human: if not consume potable water, don't produce urine
                     continue
 
                 # 6. CALCULATE TARGET VALUE
                 step_num = int(self.age)
                 step_value = self._get_step_value(attr, step_num)     # type pq.Quantity
+                for _currency in requires:
+                    step_value *= influx.get(_currency)  # scale outputs to inputs
+                weighted = attr_details.get('weighted') or []
+                for weight in weighted:
+                    weight_value = getattr(self, weight)
+                    if (weight in self.currency_dict and
+                        # If weighted by some currency, must first divide by
+                        # amount, because it's multiplied by amount again later
+                        self.currency_dict[currency]['type'] == 'currency'):
+                        weight_value /= self.amount
+                    elif weight == 'growth_rate':
+                        # If weighted by growth rate, multiply by 2 because for
+                        # an un-skewed sigmoid curve, max height is 2x mean
+                        weight_value *= 2
+                    step_value *= weight_value
+
                 step_value = step_value * self.step_variable
                 step_value = step_value * np.prod(list(self.event_multipliers.values()))
                 step_mag = step_value.magnitude.tolist()    # type float
@@ -710,15 +743,21 @@ class GeneralAgent(StorageAgent):
                     n_survive = min(n_deprived, max_survive)
                     self.deprive[attr] -= delta_per_step * n_survive
                     n_die = n_deprived - n_survive
-                    self.amount -= n_die
-                    if self.amount <= 0:
-                        self.kill(f'All {self.agent_type} died from lack of {currency}. Killing the agent')
+                    self.kill(n_die, f'All {self.agent_type} died from lack of'
+                              f' {currency}. Killing the agent')
+                    if self.amount == 0:
                         return
                 elif deprive_value > 0:
                     self.deprive[attr] = min(deprive_value * self.amount,
                                              self.deprive[attr] + deprive_value)
+                elif has_deficit:
+                    actual_value = available_value
 
                 # 9. PROCESS EXCHANGE
+                if actual_value < value_eps:  # ignore values less than 1e-12
+                    continue
+                if prefix == 'in':  # log input ratios to scale outputs
+                    influx[currency] = actual_value / target_value
                 remaining_value = actual_value
                 for conn in available_conns:
                     storage = conn['agent']
@@ -729,25 +768,21 @@ class GeneralAgent(StorageAgent):
                         conn_delta = remaining_value / len(available_conns)
                         flow = storage.increment(currency, conn_delta)
                     remaining_value -= conn_delta
-                    if actual_value < value_eps:  # ignore values less than 1e-12
-                        continue
-                    # Log exchanged values
-                    if prefix == 'in':
-                        influx.add(currency)
                     buf = self.step_exchange_buffer[prefix]
                     for _currency, _amount in flow.items():
                         if _currency not in buf:
                             buf[_currency] = {}
                         buf[_currency][storage.agent_type] = abs(_amount)
 
-
-    def kill(self, reason):
+    def kill(self, number, reason):
         """Destroy the agent and remove it from the model
 
         Args:
           reason: str, cause of death
         """
-        self.destroy(reason)
+        self.amount -= number
+        if self.amount == 0:
+            self.destroy(reason)
 
 
 class PlantAgent(GeneralAgent):
@@ -759,26 +794,20 @@ class PlantAgent(GeneralAgent):
     ``full_amount``        str            Maximum/reset amount as defined in agent_desc
     ``lifetime``           int            Hours to complete growth cycle.
     ``reproduce``          bool
-    ``growth_criteria``    str            Which currency/attribute determines growth
-    ``total_growth``       int            The sum of all step values for growth_criteria currency
     ``delay_start``        int            Hours to wait before starting growth
     ``agent_step_num``     int            Current step in growth cycle, as limited by growth_critera
-    ``currenct_growth``    int            Accumulated values for growth_criteria item
-    ``growth_rate``        int            Accumulated % for growth_criteria item
+    ``growth_rate``        int            Accumulated % of ideal lifetime biomass
     ``grown``              bool           Whether growth is complete
     ====================== ============== ===============
     """
 
     def __init__(self, *args, delay_start=0, full_amount=None, agent_step_num=0,
-                 total_growth=0, current_growth=0, growth_rate=0, grown=False,
-                 **kwargs):
+                 growth_rate=0, grown=False, **kwargs):
         """Set the age and amount, parse attributes and intialize growth-tracking fields"""
         super().__init__(*args, **kwargs)
         self.delay_start = delay_start
         self.full_amount = full_amount or self.amount
         self.agent_step_num = agent_step_num
-        self.total_growth = total_growth
-        self.current_growth = current_growth
         self.growth_rate = growth_rate
         self.grown = grown
 
@@ -790,15 +819,25 @@ class PlantAgent(GeneralAgent):
         else:
             self.lifetime = 0
         self.reproduce = self.attrs.get('char_reproduce', 0)
-        self.growth_criteria = self.attrs.get('char_growth_criteria', None)
         self.carbon_fixation = self.attrs.get('char_carbon_fixation', None)
 
+        # Create the `daily_growth` attribute:
+        # - Length is equal to the number of steps per day (e.g. 24)
+        # - Average value is always equal to 1
+        # - `photoperiod` is the number of hours per day of sunlight the plant
+        #   requires, which is centered about 12:00 noon. Values outside this
+        #   period are 0, and during this period are calculated such that the
+        #   mean of all numbers is 1.
+        hours_per_day = int(self.model.day_length_hours)
+        self.daily_growth = np.zeros(hours_per_day)
+        photoperiod = self.attrs['char_photoperiod']
+        photo_start = int((hours_per_day // 2) - (photoperiod // 2))
+        photo_end = int(photo_start + photoperiod)
+        photo_rate = hours_per_day / photoperiod
+        self.daily_growth[photo_start:photo_end] = photo_rate
 
     def _init_currency_exchange(self):
-        n_steps = int(self.lifetime)
-        super()._init_currency_exchange(n_steps)
-        if self.growth_criteria and self.total_growth == 0:
-            self.total_growth = float(np.sum(self.step_values[self.growth_criteria]))
+        super()._init_currency_exchange()
         self.co2_scale = {}
         for attr in self.attrs:
             prefix, _ = attr.split('_', 1)
@@ -822,93 +861,52 @@ class PlantAgent(GeneralAgent):
         step_num = int(self.agent_step_num)
         step_value = super()._get_step_value(attr, step_num)
 
-        weighted = self.attr_details[attr]['weighted']
-        if weighted and weighted in self:
-            step_value *= self[weighted]
-        if attr in self.co2_scale:
-            step_value *= self.co2_scale[attr]
         return step_value
 
 
-    def _calculate_co2_scale(self, step_num, value_eps=1e-12):
+    def _calculate_co2_response(self):
         """Calculate a multiplier for each currency exchange based on ambient co2"""
 
-        # Get/Initialize cache
-        co2 = self.model.storage_ratios.get('co2', None)
-        if not co2:
+        # To avoid intra-step fluctuations in co2 response, response variables
+        # are cached each step. They are stored in `model.storage_ratios`, which
+        # are used to cache the same for structures, out of convenience.
+        co2 = self.model.storage_ratios.get('co2', None)  # Get from cache
+        if co2 is None:                                   # or initialize
             co2 = dict(time=0, co2_uptake_ratio=1, transpiration_efficiency_factor=1)
             self.model.storage_ratios['co2'] = co2
 
-        # Check for cached value at time, else calculate
+        # If the cached values are for this time, use them
+        # TODO: Need to save different values for c3/c4 crops. Currently
+        # the carbon_fixation type of the first plant called by model.step()
+        # is used for all plants that step.
         if co2['time'] == str(self.model.time):
             co2_uptake_ratio = co2['co2_uptake_ratio']
             transpiration_efficiency_factor = co2['transpiration_efficiency_factor']
         else:
-            co2_ppm = self._get_storage_ratio('co2_ratio_in') * 1e6
-            co2_ppm = max(350, min(1000, co2_ppm)) # Limit effect to 350-1000ppm range
-            t_mean = 25 # Mean temperature for timestep. TODO: Link to connection
+            co2_concentration = self._get_storage_ratio('co2_ratio_in') * 1e6
+            co2_ideal = 700 # ppm
+            co2_actual = max(350, min(co2_concentration, co2_ideal))
 
-            # Calculate the ratio of increased co2 uptake [Vanuytrecht 5]
-            if self.carbon_fixation == 'c3':
+            # CO2 Response Factor: Decrease growth if actual < ideal
+            if self.attrs['char_carbon_fixation'] == 'c3':
+                # Standard equation found in research; gives *increase* in growth for eCO2
+                t_mean = 25 # Mean temperature for timestep.
                 tt = (163 - t_mean) / (5 - 0.1 * t_mean) # co2 compensation point
-                numerator = (co2_ppm - tt) * (350 + 2 * tt)
-                denominator = (co2_ppm + 2 * tt) * (350 - tt)
+                numerator = (co2_actual - tt) * (350 + 2 * tt)
+                denominator = (co2_actual + 2 * tt) * (350 - tt)
                 co2_uptake_ratio = numerator/denominator
-            else:
-                co2_uptake_ratio = 1
+                # Invert the above to give *decrease* in growth for less than ideal CO2
+                crf_ideal = 1.2426059597016264  # At 700ppm, the above equation gives this value
+                co2_uptake_ratio = co2_uptake_ratio / crf_ideal
+            elif self.attrs['char_carbon_fixation'] == 'c4':
+                co2_uptake_ratio = 1  # c4 crops (corn, sorghum) don't benefit
 
-            # Calculate the ratio of decreased water use [Vanuytrecht 7]
+            # Transpiration Efficiency Factor: Increase water usage if actual < ideal
             co2_range = [350, 700]
-            te_range = [1, 1.37]
-            transpiration_efficiency_factor = np.interp(co2_ppm, co2_range, te_range)
+            te_range = [1/1.37, 1]  # Inverse of previously used
+            transpiration_efficiency_factor = np.interp(co2_actual, co2_range, te_range)
 
-            # Update cache
-            self.model.storage_ratios['co2'] = dict(
-                time=str(self.model.time),
-                co2_uptake_ratio=co2_uptake_ratio,
-                transpiration_efficiency_factor=transpiration_efficiency_factor)
-
-        # Calculate co2-adjusted step values
-        sv_baseline = {'in': {}, 'out': {}}
-        sv_adjusted = {'in': {}, 'out': {}}
-        cu_fields = ['co2', 'fertilizer', 'o2', 'biomass', self.agent_type]
-        te_fields = ['potable', 'h2o']
-        exclude = ['in_biomass', f'out_{self.agent_type}']
-        for attr in self.attrs:
-            prefix, currency = attr.split('_', 1)
-            if prefix not in ['in', 'out']:
-                continue
-            step_value = self.step_values[attr][step_num]
-            sv_baseline[prefix][currency] = step_value
-            if attr in exclude:
-                continue
-            elif currency in cu_fields:
-                sv_adjusted[prefix][currency] = step_value * co2_uptake_ratio
-            elif currency in te_fields:
-                sv_adjusted[prefix][currency] = step_value * (1 / transpiration_efficiency_factor)
-
-        # Calculate error (difference between total inputs and outputs)
-        net_inputs = sum(sv_adjusted['in'].values())
-        net_outputs = sum(sv_adjusted['out'].values())
-        sv_error = net_inputs - net_outputs
-
-        # Remove error proportionally from outputs
-        if sv_error > value_eps:
-            corrected = {}
-            for currency, value in sv_adjusted['out'].items():
-                correction = (value / net_outputs) * sv_error
-                corrected[currency] = value + correction
-            sv_adjusted['out'] = corrected
-
-        # Convert to scale factors (1 = no change)
-        sv_scale = {}
-        for prefix in ['in', 'out']:
-            for currency, baseline in sv_baseline[prefix].items():
-                attr_name = f"{prefix}_{currency}"
-                adjusted = sv_adjusted[prefix].get(currency, None)
-                sv_scale[attr_name] = 1 if not adjusted else adjusted / baseline
-        return sv_scale
-
+        return co2_uptake_ratio, transpiration_efficiency_factor
 
     def step(self):
         """TODO"""
@@ -917,41 +915,43 @@ class PlantAgent(GeneralAgent):
             return
         if self.grown:
             if self.reproduce:
-                # Delay start until 'hour 0' so daylight cycles remain aligned
-                # TODO: Any shortfall of currency delays aging and causes
-                # disalignment; this will require a deeper redesign to fix.
-                step_num = int(self.age)
-                day_length = int(self.model.day_length_hours)
-                current_hour = step_num % day_length
-                delay = day_length - current_hour - 1
-
                 self.age = 0
-                self.current_growth = 0
                 self.growth_rate = 0
                 self.agent_step_num = 0
                 self.grown = False
                 self.amount = self.full_amount
-                self.delay_start = delay
+                self['biomass'] = 0
                 return
             self.destroy(f'Lifetime limit has been reached by {self.agent_type}. Killing the agent.')
 
+        # Update lifecycle
         if self.agent_step_num >= self.lifetime - 1 > 0:
             self.grown = True  # Complete last flow cycle and terminate next step
-        elif self.carbon_fixation:
-            # Calculate co2 multipliers for each currency for the next step
-            step_num = int(self.agent_step_num + 1)
-            self.co2_scale = self._calculate_co2_scale(step_num)
+
+        # Update Weights
+        self.growth_rate = (self['biomass'] / self.amount) / self.attrs['char_capacity_biomass']
+        hour_of_day = self.model.step_num % int(self.model.day_length_hours)
+        self.daily_growth_factor = self.daily_growth[hour_of_day]
+        self.cu_factor, self.te_factor = self._calculate_co2_response()
+        # Light response
+        light_type = self.connections['in']['par'][0]
+        light_agent = self.model.get_agents_by_type(light_type)[0]
+        par_available = light_agent['par']
+        par_ideal = self.attrs['char_par_baseline'] * self.daily_growth_factor * self.amount
+        par_actual = min(par_available, par_ideal)
+        if par_actual > 0:
+            light_agent.increment('par', -par_actual)
+        self.par_factor = 0 if par_ideal == 0 else min(1, par_actual / par_ideal)
 
         super().step()
 
-        if not self.missing_desired:
-            # Advance life cycle
-            self.agent_step_num += self.model.hours_per_step
-            # Calculated updated growth
-            growth_criteria = getattr(self, 'growth_criteria', None)
-            prefix, currency = growth_criteria.split('_', 1)
-            step_data = self.step_exchange_buffer[prefix].get(currency)
-            if step_data:
-                growth_value = sum(step_data.values())
-                self.current_growth += (growth_value / self.amount)
-                self.growth_rate = self.current_growth / self.total_growth
+        # if not self.missing_desired:
+        #     # Advance life cycle
+        self.agent_step_num += self.model.hours_per_step
+
+    def kill(self, number, reason):
+        dead_biomass = (number / self.amount) * self.biomass
+        self.biomass -= dead_biomass
+        self.selected_storage['out']['inedible_biomass'][0].increment(
+            'inedible_biomass', dead_biomass)
+        super().kill(number, reason)

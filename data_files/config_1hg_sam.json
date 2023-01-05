@@ -105,7 +105,7 @@
         },
         "dehumidifier": {
             "id": 1,
-            "amount": 1
+            "amount": 3
         },
         "rice": {
             "amount": 2
@@ -126,6 +126,9 @@
             "cabbage": 0,
             "tomato": 0,
             "sweet_potato": 0
+        },
+        "lamp": {
+            "amount": 1
         }
     },
     "termination": [
