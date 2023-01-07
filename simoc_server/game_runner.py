@@ -41,7 +41,11 @@ class GameRunner(object):
         self.agent_model = agent_model
         self.agent_model.user_id = self.user.id
         self.agent_model.game_id = self.game_id
-        self.agent_model.start_time = self.start_time
+        # With the SIMOC-B2 update, agent_model.start_time is set to the
+        # simulated date/time so that the `b2_sun` agent produces the
+        # appropriate value. Previously it was set here to the user date/time
+        # but doesn't seem to be used anywhere, so I removed it.
+        # self.agent_model.start_time = self.start_time
         self.step_thread = None
         self.last_accessed = None
         self.last_saved_step = last_saved_step
@@ -198,7 +202,7 @@ class GameRunner(object):
             target_step = min(step_num + buffer_size, max_step_num)
             n_steps = target_step - step_num
             agent_model.step_to(n_steps=n_steps)
-            records = agent_model.get_data(step_range=(step_num, target_step))
+            records = agent_model.get_data(step_range=(0, n_steps), clear_cache=True)
             # Include the number of steps so views.py knows when it's finished
             records['n_steps'] = n_steps
             self.save_records(records, user_id, batch_num)

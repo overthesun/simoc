@@ -106,6 +106,39 @@ def get_energy():
     return json.dumps(total)
 
 
+@app.route('/get_o2_co2', methods=['GET'])
+def get_o2_co2():
+    """
+    Sends front end o2 and co2 values for config wizard.
+    Takes in the request values 'agent_name' and 'quantity'
+
+    Returns
+    -------
+    json object with energy value for agent
+    """
+
+    agent_name = request.args.get('agent_name', type=str)
+    agent_quantity = request.args.get('quantity', 1, type=int) or 1
+    agent_desc = load_from_basedir('data_files/agent_desc.json')
+    total = {'o2': {'input': 0, 'output': 0}, 'co2': {'input': 0, 'output': 0}}
+
+    data = None
+    for agent_class, agents in agent_desc.items():
+        if agent_name in agents:
+            data = agents[agent_name]['data']
+            break
+    if data is None:
+        raise ValueError('Agent not found in agent_desc:', agent_name)
+
+    for direction in {'input', 'output'}:
+        for exchange in data[direction]:
+            for currency in {'o2', 'co2'}:
+                if exchange['type'] == currency:
+                    total[currency][direction] += exchange['value'] * agent_quantity
+
+    return json.dumps(total)
+
+
 def calc_air_storage(volume, weights=None):
     # 1 m3 of air weighs ~1.25 kg (depending on temperature and humidity)
     AIR_DENSITY = 1.25  # kg/m3
@@ -189,7 +222,7 @@ def build_connections_from_agent_desc(fpath):
         agent_desc = json.dump(arrows, f)
     return arrows
 
-def convert_configuration(game_config, agent_desc=None, save_output=False):
+def convert_configuration(game_config, agent_desc=None, save_output=True):
     """
     This method converts the json configuration from a post into a more complete configuration
     with connections.
