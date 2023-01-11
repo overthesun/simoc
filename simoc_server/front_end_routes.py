@@ -222,7 +222,7 @@ def build_connections_from_agent_desc(fpath):
         agent_desc = json.dump(arrows, f)
     return arrows
 
-def convert_configuration(game_config, agent_desc=None, save_output=True):
+def convert_configuration(game_config, agent_desc=None, save_output=False):
     """
     This method converts the json configuration from a post into a more complete configuration
     with connections.
@@ -277,12 +277,13 @@ def convert_configuration(game_config, agent_desc=None, save_output=True):
     location = working_config.pop('location')
     is_b2 = location == 'b2'
     full_game_config['location'] = 'earth' if is_b2 else 'mars'
-    # Optional fields
-    for label in ['priorities', 'minutes_per_step']:
-        if label in working_config and isinstance(working_config[label], dict):
-            full_game_config[label] = working_config.pop(label)
+    full_game_config['minutes_per_step'] = working_config.pop('minutes_per_step', 60)
     # Structures MUST step before other agents so that the `.._ratio` fields
     # are availble for threshold tests.
+    if 'priorities' in working_config:
+        priorities = working_config.pop('priorities')
+        if isinstance(priorities, dict):
+            full_game_config['priorities'] = priorities
     if 'priorities' not in full_game_config:
         full_game_config['priorities'] = ['structures', 'storage', 'power_generation',
                                           'inhabitants', 'eclss', 'plants']
@@ -343,7 +344,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=True):
     input_food_storage = working_config.pop('food_storage', None)
     crop_mgmt_input = working_config.pop('improvedCropManagement', False)
     crop_mgmt_factor = 1.5 if crop_mgmt_input is True else 1
-    crop_mgmt_char = {'type': 'density_factor', 'value': crop_mgmt_factor}
+    crop_mgmt_char = {'type': 'crop_management_factor', 'value': crop_mgmt_factor}
     density_char = {'type': 'density_factor', 'value': 0.5}
     if 'plants' in working_config and isinstance(working_config['plants'], list):
         plants = working_config.pop('plants')
@@ -355,8 +356,9 @@ def convert_configuration(game_config, agent_desc=None, save_output=True):
                     plants_in_config.append(plant_type)
                     working_config[plant_type] = dict(amount=amount)
                     if is_b2:
-                        plant_desc = copy.deepcopy(agent_desc['plants'][plant_type])
-                        plant_desc['data']['characteristics'] += [density_char, crop_mgmt_char]
+                        plant_desc = {'data': {'characteristics': [
+                            density_char, crop_mgmt_char
+                        ]}}
                         if 'plants' not in user_agent_desc:
                             user_agent_desc['plants'] = {}
                         user_agent_desc['plants'][plant_type] = plant_desc
@@ -523,7 +525,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=True):
         for i, flow in enumerate(human_desc['data']['input']):
             if flow['type'] == 'food':
                 human_desc['data']['input'][i]['value'] *= 0.5  # ADJUST
-        user_agent_desc['inhabitants']['human_inhabitant'] = human_desc
+        user_agent_desc['inhabitants']['human_agent'] = human_desc
 
 
     ###########################################################################
@@ -560,6 +562,10 @@ def convert_configuration(game_config, agent_desc=None, save_output=True):
         timestamp = timestamp.strftime("%m%d%H%M%S")
         with open(f"full_game_config_{timestamp}.json", "w") as f:
             json.dump(full_game_config, f)
+        with open(f"user_agent_desc_{timestamp}.json", 'w') as f:
+            json.dump(user_agent_desc, f)
+        with open(f"user_agent_conn_{timestamp}.json", "w") as f:
+            json.dump(user_agent_conn, f)
 
     return full_game_config, user_agent_desc, user_agent_conn
 
