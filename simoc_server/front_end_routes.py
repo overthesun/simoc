@@ -300,14 +300,26 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     # Structures: A string under 'habitat' and 'greenhouse' with selected type.
     structures_dict = {}  # Used to replace generic connections
     total_volume = 0  # Used to calculate starting water_storage
-    weights = {} if not is_b2 else {
-        'o2': 18.75,     # Estimated from Severinghaus Figure 1
-        'co2': 0.04,    # Estimated from Severinghaus Figure 1
-        'h2o': 1,       # SIMOC default
-        'n2': 80.21,    # Remainder of 100%
-        'h2': 0,
-        'ch4': 0,
-    }
+    if not is_b2:
+        weights = {}
+    elif working_config.get('startWithM1EndingAtmosphere'):
+        weights = {
+            'o2': 14.95,
+            'co2': 0.32,
+            'h2o': 0.9,
+            'n2': 83.83,
+            'h2': 0,
+            'ch4': 0,
+        }
+    else:
+        weights = {
+            'o2': 18.75,     # Estimated from Severinghaus Figure 1
+            'co2': 0.04,    # Estimated from Severinghaus Figure 1
+            'h2o': 1,       # SIMOC default
+            'n2': 80.21,    # Remainder of 100%
+            'h2': 0,
+            'ch4': 0,
+        }
     if 'habitat' in working_config or 'greenhouse' in working_config:
         valid_structures = list(agent_desc['structures'].keys())
         for structure in ['habitat', 'greenhouse']:
