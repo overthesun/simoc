@@ -374,7 +374,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                 if 'plants' not in user_agent_desc:
                     user_agent_desc['plants'] = {}
                 user_agent_desc['plants'][plant_type] = plant_desc
-    if plants_in_config > 0:
+    if plants_in_config:
         food_storage = {}
         food_storage_desc = agent_desc['storage']['food_storage']
         for char in food_storage_desc['data']['characteristics']:
@@ -382,7 +382,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                 currency = char['type'].split('_', 1)[1]
                 if currency in plants_in_config:
                     food_storage[currency] = 0
-        if food_storage > 0:
+        if food_storage:
             working_config['food_storage'] = dict(id=1, amount=1, **food_storage)
         # Lights
         if is_b2:
