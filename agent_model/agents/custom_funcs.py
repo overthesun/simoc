@@ -104,7 +104,7 @@ def b2_sun(agent):
     time = agent.model.start_time + agent.model.time
     if time.year not in [1991, 1992, 1993, 1994, 1995]:
         # If outside data range, use 1991 data
-        time = datetime.DateTime(1991, time.Month, time.Day, time.Hour, time.Minute, time.Second)
+        time = datetime.datetime(1991, time.month, time.day, time.hour, time.minute, time.second)
     i_month = time.month + 12 * (time.year - 1991)
     i_hour = time.hour
     agent.par = hourly_par_fraction[i_hour] * monthly_par[i_month]

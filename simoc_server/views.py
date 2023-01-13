@@ -26,7 +26,7 @@ from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
 
 MAX_NUMBER_OF_AGENTS = 50
-MAX_STEP_NUMBER = 17000  # 2 Earth years == 365*24 == 17520 steps
+MAX_STEP_NUMBER = 365*24*2  # 2 Earth years
 
 login_manager = LoginManager()
 login_manager.init_app(app)

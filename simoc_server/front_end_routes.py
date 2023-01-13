@@ -361,20 +361,20 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     if 'plants' in working_config and isinstance(working_config['plants'], list):
         plants = working_config.pop('plants')
         for plant in plants:
-            if isinstance(plant, dict):
-                amount = plant.get('amount', 0) or 0
-                plant_type = plant.get('species', None)
-                if plant_type and amount:
-                    plants_in_config.append(plant_type)
-                    working_config[plant_type] = dict(amount=amount)
-                    if is_b2:
-                        plant_desc = {'data': {'characteristics': [
-                            density_char, crop_mgmt_char
-                        ]}}
-                        if 'plants' not in user_agent_desc:
-                            user_agent_desc['plants'] = {}
-                        user_agent_desc['plants'][plant_type] = plant_desc
-    if len(plants_in_config) > 0:
+            amount = plant.get('amount', 0) or 0
+            plant_type = plant.get('species', None)
+            if not (plant_type and amount):
+                continue
+            plants_in_config.append(plant_type)
+            working_config[plant_type] = dict(amount=amount)
+            if is_b2:
+                plant_desc = {'data': {'characteristics': [
+                    density_char, crop_mgmt_char
+                ]}}
+                if 'plants' not in user_agent_desc:
+                    user_agent_desc['plants'] = {}
+                user_agent_desc['plants'][plant_type] = plant_desc
+    if plants_in_config > 0:
         food_storage = {}
         food_storage_desc = agent_desc['storage']['food_storage']
         for char in food_storage_desc['data']['characteristics']:
@@ -382,7 +382,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                 currency = char['type'].split('_', 1)[1]
                 if currency in plants_in_config:
                     food_storage[currency] = 0
-        if len(food_storage.keys()) > 0:
+        if food_storage > 0:
             working_config['food_storage'] = dict(id=1, amount=1, **food_storage)
         # Lights
         if is_b2:

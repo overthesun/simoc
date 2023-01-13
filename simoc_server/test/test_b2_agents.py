@@ -16,9 +16,21 @@ def test_b2_sun():
     with open('data_files/config_1hrad.json') as f:
         config = json.load(f)
     config['agents']['b2_sun'] = {'amount': 1}
-    config['start_time'] = '03-11-1993 00:00:00'
+    config['start_time'] = '1993-03-11 00:00:00'
     config['location'] = 'earth'
     agent_conn = [{'from': 'b2_sun.par', 'to': f'radish.par'}]
+
+    # Check that sun corrects for date range
+    def get_t1_sun_output(start_time):
+        _config = copy.deepcopy(config)
+        _config['start_time'] = start_time
+        _model = AgentModel.from_config(_config, agent_conn)
+        _model.step()
+        _sun_agent = _model.get_agents_by_type('b2_sun')[0]
+        return _sun_agent.par
+    in_range = get_t1_sun_output('1991-03-01 00:00:00')
+    out_range = get_t1_sun_output('1990-03-01 00:00:00')
+    assert in_range == out_range
 
     # Run the model
     model = AgentModel.from_config(config, agent_conn=agent_conn)
@@ -32,3 +44,5 @@ def test_b2_sun():
     # Check that plant is responding correctly
     plant_par = parse_data(data, ['radish', 'growth', 'par_factor'])
     assert plant_par == [0, 0, 0, 0, 0.44203855732691, 0.43882469261157775]
+
+
