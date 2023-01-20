@@ -6668,7 +6668,7 @@
         "input": [
           {
             "type": "o2",
-            "value": 0.3372404100458333,
+            "value": 0.00016862020502291666,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -6678,7 +6678,7 @@
         "output": [
           {
             "type": "co2",
-            "value": 0.927679882875,
+            "value": 0.0004638399414375,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -6687,58 +6687,48 @@
         ],
         "characteristics": [
           {
-            "type": "area",
-            "value": 2000.0,
-            "unit": "m^3"
-          },
-          {
             "type": "soil",
-            "value": 2720,
+            "value": 1.36,
             "unit": "m^3"
           },
           {
             "type": "water",
-            "value": 60,
+            "value": 0.03,
             "unit": "m^3"
           },
           {
             "type": "volume",
-            "value": 35220.0,
-            "unit": "m^3"
-          },
-          {
-            "type": "description",
-            "value": "The Intensive Agriculture Biome at Biosphere 2",
+            "value": 17.61,
             "unit": "m^3"
           },
           {
             "type": "capacity_h2",
-            "value": 44025.0,
+            "value": 22.0125,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o",
-            "value": 44025.0,
+            "value": 22.0125,
             "unit": "kg"
           },
           {
             "type": "capacity_ch4",
-            "value": 44025.0,
+            "value": 22.0125,
             "unit": "kg"
           },
           {
             "type": "capacity_o2",
-            "value": 44025.0,
+            "value": 22.0125,
             "unit": "kg"
           },
           {
             "type": "capacity_n2",
-            "value": 44025.0,
+            "value": 22.0125,
             "unit": "kg"
           },
           {
             "type": "capacity_co2",
-            "value": 44025.0,
+            "value": 22.0125,
             "unit": "kg"
           }
         ]
@@ -6751,58 +6741,48 @@
         "output": [],
         "characteristics": [
           {
-            "type": "area",
-            "value": 1000.0,
-            "unit": "m^3"
-          },
-          {
             "type": "soil",
-            "value": 2,
+            "value": 0.002,
             "unit": "m^3"
           },
           {
             "type": "water",
-            "value": 1,
+            "value": 0.001,
             "unit": "m^3"
           },
           {
             "type": "volume",
-            "value": 10997.0,
-            "unit": "m^3"
-          },
-          {
-            "type": "description",
-            "value": "The Crew Habitat at Biosphere 2",
+            "value": 10.997,
             "unit": "m^3"
           },
           {
             "type": "capacity_h2",
-            "value": 13746.25,
+            "value": 13.74625,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o",
-            "value": 13746.25,
+            "value": 13.74625,
             "unit": "kg"
           },
           {
             "type": "capacity_ch4",
-            "value": 13746.25,
+            "value": 13.74625,
             "unit": "kg"
           },
           {
             "type": "capacity_o2",
-            "value": 13746.25,
+            "value": 13.74625,
             "unit": "kg"
           },
           {
             "type": "capacity_n2",
-            "value": 13746.25,
+            "value": 13.74625,
             "unit": "kg"
           },
           {
             "type": "capacity_co2",
-            "value": 13746.25,
+            "value": 13.74625,
             "unit": "kg"
           }
         ]
@@ -6814,7 +6794,7 @@
         "input": [
           {
             "type": "o2",
-            "value": 0.19047142812499998,
+            "value": 9.523571406249998e-05,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -6824,7 +6804,7 @@
         "output": [
           {
             "type": "co2",
-            "value": 0.5239482187500003,
+            "value": 0.00026197410937500016,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -6833,58 +6813,48 @@
         ],
         "characteristics": [
           {
-            "type": "area",
-            "value": 2000.0,
-            "unit": "m^3"
-          },
-          {
             "type": "soil",
-            "value": 6000,
+            "value": 3.0,
             "unit": "m^3"
           },
           {
             "type": "water",
-            "value": 100,
+            "value": 0.05,
             "unit": "m^3"
           },
           {
             "type": "volume",
-            "value": 28900.0,
-            "unit": "m^3"
-          },
-          {
-            "type": "description",
-            "value": "The Rainforest Biome at Biosphere 2",
+            "value": 14.45,
             "unit": "m^3"
           },
           {
             "type": "capacity_h2",
-            "value": 36125.0,
+            "value": 18.0625,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o",
-            "value": 36125.0,
+            "value": 18.0625,
             "unit": "kg"
           },
           {
             "type": "capacity_ch4",
-            "value": 36125.0,
+            "value": 18.0625,
             "unit": "kg"
           },
           {
             "type": "capacity_o2",
-            "value": 36125.0,
+            "value": 18.0625,
             "unit": "kg"
           },
           {
             "type": "capacity_n2",
-            "value": 36125.0,
+            "value": 18.0625,
             "unit": "kg"
           },
           {
             "type": "capacity_co2",
-            "value": 36125.0,
+            "value": 18.0625,
             "unit": "kg"
           }
         ]
@@ -6896,7 +6866,7 @@
         "input": [
           {
             "type": "co2",
-            "value": 0.12775277812500002,
+            "value": 9.125198437500002e-05,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -6906,7 +6876,7 @@
         "output": [
           {
             "type": "o2",
-            "value": 0.04644209718750002,
+            "value": 3.317292656250001e-05,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -6915,58 +6885,48 @@
         ],
         "characteristics": [
           {
-            "type": "area",
-            "value": 1400.0,
-            "unit": "m^3"
-          },
-          {
             "type": "soil",
-            "value": 4000,
+            "value": 2.857142857142857,
             "unit": "m^3"
           },
           {
             "type": "water",
-            "value": 300,
+            "value": 0.21428571428571427,
             "unit": "m^3"
           },
           {
             "type": "volume",
-            "value": 17600.0,
-            "unit": "m^3"
-          },
-          {
-            "type": "description",
-            "value": "The Desert Biome at Biosphere 2",
+            "value": 12.571428571428571,
             "unit": "m^3"
           },
           {
             "type": "capacity_h2",
-            "value": 22000.0,
+            "value": 15.714285714285714,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o",
-            "value": 22000.0,
+            "value": 15.714285714285714,
             "unit": "kg"
           },
           {
             "type": "capacity_ch4",
-            "value": 22000.0,
+            "value": 15.714285714285714,
             "unit": "kg"
           },
           {
             "type": "capacity_o2",
-            "value": 22000.0,
+            "value": 15.714285714285714,
             "unit": "kg"
           },
           {
             "type": "capacity_n2",
-            "value": 22000.0,
+            "value": 15.714285714285714,
             "unit": "kg"
           },
           {
             "type": "capacity_co2",
-            "value": 22000.0,
+            "value": 15.714285714285714,
             "unit": "kg"
           }
         ]
@@ -6979,48 +6939,38 @@
         "output": [],
         "characteristics": [
           {
-            "type": "area",
-            "value": 1800.0,
-            "unit": "m^3"
-          },
-          {
             "type": "volume",
-            "value": 15000.0,
-            "unit": "m^3"
-          },
-          {
-            "type": "description",
-            "value": "The West Lung at Biosphere 2",
+            "value": 8.333333333333334,
             "unit": "m^3"
           },
           {
             "type": "capacity_h2",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           },
           {
             "type": "capacity_ch4",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           },
           {
             "type": "capacity_o2",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           },
           {
             "type": "capacity_n2",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           },
           {
             "type": "capacity_co2",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           }
         ]
@@ -7033,53 +6983,43 @@
         "output": [],
         "characteristics": [
           {
-            "type": "area",
-            "value": 1800.0,
-            "unit": "m^3"
-          },
-          {
             "type": "water",
-            "value": 750,
+            "value": 0.4166666666666667,
             "unit": "m^3"
           },
           {
             "type": "volume",
-            "value": 15000.0,
-            "unit": "m^3"
-          },
-          {
-            "type": "description",
-            "value": "The South Lung at Biosphere 2",
+            "value": 8.333333333333334,
             "unit": "m^3"
           },
           {
             "type": "capacity_h2",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           },
           {
             "type": "capacity_ch4",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           },
           {
             "type": "capacity_o2",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           },
           {
             "type": "capacity_n2",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           },
           {
             "type": "capacity_co2",
-            "value": 18750.0,
+            "value": 10.416666666666668,
             "unit": "kg"
           }
         ]
@@ -7092,53 +7032,43 @@
         "output": [],
         "characteristics": [
           {
-            "type": "area",
-            "value": 863.0,
-            "unit": "m^3"
-          },
-          {
             "type": "water",
-            "value": 3400,
+            "value": 3.939745075318656,
             "unit": "m^3"
           },
           {
             "type": "volume",
-            "value": 14360.32,
-            "unit": "m^3"
-          },
-          {
-            "type": "description",
-            "value": "The Ocean Biome at Biosphere 2",
+            "value": 16.64,
             "unit": "m^3"
           },
           {
             "type": "capacity_h2",
-            "value": 17950.4,
+            "value": 20.8,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o",
-            "value": 17950.4,
+            "value": 20.8,
             "unit": "kg"
           },
           {
             "type": "capacity_ch4",
-            "value": 17950.4,
+            "value": 20.8,
             "unit": "kg"
           },
           {
             "type": "capacity_o2",
-            "value": 17950.4,
+            "value": 20.8,
             "unit": "kg"
           },
           {
             "type": "capacity_n2",
-            "value": 17950.4,
+            "value": 20.8,
             "unit": "kg"
           },
           {
             "type": "capacity_co2",
-            "value": 17950.4,
+            "value": 20.8,
             "unit": "kg"
           }
         ]
@@ -7150,7 +7080,7 @@
         "input": [
           {
             "type": "o2",
-            "value": 0.2231118574151041,
+            "value": 0.0001362931322022627,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -7160,7 +7090,7 @@
         "output": [
           {
             "type": "co2",
-            "value": 0.6137354112656251,
+            "value": 0.00037491472893440747,
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
@@ -7169,53 +7099,43 @@
         ],
         "characteristics": [
           {
-            "type": "area",
-            "value": 1637.0000000000002,
-            "unit": "m^3"
-          },
-          {
             "type": "soil",
-            "value": 4000,
+            "value": 2.4434941967012827,
             "unit": "m^3"
           },
           {
             "type": "volume",
-            "value": 27239.68,
-            "unit": "m^3"
-          },
-          {
-            "type": "description",
-            "value": "The Rainforest Biome at Biosphere 2",
+            "value": 16.639999999999997,
             "unit": "m^3"
           },
           {
             "type": "capacity_h2",
-            "value": 34049.6,
+            "value": 20.799999999999997,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o",
-            "value": 34049.6,
+            "value": 20.799999999999997,
             "unit": "kg"
           },
           {
             "type": "capacity_ch4",
-            "value": 34049.6,
+            "value": 20.799999999999997,
             "unit": "kg"
           },
           {
             "type": "capacity_o2",
-            "value": 34049.6,
+            "value": 20.799999999999997,
             "unit": "kg"
           },
           {
             "type": "capacity_n2",
-            "value": 34049.6,
+            "value": 20.799999999999997,
             "unit": "kg"
           },
           {
             "type": "capacity_co2",
-            "value": 34049.6,
+            "value": 20.799999999999997,
             "unit": "kg"
           }
         ]
