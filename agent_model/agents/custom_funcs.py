@@ -1,31 +1,27 @@
 import numpy as np
+from collections import defaultdict
 
 def atmosphere_equalizer(agent):
-    """Balance the atmosphere between two agents
+    """Balance the pressure and composition of connected atmospheres"""
+    atms = {a.agent_type: a for a in agent.selected_storage['in']['atmosphere']}
+    volumes = {}  # agent_type: m3
+    current = {}  # agent_type: {atmo_currency: kg}
+    total_atm = defaultdict(float)  # atmo_currency: kg
+    for agent_type, agent_data in atms.items():
+        volumes[agent_type] = agent_data.attrs['char_volume'] * agent_data.amount
+        current[agent_type] = agent_data.view(view='atmosphere')
+        for currency, amount in current[agent_type].items():
+            total_atm[currency] += amount
 
-    'habitat' and 'greenhouse' are arbitrary variable names
-    """
-    habitat, greenhouse = agent.selected_storage['in']['atmosphere']
-    if not habitat or not greenhouse:
-        return
-    habitat_volume = habitat.attrs['char_volume']
-    greenhouse_volume = greenhouse.attrs['char_volume']
-    net_volume = habitat_volume + greenhouse_volume
-    habitat_gasses = habitat.view(view='atmosphere')
-    greenhouse_gasses = greenhouse.view(view='atmosphere')
-    combined_gasses = {**habitat_gasses, **greenhouse_gasses}.keys()
-    max_flow = 10_000  # Set very high for B2
-    deltas = {}
-    for gas in combined_gasses:
-        net_mass = getattr(habitat, gas, 0) + getattr(greenhouse, gas, 0)
-        equalized = net_mass / net_volume
-        deltas[gas] = habitat[gas] - (equalized * habitat_volume)
-    net_flow = sum(map(abs, deltas.values()))
-    flow_rate = min(1, max_flow/net_flow) if net_flow else 1
-    for gas, amount in deltas.items():
-        amount_adj = amount * flow_rate
-        habitat[gas] -= amount_adj
-        greenhouse[gas] += amount_adj
+    total_volume = sum(volumes.values())
+    for agent_type, agent_data in atms.items():
+        targets = {k: v * (volumes[agent_type] / total_volume)
+                   for k, v in total_atm.items()}
+        deltas = {k: v - current[agent_type][k]
+                  for k, v in targets.items()}
+        for currency, delta in deltas.items():
+            if delta != 0:
+                agent_data.increment(currency, delta)
 
 def electric_lamp(agent):
     """Control the output of electric lamps

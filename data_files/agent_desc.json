@@ -6803,68 +6803,6 @@
         ]
       }
     },
-    "atmosphere_equalizer_gh_biomes": {
-      "data": {
-        "input": [
-          {
-            "type": "atmosphere",
-            "value": 0,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          }
-        ],
-        "output": [
-          {
-            "type": "atmosphere",
-            "value": 0,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          }
-        ],
-        "characteristics": [
-          {
-            "type": "custom_function",
-            "value": "atmosphere_equalizer"
-          }
-        ]
-      },
-      "description": "Balances the atmosphere elements of habitat & greenhouse every step."
-    },
-    "atmosphere_equalizer_gh_crew": {
-      "data": {
-        "input": [
-          {
-            "type": "atmosphere",
-            "value": 0,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          }
-        ],
-        "output": [
-          {
-            "type": "atmosphere",
-            "value": 0,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          }
-        ],
-        "characteristics": [
-          {
-            "type": "custom_function",
-            "value": "atmosphere_equalizer"
-          }
-        ]
-      },
-      "description": "Balances the atmosphere elements of habitat & greenhouse every step."
-    },
     "soil": {
       "description": "One cubic meter of soil in Biosphere 2",
       "data": {

@@ -102,10 +102,7 @@
                 "unit": "kg"
             }
         },
-        "atmosphere_equalizer_gh_biomes": {
-            "amount": 1
-        },
-        "atmosphere_equalizer_gh_crew": {
+        "atmosphere_equalizer": {
             "amount": 1
         },
         "b2_sun": {

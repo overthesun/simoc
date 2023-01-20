@@ -1352,36 +1352,16 @@
         "priority": 1
     },
     {
-        "from": "atmosphere_equalizer_gh_biomes.atmosphere",
-        "to": "greenhouse_b2.atmosphere"
-    },
-    {
         "from": "greenhouse_b2.atmosphere",
-        "to": "atmosphere_equalizer_gh_biomes.atmosphere"
-    },
-    {
-        "from": "atmosphere_equalizer_gh_biomes.atmosphere",
-        "to": "b2_biomes.atmosphere"
-    },
-    {
-        "from": "b2_biomes.atmosphere",
-        "to": "atmosphere_equalizer_gh_biomes.atmosphere"
-    },
-    {
-        "from": "atmosphere_equalizer_gh_crew.atmosphere",
-        "to": "greenhouse_b2.atmosphere"
-    },
-    {
-        "from": "greenhouse_b2.atmosphere",
-        "to": "atmosphere_equalizer_gh_crew.atmosphere"
-    },
-    {
-        "from": "atmosphere_equalizer_gh_crew.atmosphere",
-        "to": "crew_habitat_b2.atmosphere"
+        "to": "atmosphere_equalizer.atmosphere"
     },
     {
         "from": "crew_habitat_b2.atmosphere",
-        "to": "atmosphere_equalizer_gh_crew.atmosphere"
+        "to": "atmosphere_equalizer.atmosphere"
+    },
+    {
+        "from": "b2_biomes.atmosphere",
+        "to": "atmosphere_equalizer.atmosphere"
     },
     {
         "from": "greenhouse.o2",
