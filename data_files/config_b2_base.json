@@ -169,9 +169,6 @@
         "concrete": {
             "amount": 15800
         },
-        "soil": {
-            "amount": 16720
-        },
         "b2_power_gen": {
             "amount": 1
         },

@@ -1352,6 +1352,38 @@
         "priority": 1
     },
     {
+        "from": "greenhouse_b2.o2",
+        "to": "greenhouse_b2.o2"
+    },
+    {
+        "from": "greenhouse_b2.co2",
+        "to": "greenhouse_b2.co2"
+    },
+    {
+        "from": "rainforest_biome.o2",
+        "to": "rainforest_biome.o2"
+    },
+    {
+        "from": "rainforest_biome.co2",
+        "to": "rainforest_biome.co2"
+    },
+    {
+        "from": "desert_biome.o2",
+        "to": "desert_biome.o2"
+    },
+    {
+        "from": "desert_biome.co2",
+        "to": "desert_biome.co2"
+    },
+    {
+        "from": "savannah_biome.o2",
+        "to": "savannah_biome.o2"
+    },
+    {
+        "from": "savannah_biome.co2",
+        "to": "savannah_biome.co2"
+    },
+    {
         "from": "greenhouse_b2.atmosphere",
         "to": "atmosphere_equalizer.atmosphere"
     },
@@ -1382,14 +1414,6 @@
     {
         "from": "savannah_biome.atmosphere",
         "to": "atmosphere_equalizer.atmosphere"
-    },
-    {
-        "from": "greenhouse.o2",
-        "to": "soil.o2"
-    },
-    {
-        "from": "soil.co2",
-        "to": "greenhouse.co2"
     },
     {
         "from": "greenhouse.co2",

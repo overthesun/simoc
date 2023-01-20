@@ -6665,8 +6665,26 @@
     "greenhouse_b2": {
       "description": "The Intensive Agriculture Biome at Biosphere 2",
       "data": {
-        "input": [],
-        "output": [],
+        "input": [
+          {
+            "type": "o2",
+            "value": 0.3372404100458333,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "co2",
+            "value": 0.927679882875,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
         "characteristics": [
           {
             "type": "area",
@@ -6793,8 +6811,26 @@
     "rainforest_biome": {
       "description": "The Rainforest Biome at Biosphere 2",
       "data": {
-        "input": [],
-        "output": [],
+        "input": [
+          {
+            "type": "o2",
+            "value": 0.19047142812499998,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "co2",
+            "value": 0.5239482187500003,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
         "characteristics": [
           {
             "type": "area",
@@ -6857,8 +6893,26 @@
     "desert_biome": {
       "description": "The Desert Biome at Biosphere 2",
       "data": {
-        "input": [],
-        "output": [],
+        "input": [
+          {
+            "type": "co2",
+            "value": 0.12775277812500002,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 0.04644209718750002,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
         "characteristics": [
           {
             "type": "area",
@@ -7093,8 +7147,26 @@
     "savannah_biome": {
       "description": "The Rainforest Biome at Biosphere 2",
       "data": {
-        "input": [],
-        "output": [],
+        "input": [
+          {
+            "type": "o2",
+            "value": 0.2231118574151041,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "co2",
+            "value": 0.6137354112656251,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
         "characteristics": [
           {
             "type": "area",
@@ -7145,38 +7217,6 @@
             "type": "capacity_co2",
             "value": 34049.6,
             "unit": "kg"
-          }
-        ]
-      }
-    },
-    "soil": {
-      "description": "One cubic meter of soil in Biosphere 2",
-      "data": {
-        "input": [
-          {
-            "type": "o2",
-            "value": 4.5528872125327985e-05,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          }
-        ],
-        "output": [
-          {
-            "type": "co2",
-            "value": 0.00011710357501157585,
-            "flow_rate": {
-              "unit": "kg",
-              "time": "hour"
-            }
-          }
-        ],
-        "characteristics": [
-          {
-            "type": "volume",
-            "value": 1,
-            "unit": "m^3"
           }
         ]
       }
