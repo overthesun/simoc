@@ -1360,7 +1360,27 @@
         "to": "atmosphere_equalizer.atmosphere"
     },
     {
-        "from": "b2_biomes.atmosphere",
+        "from": "rainforest_biome.atmosphere",
+        "to": "atmosphere_equalizer.atmosphere"
+    },
+    {
+        "from": "desert_biome.atmosphere",
+        "to": "atmosphere_equalizer.atmosphere"
+    },
+    {
+        "from": "west_lung.atmosphere",
+        "to": "atmosphere_equalizer.atmosphere"
+    },
+    {
+        "from": "south_lung.atmosphere",
+        "to": "atmosphere_equalizer.atmosphere"
+    },
+    {
+        "from": "ocean_biome.atmosphere",
+        "to": "atmosphere_equalizer.atmosphere"
+    },
+    {
+        "from": "savannah_biome.atmosphere",
         "to": "atmosphere_equalizer.atmosphere"
     },
     {

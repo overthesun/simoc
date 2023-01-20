@@ -6663,18 +6663,35 @@
       }
     },
     "greenhouse_b2": {
-      "description": "The Intensive Agricultural Biome at Biosphere 2",
+      "description": "The Intensive Agriculture Biome at Biosphere 2",
       "data": {
         "input": [],
         "output": [],
         "characteristics": [
           {
-            "type": "category",
-            "value": "greenhouse"
+            "type": "area",
+            "value": 2000.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "soil",
+            "value": 2720,
+            "unit": "m^3"
+          },
+          {
+            "type": "water",
+            "value": 60,
+            "unit": "m^3"
           },
           {
             "type": "volume",
-            "value": 35220
+            "value": 35220.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "description",
+            "value": "The Intensive Agriculture Biome at Biosphere 2",
+            "unit": "m^3"
           },
           {
             "type": "capacity_h2",
@@ -6710,18 +6727,35 @@
       }
     },
     "crew_habitat_b2": {
-      "description": "The crew habitat at Biosphere 2",
+      "description": "The Crew Habitat at Biosphere 2",
       "data": {
         "input": [],
         "output": [],
         "characteristics": [
           {
-            "type": "category",
-            "value": "habitat"
+            "type": "area",
+            "value": 1000.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "soil",
+            "value": 2,
+            "unit": "m^3"
+          },
+          {
+            "type": "water",
+            "value": 1,
+            "unit": "m^3"
           },
           {
             "type": "volume",
-            "value": 10997
+            "value": 10997.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "description",
+            "value": "The Crew Habitat at Biosphere 2",
+            "unit": "m^3"
           },
           {
             "type": "capacity_h2",
@@ -6756,48 +6790,360 @@
         ]
       }
     },
-    "b2_biomes": {
-      "description": "The Rainforest, Savannah/ocean, Desert, West Lung, South Lung of Biosphere 2",
+    "rainforest_biome": {
+      "description": "The Rainforest Biome at Biosphere 2",
       "data": {
         "input": [],
         "output": [],
         "characteristics": [
           {
-            "type": "category",
-            "value": "biome"
+            "type": "area",
+            "value": 2000.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "soil",
+            "value": 6000,
+            "unit": "m^3"
+          },
+          {
+            "type": "water",
+            "value": 100,
+            "unit": "m^3"
           },
           {
             "type": "volume",
-            "value": 118100
+            "value": 28900.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "description",
+            "value": "The Rainforest Biome at Biosphere 2",
+            "unit": "m^3"
           },
           {
             "type": "capacity_h2",
-            "value": 147625.0,
+            "value": 36125.0,
             "unit": "kg"
           },
           {
             "type": "capacity_h2o",
-            "value": 147625.0,
+            "value": 36125.0,
             "unit": "kg"
           },
           {
             "type": "capacity_ch4",
-            "value": 147625.0,
+            "value": 36125.0,
             "unit": "kg"
           },
           {
             "type": "capacity_o2",
-            "value": 147625.0,
+            "value": 36125.0,
             "unit": "kg"
           },
           {
             "type": "capacity_n2",
-            "value": 147625.0,
+            "value": 36125.0,
             "unit": "kg"
           },
           {
             "type": "capacity_co2",
-            "value": 147625.0,
+            "value": 36125.0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "desert_biome": {
+      "description": "The Desert Biome at Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "area",
+            "value": 1400.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "soil",
+            "value": 4000,
+            "unit": "m^3"
+          },
+          {
+            "type": "water",
+            "value": 300,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 17600.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "description",
+            "value": "The Desert Biome at Biosphere 2",
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 22000.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 22000.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 22000.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 22000.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 22000.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 22000.0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "west_lung": {
+      "description": "The West Lung at Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "area",
+            "value": 1800.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 15000.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "description",
+            "value": "The West Lung at Biosphere 2",
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 18750.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 18750.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 18750.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 18750.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 18750.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 18750.0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "south_lung": {
+      "description": "The South Lung at Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "area",
+            "value": 1800.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "water",
+            "value": 750,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 15000.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "description",
+            "value": "The South Lung at Biosphere 2",
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 18750.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 18750.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 18750.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 18750.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 18750.0,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 18750.0,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "ocean_biome": {
+      "description": "The Ocean Biome at Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "area",
+            "value": 863.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "water",
+            "value": 3400,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 14360.32,
+            "unit": "m^3"
+          },
+          {
+            "type": "description",
+            "value": "The Ocean Biome at Biosphere 2",
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 17950.4,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 17950.4,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 17950.4,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 17950.4,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 17950.4,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 17950.4,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "savannah_biome": {
+      "description": "The Rainforest Biome at Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "area",
+            "value": 1637.0000000000002,
+            "unit": "m^3"
+          },
+          {
+            "type": "soil",
+            "value": 4000,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 27239.68,
+            "unit": "m^3"
+          },
+          {
+            "type": "description",
+            "value": "The Rainforest Biome at Biosphere 2",
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 34049.6,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 34049.6,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 34049.6,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 34049.6,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 34049.6,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 34049.6,
             "unit": "kg"
           }
         ]
