@@ -222,7 +222,7 @@ def build_connections_from_agent_desc(fpath):
         agent_desc = json.dump(arrows, f)
     return arrows
 
-def convert_configuration(game_config, agent_desc=None, save_output=False):
+def convert_configuration(game_config, agent_desc=None, save_output=True):
     """
     This method converts the json configuration from a post into a more complete configuration
     with connections.
@@ -297,8 +297,8 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     # then add everything in working_config, validating based on whether
     # they're in the database.
 
-    # Structures: A string under 'habitat' and 'greenhouse' with selected type.
-    structures_dict = {}  # Used to replace generic connections
+    # Structures: A string under 'habitat' and 'greenhouse' with selected type,
+    # and optionally a dict of amounts (area) of b2-specific biomes.
     total_volume = 0  # Used to calculate starting water_storage
     if not is_b2:
         weights = {}
@@ -320,36 +320,33 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
             'h2': 0,
             'ch4': 0,
         }
-    if 'habitat' in working_config or 'greenhouse' in working_config:
-        valid_structures = list(agent_desc['structures'].keys())
-        for structure in ['habitat', 'greenhouse']:
-            if structure not in working_config or not isinstance(working_config[structure], str):
-                continue
-            structure_type = working_config.pop(structure)
-            if structure_type not in valid_structures:
-                continue
-            structures_dict[structure] = structure_type
-            volume = next((
-                char['value'] for char in
-                agent_desc['structures'][structure_type]['data']['characteristics']
-                if char['type'] == 'volume'), 0)
-            total_volume += volume  # Used below to calculate starting water
-            atmosphere = calc_air_storage(volume, weights)  # Fill with earth-normal atmosphere
-            working_config[structure_type] = dict(id=1, amount=1, **atmosphere)
+    active_structures = {}
+    for generic in {'habitat', 'greenhouse'}:
+        if generic in working_config:
+            struct = working_config.pop(generic)
+            amount = {'greenhouse_b2': 2000, 'crew_habitat_b2': 1000}.get(struct, 1)
+            active_structures[struct] = amount
     if is_b2:
-        # Add other biomes and their atmospheres
-        volume = next((
+        biomes = working_config.pop('biomes', {})
+        b2_structs = {'rainforest_biome': biomes.get('rainforest', 2000),
+                      'desert_biome': biomes.get('desert', 1400),
+                      'ocean_biome': biomes.get('ocean', 863),
+                      'savannah_biome': biomes.get('savannah', 1637),
+                      'west_lung': 1800,
+                      'south_lung': 1800}
+        active_structures.update(b2_structs)
+    valid_structures = {k: v for k, v in active_structures.items()
+                        if k in agent_desc['structures']}
+    for struct, amount in valid_structures.items():
+        volume = amount * next((
             char['value'] for char in
-            agent_desc['structures']['b2_biomes']['data']['characteristics']
+            agent_desc['structures'][struct]['data']['characteristics']
             if char['type'] == 'volume'), 0)
-        atmosphere = calc_air_storage(volume, weights)
-        working_config['b2_biomes'] = dict(id=1, amount=1, **atmosphere)
-        # Add atmosphere equalizers between all structures
-        for agent in {'atmosphere_equalizer_gh_biomes', 'atmosphere_equalizer_gh_crew'}:
-            working_config[agent] = dict(id=1, amount=1)
-    else:
-        if 'habitat' in structures_dict and 'greenhouse' in structures_dict:
-            working_config['atmosphere_equalizer'] = dict(id=1, amount=1)
+        total_volume += volume  # Used below to calculate starting water
+        atmosphere = calc_air_storage(volume, weights)  # Fill with earth-normal atmosphere
+        working_config[struct] = dict(id=1, amount=amount, **atmosphere)
+    if len(valid_structures) > 1:
+        working_config['atmosphere_equalizer'] = dict(id=1, amount=1)
 
     # Plants: A list of objects with 'species' and 'amount'
     plants_in_config = []
