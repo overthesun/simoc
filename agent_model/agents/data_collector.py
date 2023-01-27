@@ -23,9 +23,9 @@ class AgentDataCollector():
                 density_factor=[], crop_management_factor=[], growth_rate=[],
                 grown=[], agent_step_num=[])
         # Concrete
-        if agent.agent_class == 'concrete':
-            self.snapshot_attrs.append('calcification_rate')
-            self.calcification_rate = []
+        if agent.agent_type == 'concrete':
+            self.snapshot_attrs.append('growth')
+            self.growth = dict(carbonation_rate=[], carbonation=[])
         # Dynamic Fields
         for attr, attr_value in self.agent.attrs.items():
             if attr_value == 0:
@@ -115,8 +115,6 @@ class AgentDataCollector():
         if 'co2_scale' in self.snapshot_attrs:
             for field, record in self.co2_scale.items():
                 record.append(self.agent.co2_scale[field])
-        if 'calcification_rate' in self.snapshot_attrs:
-            self.calcification_rate.append(self.agent.get('calcification_rate', 0))
         if 'flows' in self.snapshot_attrs:
             for prefix, currencies in self.flows.items():
                 for currency, storages in currencies.items():

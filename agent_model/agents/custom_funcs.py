@@ -104,12 +104,3 @@ def b2_sun(agent):
     i_month = time.month + 12 * (time.year - 1991)
     i_hour = time.hour
     agent.par = hourly_par_fraction[i_hour] * monthly_par[i_month]
-
-def concrete(agent):
-    """Set the concrete calcification rate based on ambient CO2"""
-    if not hasattr(agent, 'calcification_rate'):
-        agent.calcification_rate = 1
-    ppm_co2_ambient = agent._get_storage_ratio('co2_ratio_in') * 1e6
-    ppm_range = [1000, 2000]
-    rate_scale = [0.2, 1]
-    agent.calcification_rate = np.interp(ppm_co2_ambient, ppm_range, rate_scale)

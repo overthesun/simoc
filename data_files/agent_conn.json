@@ -1420,6 +1420,18 @@
         "to": "concrete.co2"
     },
     {
+        "from": "concrete.caoh2",
+        "to": "concrete.caoh2"
+    },
+    {
+        "from": "concrete.caco3",
+        "to": "concrete.caco3"
+    },
+    {
+        "from": "concrete.moisture",
+        "to": "concrete.moisture"
+    },
+    {
         "from": "b2_power_gen.kwh",
         "to": "power_storage.kwh"
     },
