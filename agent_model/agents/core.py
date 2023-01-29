@@ -977,7 +977,7 @@ class ConcreteAgent(GeneralAgent):
     ====================== ============== ===============
 
     This agent's exchange values are equal to the molar mass (g/mol) of the respective
-    compounds. So when multiplied by the above attibutes, so the results are in kg.
+    compounds, so when multiplied by the above attributes, the results are in kg.
     """
     diffusion_rate = .000018        # Tune manually. Match Table 2 total kmoles
     saturation_when_measured = 0.3  # Tune manually. Lit suggests up to 20yr of carb.
