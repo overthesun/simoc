@@ -95,7 +95,7 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
         redis_conn.delete(f'sid_mapping:{sid}')
 
 
-@socketio.on('connect')
+@socketio.on('connect', namespace='test')
 def connect_handler():
     if current_user.is_anonymous:
         return False
@@ -103,7 +103,7 @@ def connect_handler():
                   room=request.sid)
 
 
-@socketio.on('get_steps')
+@socketio.on('get_steps', namespace='test')
 @authenticated_only
 def get_steps_handler(message):
     if "data" not in message:
