@@ -967,7 +967,7 @@ class PlantAgent(GeneralAgent):
 
 
 class ConcreteAgent(GeneralAgent):
-    """One square meter of carbonating concrete
+    """One exposed square meter of carbonating concrete
 
     ====================== ============== ===============
           Attribute        Type               Description
