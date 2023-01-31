@@ -404,5 +404,16 @@
             "label": "Photosynthetically Active Radiation",
             "unit": "moles/m2-h"
         }
+    },
+    "structural": {
+        "caoh2": {
+            "label": "Calcium Hydroxide"
+        },
+        "caco3": {
+            "label": "Calcium Carbonate"
+        },
+        "moisture": {
+            "label": "Water Content"
+        }
     }
 }

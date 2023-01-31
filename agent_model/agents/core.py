@@ -964,3 +964,52 @@ class PlantAgent(GeneralAgent):
         self.selected_storage['out']['inedible_biomass'][0].increment(
             'inedible_biomass', dead_biomass)
         super().kill(number, reason)
+
+
+class ConcreteAgent(GeneralAgent):
+    """One exposed square meter of carbonating concrete
+
+    ====================== ============== ===============
+          Attribute        Type               Description
+    ====================== ============== ===============
+    ``carbonation_rate``   float          Current co2-dependent carbonation rate, in kmoles
+    ``carbonation``        float          Total lifetime carbonation, in kmoles
+    ====================== ============== ===============
+
+    This agent's exchange values are equal to the molar mass (g/mol) of the respective
+    compounds, so when multiplied by the above attributes, the results are in kg.
+    """
+    diffusion_rate = .000018        # Tune manually. Match Table 2 total kmoles
+    saturation_when_measured = 0.3  # Tune manually. Lit suggests up to 20yr of carb.
+    rate_scale = [12.7, 12.7 + 35 / saturation_when_measured]  # Figure 2 integrals
+    ppm_range = [350, 3000]  # External and enclosed ppms
+    density = 1.21 / 1000  # Table 2, 'structural concrete', convert grams to kg
+
+    def __init__(self, *args, carbonation=None, **kwargs):
+        self.carbonation_rate = 0  # Current kmoles/h rate
+        self.carbonation = carbonation if carbonation is not None else 0  # Cumulative kmoles
+        super().__init__(*args, **kwargs)  # Load exchange data
+
+        # Set internal caoh2 to the maximum amount of carbonation at the highest ppm level
+        self.caoh2 = self.calc_max_carbonation(3000) * self.attrs['in_caoh2'] * self.amount
+        self.caco3 = 0      # Byproduct, accumulates internally
+        self.moisture = 0   # Byproduct, accumulates internally
+        # If carbonation has already occured (Mission 2), update storages accordingly
+        if self.carbonation > 0:
+            self.caoh2 -= self.attrs['in_caoh2'] * self.carbonation * self.amount
+            self.caco3 += self.attrs['out_caco3'] * self.carbonation * self.amount
+            self.moisture += self.attrs['out_moisture'] * self.carbonation * self.amount
+
+    def calc_max_carbonation(self, ppm):
+        """Return max kmoles CO2 uptake by structural concrete"""
+        saturation_point_kmoles = np.interp(ppm, self.ppm_range, self.rate_scale)
+        return saturation_point_kmoles * self.density
+
+    def step(self):
+        """Set the carbonation rate, which is used to weight exchanges"""
+        ppm = self._get_storage_ratio('co2_ratio_in') * 1e6
+        max_carbonation = self.calc_max_carbonation(ppm)
+        gradient = max(0, max_carbonation - self.carbonation)
+        self.carbonation_rate = gradient * self.diffusion_rate
+        self.carbonation += self.carbonation_rate
+        super().step()

@@ -11,7 +11,7 @@ from mesa.time import RandomActivation
 
 # from simoc_server import app  # TODO: Fix logger
 from agent_model.initializer import AgentModelInitializer
-from agent_model.agents.core import GeneralAgent, PlantAgent
+from agent_model.agents.core import GeneralAgent, PlantAgent, ConcreteAgent
 from agent_model.agents.data_collector import AgentDataCollector
 from agent_model.attribute_meta import AttributeHolder
 from agent_model.util import timedelta_to_hours, location_to_day_length_minutes
@@ -149,7 +149,12 @@ class AgentModel(Model, AttributeHolder):
             instance['init_type'] = initializer.init_type
             connections = instance.pop('connections', {})
             amount = instance.pop('amount', 1)
-            build_from_class = PlantAgent if agent_class == 'plants' else GeneralAgent
+            if agent_class == 'plants':
+                build_from_class = PlantAgent
+            elif agent_type == 'concrete':
+                build_from_class = ConcreteAgent
+            else:
+                build_from_class = GeneralAgent
             params = dict(model=self, agent_type=agent_type, agent_desc=agent_desc,
                           connections=connections, **instance)
             if self.single_agent == 1:

@@ -167,7 +167,8 @@
             "amount": 1
         },
         "concrete": {
-            "amount": 15800
+            "amount": 15800,
+            "carbonation": 0.00458
         },
         "b2_power_gen": {
             "amount": 1

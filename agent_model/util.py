@@ -351,6 +351,6 @@ def parse_data(data, path):
 #     axs[4][0].set_title('sun')
 #     plot_agent(data, 'b2_sun', 'storage', ax=axs[4][0], i=i, j=j)
 #     axs[4][1].set_title('concrete')
-#     plot_agent(data, 'concrete', 'flows', ax=axs[4][1], i=i, j=j)
+#     plot_agent(data, 'concrete', 'storage', ax=axs[4][1], i=i, j=j)
 #     axs[4][2].set_title('soil')
 #     plot_agent(data, 'soil', 'flows', ax=axs[4][2], i=i, j=j)

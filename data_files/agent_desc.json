@@ -7142,22 +7142,67 @@
       }
     },
     "concrete": {
-      "description": "1 m^2 of exposed calcifying concrete",
+      "description": "1 m^2 of exposed carbonating concrete",
       "data": {
         "input": [
           {
             "type": "co2",
-            "value": 0.00010295656390363414,
+            "value": 44.01,
+            "weighted": [
+              "carbonation_rate"
+            ],
             "flow_rate": {
               "unit": "kg",
               "time": "hour"
-            },
+            }
+          },
+          {
+            "type": "caoh2",
+            "value": 74.1,
             "weighted": [
-              "calcification_rate"
-            ]
+              "carbonation_rate"
+            ],
+            "requires": [
+              "co2"
+            ],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
           }
         ],
-        "output": [],
+        "output": [
+          {
+            "type": "caco3",
+            "value": 100.09,
+            "weighted": [
+              "carbonation_rate"
+            ],
+            "requires": [
+              "co2",
+              "caoh2"
+            ],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "moisture",
+            "value": 18.02,
+            "weighted": [
+              "carbonation_rate"
+            ],
+            "requires": [
+              "co2",
+              "caoh2"
+            ],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
         "characteristics": [
           {
             "type": "area",
@@ -7165,8 +7210,19 @@
             "unit": "m^2"
           },
           {
-            "type": "custom_function",
-            "value": "concrete"
+            "type": "capacity_caoh2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_caco3",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_moisture",
+            "value": 1000,
+            "unit": "kg"
           }
         ]
       }
