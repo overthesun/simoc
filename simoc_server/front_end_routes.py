@@ -114,7 +114,7 @@ def get_o2_co2():
 
     Returns
     -------
-    json object with energy value for agent
+    json object with o2 and co2 values for agent
     """
 
     agent_name = request.args.get('agent_name', type=str)
@@ -222,7 +222,7 @@ def build_connections_from_agent_desc(fpath):
         agent_desc = json.dump(arrows, f)
     return arrows
 
-def convert_configuration(game_config, agent_desc=None, save_output=True):
+def convert_configuration(game_config, agent_desc=None, save_output=False):
     """
     This method converts the json configuration from a post into a more complete configuration
     with connections.
@@ -313,10 +313,10 @@ def convert_configuration(game_config, agent_desc=None, save_output=True):
         }
     else:
         weights = {
-            'o2': 18.75,     # Estimated from Severinghaus Figure 1
-            'co2': 0.04,    # Estimated from Severinghaus Figure 1
-            'h2o': 1,       # SIMOC default
-            'n2': 80.21,    # Remainder of 100%
+            'o2': 18.75,  # Estimated from Severinghaus Figure 1
+            'co2': 0.04,  # Estimated from Severinghaus Figure 1
+            'h2o': 1,     # SIMOC default
+            'n2': 80.21,  # Remainder of 100%
             'h2': 0,
             'ch4': 0,
         }
