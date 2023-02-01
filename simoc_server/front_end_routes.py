@@ -274,9 +274,9 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
             'condition': 'time',
             'value': duration.get('value', 0) or 0,
             'unit': duration.get('type', 'day')})
-    location = working_config.pop('location')
+    location = working_config.pop('location', 'mars')
     is_b2 = location == 'b2'
-    full_game_config['location'] = 'earth' if is_b2 else 'mars'
+    full_game_config['location'] = 'earth' if is_b2 else location
     full_game_config['minutes_per_step'] = working_config.pop('minutes_per_step', 60)
     # Structures MUST step before other agents so that the `.._ratio` fields
     # are availble for threshold tests.
