@@ -14,10 +14,16 @@ import datetime
 import pathlib
 import copy
 
-from flask import request
+from flask import request, send_from_directory
 
 from simoc_server import app, db, redis_conn
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute
+
+
+@app.route('/simdata/<path:filename>')
+def serve_simdata(filename):
+    """Serve static simdata files."""
+    return send_from_directory('./dist/simdata', filename, as_attachment=False)
 
 
 @app.route('/get_mass', methods=['GET'])
