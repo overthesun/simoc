@@ -1,36 +1,55 @@
 {
     "atmosphere": {
         "o2": {
-            "label": "Oxygen"
+            "label": "Oxygen",
+            "short": "O₂",
+            "unit": "kg"
         },
         "co2": {
-            "label": "Carbon Dioxide"
+            "label": "Carbon Dioxide",
+            "short": "CO₂",
+            "unit": "kg"
         },
         "h2": {
-            "label": "Hydrogen"
+            "label": "Hydrogen",
+            "short": "H₂",
+            "unit": "kg"
         },
         "n2": {
-            "label": "Nitrogen"
+            "label": "Nitrogen",
+            "short": "N₂",
+            "unit": "kg"
         },
         "h2o": {
-            "label": "Water Vapor"
+            "label": "Water Vapor",
+            "short": "H₂O",
+            "unit": "kg"
         },
         "ch4": {
-            "label": "Methane"
+            "label": "Methane",
+            "short": "CH₄",
+            "unit": "kg"
         }
     },
     "nutrients": {
         "fertilizer": {
-            "label": "N-P-K Fertilizer"
+            "label": "N-P-K Fertilizer",
+            "short": "Fertilizer",
+            "unit": "kg"
         },
         "waste": {
-            "label": "Waste"
+            "label": "Waste",
+            "unit": "kg"
         },
         "biomass": {
-            "label": "Accumulated Biomass"
+            "label": "Accumulated Biomass",
+            "short": "Biomass",
+            "unit": "kg"
         },
         "inedible_biomass": {
-            "label": "Inedible Biomass"
+            "label": "Inedible Biomass",
+            "short": "Inedible",
+            "unit": "kg"
         }
     },
     "food": {
@@ -384,36 +403,48 @@
     },
     "water": {
         "treated": {
-            "label": "Treated Water"
+            "label": "Treated Water",
+            "unit": "kg"
         },
         "potable": {
-            "label": "Potable Water"
+            "label": "Potable Water",
+            "unit": "kg"
         },
         "urine": {
-            "label": "Urine"
+            "label": "Urine",
+            "unit": "kg"
         },
         "feces": {
-            "label": "Waste"
+            "label": "Waste",
+            "unit": "kg"
         }
     },
     "energy": {
         "kwh": {
-            "label": "Kilowatt-Hours"
+            "label": "Kilowatt-Hours",
+            "short": "kWh",
+            "unit": "kWh"
         },
         "par": {
             "label": "Photosynthetically Active Radiation",
+            "short": "PAR",
             "unit": "moles/m2-h"
         }
     },
     "structural": {
         "caoh2": {
-            "label": "Calcium Hydroxide"
+            "label": "Calcium Hydroxide",
+            "short": "Ca(OH)₂",
+            "unit": "kg"
         },
         "caco3": {
-            "label": "Calcium Carbonate"
+            "label": "Calcium Carbonate",
+            "short": "CaCO₃",
+            "unit": "kg"
         },
         "moisture": {
-            "label": "Water Content"
+            "label": "Retained Moisture",
+            "unit": "kg"
         }
     }
 }
