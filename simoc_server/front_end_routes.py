@@ -7,14 +7,17 @@ The front end routes which call the functions here are in views.py
 Note: the name of this script is misleading and should be changed
 """
 
+import os
+import sys
 import json
 import math
-import sys
-import datetime
-import pathlib
 import copy
+import gzip
+import pathlib
+import datetime
 
-from flask import request, send_from_directory
+from flask import request, make_response
+from werkzeug.security import safe_join
 
 from simoc_server import app, db, redis_conn
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute
@@ -22,8 +25,20 @@ from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 
 @app.route('/simdata/<path:filename>')
 def serve_simdata(filename):
-    """Serve static simdata files."""
-    return send_from_directory('./dist/simdata', filename, as_attachment=False)
+    """Serve static gzipped simdata files."""
+    simdata_dir = pathlib.Path(__file__).resolve().parent / "dist" / "simdata"
+    simdata_file = safe_join(simdata_dir, filename)  # prevent path traversal
+    try:
+        with open(simdata_file, 'rb') as f:
+            compressed_data = gzip.compress(f.read())
+    except FileNotFoundError:
+        return "Invalid simdata file", 404
+    else:
+        response = make_response(compressed_data)
+        response.headers['Content-length'] = len(compressed_data)
+        response.headers['Content-Encoding'] = 'gzip'
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
 
 @app.route('/get_mass', methods=['GET'])
