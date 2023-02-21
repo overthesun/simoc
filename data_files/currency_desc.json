@@ -428,7 +428,7 @@
         "par": {
             "label": "Photosynthetically Active Radiation",
             "short": "PAR",
-            "unit": "moles/m2-h"
+            "unit": "moles"
         }
     },
     "structural": {
