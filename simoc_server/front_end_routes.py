@@ -14,11 +14,12 @@ import datetime
 import pathlib
 import copy
 
+import numpy as np
 from flask import request, send_from_directory
 
 from simoc_server import app, db, redis_conn
 from simoc_server.database.db_model import AgentType, AgentTypeAttribute
-
+from agent_model.agents.custom_funcs import hourly_par_fraction, monthly_par
 
 @app.route('/simdata/<path:filename>')
 def serve_simdata(filename):
@@ -112,6 +113,29 @@ def get_energy():
     return json.dumps(total)
 
 
+def b2_plant_factor(plant, data, cache={}):
+    """Calculate and return an estimate of the actual:ideal exchange ratios at b2"""
+    if plant not in cache:
+        # par_factor
+        mean_monthly_par = sum(monthly_par) / len(monthly_par)
+        available_light = np.array(hourly_par_fraction) * mean_monthly_par
+        par_baseline = next(c['value'] for c in data['characteristics']
+                            if c['type'] == 'par_baseline')
+        photoperiod = next(c['value'] for c in data['characteristics']
+                            if c['type'] == 'photoperiod')
+        photo_start = int((24 // 2) - (photoperiod // 2))
+        photo_end = int(photo_start + photoperiod)
+        photo_rate = 24 / photoperiod
+        ideal_light = np.zeros(24)
+        ideal_light[photo_start:photo_end] = photo_rate * par_baseline
+        usable_light = np.minimum(available_light, ideal_light)
+        par_factor_hourly = usable_light / ideal_light
+        par_factor = np.mean(par_factor_hourly[photo_start:photo_end])
+        # density_factor
+        density_factor = 0.5
+        cache[plant] = par_factor * density_factor
+    return cache[plant]
+
 @app.route('/get_o2_co2', methods=['GET'])
 def get_o2_co2():
     """
@@ -125,13 +149,16 @@ def get_o2_co2():
 
     agent_name = request.args.get('agent_name', type=str)
     agent_quantity = request.args.get('quantity', 1, type=int) or 1
+    location = request.args.get('location', 'mars', type=str)
     agent_desc = load_from_basedir('data_files/agent_desc.json')
     total = {'o2': {'input': 0, 'output': 0}, 'co2': {'input': 0, 'output': 0}}
 
     data = None
-    for agent_class, agents in agent_desc.items():
+    agent_class = None
+    for _agent_class, agents in agent_desc.items():
         if agent_name in agents:
             data = agents[agent_name]['data']
+            agent_class = _agent_class
             break
     if data is None:
         raise ValueError('Agent not found in agent_desc:', agent_name)
@@ -139,8 +166,17 @@ def get_o2_co2():
     for direction in {'input', 'output'}:
         for exchange in data[direction]:
             for currency in {'o2', 'co2'}:
-                if exchange['type'] == currency:
-                    total[currency][direction] += exchange['value'] * agent_quantity
+                if exchange['type'] != currency:
+                    continue
+                amount = exchange['value'] * agent_quantity
+                # for B2, adjust for expected model outputs
+                if location == 'b2':
+                    if agent_class == 'plants':
+                        amount *= b2_plant_factor(agent_name, data)
+                    elif agent_name == 'concrete':
+                        carbonation_rate = 12.7 * (1.21 / 1000) * .000018 # @ Fresh concrete @ 350ppm
+                        amount *= carbonation_rate
+                total[currency][direction] += amount
 
     return json.dumps(total)
 
