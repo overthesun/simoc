@@ -164,12 +164,12 @@ class AgentDataCollector():
         if clear_cache:
             def _clear(section):
                 """Recursively clear lists while retaining and dict structures and strs"""
-                if isinstance(section, str):
-                    return section
                 if isinstance(section, list):
                     return []
                 elif isinstance(section, dict):
                     return {k: _clear(v) for k, v in section.items()}
+                else:
+                    return section
             for field in self.snapshot_attrs:
                 setattr(self, field, _clear(getattr(self, field)))
         return data
