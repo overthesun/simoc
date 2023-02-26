@@ -996,10 +996,11 @@ class ConcreteAgent(GeneralAgent):
             self.caco3 += self.attrs['out_caco3'] * self.carbonation * self.amount
             self.moisture += self.attrs['out_moisture'] * self.carbonation * self.amount
 
-    def calc_max_carbonation(self, ppm):
+    @classmethod
+    def calc_max_carbonation(cls, ppm):
         """Return max kmoles CO2 uptake by structural concrete"""
-        saturation_point_kmoles = np.interp(ppm, self.ppm_range, self.rate_scale)
-        return saturation_point_kmoles * self.density
+        saturation_point_kmoles = np.interp(ppm, cls.ppm_range, cls.rate_scale)
+        return saturation_point_kmoles * cls.density
 
     def step(self):
         """Set the carbonation rate, which is used to weight exchanges"""
