@@ -830,21 +830,15 @@ class PlantAgent(GeneralAgent):
         #   requires, which is centered about 12:00 noon. Values outside this
         #   period are 0, and during this period are calculated such that the
         #   mean of all numbers is 1.
-        hours_per_day = int(self.model.day_length_hours)
-        self.daily_growth = np.zeros(hours_per_day)
-        photoperiod = self.attrs['char_photoperiod']
-        photo_start = int((hours_per_day // 2) - (photoperiod // 2))
-        photo_end = int(photo_start + photoperiod)
-        photo_rate = hours_per_day / photoperiod
-        self.daily_growth[photo_start:photo_end] = photo_rate
-
-    def _init_currency_exchange(self):
-        super()._init_currency_exchange()
-        self.co2_scale = {}
-        for attr in self.attrs:
-            prefix, _ = attr.split('_', 1)
-            if prefix in ['in', 'out']:
-                self.co2_scale[attr] = 1
+        photoperiod = self.attrs.get('char_photoperiod', None)
+        if photoperiod is not None:
+            hours_per_day = int(self.model.day_length_hours)
+            self.daily_growth = np.zeros(hours_per_day)
+            photoperiod = self.attrs['char_photoperiod']
+            photo_start = int((hours_per_day // 2) - (photoperiod // 2))
+            photo_end = int(photo_start + photoperiod)
+            photo_rate = hours_per_day / photoperiod
+            self.daily_growth[photo_start:photo_end] = photo_rate
 
 
     def _get_step_value(self, attr, step_num):
@@ -932,25 +926,27 @@ class PlantAgent(GeneralAgent):
 
         # Update Weights
         self.growth_rate = (self['biomass'] / self.amount) / self.attrs['char_capacity_biomass']
-        hour_of_day = self.model.step_num % int(self.model.day_length_hours)
-        self.daily_growth_factor = self.daily_growth[hour_of_day]
-        self.cu_factor, self.te_factor = self._calculate_co2_response()
+        if self.carbon_fixation is not None:
+            hour_of_day = self.model.step_num % int(self.model.day_length_hours)
+            self.daily_growth_factor = self.daily_growth[hour_of_day]
+            self.cu_factor, self.te_factor = self._calculate_co2_response()
         # Light response
         # 12/22/22: Electric lamps and sunlight work differently.
         # - Lamp.par is multiplied by the lamp amount (to scale kwh consumption)
         # - Sun.par is not, because there's nothing to scale and plants can't
         #   compete over it. Sunlight also can't be incremented.
-        light_type = self.connections['in']['par'][0]
-        light_agent = self.model.get_agents_by_type(light_type)[0]
-        is_electric = ('lamp' in light_type)
-        par_ideal = self.attrs['char_par_baseline'] * self.daily_growth_factor
-        if is_electric:
-            par_ideal *= self.amount
-        par_available = light_agent['par']
-        par_actual = min(par_available, par_ideal)
-        if is_electric and par_actual > 0:
-            light_agent.increment('par', -par_actual)
-        self.par_factor = 0 if par_ideal == 0 else min(1, par_actual / par_ideal)
+        if 'char_par_baseline' in self.attrs:
+            light_type = self.connections['in']['par'][0]
+            light_agent = self.model.get_agents_by_type(light_type)[0]
+            is_electric = ('lamp' in light_type)
+            par_ideal = self.attrs['char_par_baseline'] * self.daily_growth_factor
+            if is_electric:
+                par_ideal *= self.amount
+            par_available = light_agent['par']
+            par_actual = min(par_available, par_ideal)
+            if is_electric and par_actual > 0:
+                light_agent.increment('par', -par_actual)
+            self.par_factor = 0 if par_ideal == 0 else min(1, par_actual / par_ideal)
 
         super().step()
 
