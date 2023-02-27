@@ -67,23 +67,23 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
     retries_left = max_retries
     step_count = max(0, min_step_num - 1)
     steps_sent = False
-    redis_conn.set(f'sid_mapping:{game_id}', sid)
-    redis_conn.expire(f'sid_mapping:{game_id}', expire)
+    redis_conn.set(f'sid_mapping:{sid}', game_id)
+    redis_conn.expire(f'sid_mapping:{sid}', expire)
     try:
         while not steps_sent:
             socketio.sleep(timeout)
-            stop_task = redis_conn.get(f'stop_task:{sid}')
+            stop_task = redis_conn.get(f'stop_task:{game_id}')
             stop_task = bool(stop_task.decode("utf-8")) if stop_task else None
             if stop_task:
                 app.logger.info("Bg task closed")
                 break
             output = retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num)
-            batch_num += output.pop('n_batches', 0)
-            step_count += output['n_steps']
-            if step_count == 0:
+            if output['n_steps'] == 0:
                 retries_left -= 1
                 app.logger.info(f'0 steps retrieved, {retries_left} retries left.')
             else:
+                batch_num += output.pop('n_batches', 0)
+                step_count += output['n_steps']
                 socketio.emit('step_data_handler',
                               {'data': output, 'step_count': step_count, 'max_steps': n_steps},
                               room=sid)
@@ -113,10 +113,9 @@ def get_steps_handler(message):
     if "data" not in message:
         raise BadRequest("data is required.")
     user_id = get_standard_user_obj().id
-    sid = redis_conn.get(f'sid_mapping:{int(message["data"]["game_id"], 16)}')
-    sid = sid.decode("utf-8") if sid else None
-    if sid:
-        redis_conn.set('stop_task:{}'.format(sid), 1)
+    old_game_id = redis_conn.get(f'sid_mapping:{request.sid}')
+    if old_game_id:
+        redis_conn.set('stop_task:{}'.format(old_game_id), 1)
     socketio.start_background_task(get_steps_background, message['data'], user_id, request.sid)
 
 
@@ -463,6 +462,7 @@ def get_last_game_id():
 
 
 def kill_game_by_id(game_id):
+    redis_conn.set('stop_task:{}'.format(game_id), '1')
     task_id = redis_conn.get('task_mapping:{}'.format(game_id))
     task_id = task_id.decode("utf-8") if task_id else task_id
     app.logger.info(f"kill_game_by_id({game_id=:X}): revoke {task_id}")
