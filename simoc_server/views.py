@@ -115,7 +115,7 @@ def get_steps_handler(message):
     user_id = get_standard_user_obj().id
     old_game_id = redis_conn.get(f'sid_mapping:{request.sid}')
     if old_game_id:
-        redis_conn.set('stop_task:{}'.format(old_game_id), 1)
+        redis_conn.set(f'stop_task:{old_game_id}', 1)
     socketio.start_background_task(get_steps_background, message['data'], user_id, request.sid)
 
 
@@ -462,7 +462,7 @@ def get_last_game_id():
 
 
 def kill_game_by_id(game_id):
-    redis_conn.set('stop_task:{}'.format(game_id), '1')
+    redis_conn.set(f'stop_task:{game_id}', 1)
     task_id = redis_conn.get('task_mapping:{}'.format(game_id))
     task_id = task_id.decode("utf-8") if task_id else task_id
     app.logger.info(f"kill_game_by_id({game_id=:X}): revoke {task_id}")
