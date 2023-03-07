@@ -17,7 +17,7 @@ import pathlib
 import datetime
 
 import numpy as np
-from flask import request, make_response
+from flask import request, Response
 from werkzeug.security import safe_join
 
 from simoc_server import app, db, redis_conn
