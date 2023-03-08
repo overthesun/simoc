@@ -18,5 +18,5 @@ redis==4.3.4
 scikit-learn==1.2.0
 scipy==1.9.3
 setuptools==65.7.0
-sqlalchemy==1.4.46
+sqlalchemy==2.0.5.post1
 werkzeug==2.2.3
