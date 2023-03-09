@@ -819,9 +819,12 @@ class PlantAgent(GeneralAgent):
         else:
             self.lifetime = 0
         self.reproduce = self.attrs.get('char_reproduce', 0)
-        self.carbon_fixation = self.attrs.get('char_carbon_fixation', None)
         self.density_factor = self.attrs.get('char_density_factor', 1)
         self.crop_management_factor = self.attrs.get('char_crop_management_factor', 1)
+        self.carbon_fixation = self.attrs.get('char_carbon_fixation', None)
+        if self.carbon_fixation is not None:
+            self.cu_factor = 0
+            self.te_factor = 0
 
         # Create the `daily_growth` attribute:
         # - Length is equal to the number of steps per day (e.g. 24)
@@ -839,6 +842,7 @@ class PlantAgent(GeneralAgent):
             photo_end = int(photo_start + photoperiod)
             photo_rate = hours_per_day / photoperiod
             self.daily_growth[photo_start:photo_end] = photo_rate
+            self.par_factor = 0
 
 
     def _get_step_value(self, attr, step_num):
@@ -925,10 +929,10 @@ class PlantAgent(GeneralAgent):
             self.grown = True  # Complete last flow cycle and terminate next step
 
         # Update Weights
+        hour_of_day = self.model.step_num % int(self.model.day_length_hours)
+        self.daily_growth_factor = self.daily_growth[hour_of_day]
         self.growth_rate = (self['biomass'] / self.amount) / self.attrs['char_capacity_biomass']
         if self.carbon_fixation is not None:
-            hour_of_day = self.model.step_num % int(self.model.day_length_hours)
-            self.daily_growth_factor = self.daily_growth[hour_of_day]
             self.cu_factor, self.te_factor = self._calculate_co2_response()
         # Light response
         # 12/22/22: Electric lamps and sunlight work differently.
