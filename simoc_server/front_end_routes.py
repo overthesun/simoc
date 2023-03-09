@@ -17,7 +17,7 @@ import pathlib
 import datetime
 
 import numpy as np
-from flask import request, make_response
+from flask import request, Response
 from werkzeug.security import safe_join
 
 from simoc_server import app, db, redis_conn
@@ -28,18 +28,16 @@ from agent_model.agents.custom_funcs import hourly_par_fraction, monthly_par
 def serve_simdata(filename):
     """Serve static gzipped simdata files."""
     simdata_dir = pathlib.Path(__file__).resolve().parent / "dist" / "simdata"
-    simdata_file = safe_join(simdata_dir, filename)  # prevent path traversal
+    fname_gz = filename + '.gz'
+    simdata_file = safe_join(simdata_dir, fname_gz)  # prevent path traversal
     try:
         with open(simdata_file, 'rb') as f:
-            compressed_data = gzip.compress(f.read())
+            data = f.read()
     except FileNotFoundError:
         return "Invalid simdata file", 404
     else:
-        response = make_response(compressed_data)
-        response.headers['Content-length'] = len(compressed_data)
-        response.headers['Content-Encoding'] = 'gzip'
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return Response(data, mimetype='application/json',
+                        headers={'Content-Encoding': 'gzip'})
 
 
 @app.route('/get_mass', methods=['GET'])
