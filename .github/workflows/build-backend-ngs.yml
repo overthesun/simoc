@@ -157,6 +157,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.GKE_PROJECT }}
+          install_components: "gke-gcloud-auth-plugin"
       - name: Use gcloud CLI
         run: gcloud info
       - name: Configure GKE
