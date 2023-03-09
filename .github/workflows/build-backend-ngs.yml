@@ -34,6 +34,8 @@ env:
   FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
   REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
   K8S_CONFIG: simoc_k8s_ngs.env
+  USE_GKE_GCLOUD_AUTH_PLUGIN: true
+
 
 jobs:
   ci:
