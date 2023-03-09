@@ -56,6 +56,12 @@ jobs:
           ref: ${{ github.event.inputs.fe_branch }}
           token: ${{ secrets.ACCESS_TOKEN }}
           path: simoc-web
+      - name: Set up Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Export gcloud related env variable
+        run: export CLOUDSDK_PYTHON="/usr/bin/python3"
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v0
         with:
@@ -143,6 +149,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+      - name: Export gcloud related env variable
+        run: export CLOUDSDK_PYTHON="/usr/bin/python3"
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v0
         with:
