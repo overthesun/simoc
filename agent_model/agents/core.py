@@ -929,8 +929,9 @@ class PlantAgent(GeneralAgent):
             self.grown = True  # Complete last flow cycle and terminate next step
 
         # Update Weights
-        hour_of_day = self.model.step_num % int(self.model.day_length_hours)
-        self.daily_growth_factor = self.daily_growth[hour_of_day]
+        if hasattr(self, 'daily_growth'):
+            hour_of_day = self.model.step_num % int(self.model.day_length_hours)
+            self.daily_growth_factor = self.daily_growth[hour_of_day]
         self.growth_rate = (self['biomass'] / self.amount) / self.attrs['char_capacity_biomass']
         if self.carbon_fixation is not None:
             self.cu_factor, self.te_factor = self._calculate_co2_response()
