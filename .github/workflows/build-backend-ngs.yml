@@ -59,7 +59,7 @@ jobs:
       - name: Set up Python Environment
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.9'
       - name: Export gcloud related env variable
         run: export CLOUDSDK_PYTHON="/usr/bin/python3"
       - name: Set up gcloud CLI
@@ -148,7 +148,7 @@ jobs:
       - name: Set up Python Environment
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.9'
       - name: Export gcloud related env variable
         run: export CLOUDSDK_PYTHON="/usr/bin/python3"
       - name: Set up gcloud CLI
