@@ -962,8 +962,9 @@ class PlantAgent(GeneralAgent):
     def kill(self, number, reason):
         dead_biomass = (number / self.amount) * self.biomass
         self.biomass -= dead_biomass
-        self.selected_storage['out']['inedible_biomass'][0].increment(
-            'inedible_biomass', dead_biomass)
+        if 'inedible_biomass' in self.selected_storage['out']:
+            self.selected_storage['out']['inedible_biomass'][0].increment(
+                'inedible_biomass', dead_biomass)
         super().kill(number, reason)
 
 
