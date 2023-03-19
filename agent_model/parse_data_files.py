@@ -324,7 +324,10 @@ def merge_json(default, user):
         if len(user) == 0:
             return default
         if 'type' not in user[0]:
-            return default + user
+            if isinstance(user[0], str):
+                return sorted(set(default + user))
+            else:
+                return default + user
         merged = []
         used_types = set()
         for item in user:
