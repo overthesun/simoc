@@ -7,9 +7,9 @@ Depending on your use case, infrastructure and environment,
 you can choose out of multiple deployment scenarios supported by `SIMOC`.
 
 Please use the corresponding guide based on your set up:
-- [Run SIMOC locally on Linux/macOS using Docker (recommended)](https://github.com/overthesun/simoc/blob/master/docs/setup.rst)
-- [Manually install and run SIMOC locally (without Docker)](https://github.com/overthesun/simoc/blob/master/docs/local-deployment.rst)
-- [Deploy SIMOC to Google Kubernetes Engine](https://github.com/overthesun/simoc/blob/master/docs/gcp-deployment.rst)
+- [Run SIMOC locally on Linux/macOS using Docker (recommended)](https://simoc.space/docs/user_guide/developer/docker-deployment.html)
+- [Manually install and run SIMOC locally (without Docker)](https://simoc.space/docs/user_guide/developer/local-deployment.html)
+- [Deploy SIMOC to Google Kubernetes Engine](https://simoc.space/docs/user_guide/developer/gcp-deployment.html)
 
 ## Jupyter Workflow
 
