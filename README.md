@@ -13,7 +13,7 @@ See also [the repository setup instructions](https://simoc.space/docs/user_guide
 The documentation also includes other possible options (some of which are no longer supported):
 - [Deploy SIMOC to Google Kubernetes Engine](https://simoc.space/docs/user_guide/developer/gcp-deployment.html)
 - [Manually install and run SIMOC locally without Docker (possibly outdated)](https://simoc.space/docs/user_guide/developer/local-deployment.html)
-- [Run SIMOC locally on Linux/macOS using Docker (outdated)](https://simoc.space/docs/user_guide/developer/docker-deployment.html)
+<!-- - [Run SIMOC locally on Linux/macOS using Docker (outdated)](https://simoc.space/docs/user_guide/developer/docker-deployment.html) -->
 
 ## Jupyter Workflow
 
