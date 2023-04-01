@@ -28,8 +28,8 @@ from agent_model.agents.custom_funcs import hourly_par_fraction, monthly_par
 def serve_simdata(filename):
     """Serve static gzipped simdata files."""
     simdata_dir = pathlib.Path(__file__).resolve().parent / "dist" / "simdata"
-    fname_gz = filename + '.gz'
-    simdata_file = safe_join(simdata_dir, fname_gz)  # prevent path traversal
+    simdata_file = safe_join(simdata_dir, filename)  # prevent path traversal
+    app.logger.info(f'Serving preset simdata file: {simdata_file}')
     try:
         with open(simdata_file, 'rb') as f:
             data = f.read()
