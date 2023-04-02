@@ -624,13 +624,11 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     if save_output:
         timestamp = datetime.datetime.now()
         timestamp = timestamp.strftime("%m%d%H%M%S")
-        with open(f"full_game_config_{timestamp}.json", "w") as f:
-            json.dump(full_game_config, f)
-        with open(f"user_agent_desc_{timestamp}.json", 'w') as f:
-            json.dump(user_agent_desc, f)
-        with open(f"user_agent_conn_{timestamp}.json", "w") as f:
-            json.dump(user_agent_conn, f)
-
+        data = dict(config=full_game_config,
+                    agent_desc=user_agent_desc,
+                    agent_conn=user_agent_conn)
+        with open(f"config_converted_{timestamp}.json", "w") as f:
+            json.dump(data, f)
     return full_game_config, user_agent_desc, user_agent_conn
 
 
