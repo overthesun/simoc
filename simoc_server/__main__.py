@@ -6,7 +6,6 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 # from simoc_server import db
-# from simoc_server.game_runner import GameRunnerManager, GameRunnerInitializationParams
 # from simoc_server.database.db_model import User, ModelRecord, StepRecord
 from simoc_server.serialize.serializer import JsonSerializer,  set_serializer
 
