@@ -321,6 +321,8 @@ def merge_json(default, user):
         # There are three possible cases for lists:
         # 1. If list elements don't have a 'type' attribute, just concatinate
         #    the lists (e.g. connections in agent_conn.json)
+        if len(user) == 0:
+            return default
         if 'type' not in user[0]:
             return default + user
         merged = []

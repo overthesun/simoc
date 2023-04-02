@@ -57,26 +57,26 @@ jobs:
           node-version: 'lts/*'
           check-latest: true
       - name: Download preset simdata
-        working-directory: simoc-web/src/assets
+        working-directory: simoc-web/public
         run: |
           mkdir simdata
           cd simdata
-          wget -r -nH --cut-dirs=2 --no-parent --accept="*.json" -erobots=off -q https://simoc.space/download/simdata/
-          ls
+          wget -r -nH --cut-dirs=2 --no-parent --accept="*.gz" -erobots=off -q https://simoc.space/download/simdata/
+          ls -ld $PWD/*
       - name: Download skybox
         working-directory: simoc-web/src/assets
         run: |
           mkdir skybox
           cd skybox
           wget -r -nH --cut-dirs=2 --no-parent --accept="*.jpg" -erobots=off -q https://simoc.space/download/skybox/
-          ls
+          ls -ld $PWD/*
       - name: Download models
         working-directory: simoc-web/src/assets
         run: |
           mkdir models
           cd models
           wget -r -nH --cut-dirs=2 --no-parent --accept="*.glb" -erobots=off -q https://simoc.space/download/models/
-          ls
+          ls -ld $PWD/*
       - name: npm install
         working-directory: simoc-web
         run: |
@@ -88,7 +88,9 @@ jobs:
           echo "node $(node --version); npm $(npm --version)"
       - name: Build
         working-directory: simoc-web
-        run: npm run build
+        run: |
+          npm run build
+          ls -ld $PWD/dist/*
       - name: Create Backend Artifacts
         run: |-
           rm -rf simoc/simoc_server/dist

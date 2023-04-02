@@ -41,7 +41,11 @@ class GameRunner(object):
         self.agent_model = agent_model
         self.agent_model.user_id = self.user.id
         self.agent_model.game_id = self.game_id
-        self.agent_model.start_time = self.start_time
+        # With the SIMOC-B2 update, agent_model.start_time is set to the
+        # simulated date/time so that the `b2_sun` agent produces the
+        # appropriate value. Previously it was set here to the user date/time
+        # but doesn't seem to be used anywhere, so I removed it.
+        # self.agent_model.start_time = self.start_time
         self.step_thread = None
         self.last_accessed = None
         self.last_saved_step = last_saved_step

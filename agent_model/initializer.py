@@ -2,12 +2,14 @@ import numpy as np
 import json
 import random
 import pathlib
+from datetime import datetime
 
 from agent_model.exceptions import AgentModelInitializationError
 from agent_model.parse_data_files import parse_currency_desc, parse_agent_desc, \
                                          parse_agent_events, parse_agent_conn, merge_json
 
 _DEFAULT_LOCATION = 'mars'
+_DEFAULT_START_TIME = '1991-01-01 00:00:00'
 _DATA_FILES_DIR = pathlib.Path(__file__).parent.parent / 'data_files'
 def load_data_file(fname):
     try:
@@ -44,6 +46,7 @@ class AgentModelInitializer():
         self.init_type = init_type
 
     def default_model_data():
+        start_time = datetime.fromisoformat(_DEFAULT_START_TIME)
         return dict(
             seed=random.getrandbits(32),
             global_entropy=0,
@@ -51,7 +54,8 @@ class AgentModelInitializer():
             termination=[],
             priorities=[],
             location=_DEFAULT_LOCATION,
-            minutes_per_step=60
+            minutes_per_step=60,
+            start_time=start_time,
         )
 
     @classmethod
@@ -80,6 +84,12 @@ class AgentModelInitializer():
                         errors['model']['seed'] = 'seed must be an integer'
                         continue
                     value = value % 2**32
+                elif key == 'start_time':
+                    try:
+                        value = datetime.fromisoformat(value)
+                    except ValueError as e:
+                        errors['model']['start_time'] = 'start_time must be ISO format, e.g. 1991-01-01 00:00:00'
+                        continue
                 model_data[key] = value
             else:
                 errors['model'][key] = 'unrecognized'
@@ -166,7 +176,8 @@ class AgentModelInitializer():
             if agent not in agent_desc:
                 continue
             valid_instance = {}
-            non_currency_fields = ['id', 'amount', 'total_capacity', 'connections', 'delay_start']
+            non_currency_fields = ['id', 'amount', 'total_capacity',
+                                   'connections', 'delay_start', 'carbonation']
             for field, value in instance.items():
                 if field not in non_currency_fields and field not in model_data['currency_dict']:
                     _agent_error(agent, field, "Unrecognized field in agent instance")
