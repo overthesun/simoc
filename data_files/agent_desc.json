@@ -732,6 +732,55 @@
         ]
       },
       "description": "Vents methane from the habitat, removing it from the system."
+    },
+    "o2_makeup_valve": {
+      "description": "Add O2 gas from o2_storage back into connected structure",
+      "data": {
+        "input": [
+          {
+            "type": "o2",
+            "value": 0.085,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "required": "mandatory",
+            "criteria": {
+              "name": "o2_ratio_out",
+              "limit": "<",
+              "value": 0.2
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 0.085,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            },
+            "requires": [
+              "o2"
+            ]
+          }
+        ],
+        "characteristics": []
+      }
+    },
+    "o2_storage": {
+      "description": "Pressurized O2 storage",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "capacity_o2",
+            "value": 100000,
+            "unit": "kg"
+          }
+        ]
+      }
     }
   },
   "plants": {
@@ -854,7 +903,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -922,6 +973,14 @@
             "type": "capacity_biomass",
             "value": 1.1016,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -1046,7 +1105,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -1114,6 +1175,14 @@
             "type": "capacity_biomass",
             "value": 3.334464,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -1238,7 +1307,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -1306,6 +1377,14 @@
             "type": "capacity_biomass",
             "value": 0.46308,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -1430,7 +1509,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -1498,6 +1579,14 @@
             "type": "capacity_biomass",
             "value": 0.39204,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -1622,7 +1711,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -1690,6 +1781,14 @@
             "type": "capacity_biomass",
             "value": 0.6966,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -1814,7 +1913,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -1882,6 +1983,14 @@
             "type": "capacity_biomass",
             "value": 0.19944,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -2006,7 +2115,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -2074,6 +2185,14 @@
             "type": "capacity_biomass",
             "value": 0.17712,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -2198,7 +2317,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -2266,6 +2387,14 @@
             "type": "capacity_biomass",
             "value": 0.567168,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -2390,7 +2519,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -2458,6 +2589,14 @@
             "type": "capacity_biomass",
             "value": 0.6384,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -2582,7 +2721,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -2650,6 +2791,14 @@
             "type": "capacity_biomass",
             "value": 0.67608,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -2774,7 +2923,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -2842,6 +2993,14 @@
             "type": "capacity_biomass",
             "value": 1.08144,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -2966,7 +3125,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -3034,6 +3195,14 @@
             "type": "capacity_biomass",
             "value": 1.693368,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -3158,7 +3327,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -3226,6 +3397,14 @@
             "type": "capacity_biomass",
             "value": 0.4044,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -3350,7 +3529,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -3418,6 +3599,14 @@
             "type": "capacity_biomass",
             "value": 0.456,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -3542,7 +3731,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -3610,6 +3801,14 @@
             "type": "capacity_biomass",
             "value": 1.6308,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -3734,7 +3933,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -3802,6 +4003,14 @@
             "type": "capacity_biomass",
             "value": 1.59528,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -3926,7 +4135,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -3994,6 +4205,14 @@
             "type": "capacity_biomass",
             "value": 2.04408,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -4118,7 +4337,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -4186,6 +4407,14 @@
             "type": "capacity_biomass",
             "value": 0.2226,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -4310,7 +4539,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -4378,6 +4609,14 @@
             "type": "capacity_biomass",
             "value": 0.307344,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -4502,7 +4741,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -4570,6 +4811,14 @@
             "type": "capacity_biomass",
             "value": 0.909,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -4694,7 +4943,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -4762,6 +5013,14 @@
             "type": "capacity_biomass",
             "value": 2.58264,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -4886,7 +5145,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -4954,6 +5215,14 @@
             "type": "capacity_biomass",
             "value": 2.79468,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -5078,7 +5347,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -5146,6 +5417,14 @@
             "type": "capacity_biomass",
             "value": 3.334464,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -5270,7 +5549,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -5338,6 +5619,14 @@
             "type": "capacity_biomass",
             "value": 0.24864,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -5462,7 +5751,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -5530,6 +5821,14 @@
             "type": "capacity_biomass",
             "value": 3.334464,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -5654,7 +5953,9 @@
             "weighted": [
               "daily_growth_factor",
               "par_factor",
-              "cu_factor"
+              "cu_factor",
+              "density_factor",
+              "crop_management_factor"
             ]
           },
           {
@@ -5722,6 +6023,14 @@
             "type": "capacity_biomass",
             "value": 0.880992,
             "unit": "kg"
+          },
+          {
+            "type": "density_factor",
+            "value": 1
+          },
+          {
+            "type": "crop_management_factor",
+            "value": 1
           }
         ]
       },
@@ -6329,6 +6638,594 @@
           }
         ]
       }
+    },
+    "b2_sun": {
+      "description": "Sunlight available to plants in the greenhouse_b2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "par_baseline",
+            "value": 1,
+            "unit": "mol/m2-hr"
+          },
+          {
+            "type": "capacity_par",
+            "value": 5,
+            "unit": "mol"
+          },
+          {
+            "type": "custom_function",
+            "value": "b2_sun"
+          }
+        ]
+      }
+    },
+    "greenhouse_b2": {
+      "description": "The Intensive Agriculture Biome at Biosphere 2",
+      "data": {
+        "input": [
+          {
+            "type": "o2",
+            "value": 0.00016862020502291666,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "co2",
+            "value": 0.0004638399414375,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "soil",
+            "value": 1.36,
+            "unit": "m^3"
+          },
+          {
+            "type": "water",
+            "value": 0.03,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 17.61,
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 22.0125,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 22.0125,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 22.0125,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 22.0125,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 22.0125,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 22.0125,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "crew_habitat_b2": {
+      "description": "The Crew Habitat at Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "soil",
+            "value": 0.002,
+            "unit": "m^3"
+          },
+          {
+            "type": "water",
+            "value": 0.001,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 10.997,
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 13.74625,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 13.74625,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 13.74625,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 13.74625,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 13.74625,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 13.74625,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "rainforest_biome": {
+      "description": "The Rainforest Biome at Biosphere 2",
+      "data": {
+        "input": [
+          {
+            "type": "o2",
+            "value": 9.523571406249998e-05,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "co2",
+            "value": 0.00026197410937500016,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "soil",
+            "value": 3.0,
+            "unit": "m^3"
+          },
+          {
+            "type": "water",
+            "value": 0.05,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 14.45,
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 18.0625,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 18.0625,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 18.0625,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 18.0625,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 18.0625,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 18.0625,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "desert_biome": {
+      "description": "The Desert Biome at Biosphere 2",
+      "data": {
+        "input": [
+          {
+            "type": "co2",
+            "value": 9.125198437500002e-05,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "o2",
+            "value": 3.317292656250001e-05,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "soil",
+            "value": 2.857142857142857,
+            "unit": "m^3"
+          },
+          {
+            "type": "water",
+            "value": 0.21428571428571427,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 12.571428571428571,
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 15.714285714285714,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 15.714285714285714,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 15.714285714285714,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 15.714285714285714,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 15.714285714285714,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 15.714285714285714,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "west_lung": {
+      "description": "The West Lung at Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "volume",
+            "value": 8.333333333333334,
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "south_lung": {
+      "description": "The South Lung at Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "water",
+            "value": 0.4166666666666667,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 8.333333333333334,
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 10.416666666666668,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "ocean_biome": {
+      "description": "The Ocean Biome at Biosphere 2",
+      "data": {
+        "input": [],
+        "output": [],
+        "characteristics": [
+          {
+            "type": "water",
+            "value": 3.939745075318656,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 16.64,
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 20.8,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 20.8,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 20.8,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 20.8,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 20.8,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 20.8,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "savannah_biome": {
+      "description": "The Savannah Biome at Biosphere 2",
+      "data": {
+        "input": [
+          {
+            "type": "o2",
+            "value": 0.0001362931322022627,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "co2",
+            "value": 0.00037491472893440747,
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "soil",
+            "value": 2.4434941967012827,
+            "unit": "m^3"
+          },
+          {
+            "type": "volume",
+            "value": 16.639999999999997,
+            "unit": "m^3"
+          },
+          {
+            "type": "capacity_h2",
+            "value": 20.799999999999997,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_h2o",
+            "value": 20.799999999999997,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_ch4",
+            "value": 20.799999999999997,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_o2",
+            "value": 20.799999999999997,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_n2",
+            "value": 20.799999999999997,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_co2",
+            "value": 20.799999999999997,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    "concrete": {
+      "description": "1 m^2 of exposed carbonating concrete",
+      "data": {
+        "input": [
+          {
+            "type": "co2",
+            "value": 44.01,
+            "weighted": [
+              "carbonation_rate"
+            ],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "caoh2",
+            "value": 74.1,
+            "weighted": [
+              "carbonation_rate"
+            ],
+            "requires": [
+              "co2"
+            ],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "output": [
+          {
+            "type": "caco3",
+            "value": 100.09,
+            "weighted": [
+              "carbonation_rate"
+            ],
+            "requires": [
+              "co2",
+              "caoh2"
+            ],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          },
+          {
+            "type": "moisture",
+            "value": 18.02,
+            "weighted": [
+              "carbonation_rate"
+            ],
+            "requires": [
+              "co2",
+              "caoh2"
+            ],
+            "flow_rate": {
+              "unit": "kg",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "area",
+            "value": 1,
+            "unit": "m^2"
+          },
+          {
+            "type": "capacity_caoh2",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_caco3",
+            "value": 1000,
+            "unit": "kg"
+          },
+          {
+            "type": "capacity_moisture",
+            "value": 1000,
+            "unit": "kg"
+          }
+        ]
+      }
     }
   },
   "fabrication": {},
@@ -6455,6 +7352,28 @@
             "type": "volume",
             "value": 0,
             "unit": "m^3"
+          }
+        ]
+      }
+    },
+    "b2_power_gen": {
+      "description": "The Biosphere 2 power generation facility",
+      "data": {
+        "input": [],
+        "output": [
+          {
+            "type": "kwh",
+            "value": 1000,
+            "flow_rate": {
+              "unit": "kWh",
+              "time": "hour"
+            }
+          }
+        ],
+        "characteristics": [
+          {
+            "type": "category",
+            "value": "power"
           }
         ]
       }

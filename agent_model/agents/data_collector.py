@@ -19,10 +19,13 @@ class AgentDataCollector():
         # Plants
         if agent.agent_class == 'plants':
             self.snapshot_attrs.append('growth')
-            self.growth = dict(par_factor=[], cu_factor=[],
-                               te_factor=[], growth_rate=[],
-                               grown=[], agent_step_num=[])
-
+            self.growth = dict(par_factor=[], cu_factor=[], te_factor=[],
+                density_factor=[], crop_management_factor=[], growth_rate=[],
+                grown=[], agent_step_num=[])
+        # Concrete
+        if agent.agent_type == 'concrete':
+            self.snapshot_attrs.append('growth')
+            self.growth = dict(carbonation_rate=[], carbonation=[])
         # Dynamic Fields
         for attr, attr_value in self.agent.attrs.items():
             if attr_value == 0:
@@ -54,10 +57,19 @@ class AgentDataCollector():
                     self.snapshot_attrs.append('flows')
                     self.flows = {'in': {}, 'out': {}}
                 prefix, currency = attr.split('_', 1)
-                if 'currency' not in self.flows[prefix]:
+                currency_desc = self.agent.model.currency_dict.get(currency)
+                # Regular currencies
+                if currency_desc['type'] == 'currency':
                     self.flows[prefix][currency] = {}
-                for storage in self.agent.selected_storage[prefix][currency]:
-                    self.flows[prefix][currency][storage.agent_type] = []
+                    for storage in self.agent.selected_storage[prefix][currency]:
+                        self.flows[prefix][currency][storage.agent_type] = []
+                # Currency classes
+                elif currency_desc['type'] == 'currency_class':
+                    for class_currency in currency_desc['currencies']:
+                        self.flows[prefix][class_currency] = {}
+                    for storage in self.agent.selected_storage[prefix][currency]:
+                        for class_currency in currency_desc['currencies']:
+                            self.flows[prefix][class_currency][storage.agent_type] = []
                 # Buffer
                 cr_buffer = self.agent.attr_details[attr]['criteria_buffer']
                 if cr_buffer:
@@ -152,12 +164,12 @@ class AgentDataCollector():
         if clear_cache:
             def _clear(section):
                 """Recursively clear lists while retaining and dict structures and strs"""
-                if isinstance(section, str):
-                    return section
                 if isinstance(section, list):
                     return []
                 elif isinstance(section, dict):
                     return {k: _clear(v) for k, v in section.items()}
+                else:
+                    return section
             for field in self.snapshot_attrs:
                 setattr(self, field, _clear(getattr(self, field)))
         return data
