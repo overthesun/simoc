@@ -16,7 +16,7 @@ pytimeparse==1.1.8
 quantities==0.13.0
 redis==4.5.4
 scikit-learn==1.2.0
-scipy==1.9.3
+scipy==1.10.1
 setuptools==65.7.0
 sqlalchemy==1.4.46
 werkzeug==2.2.3
