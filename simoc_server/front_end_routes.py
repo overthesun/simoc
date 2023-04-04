@@ -21,7 +21,6 @@ from flask import request, Response
 from werkzeug.security import safe_join
 
 from simoc_server import app, db, redis_conn
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute
 from agent_model.agents.custom_funcs import hourly_par_fraction, monthly_par
 
 @app.route('/simdata/<path:filename>')
@@ -38,40 +37,7 @@ def serve_simdata(filename):
     else:
         return Response(data, mimetype='application/json',
                         headers={'Content-Encoding': 'gzip'})
-
-
-@app.route('/get_mass', methods=['GET'])
-def get_mass():
-    """
-    Sends front end mass values for config wizard.
-    Takes in the request values 'agent_name' and 'quantity'
-
-    Returns
-    -------
-    json object with total mass
-    """
-
-    value = 0
-    agent_name = request.args.get('agent_name', type=str)
-    agent_quantity = request.args.get('quantity', 1, type=int) or 1
-    if agent_name == 'eclss':
-        total = 0
-        for agent in db.session.query(AgentType, AgentTypeAttribute) \
-          .filter(AgentType.id == AgentTypeAttribute.agent_type_id) \
-          .filter(AgentTypeAttribute.name == 'char_mass') \
-          .filter(AgentType.agent_class == 'eclss').all():
-            total += float(agent.AgentTypeAttribute.value)
-        value = total
-    else:
-        for agent in db.session.query(AgentType, AgentTypeAttribute) \
-          .filter(AgentType.id == AgentTypeAttribute.agent_type_id) \
-          .filter(AgentTypeAttribute.name == 'char_mass').all():
-            if agent.AgentType.name == agent_name:
-                value = float(agent.AgentTypeAttribute.value)
-    value = value * agent_quantity
-    total = {'mass': value}
-    return json.dumps(total)
-
+    
 
 @app.route('/get_energy', methods=['GET'])
 def get_energy():

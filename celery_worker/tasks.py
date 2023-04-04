@@ -52,30 +52,6 @@ def get_user(username, num_retries=30, interval=1):
             return user[0]
 
 
-# TODO: Disabled until save_game is fixed
-# @app.task
-# def load_game(username, saved_game_id, num_steps):
-#     global game_runner_manager
-#     saved_game = SavedGame.query.get(saved_game_id)
-#     if saved_game is None:
-#         raise NotFound(f'Saved game with Id {saved_game_id} not found.')
-#     user = get_user(username)
-#     game_runner_manager.load_game(user, saved_game)
-#     game_runner = game_runner_manager.get_game_runner(user)
-#     game_id = game_runner.game_id
-#     redis_conn.set('task_mapping:{}'.format(game_id), load_game.request.id)
-#     redis_conn.set('user_mapping:{}'.format(user.id), game_id)
-#     redis_conn.set('worker_mapping:{}'.format(game_id), current_task.request.hostname)
-#     game_runner_manager.get_step_to(user, num_steps)
-
-
-# TODO: This route needs to be re-designed since `worker_direct` is no longer activated
-# @app.task
-# def save_game(username, save_name):
-#     global game_runner_manager
-#     game_runner_manager.save_game(get_user(username), save_name)
-
-
 @app.task
 def new_game(username, game_config, num_steps, user_agent_desc=None,
              user_agent_conn=None, expire=3600):

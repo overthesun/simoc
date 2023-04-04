@@ -14,7 +14,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 from simoc_server import app, db, redis_conn, redis_url
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, User
+from simoc_server.database.db_model import User
 from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration, \
     ServerError
 from simoc_server.serialize import serialize_response
@@ -539,25 +539,6 @@ def get_agent_types_by_class():
     return json.dumps(results)
 
 
-@app.route("/get_agents_by_category", methods=["GET"])
-def get_agents_by_category():
-    """
-    Gets the names of agents with the specified category characteristic.
-
-    Returns
-    -------
-    array of strings.
-    """
-    results = []
-    agent_category = request.args.get("category", type=str)
-    for agent in db.session.query(AgentType, AgentTypeAttribute). \
-            filter(AgentTypeAttribute.name == "char_category"). \
-            filter(AgentTypeAttribute.value == agent_category). \
-            filter(AgentType.id == AgentTypeAttribute.agent_type_id).all():
-        results.append(agent.AgentType.name)
-    return json.dumps(results)
-
-
 # Return the default agent_desc.json file for ACE Agent Editor
 @app.route("/get_agent_desc", methods=["GET"])
 def get_agent_desc():
@@ -571,128 +552,6 @@ def get_agent_desc():
 def get_currency_desc():
     currency_desc = load_from_basedir('data_files/currency_desc.json')
     return status("Currency desc retrieved", currency_desc=currency_desc)
-
-
-# TODO: This route needs to be re-designed since `worker_direct` is no longer activated
-# @app.route("/save_game", methods=["POST"])
-# @login_required
-# def save_game():
-#     """
-#     Save the current game for the user.
-#
-#     Returns
-#     -------
-#     str: A success message.
-#     """
-#     input = json.loads(request.data.decode('utf-8'))
-#     if "game_id" not in input:
-#         raise BadRequest("game_id is required.")
-#     if "save_name" in input:
-#         save_name = str(input["save_name"])
-#     else:
-#         save_name = None
-#     game_id = int(input["game_id"], 16)
-#     # Get a direct worker queue
-#     worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
-#     queue = worker_direct(worker)
-#     # Send `save_game` for remote execution on Celery
-#     tasks.save_game.apply_async(args=[get_standard_user_obj().username, save_name], queue=queue)
-#     return status("Save successful.")
-
-
-# TODO: Disabled until save_game is fixed
-# @app.route("/load_game", methods=["POST"])
-# @login_required
-# def load_game():
-#     """
-#     Load the game with the given 'saved_game_id' on Celery Cluster.
-#
-#     Prints a success message.
-#
-#     Returns
-#     -------
-#     str:
-#         JSON-formatted string:
-#         {"game_id": "str, Game Id value", "last_step_num": "int, the last calculated step num"}
-#
-#     Raises
-#     ------
-#     simoc_server.exceptions.NotFound
-#         If the SavedGame with the requested 'saved_game_id' does not exist in the database
-#     """
-#     retries = 30
-#     input = json.loads(request.data.decode('utf-8'))
-#     if "saved_game_id" not in input:
-#         raise BadRequest("saved_game_id is required.")
-#     if "step_num" not in input:
-#         raise BadRequest("step_num is required.")
-#     saved_game_id = input["saved_game_id"]
-#     step_num = int(input["step_num"])
-#     user = get_standard_user_obj()
-#     user_cleanup(user)
-#     tasks.load_game.apply_async(args=[user.username, saved_game_id, step_num])
-#     while True:
-#         time.sleep(0.5)
-#         game_id = get_user_game_id(user)
-#         if not game_id:
-#             retries -= 1
-#         else:
-#             break
-#         if retries <= 0:
-#             raise ServerError(f"Cannot load a game.")
-#     return status("Loaded game starts.", game_id=format(int(game_id), 'X'))
-
-
-# TODO: Disabled until save_game is fixed
-# @app.route("/get_saved_games", methods=["GET"])
-# @login_required
-# def get_saved_games():
-#     """
-#     Get saved games for current user. All save games fall under the root
-#     branch id that they are saved under.
-#
-#     Returns
-#     -------
-#     str:
-#         json format -
-#
-#         {
-#             <root_branch_id>: [
-#                 {
-#                     "date_created":<date_created:str(db.DateTime)>
-#                     "name": "<ave_name:str>,
-#                     "save_game_id":<save_game_id:int>
-#                 },
-#                 ...
-#             ],
-#             ...
-#         }
-#     """
-#     saved_games = SavedGame.query.filter_by(user=get_standard_user_obj()).all()
-#
-#     sequences = {}
-#     for saved_game in saved_games:
-#         snapshot = saved_game.agent_model_snapshot
-#         snapshot_branch = snapshot.snapshot_branch
-#         root_branch = snapshot_branch.get_root_branch()
-#         if root_branch in sequences.keys():
-#             sequences[root_branch].append(saved_game)
-#         else:
-#             sequences[root_branch] = [saved_game]
-#
-#     sequences = OrderedDict(
-#         sorted(sequences.items(), key=lambda x: x[0].date_created))
-#
-#     response = {}
-#     for root_branch, saved_games in sequences.items():
-#         response[root_branch.id] = []
-#         for saved_game in saved_games:
-#             response[root_branch.id].append({
-#                 "saved_game_id": saved_game.id,
-#                 "name":          saved_game.name
-#                 "date_created":  saved_game.date_created.strftime("%m/%d/%Y, %H:%M:%S")
-#             })
-#     return serialize_response(response)
 
 
 @login_manager.user_loader

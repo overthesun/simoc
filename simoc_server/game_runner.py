@@ -7,7 +7,6 @@ import random
 
 from simoc_server import app, db, redis_conn
 from agent_model import (AgentModel)
-from simoc_server.database import SavedGame
 from simoc_server.database.db_model import User
 from simoc_server.exceptions import GameNotFoundException, Unauthorized
 from simoc_server.exit_handler import register_exit_handler, remove_exit_handler
@@ -25,8 +24,6 @@ class GameRunner(object):
     last_accessed : float
         The time in seconds since Epoch when the game runner instance
         was last accessed
-    last_saved_step : int
-        The last step number that was saved.
     step_thread : Thread
         Internal worker thread used to precalculate steps and store in
         the step buffer.
@@ -34,7 +31,7 @@ class GameRunner(object):
         The user the game belongs to
     """
 
-    def __init__(self, agent_model, user, last_saved_step):
+    def __init__(self, agent_model, user):
         self.game_id = random.getrandbits(63)
         self.start_time = int(time.time())
         self.user = user
@@ -48,7 +45,6 @@ class GameRunner(object):
         # self.agent_model.start_time = self.start_time
         self.step_thread = None
         self.last_accessed = None
-        self.last_saved_step = last_saved_step
         self.reset_last_accessed()
 
     @property
@@ -64,63 +60,6 @@ class GameRunner(object):
         """
         return time.time() - self.last_accessed
 
-    @property
-    def last_step_is_saved(self):
-        """
-        Returns
-        -------
-        bool
-            Whether or not the last calculated step is saved.
-        """
-        return self.last_saved_step == self.agent_model.step_num
-
-    @classmethod
-    def load_from_state(cls, user, agent_model_state):
-        """Loads a game runner for AgentModelState.
-
-        Parameters
-        ----------
-        user : simoc_server.database.db_model.User
-            User to associate the GameRunner with.
-        agent_model_state : simoc_server.database.db_model.AgentModelState
-            Agent model state to load the game runner from.
-
-        Returns
-        -------
-        GameRunner
-            loaded GameRunner instance
-        """
-        agent_model = AgentModel.load_from_db(agent_model_state)
-        return GameRunner(agent_model, user, agent_model.step_num)
-
-    @classmethod
-    def load_from_saved_game(cls, user, saved_game):
-        """Loads a game runner from a SavedGame
-
-        Parameters
-        ----------
-        user : simoc_server.database.db_model.User
-            User to associate the GameRunner with.
-        saved_game : simoc_server.database.db_model.SavedGame
-            Saved game to load the game runner from.
-
-        Returns
-        -------
-        GameRunner
-            loaded GameRunner instance
-
-        Raises
-        ------
-        Unauthorized
-            If the user provided does not match the user the game was saved
-            for.
-        """
-        agent_model_state = saved_game.agent_model_snapshot.agent_model_state
-        saved_game_user = saved_game.user
-        if saved_game_user != user:
-            raise Unauthorized("Attempted to load game belonging to another"
-                               "user.")
-        return GameRunner.load_from_state(user, agent_model_state)
 
     @classmethod
     def from_new_game(cls, user, game_config, user_agent_desc=None,
@@ -143,35 +82,6 @@ class GameRunner(object):
                                              agent_desc=user_agent_desc,
                                              agent_conn=user_agent_conn)
         return GameRunner(agent_model, user, None)
-
-    def save_game(self, save_name):
-        """Saves the game using the provided name and commits session to the
-        database.
-
-        Parameters
-        ----------
-        save_name : str
-            The name to give the save.
-
-        Returns
-        -------
-        simoc_server.database.db_model.SavedGame
-            The saved game entity that was created.
-        """
-        try:
-            self.user = db.session.merge(self.user)
-            agent_model_snapshot = self.agent_model.snapshot()
-            saved_game = SavedGame(
-                user=self.user, agent_model_snapshot=agent_model_snapshot, name=save_name)
-            db.session.add(saved_game)
-            db.session.commit()
-            self.last_saved_step = self.agent_model.step_num
-            return saved_game
-        except:
-            app.logger.exception('Failed to save a game.')
-            db.session.rollback()
-        finally:
-            db.session.close()
 
     def ping(self):
         """Reset's the last accessed time.  Useful if the game is paused.
@@ -323,61 +233,6 @@ class GameRunnerManager(object):
                                                user_agent_conn)
         self._add_game_runner(user, game_runner)
 
-    def load_game(self, user, saved_game):
-        """Load a game and add it to the internal game_runners dict.
-        If the user already holds a game instance, it is saved, if needed and removed.
-
-        Parameters
-        ----------
-        user : simoc_server.database.db_model.User
-            The user requesting to game, to be validated as the owner of the save by
-            the GameRunner on initialization.
-        saved_game : simoc_server.database.db_model.SavedGame
-            The saved game to load.
-        """
-        game_runner = GameRunner.load_from_saved_game(user, saved_game)
-        self._add_game_runner(saved_game.user, game_runner)
-
-    def save_all(self, allow_repeat_save=True):
-        """Save all currently active game_runners.
-
-        Parameters
-        ----------
-        allow_repeat_save : bool, optional
-            Allow a save if one already exists for the current step. Default - True.
-        """
-        for user in self.game_runners.keys():
-            self.save_game(user, allow_repeat_save=allow_repeat_save)
-
-    def save_game(self, user, save_name=None, allow_repeat_save=True):
-        """Save the currently active game for the given user.
-
-        Parameters
-        ----------
-        user : simoc_server.database.db_model.User
-            Description
-        save_name : None, optional
-            A name to give the save, if None, automatically generated.
-        allow_repeat_save : bool, optional
-            Allow a save if one already exists for the current step. Default - True.
-
-        Raises
-        ------
-        GameNotFoundException
-            If there is no active game for the provided user.
-        """
-        game_runner = self.get_game_runner(user)
-
-        if allow_repeat_save or not game_runner.last_step_is_saved:
-            # only save if last step is not saved or
-            # repeat save is allowed
-            if game_runner is None:
-                raise GameNotFoundException()
-
-            if save_name is None:
-                save_name = self._autosave_name()
-            game_runner.save_game(save_name)
-
     def get_game_runner(self, user):
         """Get the game runner for the provided user.
 
@@ -453,7 +308,6 @@ class GameRunnerManager(object):
         old_game = self.get_game_runner(user)
         if old_game is not None:
             app.logger.info(f'Overriding game runner for {user}')
-            # self.save_game(user, allow_repeat_save=False)
         self.game_runners[user.id] = game_runner
 
     @staticmethod
@@ -481,7 +335,6 @@ class GameRunnerManager(object):
         for user_id in marked_for_cleanup:
             try:
                 app.logger.info("Cleaning up save game for user with id {}".format(user_id))
-                # self.save_game(user_id, allow_repeat_save=False)
                 del self.game_runners[user_id]
             except KeyError as e:
                 app.logger.error("Session for user '{}' removed before it could be cleaned up."
