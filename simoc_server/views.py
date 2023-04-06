@@ -49,7 +49,7 @@ def authenticated_only(f):
 
 
 def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=3600):
-    """Forward records from Redis to the frontend on a loop until complete"""
+    """Forward records from Redis to the frontend on a loop until complete."""
     if "game_id" not in data:
         raise BadRequest("game_id is required.")
     game_id = int(data["game_id"], 16)
@@ -110,7 +110,7 @@ def connect_handler():
 @socketio.on('get_steps')
 @authenticated_only
 def get_steps_handler(message):
-    """Initiates a background task to send steps to the frontend.
+    """Initiate a background task to send steps to the frontend.
     
     If the user is already running a background task, it will be stopped.
     """
@@ -311,12 +311,12 @@ def new_game():
 
 
 def get_game_config(game_id):
-    """Regurn a game config for a given game id from Redis"""
+    """Return a game config for a given game id from Redis."""
     game_config = redis_conn.get(f'game_config:{game_id}')
     return json.loads(game_config.decode("utf-8")) if game_config else game_config
 
 def retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num):
-    """Return all newly available batches merged together"""
+    """Return all newly available batches merged together."""
     batches = []
     total_steps = 0
     batch = batch_num or 0
@@ -350,7 +350,7 @@ def retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num):
 
 
 def get_user_game_id(user):
-    """Return a game id associated with a given user from Redis"""
+    """Return a game id associated with a given user from Redis."""
     game_id = redis_conn.get(f'user_mapping:{user.id}')
     return int(game_id.decode("utf-8")) if game_id else game_id
 
@@ -358,7 +358,7 @@ def get_user_game_id(user):
 @app.route("/get_last_game_id", methods=["POST"])
 @login_required
 def get_last_game_id():
-    """Return the game id associated with the current user"""
+    """Return the game id associated with the current user."""
     user = get_standard_user_obj()
     game_id = get_user_game_id(user)
     return status(f'Last game ID for user "{user.username}" retrieved.',
@@ -366,7 +366,7 @@ def get_last_game_id():
 
 
 def kill_game_by_id(game_id):
-    """Terminate a game by its id
+    """Terminate a game by its id.
     
     This function performs two tasks:
     1. Revoke a Celery task of running the AgentModel
@@ -381,7 +381,7 @@ def kill_game_by_id(game_id):
 
 
 def user_cleanup(user):
-    """Terminate a game associated with a given user and delete user mapping"""
+    """Terminate a game associated with a given user and delete user mapping."""
     game_id = get_user_game_id(get_standard_user_obj())
     if game_id:
         kill_game_by_id(game_id)
@@ -402,7 +402,7 @@ def kill_game():
 @app.route("/kill_all_games", methods=["POST"])
 @login_required
 def kill_all_games():
-    """Terminate all games for all users"""
+    """Terminate all games for all users."""
     active_workers = celery_app.control.inspect().active()
     for worker in active_workers:
         for task in active_workers[worker]:
@@ -426,7 +426,7 @@ def get_num_steps():
 
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
-    """Return a list of agents for a given agent class or name
+    """Return a list of agents for a given agent class or name.
     
     For each agent include:
     - name (e.g. 'wheat')
@@ -482,7 +482,7 @@ def get_agents_by_category():
 # Return the default agent_desc.json file for ACE Agent Editor
 @app.route("/get_agent_desc", methods=["GET"])
 def get_agent_desc():
-    """Return the default agent_desc.json and agent_schema.json files"""
+    """Return the default agent_desc.json and agent_schema.json files."""
     agent_desc = load_from_basedir('data_files/agent_desc.json')
     agent_schema = load_from_basedir('data_files/agent_schema.json')
     return status("Agent editor data retrieved",
@@ -491,7 +491,7 @@ def get_agent_desc():
 
 @app.route("/get_currency_desc", methods=["GET"])
 def get_currency_desc():
-    """Return the default currency_desc.json file"""
+    """Return the default currency_desc.json file."""
     currency_desc = load_from_basedir('data_files/currency_desc.json')
     return status("Currency desc retrieved", currency_desc=currency_desc)
 
