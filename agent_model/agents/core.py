@@ -838,7 +838,7 @@ class PlantAgent(GeneralAgent):
             hours_per_day = int(self.model.day_length_hours)
             self.daily_growth = np.zeros(hours_per_day)
             photoperiod = self.attrs['char_photoperiod']
-            photo_start = int((hours_per_day // 2) - (photoperiod // 2))
+            photo_start = int((hours_per_day / 2) - (photoperiod / 2))
             photo_end = int(photo_start + photoperiod)
             photo_rate = hours_per_day / photoperiod
             self.daily_growth[photo_start:photo_end] = photo_rate
