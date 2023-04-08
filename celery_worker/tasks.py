@@ -25,8 +25,7 @@ app.config_from_object('celery_worker.celeryconfig')
 
 @worker_process_init.connect
 def on_worker_init(**kwargs):
-    del kwargs
-    logger.info('New celery worker initialized.')
+    logger.info('New Celery worker initialized.')
 
 
 def get_user(username, num_retries=30, interval=1):
