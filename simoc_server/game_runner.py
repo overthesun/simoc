@@ -81,7 +81,7 @@ class GameRunner(object):
         agent_model = AgentModel.from_config(game_config,
                                              agent_desc=user_agent_desc,
                                              agent_conn=user_agent_conn)
-        return GameRunner(agent_model, user, None)
+        return GameRunner(agent_model, user)
 
     def ping(self):
         """Reset's the last accessed time.  Useful if the game is paused.
