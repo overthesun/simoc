@@ -1,6 +1,7 @@
 mesa
 nose
 notebook
+matplotlib
 numpy
 pytest
 pytimeparse

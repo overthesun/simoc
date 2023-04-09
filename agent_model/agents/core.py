@@ -819,9 +819,12 @@ class PlantAgent(GeneralAgent):
         else:
             self.lifetime = 0
         self.reproduce = self.attrs.get('char_reproduce', 0)
-        self.carbon_fixation = self.attrs.get('char_carbon_fixation', None)
         self.density_factor = self.attrs.get('char_density_factor', 1)
         self.crop_management_factor = self.attrs.get('char_crop_management_factor', 1)
+        self.carbon_fixation = self.attrs.get('char_carbon_fixation', None)
+        if self.carbon_fixation is not None:
+            self.cu_factor = 0
+            self.te_factor = 0
 
         # Create the `daily_growth` attribute:
         # - Length is equal to the number of steps per day (e.g. 24)
@@ -830,21 +833,16 @@ class PlantAgent(GeneralAgent):
         #   requires, which is centered about 12:00 noon. Values outside this
         #   period are 0, and during this period are calculated such that the
         #   mean of all numbers is 1.
-        hours_per_day = int(self.model.day_length_hours)
-        self.daily_growth = np.zeros(hours_per_day)
-        photoperiod = self.attrs['char_photoperiod']
-        photo_start = int((hours_per_day // 2) - (photoperiod // 2))
-        photo_end = int(photo_start + photoperiod)
-        photo_rate = hours_per_day / photoperiod
-        self.daily_growth[photo_start:photo_end] = photo_rate
-
-    def _init_currency_exchange(self):
-        super()._init_currency_exchange()
-        self.co2_scale = {}
-        for attr in self.attrs:
-            prefix, _ = attr.split('_', 1)
-            if prefix in ['in', 'out']:
-                self.co2_scale[attr] = 1
+        photoperiod = self.attrs.get('char_photoperiod', None)
+        if photoperiod is not None:
+            hours_per_day = int(self.model.day_length_hours)
+            self.daily_growth = np.zeros(hours_per_day)
+            photoperiod = self.attrs['char_photoperiod']
+            photo_start = int((hours_per_day / 2) - (photoperiod / 2))
+            photo_end = int(photo_start + photoperiod)
+            photo_rate = hours_per_day / photoperiod
+            self.daily_growth[photo_start:photo_end] = photo_rate
+            self.par_factor = 0
 
 
     def _get_step_value(self, attr, step_num):
@@ -931,26 +929,29 @@ class PlantAgent(GeneralAgent):
             self.grown = True  # Complete last flow cycle and terminate next step
 
         # Update Weights
+        if hasattr(self, 'daily_growth'):
+            hour_of_day = self.model.step_num % int(self.model.day_length_hours)
+            self.daily_growth_factor = self.daily_growth[hour_of_day]
         self.growth_rate = (self['biomass'] / self.amount) / self.attrs['char_capacity_biomass']
-        hour_of_day = self.model.step_num % int(self.model.day_length_hours)
-        self.daily_growth_factor = self.daily_growth[hour_of_day]
-        self.cu_factor, self.te_factor = self._calculate_co2_response()
+        if self.carbon_fixation is not None:
+            self.cu_factor, self.te_factor = self._calculate_co2_response()
         # Light response
         # 12/22/22: Electric lamps and sunlight work differently.
         # - Lamp.par is multiplied by the lamp amount (to scale kwh consumption)
         # - Sun.par is not, because there's nothing to scale and plants can't
         #   compete over it. Sunlight also can't be incremented.
-        light_type = self.connections['in']['par'][0]
-        light_agent = self.model.get_agents_by_type(light_type)[0]
-        is_electric = ('lamp' in light_type)
-        par_ideal = self.attrs['char_par_baseline'] * self.daily_growth_factor
-        if is_electric:
-            par_ideal *= self.amount
-        par_available = light_agent['par']
-        par_actual = min(par_available, par_ideal)
-        if is_electric and par_actual > 0:
-            light_agent.increment('par', -par_actual)
-        self.par_factor = 0 if par_ideal == 0 else min(1, par_actual / par_ideal)
+        if 'char_par_baseline' in self.attrs:
+            light_type = self.connections['in']['par'][0]
+            light_agent = self.model.get_agents_by_type(light_type)[0]
+            is_electric = ('lamp' in light_type)
+            par_ideal = self.attrs['char_par_baseline'] * self.daily_growth_factor
+            if is_electric:
+                par_ideal *= self.amount
+            par_available = light_agent['par']
+            par_actual = min(par_available, par_ideal)
+            if is_electric and par_actual > 0:
+                light_agent.increment('par', -par_actual)
+            self.par_factor = 0 if par_ideal == 0 else min(1, par_actual / par_ideal)
 
         super().step()
 
@@ -961,8 +962,9 @@ class PlantAgent(GeneralAgent):
     def kill(self, number, reason):
         dead_biomass = (number / self.amount) * self.biomass
         self.biomass -= dead_biomass
-        self.selected_storage['out']['inedible_biomass'][0].increment(
-            'inedible_biomass', dead_biomass)
+        if 'inedible_biomass' in self.selected_storage['out']:
+            self.selected_storage['out']['inedible_biomass'][0].increment(
+                'inedible_biomass', dead_biomass)
         super().kill(number, reason)
 
 
@@ -1000,10 +1002,11 @@ class ConcreteAgent(GeneralAgent):
             self.caco3 += self.attrs['out_caco3'] * self.carbonation * self.amount
             self.moisture += self.attrs['out_moisture'] * self.carbonation * self.amount
 
-    def calc_max_carbonation(self, ppm):
+    @classmethod
+    def calc_max_carbonation(cls, ppm):
         """Return max kmoles CO2 uptake by structural concrete"""
-        saturation_point_kmoles = np.interp(ppm, self.ppm_range, self.rate_scale)
-        return saturation_point_kmoles * self.density
+        saturation_point_kmoles = np.interp(ppm, cls.ppm_range, cls.rate_scale)
+        return saturation_point_kmoles * cls.density
 
     def step(self):
         """Set the carbonation rate, which is used to weight exchanges"""

@@ -19,9 +19,9 @@ class AgentDataCollector():
         # Plants
         if agent.agent_class == 'plants':
             self.snapshot_attrs.append('growth')
-            self.growth = dict(par_factor=[], cu_factor=[], te_factor=[],
-                density_factor=[], crop_management_factor=[], growth_rate=[],
-                grown=[], agent_step_num=[])
+            growth_attrs = {'par_factor', 'cu_factor', 'te_factor', 'density_factor',
+                            'crop_management_factor', 'growth_rate', 'grown', 'agent_step_num'}
+            self.growth = {attr: [] for attr in growth_attrs if hasattr(self.agent, attr)}
         # Concrete
         if agent.agent_type == 'concrete':
             self.snapshot_attrs.append('growth')
