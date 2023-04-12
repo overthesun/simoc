@@ -29,8 +29,8 @@ env:
   FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
   REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
   DOCKER_ENV: simoc_docker_beta.env
-  VITE_FE_BRANCH: github.event.inputs.fe_branch
-  VITE_BE_BRANCH: github.event.inputs.be_branch
+  VITE_FE_BRANCH: ${{ github.event.inputs.fe_branch }}
+  VITE_BE_BRANCH: ${{ github.event.inputs.be_branch }}
 
 
 jobs:
