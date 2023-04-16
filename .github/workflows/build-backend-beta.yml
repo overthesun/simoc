@@ -32,7 +32,6 @@ env:
   VITE_FE_BRANCH: ${{ github.event.inputs.fe_branch }}
   VITE_BE_BRANCH: ${{ github.event.inputs.be_branch }}
 
-
 jobs:
   ci:
     runs-on: ubuntu-latest
