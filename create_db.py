@@ -6,39 +6,6 @@ os.environ["NO_FLASK"] = "1"
 
 from simoc_server import app
 from simoc_server.database import *
-from simoc_server.database.seed_data import seed_agents
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute,AgentTypeAttributeDetails,\
-    CurrencyType, AgentStateAttribute, AgentState, AgentModelState, SavedGame, AgentModelSnapshot
-
-
-def create(agent_conf):
-    db.create_all()
-    # for record in [*AgentStateAttribute.query.all(),
-    #                *AgentState.query.all(),
-    #                *AgentTypeAttributeDetails.query.all(),
-    #                *AgentTypeAttribute.query.all(),
-    #                *AgentType.query.all(),
-    #                *CurrencyType.query.all()]:
-    #     db.session.delete(record)
-    # This approach should be better, but benchmarks
-    # show minimal differences, since the slow part
-    # is the call to seed_agents.seed()
-    models = [
-        SavedGame,
-        AgentModelSnapshot,
-        AgentState,
-        AgentModelState,
-        AgentStateAttribute,
-        AgentTypeAttributeDetails,
-        AgentTypeAttribute,
-        AgentType,
-        CurrencyType,
-    ]
-    for model in models:
-        db.session.query(model).delete()
-    db.session.commit()
-    seed_agents.seed(agent_conf)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Seed database")
@@ -50,8 +17,8 @@ if __name__ == "__main__":
     interval = 5
     while True:
         try:
-            app.logger.info(f"Populating the '{app.config['DB_TYPE']}' database at '{app.config['SQLALCHEMY_DATABASE_URI']}' with '{app.config['AGENT_CONFIG']}' config file.")
-            create(app.config["AGENT_CONFIG"])
+            app.logger.info(f"Populating the '{app.config['DB_TYPE']}' database at '{app.config['SQLALCHEMY_DATABASE_URI']}'.")
+            db.create_all()  # Adds the User table to database
             break
         except Exception as e:
             # TODO: catch sqlalchemy.exc.DatabaseError: (mysql.connector.errors.DatabaseError)

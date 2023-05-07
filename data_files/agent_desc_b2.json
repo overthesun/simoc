@@ -1,0 +1,274 @@
+{
+    "inhabitants": {
+        "human_agent": {
+            "data": {
+                "input": [
+                    {
+                        "type": "o2",
+                        "value": 0.037083,
+                        "flow_rate": {
+                            "unit": "kg",
+                            "time": "hour"
+                        },
+                        "deprive": {
+                            "value": 0,
+                            "unit": "hour"
+                        }
+                    },
+                    {
+                        "type": "potable",
+                        "value": 0.137083,
+                        "flow_rate": {
+                            "unit": "kg",
+                            "time": "hour"
+                        },
+                        "deprive": {
+                            "value": 72,
+                            "unit": "hour"
+                        }
+                    },
+                    {
+                        "type": "food",
+                        "value": 0.0325,
+                        "flow_rate": {
+                            "unit": "kg",
+                            "time": "hour"
+                        },
+                        "deprive": {
+                            "value": 480,
+                            "unit": "hour"
+                        }
+                    }
+                ],
+                "output": [
+                    {
+                        "type": "co2",
+                        "value": 0.045,
+                        "flow_rate": {
+                            "unit": "kg",
+                            "time": "hour"
+                        }
+                    },
+                    {
+                        "type": "h2o",
+                        "value": 0.128333,
+                        "flow_rate": {
+                            "unit": "kg",
+                            "time": "hour"
+                        }
+                    },
+                    {
+                        "type": "urine",
+                        "value": 0.060833,
+                        "requires": [
+                            "potable"
+                        ],
+                        "flow_rate": {
+                            "unit": "kg",
+                            "time": "hour"
+                        }
+                    },
+                    {
+                        "type": "feces",
+                        "value": 0.005,
+                        "requires": [
+                            "food"
+                        ],
+                        "flow_rate": {
+                            "unit": "kg",
+                            "time": "hour"
+                        }
+                    }
+                ],
+                "characteristics": [
+                    {
+                        "type": "mass",
+                        "value": 82.0,
+                        "unit": "kg"
+                    },
+                    {
+                        "type": "volume",
+                        "value": 0.0,
+                        "unit": "m^3"
+                    },
+                    {
+                        "type": "threshold_lower_o2",
+                        "value": 0.08
+                    },
+                    {
+                        "type": "threshold_upper_co2",
+                        "value": 0.01
+                    },
+                    {
+                        "type": "location",
+                        "value": "mars"
+                    }
+                ]
+            }
+        }
+    },
+    "eclss": {
+        "co2_removal_SAWD": {
+            "data": {
+                "input": [
+                    {
+                        "type": "co2",
+                        "value": 0.085,
+                        "required": "mandatory",
+                        "flow_rate": {
+                            "unit": "kg",
+                            "time": "hour"
+                        },
+                        "criteria": {
+                            "name": "co2_ratio_in",
+                            "limit": ">",
+                            "value": 0.0025,
+                            "buffer": 8
+                        }
+                    },
+                    {
+                        "type": "kwh",
+                        "value": 0.65,
+                        "required": "mandatory",
+                        "requires": [
+                            "co2"
+                        ],
+                        "flow_rate": {
+                            "unit": "kWh",
+                            "time": "hour"
+                        }
+                    }
+                ],
+                "output": [
+                    {
+                        "type": "co2",
+                        "value": 0.085,
+                        "required": "mandatory",
+                        "requires": [
+                            "co2"
+                        ],
+                        "flow_rate": {
+                            "unit": "kg",
+                            "time": "hour"
+                        }
+                    }
+                ],
+                "characteristics": [
+                    {
+                        "type": "mass",
+                        "value": 137.35,
+                        "unit": "kg"
+                    },
+                    {
+                        "type": "volume",
+                        "value": 0.31,
+                        "unit": "m^3"
+                    }
+                ]
+            },
+            "description": "Moves carbon dioxide from the habitat atmosphere to co2_storage."
+        }
+    },
+    "plants": {
+        "rice": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "wheat": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "sorghum": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "peanut": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "corn": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "dry_bean": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "sweet_potato": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "vegetables": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "soybean": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        },
+        "orchard": {
+            "data": {
+                "characteristics": [
+                    {
+                        "type": "density_factor",
+                        "value": 0.5
+                    }
+                ]
+            }
+        }
+    }
+}

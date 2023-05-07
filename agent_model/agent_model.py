@@ -11,7 +11,7 @@ from mesa.time import RandomActivation
 
 # from simoc_server import app  # TODO: Fix logger
 from agent_model.initializer import AgentModelInitializer
-from agent_model.agents.core import GeneralAgent, PlantAgent
+from agent_model.agents.core import GeneralAgent, PlantAgent, ConcreteAgent
 from agent_model.agents.data_collector import AgentDataCollector
 from agent_model.attribute_meta import AttributeHolder
 from agent_model.util import timedelta_to_hours, location_to_day_length_minutes
@@ -48,7 +48,7 @@ class AgentModel(Model, AttributeHolder):
     """
 
     @classmethod
-    def from_config(cls, config, data_collection=False, currency_desc=None,
+    def from_config(cls, config, data_collection=True, currency_desc=None,
                     agent_desc=None, agent_conn=None, agent_variation=None,
                     agent_events=None):
         """Takes configuration files, return an initialized model
@@ -149,7 +149,12 @@ class AgentModel(Model, AttributeHolder):
             instance['init_type'] = initializer.init_type
             connections = instance.pop('connections', {})
             amount = instance.pop('amount', 1)
-            build_from_class = PlantAgent if agent_class == 'plants' else GeneralAgent
+            if agent_class == 'plants':
+                build_from_class = PlantAgent
+            elif agent_type == 'concrete':
+                build_from_class = ConcreteAgent
+            else:
+                build_from_class = GeneralAgent
             params = dict(model=self, agent_type=agent_type, agent_desc=agent_desc,
                           connections=connections, **instance)
             if self.single_agent == 1:
@@ -293,7 +298,7 @@ class AgentModel(Model, AttributeHolder):
                 agent.data_collector.step()
         # app.logger.info("{0} step_num {1}".format(self, self.step_num))  # TODO: Fix logger
 
-    def step_to(self, n_steps=None, termination=None, max_steps=365*24):
+    def step_to(self, n_steps=None, termination=None, max_steps=365*24*2):
         """Execute a fixed number of steps, or until termination
 
         Args:
@@ -311,7 +316,7 @@ class AgentModel(Model, AttributeHolder):
             else:
                 self.step()
 
-    def get_data(self, debug=False, clear_cache=False):
+    def get_data(self, step_range=None, fields=None, debug=False, clear_cache=False):
         """Return data from model.
 
         Args:
@@ -321,12 +326,15 @@ class AgentModel(Model, AttributeHolder):
         Returns:
             * ``data``: :ref:`model-data`
         """
-        data = {}
+        data = dict(game_id=self.game_id,
+                    step_num=self.step_num)
         if not self.data_collection:
             return data
         else:
             for agent in self.scheduler.agents:
-                data[agent.agent_type] = agent.data_collector.get_data(debug, clear_cache)
+                data[agent.agent_type] = agent.data_collector.get_data(
+                    step_range=step_range, fields=fields, debug=debug,
+                    clear_cache=clear_cache)
             return data
 
     def remove(self, agent):
@@ -361,7 +369,8 @@ class AgentModel(Model, AttributeHolder):
         if agent_class is None:
             return self.scheduler.agents
         else:
-            return [agent for agent in self.scheduler.agents if isinstance(agent, agent_class)]
+            return [agent for agent in self.scheduler.agents
+                    if agent.agent_class == agent_class]
 
     def agent_by_id(self, id):
         """TODO

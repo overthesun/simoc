@@ -1,4 +1,4 @@
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: simoc-flask-autoscaler
@@ -13,4 +13,6 @@ spec:
   - type: Resource
     resource:
       name: cpu
-      targetAverageUtilization: 30
+      target:
+        type: Utilization
+        averageUtilization: 30

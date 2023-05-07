@@ -14,19 +14,17 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 from simoc_server import app, db, redis_conn, redis_url
-from simoc_server.database.db_model import AgentType, AgentTypeAttribute, User
+from simoc_server.database.db_model import User
 from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration, \
     ServerError
 from simoc_server.serialize import serialize_response
-from simoc_server.front_end_routes import convert_configuration, calc_step_in_out, \
-    calc_step_storage_ratios, count_agents_in_step, calc_step_storage_capacities, \
-    get_growth_rates, calc_step_per_agent
+from simoc_server.front_end_routes import convert_configuration, load_from_basedir
 
 from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
 
 MAX_NUMBER_OF_AGENTS = 50
-MAX_STEP_NUMBER = 10000  # 1 Earth year == 365*24 == 8760 steps
+MAX_STEP_NUMBER = 365*24*2  # 2 Earth years
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -40,6 +38,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 
 
 def authenticated_only(f):
+    """Decorator to check if the user is authenticated before calling the function."""
     @functools.wraps(f)
     def wrapped(*args, **kwargs):
         if not current_user.is_authenticated:
@@ -50,41 +49,41 @@ def authenticated_only(f):
 
 
 def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=3600):
+    """Forward records from Redis to the frontend on a loop until complete."""
     if "game_id" not in data:
         raise BadRequest("game_id is required.")
     game_id = int(data["game_id"], 16)
     n_steps = int(data.get("n_steps", 1e6))
+    if n_steps > 5000:
+         # Increases system-wide speed by ~50% and prevents the backend crashing
+         # on b2_mission1a sim.
+        timeout = 5
     min_step_num = int(data.get("min_step_num", 0))
     max_step_num = min_step_num + n_steps
-    total_consumption = data.get("total_consumption", None)
-    total_production = data.get("total_production", None)
-    agent_growth = data.get("agent_growth", None)
-    total_agent_count = data.get("total_agent_count", None)
-    storage_ratios = data.get("storage_ratios", None)
-    storage_capacities = data.get("storage_capacities", None)
-    details_per_agent = data.get("details_per_agent", None)
+    # TODO: If min_step_num is not 0, batch_num should be set to the batch
+    # that contains that step_num. For now, we don't allow min_step_num to be
+    # set anywhere, so it hasn't been implemented yet.
+    batch_num = 0 if min_step_num == 0 else None
     retries_left = max_retries
     step_count = max(0, min_step_num - 1)
     steps_sent = False
-    redis_conn.set(f'sid_mapping:{game_id}', sid)
-    redis_conn.expire(f'sid_mapping:{game_id}', expire)
+    redis_conn.set(f'sid_mapping:{sid}', game_id)
+    redis_conn.expire(f'sid_mapping:{sid}', expire)
     try:
         while not steps_sent:
             socketio.sleep(timeout)
-            stop_task = redis_conn.get(f'stop_task:{sid}')
+            stop_task = redis_conn.get(f'stop_task:{game_id}')
             stop_task = bool(stop_task.decode("utf-8")) if stop_task else None
             if stop_task:
                 app.logger.info("Bg task closed")
                 break
-            output = retrieve_steps(game_id, user_id, min_step_num, max_step_num,
-                                    storage_capacities, storage_ratios, total_consumption,
-                                    total_production, agent_growth, total_agent_count,
-                                    details_per_agent)
-            step_count += len(output)
-            if len(output) == 0:
+            output = retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num)
+            if output['n_steps'] == 0:
                 retries_left -= 1
                 app.logger.info(f'0 steps retrieved, {retries_left} retries left.')
             else:
+                batch_num += output.pop('n_batches', 0)
+                step_count += output['n_steps']
                 socketio.emit('step_data_handler',
                               {'data': output, 'step_count': step_count, 'max_steps': n_steps},
                               room=sid)
@@ -111,13 +110,16 @@ def connect_handler():
 @socketio.on('get_steps')
 @authenticated_only
 def get_steps_handler(message):
+    """Initiate a background task to send steps to the frontend.
+    
+    If the user is already running a background task, it will be stopped.
+    """
     if "data" not in message:
         raise BadRequest("data is required.")
     user_id = get_standard_user_obj().id
-    sid = redis_conn.get(f'sid_mapping:{int(message["data"]["game_id"], 16)}')
-    sid = sid.decode("utf-8") if sid else None
-    if sid:
-        redis_conn.set('stop_task:{}'.format(sid), 1)
+    old_game_id = redis_conn.get(f'sid_mapping:{request.sid}')
+    if old_game_id:
+        redis_conn.set(f'stop_task:{old_game_id}', 1)
     socketio.start_background_task(get_steps_background, message['data'], user_id, request.sid)
 
 
@@ -276,7 +278,8 @@ def new_game():
         raise BadRequest("step_num is required.")
     step_num = int(input["step_num"])
     try:
-        game_config = convert_configuration(input["game_config"])
+        data_files = convert_configuration(input["game_config"])
+        game_config, user_agent_desc, user_agent_conn = data_files
     except BadRequest as e:
         raise BadRequest(f"Cannot retrieve game config. Reason: {e}")
     if game_config['total_amount'] >= MAX_NUMBER_OF_AGENTS:
@@ -287,7 +290,8 @@ def new_game():
     user_cleanup(user)
     # Import and load default currencies list
     default_currencies = load_from_basedir('data_files/currency_desc.json')
-    tasks.new_game.apply_async(args=[user.username, game_config, step_num])
+    tasks.new_game.apply_async(args=[user.username, game_config, step_num,
+                                     user_agent_desc, user_agent_conn])
     while True:
         time.sleep(0.5)
         game_id = get_user_game_id(user)
@@ -306,178 +310,47 @@ def new_game():
                   game_config=game_config, currency_desc=default_currencies)
 
 
-@app.route("/get_steps", methods=["POST"])
-@login_required
-def get_steps():
-    """
-    Gets the step with the requested 'step_num', if not specified, uses current model step.
-    total_production, total_consumption and model_stats are not calculated by default. They must be
-    requested as per the examples below. By default, "agent_type_counters" and "storage_capacities"
-    are included in the output, but "agent_logs" is not. If you want to change what is included, of
-    these three, specify "parse_filters":[] in the input. An empty list will mean none of the three
-    are included in the output.
-    The following options are always returned, but if wanted could have option to filter out in
-    future: {'user_id': 1, 'username': 'sinead', 'start_time': 1559046239, 'game_id': '7b966b7a',
-             'step_num': 3, 'hours_per_step': 1.0, 'is_terminated': 'False', 'time': 10800.0,
-             'termination_reason': None}
-    Input:
-       JSON specifying step_num, and the info you want included in the step_data returned
-
-    Example 1:
-    {"min_step_num": 1, "n_steps": 5, "total_production":["atmo_co2","h2o_wste"],
-     "total_consumption":["h2o_wste"], "storage_ratios":{"air_storage_1":["atmo_co2"]}}
-    Added to output for example 1:
-    {1: {...,'total_production': {'atmo_co2': {'value': 0.128, 'unit': '1.0 kg'},
-    'h2o_wste': {'value': 0.13418926977687629, 'unit': '1.0 kg'}},
-    'total_consumption': {'h2o_wste': {'value': 1.5, 'unit': '1.0 kg'}},
-    2:{...},...,5:{...},"storage_ratios": {"air_storage_1": {"atmo_co2": 0.00038879091443387717}}}
-
-    Prints a success message.
-
-    Returns
-    -------
-    str:
-        json format -
-    """
-    data = json.loads(request.data.decode('utf-8'))
-    if "game_id" not in data:
-        raise BadRequest("game_id is required.")
-    min_step_num = int(data.get("min_step_num", 0))
-    n_steps = int(data.get("n_steps", 1e6))
-    game_id = int(data["game_id"], 16)
-    max_step_num = min_step_num + n_steps
-    storage_ratios = data.get("storage_ratios", None)
-    total_consumption = data.get("total_consumption", None)
-    total_production = data.get("total_production", None)
-    agent_growth = data.get("agent_growth", None)
-    storage_capacities = data.get("storage_capacities", None)
-    total_agent_count = data.get("total_agent_count", None)
-    details_per_agent = data.get("details_per_agent", None)
-    user_id = get_standard_user_obj().id
-    output = retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities,
-                            storage_ratios, total_consumption, total_production, agent_growth,
-                            total_agent_count, details_per_agent)
-    return status("Step data retrieved.", step_data=output)
-
-
-def get_model_records(game_id, user_id, steps):
-    model_records = [redis_conn.get(f'model_records:{user_id}:{game_id}:{int(step_num)}')
-                     for step_num in steps]
-    model_records = map(json.loads, model_records)
-    return model_records
-
-
-def get_step_records(game_id, user_id, steps):
-    step_records = [redis_conn.lrange(f'step_records:{user_id}:{game_id}:{int(step_num)}', 0, -1)
-                    for step_num in steps]
-    step_records = list(itertools.chain(*step_records))
-    step_records = map(json.loads, step_records)
-    return step_records
-
-
-def get_steps_list(game_id, user_id, min_step_num, max_step_num):
-    return redis_conn.zrangebyscore(f'game_steps:{user_id}:{game_id}', min_step_num, max_step_num)
-
-
 def get_game_config(game_id):
+    """Return a game config for a given game id from Redis."""
     game_config = redis_conn.get(f'game_config:{game_id}')
     return json.loads(game_config.decode("utf-8")) if game_config else game_config
 
-
-def retrieve_steps(game_id, user_id, min_step_num, max_step_num, storage_capacities=False,
-                   storage_ratios=False, total_consumption=False, total_production=False,
-                   agent_growth=False, total_agent_count=False, details_per_agent=False):
-    steps = get_steps_list(game_id, user_id, min_step_num, max_step_num)
-    model_record_steps = get_model_records(game_id, user_id, steps)
-    step_record_steps = get_step_records(game_id, user_id, steps)
-
-    if details_per_agent:
-        agent_types = details_per_agent.get('agent_types', [])
-        currency_types = details_per_agent.get('currency_types', [])
-        directions = details_per_agent.get('directions', [])
-        directions = directions if directions else ['in', 'out']
-        if not agent_types:
-            game_config = get_game_config(game_id)
-            agent_types = list(game_config['agents'].keys()) if game_config else []
-        output_template = {k: {} for k in directions}
-        for agent_name in agent_types:
-            agent_type = AgentType.query.filter_by(name=agent_name).first()
-            for type_attribute in agent_type.agent_type_attributes:
-                name = type_attribute['name']
-                prefix, currency = name.split('_', 1)
-                if prefix in directions:
-                    if currency_types and currency not in currency_types:
-                        continue
-                    if currency not in output_template[prefix]:
-                        output_template[prefix][currency] = {}
-                    output_template[prefix][currency][agent_name] = {'value': 0, 'unit': ''}
-
-    step_record_dict = dict()
-    for record in step_record_steps:
-        step_num = record['step_num']
-        if step_num not in step_record_dict:
-            step_record_dict[step_num] = [record]
-        else:
-            step_record_dict[step_num].append(record)
-
-    output = {}
-    for record in model_record_steps:
-        step_num = record['step_num']
-        if step_num in step_record_dict:
-            step_record_data = step_record_dict[step_num]
-        else:
-            continue
-        if agent_growth:
-            record["agent_growth"] = get_growth_rates(agent_growth, step_record_data)
-        if total_agent_count:
-            record["total_agent_count"] = count_agents_in_step(total_agent_count, record)
-        if total_production:
-            record["total_production"] = calc_step_in_out("out", total_production, step_record_data)
-        if total_consumption:
-            record["total_consumption"] = calc_step_in_out("in", total_consumption, step_record_data)
-        if storage_ratios:
-            record["storage_ratios"] = calc_step_storage_ratios(storage_ratios, record)
-        if details_per_agent:
-            output_template_copy = copy.deepcopy(output_template)
-            record["details_per_agent"] = calc_step_per_agent(step_record_data, output_template_copy,
-                                                              agent_types, currency_types,
-                                                              directions)
-        if isinstance(storage_capacities, dict):
-            record["storage_capacities"] = calc_step_storage_capacities(storage_capacities, record)
-        output[int(step_num)] = record
-
-    return output
-
-
-@app.route("/get_db_dump", methods=["POST"])
-@login_required
-def get_db_dump():
-    input = json.loads(request.data.decode('utf-8'))
-    if "min_step_num" not in input and "n_steps" not in input:
-        raise BadRequest("min_step_num and n_steps are required.")
-    if "game_id" not in input:
-        raise BadRequest("game_id is required.")
-    min_step_num = int(input["min_step_num"])
-    n_steps = int(input["n_steps"])
-    game_id = int(input["game_id"], 16)
-    max_step_num = min_step_num+n_steps-1
-    user_id = get_standard_user_obj().id
-    steps = get_steps_list(game_id, user_id, min_step_num, max_step_num)
-    output = dict(model_record_steps=get_model_records(game_id, user_id, steps),
-                  step_record_steps=get_step_records(game_id, user_id, steps),
-                  storage_capacities={}, agent_counters={})
-    for model_record in output['model_record_steps']:
-        step_num = model_record['step_num']
-        storage_capacities = redis_conn.lrange(f'storage_capacities:{user_id}:{game_id}:{step_num}',
-                                               0, -1)
-        agent_type_counts = redis_conn.lrange(f'agent_type_counts:{user_id}:{game_id}:{step_num}',
-                                              0, -1)
-        output['storage_capacities'] = map(json.loads, storage_capacities)
-        output['agent_counters'] = map(json.loads, agent_type_counts)
+def retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num):
+    """Return all newly available batches merged together."""
+    batches = []
+    total_steps = 0
+    batch = batch_num or 0
+    while True:
+        records = redis_conn.get(f'model_records:{user_id}:{game_id}:{batch}')
+        if not records:
+            break
+        records = json.loads(records)
+        steps = records.get("n_steps", 0)
+        if steps == 0:
+            break
+        total_steps += steps
+        batches.append(records)
+        batch += 1
+    if len(batches) == 0:
+        return dict(n_steps=0, n_batches=0)
+    elif len(batches) == 1:
+        output = batches[0]
+    elif len(batches) > 1:
+        def merge_batches(b1, b2):
+            if isinstance(b1, (str, int, float)):
+                return b2 or b1
+            elif isinstance(b1, list):
+                return b1 + b2
+            elif isinstance (b1, dict):
+                return {k: merge_batches(b1[k], b2[k]) for k in b1.keys()}
+        output = functools.reduce(lambda a, b: merge_batches(a, b), batches)
+    output['n_steps'] = total_steps
+    output['n_batches'] = len(batches)
     return output
 
 
 def get_user_game_id(user):
+    """Return a game id associated with a given user from Redis."""
     game_id = redis_conn.get(f'user_mapping:{user.id}')
     return int(game_id.decode("utf-8")) if game_id else game_id
 
@@ -485,6 +358,7 @@ def get_user_game_id(user):
 @app.route("/get_last_game_id", methods=["POST"])
 @login_required
 def get_last_game_id():
+    """Return the game id associated with the current user."""
     user = get_standard_user_obj()
     game_id = get_user_game_id(user)
     return status(f'Last game ID for user "{user.username}" retrieved.',
@@ -492,6 +366,13 @@ def get_last_game_id():
 
 
 def kill_game_by_id(game_id):
+    """Terminate a game by its id.
+    
+    This function performs two tasks:
+    1. Revoke a Celery task of running the AgentModel
+    2. Set a `stop_task` flag in Redis to stop the get_steps_background loop
+    """
+    redis_conn.set(f'stop_task:{game_id}', 1)
     task_id = redis_conn.get('task_mapping:{}'.format(game_id))
     task_id = task_id.decode("utf-8") if task_id else task_id
     app.logger.info(f"kill_game_by_id({game_id=:X}): revoke {task_id}")
@@ -500,6 +381,7 @@ def kill_game_by_id(game_id):
 
 
 def user_cleanup(user):
+    """Terminate a game associated with a given user and delete user mapping."""
     game_id = get_user_game_id(get_standard_user_obj())
     if game_id:
         kill_game_by_id(game_id)
@@ -520,6 +402,7 @@ def kill_game():
 @app.route("/kill_all_games", methods=["POST"])
 @login_required
 def kill_all_games():
+    """Terminate all games for all users."""
     active_workers = celery_app.control.inspect().active()
     for worker in active_workers:
         for task in active_workers[worker]:
@@ -543,51 +426,44 @@ def get_num_steps():
 
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
-    args, results = {}, []
-    agent_class = request.args.get("agent_class", type=str)
-    agent_name = request.args.get("agent_name", type=str)
-    if agent_class:
-        args["agent_class"] = agent_class
-    if agent_name:
-        args["name"] = agent_name
-    for agent in AgentType.query.filter_by(**args).all():
-        entry = {"agent_class": agent.agent_class, "name": agent.name}
-        for attr in agent.agent_type_attributes:
-            prefix, currency = attr.name.split('_', 1)
-            if prefix not in entry:
-                entry[prefix] = []
-            if prefix in ['in', 'out']:
-                entry[prefix].append(currency)
-            else:
-                entry[prefix].append(
-                    # FIXME: see issue #68, "units": attr.details
-                    {"name": currency, "value": attr.value})
-        results.append(entry)
-    return json.dumps(results)
-
-
-@app.route("/get_agents_by_category", methods=["GET"])
-def get_agents_by_category():
-    """
-    Gets the names of agents with the specified category characteristic.
-
-    Returns
-    -------
-    array of strings.
+    """Return a list of agents for a given agent class or name.
+    
+    For each agent include:
+    - name (e.g. 'wheat')
+    - agent_class (e.g. 'plants')
+    - input: list of input currencies
+    - output: list of output currencies
+    - characteristics: list of type/value dicts for each agent characteristic
     """
     results = []
-    agent_category = request.args.get("category", type=str)
-    for agent in db.session.query(AgentType, AgentTypeAttribute). \
-            filter(AgentTypeAttribute.name == "char_category"). \
-            filter(AgentTypeAttribute.value == agent_category). \
-            filter(AgentType.id == AgentTypeAttribute.agent_type_id).all():
-        results.append(agent.AgentType.name)
+    get_agent_class = request.args.get("agent_class", type=str)
+    get_agent_name = request.args.get("agent_name", type=str)
+    agent_desc = load_from_basedir('data_files/agent_desc.json')
+    for agent_class, agents in agent_desc.items():
+        if get_agent_class and agent_class != get_agent_class:
+            continue
+        for agent_name, agent_data in agents.items():
+            if get_agent_name and agent_name != get_agent_name:
+                continue
+            entry = {"agent_class": agent_class, "name": agent_name}
+            for prefix, items in agent_data['data'].items():
+                for item in items:
+                    if prefix not in entry:
+                        entry[prefix] = []
+                    if prefix in ['in', 'out']:
+                        entry[prefix].append(item['type'])
+                    else:
+                        entry[prefix].append(
+                            # FIXME: see issue #68, "units": attr.details
+                            {"name": item['type'], "value": item['value']})
+            results.append(entry)
     return json.dumps(results)
 
 
 # Return the default agent_desc.json file for ACE Agent Editor
 @app.route("/get_agent_desc", methods=["GET"])
 def get_agent_desc():
+    """Return the default agent_desc.json and agent_schema.json files."""
     agent_desc = load_from_basedir('data_files/agent_desc.json')
     agent_schema = load_from_basedir('data_files/agent_schema.json')
     return status("Agent editor data retrieved",
@@ -596,146 +472,9 @@ def get_agent_desc():
 
 @app.route("/get_currency_desc", methods=["GET"])
 def get_currency_desc():
+    """Return the default currency_desc.json file."""
     currency_desc = load_from_basedir('data_files/currency_desc.json')
     return status("Currency desc retrieved", currency_desc=currency_desc)
-
-
-def load_from_basedir(fname):
-    basedir = Path(app.root_path).resolve().parent
-    path = basedir / fname
-    result = {}
-    try:
-        with path.open() as f:
-            result = json.load(f)
-    except OSError as e:
-        app.logger.exception(f'Error opening {fname}: {e}')
-    except ValueError as e:
-        app.logger.exception(f'Error reading {fname}: {e}')
-    except Exception as e:
-        app.logger.exception(f'Unexpected error handling {fname}: {e}')
-    finally:
-        return result
-
-# TODO: This route needs to be re-designed since `worker_direct` is no longer activated
-# @app.route("/save_game", methods=["POST"])
-# @login_required
-# def save_game():
-#     """
-#     Save the current game for the user.
-#
-#     Returns
-#     -------
-#     str: A success message.
-#     """
-#     input = json.loads(request.data.decode('utf-8'))
-#     if "game_id" not in input:
-#         raise BadRequest("game_id is required.")
-#     if "save_name" in input:
-#         save_name = str(input["save_name"])
-#     else:
-#         save_name = None
-#     game_id = int(input["game_id"], 16)
-#     # Get a direct worker queue
-#     worker = redis_conn.get('worker_mapping:{}'.format(game_id)).decode("utf-8")
-#     queue = worker_direct(worker)
-#     # Send `save_game` for remote execution on Celery
-#     tasks.save_game.apply_async(args=[get_standard_user_obj().username, save_name], queue=queue)
-#     return status("Save successful.")
-
-
-# TODO: Disabled until save_game is fixed
-# @app.route("/load_game", methods=["POST"])
-# @login_required
-# def load_game():
-#     """
-#     Load the game with the given 'saved_game_id' on Celery Cluster.
-#
-#     Prints a success message.
-#
-#     Returns
-#     -------
-#     str:
-#         JSON-formatted string:
-#         {"game_id": "str, Game Id value", "last_step_num": "int, the last calculated step num"}
-#
-#     Raises
-#     ------
-#     simoc_server.exceptions.NotFound
-#         If the SavedGame with the requested 'saved_game_id' does not exist in the database
-#     """
-#     retries = 30
-#     input = json.loads(request.data.decode('utf-8'))
-#     if "saved_game_id" not in input:
-#         raise BadRequest("saved_game_id is required.")
-#     if "step_num" not in input:
-#         raise BadRequest("step_num is required.")
-#     saved_game_id = input["saved_game_id"]
-#     step_num = int(input["step_num"])
-#     user = get_standard_user_obj()
-#     user_cleanup(user)
-#     tasks.load_game.apply_async(args=[user.username, saved_game_id, step_num])
-#     while True:
-#         time.sleep(0.5)
-#         game_id = get_user_game_id(user)
-#         if not game_id:
-#             retries -= 1
-#         else:
-#             break
-#         if retries <= 0:
-#             raise ServerError(f"Cannot load a game.")
-#     return status("Loaded game starts.", game_id=format(int(game_id), 'X'))
-
-
-# TODO: Disabled until save_game is fixed
-# @app.route("/get_saved_games", methods=["GET"])
-# @login_required
-# def get_saved_games():
-#     """
-#     Get saved games for current user. All save games fall under the root
-#     branch id that they are saved under.
-#
-#     Returns
-#     -------
-#     str:
-#         json format -
-#
-#         {
-#             <root_branch_id>: [
-#                 {
-#                     "date_created":<date_created:str(db.DateTime)>
-#                     "name": "<ave_name:str>,
-#                     "save_game_id":<save_game_id:int>
-#                 },
-#                 ...
-#             ],
-#             ...
-#         }
-#     """
-#     saved_games = SavedGame.query.filter_by(user=get_standard_user_obj()).all()
-#
-#     sequences = {}
-#     for saved_game in saved_games:
-#         snapshot = saved_game.agent_model_snapshot
-#         snapshot_branch = snapshot.snapshot_branch
-#         root_branch = snapshot_branch.get_root_branch()
-#         if root_branch in sequences.keys():
-#             sequences[root_branch].append(saved_game)
-#         else:
-#             sequences[root_branch] = [saved_game]
-#
-#     sequences = OrderedDict(
-#         sorted(sequences.items(), key=lambda x: x[0].date_created))
-#
-#     response = {}
-#     for root_branch, saved_games in sequences.items():
-#         response[root_branch.id] = []
-#         for saved_game in saved_games:
-#             response[root_branch.id].append({
-#                 "saved_game_id": saved_game.id,
-#                 "name":          saved_game.name
-#                 "date_created":  saved_game.date_created.strftime("%m/%d/%Y, %H:%M:%S")
-#             })
-#     return serialize_response(response)
 
 
 @login_manager.user_loader
