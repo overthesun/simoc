@@ -19,7 +19,7 @@ Follow the official guide to set up ``Docker`` software:
 * https://docs.docker.com/install/
 * https://docs.docker.com/compose/install/
 
-Make sure you installed ``Docker Engine`` and``Docker Compose`` components.
+Make sure you installed ``Docker Engine`` and ``Docker Compose`` components.
 
 
 3. Configure ``SIMOC`` deployment
