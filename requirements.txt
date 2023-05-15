@@ -19,4 +19,4 @@ scikit-learn==1.2.0
 scipy==1.9.3
 setuptools==67.7.2
 sqlalchemy==1.4.46
-werkzeug==2.2.3
+werkzeug==2.3.4
