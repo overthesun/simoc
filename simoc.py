@@ -146,7 +146,7 @@ def generate_scripts():
     """Generate simoc_nginx.conf and docker-compose.mysql.yml."""
     install_jinja()
     import generate_docker_configs
-    return generate_docker_configs.main()
+    return generate_docker_configs.main(CURRENT_PATH)
 
 @cmd
 def make_cert():
