@@ -47,16 +47,14 @@ def parse_env(fname):
                 print(f'Unrecognized line in {fname}: {line!r}')
     return env
 
-try:
-    ENVVARS = parse_env(ENV_FILE)
-except FileNotFoundError:
-    sys.exit(f"Can't find env file: {ENV_FILE!r}")
-
-FLASK_WORKERS = ENVVARS['FLASK_WORKERS']
-CELERY_WORKERS = ENVVARS['CELERY_WORKERS']
-
-# update environ with the new envvars
-os.environ.update(ENVVARS)
+def update_env(env_file):
+    try:
+        envvars = parse_env(env_file)
+    except FileNotFoundError:
+        sys.exit(f"Can't find env file: {env_file!r}")
+    # update environ with the new envvars
+    os.environ.update(envvars)
+    return envvars
 
 COMMANDS = {}
 
@@ -181,10 +179,12 @@ def build_images():
 @cmd
 def start_services():
     """Starts the services."""
+    celery_workers = ENVVARS['CELERY_WORKERS']
+    flask_workers = ENVVARS['FLASK_WORKERS']
     return docker_compose('up', '-d',
                           '--force-recreate',
-                          '--scale', f'celery-worker={CELERY_WORKERS}',
-                          '--scale', f'flask-app={FLASK_WORKERS}')
+                          '--scale', f'celery-worker={celery_workers}',
+                          '--scale', f'flask-app={flask_workers}')
 
 # DB
 @cmd
@@ -406,6 +406,10 @@ Use the `--with-dev-backend` flag to run the dev backend container.
         help='the docker-compose yml file (default: %(default)r)'
     )
     parser.add_argument(
+        '--env-file', metavar='FILE', default=ENV_FILE,
+        help='the env file (default: %(default)r)'
+    )
+    parser.add_argument(
         '--with-dev-frontend', action='store_true',
         help='also start the dev frontend container'
     )
@@ -437,6 +441,10 @@ Use the `--with-dev-backend` flag to run the dev backend container.
     if args.docker_file:
         COMPOSE_FILE = args.docker_file
         DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
+
+    if args.env_file:
+        ENV_FILE = args.env_file
+    ENVVARS = update_env(ENV_FILE)
 
     if (args.dev_frontend_dir or args.dev_frontend_yml) and not args.with_dev_frontend:
         parser.error("Can't specify the dev frontend dir/yml without --with-dev-frontend")
