@@ -149,6 +149,6 @@ jobs:
           copy_stack_file: true
           deploy_path: /home/beta.simoc/simoc
           stack_file_name: docker-compose.mysql.yml
-          args: up -d
+          args: up -d --scale celery-worker=$CELERY_WORKERS
           docker_prune: false
           pull_images_first: true
