@@ -139,6 +139,9 @@ jobs:
           source $DOCKER_ENV && export VERSION=${{ github.sha }}
           python3 -m pip install -U jinja2
           python3 generate_docker_configs.py
+      - name: Print info
+        run: |
+           echo "Celery/Flask workers: $CELERY_WORKERS/$FLASK_WORKERS"
       - name: Deploy to Docker Host
         uses: wshihadeh/docker-deployment-action@v2
         with:
