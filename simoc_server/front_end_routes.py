@@ -21,7 +21,8 @@ from flask import request, Response
 from werkzeug.security import safe_join
 
 from simoc_server import app, db, redis_conn
-from agent_model.agents.custom_funcs import hourly_par_fraction, monthly_par
+from simoc_abm.util import load_data_file, get_default_agent_data
+from simoc_abm.agents import SunAgent, ConcreteAgent
 
 @app.route('/simdata/<path:filename>')
 def serve_simdata(filename):
@@ -52,56 +53,44 @@ def get_energy():
 
     agent_name = request.args.get('agent_name', type=str)
     agent_quantity = request.args.get('quantity', 1, type=int) or 1
-    agent_desc = load_from_basedir('data_files/agent_desc.json')
-    total = {}
+    agent_desc = load_data_file('agent_desc.json')
+    data = agent_desc.get(agent_name, None)
     if agent_name == 'solar_pv_array_mars':
         value_type = 'energy_output'
-        data = agent_desc['power_generation'][agent_name]
-        total_kwh = next((float(e['value'])
-                          for e in data['data']['output']
-                          if e['type'] == 'kwh'), 0)
+        total_kwh = data['flows']['out']['kwh']['value']
     elif agent_name == 'power_storage':
         value_type = 'energy_capacity'
-        data = agent_desc['storage']['power_storage']
-        total_kwh = next((float(e['value'])
-                          for e in data['data']['characteristics']
-                          if e['type'] == 'capacity_kwh'), 0)
-    elif agent_name in agent_desc['plants']:
-        # kwh consumption for the electric lamps used by plant
-        value_type = 'energy_input'
-        plant_desc = agent_desc['plants'][agent_name]
-        par_baseline = next(char['value']
-                            for char in plant_desc['data']['characteristics']
-                            if char['type'] == 'par_baseline')  # 24h average
-        lamp_desc = agent_desc['structures']['lamp']
-        kwh_per_par = next(flow['value'] for flow in lamp_desc['data']['input']
-                           if flow['type'] == 'kwh')  # Default output is 1 par
-        total_kwh = par_baseline * kwh_per_par  # Output scaled by custom_func
+        total_kwh = data['capacity']['kwh']
     else:
         value_type = 'energy_input'
-        total_kwh = 0
-        for agent_class, agents in agent_desc.items():
-            for name, data in agents.items():
-                if (agent_name == 'eclss' == agent_class or
-                    agent_name == name):
-                    total_kwh += next((float(e['value'])
-                                       for e in data['data']['input']
-                                       if e['type'] == 'kwh'), 0)
+        def input_kwh(agent):
+            return agent.get('flows', {}).get('in', {}).get('kwh', {}).get('value', 0)
+        if agent_name == 'eclss':
+            # Sum of all eclss agents
+            total_kwh = sum(input_kwh(v) for v in agent_desc.values()
+                            if v.get('agent_class') == 'eclss')
+        elif data is None:
+            total_kwh = 0
+        elif data.get('agent_class', None) == 'plants':
+            # Electricity used by lamp for plant
+            par_baseline = data['properties']['par_baseline']['value']
+            total_kwh = par_baseline * input_kwh(agent_desc['lamp'])
+        else:
+            total_kwh = input_kwh(data)
     value = total_kwh * agent_quantity
     total = {value_type : value}
     return json.dumps(total)
 
-
+monthly_par = SunAgent.monthly_par
+hourly_par_fraction = SunAgent.hourly_par_fraction
 def b2_plant_factor(plant, data, cache={}):
     """Calculate and return an estimate of the actual:ideal exchange ratios at b2"""
     if plant not in cache:
         # par_factor
         mean_monthly_par = sum(monthly_par) / len(monthly_par)
         available_light = np.array(hourly_par_fraction) * mean_monthly_par
-        par_baseline = next(c['value'] for c in data['characteristics']
-                            if c['type'] == 'par_baseline')
-        photoperiod = next(c['value'] for c in data['characteristics']
-                            if c['type'] == 'photoperiod')
+        par_baseline = data['properties']['par_baseline']['value']
+        photoperiod = data['properties']['photoperiod']['value']
         photo_start = int((24 // 2) - (photoperiod // 2))
         photo_end = int(photo_start + photoperiod)
         photo_rate = 24 / photoperiod
@@ -115,6 +104,9 @@ def b2_plant_factor(plant, data, cache={}):
         cache[plant] = par_factor * density_factor
     return cache[plant]
 
+carbonation_rate = (ConcreteAgent.rate_scale[0] * 
+                    ConcreteAgent.density * 
+                    ConcreteAgent.diffusion_rate)
 @app.route('/get_o2_co2', methods=['GET'])
 def get_o2_co2():
     """
@@ -129,34 +121,29 @@ def get_o2_co2():
     agent_name = request.args.get('agent_name', type=str)
     agent_quantity = request.args.get('quantity', 1, type=int) or 1
     location = request.args.get('location', 'mars', type=str)
-    agent_desc = load_from_basedir('data_files/agent_desc.json')
     total = {'o2': {'input': 0, 'output': 0}, 'co2': {'input': 0, 'output': 0}}
 
-    data = None
-    agent_class = None
-    for _agent_class, agents in agent_desc.items():
-        if agent_name in agents:
-            data = agents[agent_name]['data']
-            agent_class = _agent_class
-            break
+    substitute_names = {'human_agent': 'human'}
+    agent_name = substitute_names.get(agent_name, agent_name)
+    data = get_default_agent_data(agent_name)
     if data is None:
         raise ValueError('Agent not found in agent_desc:', agent_name)
-
-    for direction in {'input', 'output'}:
-        for exchange in data[direction]:
-            for currency in {'o2', 'co2'}:
-                if exchange['type'] != currency:
-                    continue
-                amount = exchange['value'] * agent_quantity
-                # for B2, adjust for expected model outputs
-                if location == 'b2':
-                    if agent_class == 'plants':
-                        amount *= b2_plant_factor(agent_name, data)
-                    elif agent_name == 'concrete':
-                        carbonation_rate = 12.7 * (1.21 / 1000) * .000018 # @ Fresh concrete @ 350ppm
-                        amount *= carbonation_rate
-                total[currency][direction] += amount
-
+    agent_class = data.get('agent_class', None)
+    if 'flows' not in data:
+        return json.dumps(total)
+    for direction, flows in data['flows'].items():  # input, output
+        for currency in {'o2', 'co2'}:
+            if currency not in flows:
+                continue
+            amount = flows[currency]['value'] * agent_quantity
+            # for B2, adjust for expected model outputs
+            if location == 'b2':
+                if agent_class == 'plants':
+                    amount *= b2_plant_factor(agent_name, data)
+                elif agent_name == 'concrete':
+                    amount *= carbonation_rate
+            _direction = {'in': 'input', 'out': 'output'}[direction]
+            total[currency][_direction] += amount
     return json.dumps(total)
 
 
