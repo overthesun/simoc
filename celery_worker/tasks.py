@@ -14,7 +14,7 @@ logger = get_task_logger(__name__)
 
 sys.path.append("../")
 
-from agent_model import AgentModel
+from simoc_abm.agent_model import AgentModel
 from simoc_server.database.db_model import User
 from simoc_server.exceptions import NotFound
 from simoc_server import redis_conn, db
@@ -52,13 +52,12 @@ BUFFER_SIZE = 10  # Number of steps to execute between adding records to Redis
 RECORD_EXPIRE = 1800  # Number of seconds to keep records in Redis
 
 @app.task
-def new_game(username, game_config, num_steps, user_agent_desc=None,
-             user_agent_conn=None, expire=3600):
+def new_game(username, game_config, num_steps, expire=3600):
     logger.info(f'Starting new game for {username=}, {num_steps=}')
     # Initialize model
     user = get_user(username)
     game_id = random.getrandbits(63)
-    model = AgentModel.from_config(game_config, agent_desc=user_agent_desc, agent_conn=user_agent_conn)
+    model = AgentModel.from_config(**game_config)
     model.game_id = game_id
     model.user_id = user.id
     # Initialize Redis
@@ -74,8 +73,9 @@ def new_game(username, game_config, num_steps, user_agent_desc=None,
         batch_num = 0
         while model.step_num <= num_steps and not model.is_terminated:
             n_steps = min(BUFFER_SIZE, num_steps - model.step_num)
-            model.step_to(n_steps)
-            records = model.get_data(step_range=(0, n_steps), clear_cache=True)
+            for _ in range(n_steps):
+                model.step()
+            records = model.get_records(static=True, clear_cache=True)
             # Include the number of steps so views.py knows when it's finished
             records['n_steps'] = n_steps
             label = f'model_records:{user.id}:{game_id}:{batch_num}'
@@ -84,5 +84,7 @@ def new_game(username, game_config, num_steps, user_agent_desc=None,
         logger.info(f'Game {game_id:X} finished successfully after {model.step_num} steps')
 
     finally:
-        logger.info(f'Deleting user_mapping on Redis for {user}')
-        redis_conn.delete('user_mapping:{}'.format(user.id))
+        logger.info(f'Completed simulation for {user}')
+        # SIMULATION FINISHES TOO FAST, LOST MAPPING BEFORE FRONTEND CAN GRAB
+        # logger.info(f'Deleting user_mapping on Redis for {user}')
+        # redis_conn.delete('user_mapping:{}'.format(user.id))
