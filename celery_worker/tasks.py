@@ -60,6 +60,9 @@ def new_game(username, game_config, num_steps, expire=3600):
     model = AgentModel.from_config(**game_config)
     model.game_id = game_id
     model.user_id = user.id
+    # Save complete game config to Redis
+    complete_game_config = model.save()
+    redis_conn.set(f'game_config:{game_id}', json.dumps(complete_game_config))
     # Initialize Redis
     logger.info(f'Setting user:{user.id} task:{game_id:X} on Redis')
     redis_conn.set('task_mapping:{}'.format(game_id), new_game.request.id)

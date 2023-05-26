@@ -18,7 +18,8 @@ from simoc_server.database.db_model import User
 from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration, \
     ServerError
 from simoc_server.serialize import serialize_response
-from simoc_server.front_end_routes import convert_configuration, load_from_basedir
+from simoc_server.front_end_routes import convert_configuration
+from simoc_abm.util import load_data_file
 
 from celery_worker import tasks
 from celery_worker.tasks import app as celery_app
@@ -285,8 +286,6 @@ def new_game():
         raise BadRequest("Too many steps requested.")
     user = get_standard_user_obj()
     user_cleanup(user)
-    # Import and load default currencies list
-    default_currencies = load_from_basedir('data_files/currency_desc.json')
     tasks.new_game.apply_async(args=[user.username, game_config, step_num])
     while True:
         time.sleep(0.5)
@@ -301,9 +300,13 @@ def new_game():
             msg = 'Cannot create a new game.'
             app.logger.error(msg)
             raise ServerError(msg)
-    redis_conn.set('game_config:{}'.format(game_id), json.dumps(game_config))
+    # The AgentModel fills in connections, currencies, etc and then re-exports
+    # using the save() method, and adds to redis. We return this to the 
+    # frontend as the complete 'game config' of record.
+    complete_game_config = redis_conn.get(f'game_config:{game_id}')
+    complete_game_config = json.loads(complete_game_config)
     return status("New game starts.", game_id=format(game_id, 'X'),
-                  game_config=game_config, currency_desc=default_currencies)
+                  game_config=complete_game_config)
 
 
 def get_game_config(game_id):
@@ -434,7 +437,7 @@ def get_agent_types_by_class():
     results = []
     get_agent_class = request.args.get("agent_class", type=str)
     get_agent_name = request.args.get("agent_name", type=str)
-    agent_desc = load_from_basedir('data_files/agent_desc.json')
+    agent_desc = load_data_file('agent_desc.json')
     for agent_class, agents in agent_desc.items():
         if get_agent_class and agent_class != get_agent_class:
             continue
@@ -460,16 +463,15 @@ def get_agent_types_by_class():
 @app.route("/get_agent_desc", methods=["GET"])
 def get_agent_desc():
     """Return the default agent_desc.json and agent_schema.json files."""
-    agent_desc = load_from_basedir('data_files/agent_desc.json')
-    agent_schema = load_from_basedir('data_files/agent_schema.json')
+    agent_desc = load_data_file('agent_desc.json')
     return status("Agent editor data retrieved",
-                  agent_desc=agent_desc, agent_schema=agent_schema)
+                  agent_desc=agent_desc)
 
 
 @app.route("/get_currency_desc", methods=["GET"])
 def get_currency_desc():
     """Return the default currency_desc.json file."""
-    currency_desc = load_from_basedir('data_files/currency_desc.json')
+    currency_desc = load_data_file('currency_desc.json')
     return status("Currency desc retrieved", currency_desc=currency_desc)
 
 
