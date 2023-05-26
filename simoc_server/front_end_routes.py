@@ -242,25 +242,26 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     total_volume = 0  # Used to calculate starting water_storage
     if not is_b2:
         weights = {}
-    elif working_config.get('startWithM1EndingAtmosphere'):
-        del working_config['startWithM1EndingAtmosphere']
-        weights = {
-            'o2': 14.95,
-            'co2': 0.32,
-            'h2o': 0.9,
-            'n2': 83.83,
-            'h2': 0,
-            'ch4': 0,
-        }
     else:
-        weights = {
-            'o2': 18.75,  # Estimated from Severinghaus Figure 1
-            'co2': 0.04,  # Estimated from Severinghaus Figure 1
-            'h2o': 1,     # SIMOC default
-            'n2': 80.21,  # Remainder of 100%
-            'h2': 0,
-            'ch4': 0,
-        }
+        startWithM1Atmo = working_config.pop('startWithM1EndingAtmosphere', False)
+        if startWithM1Atmo:
+            weights = {
+                'o2': 14.95,
+                'co2': 0.32,
+                'h2o': 0.9,
+                'n2': 83.83,
+                'h2': 0,
+                'ch4': 0,
+            }
+        else:
+            weights = {
+                'o2': 18.75,  # Estimated from Severinghaus Figure 1
+                'co2': 0.04,  # Estimated from Severinghaus Figure 1
+                'h2o': 1,     # SIMOC default
+                'n2': 80.21,  # Remainder of 100%
+                'h2': 0,
+                'ch4': 0,
+            }
     active_structures = {}
     for generic in {'habitat', 'greenhouse'}:
         if generic in working_config:
@@ -315,7 +316,8 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
             for species in plants_in_config:
                 # Add custom lamp for plant
                 lamp_id = f'{species}_lamp'
-                working_config[lamp_id] = {'amount': 1, 'prototypes': ['lamp']}
+                working_config[lamp_id] = {'amount': 1, 'prototypes': ['lamp'],
+                                           'flows': {'out': {'par': {'connections': [lamp_id]}}}}
                 # Add connection to plant 'par' flow
                 par_flow_stub = {'in': {'par': {'connections': [lamp_id]}}}
                 working_config[species]['flows'] = par_flow_stub
