@@ -438,24 +438,25 @@ def get_agent_types_by_class():
     get_agent_class = request.args.get("agent_class", type=str)
     get_agent_name = request.args.get("agent_name", type=str)
     agent_desc = load_data_file('agent_desc.json')
-    for agent_class, agents in agent_desc.items():
+    for agent_name, agent_data in agent_desc.items():
+        agent_class = agent_data.get('agent_class', None)
         if get_agent_class and agent_class != get_agent_class:
             continue
-        for agent_name, agent_data in agents.items():
-            if get_agent_name and agent_name != get_agent_name:
-                continue
-            entry = {"agent_class": agent_class, "name": agent_name}
-            for prefix, items in agent_data['data'].items():
-                for item in items:
-                    if prefix not in entry:
-                        entry[prefix] = []
-                    if prefix in ['in', 'out']:
-                        entry[prefix].append(item['type'])
-                    else:
-                        entry[prefix].append(
-                            # FIXME: see issue #68, "units": attr.details
-                            {"name": item['type'], "value": item['value']})
-            results.append(entry)
+        if get_agent_name and agent_name != get_agent_name:
+            continue
+        entry = {"agent_class": agent_class, "name": agent_name}
+        # 06/2023: Outdated and Unused
+        # for prefix, items in agent_data['data'].items():
+        #     for item in items:
+        #         if prefix not in entry:
+        #             entry[prefix] = []
+        #         if prefix in ['in', 'out']:
+        #             entry[prefix].append(item['type'])
+        #         else:
+        #             entry[prefix].append(
+        #                 # FIXME: see issue #68, "units": attr.details
+        #                 {"name": item['type'], "value": item['value']})
+        results.append(entry)
     return json.dumps(results)
 
 
