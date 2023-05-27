@@ -48,7 +48,7 @@ def get_user(username, num_retries=30, interval=1):
             logger.info(f'User found ({num_retries=} left): {user[0]}')
             return user[0]
 
-BUFFER_SIZE = 10  # Number of steps to execute between adding records to Redis
+BUFFER_SIZE = 100  # Number of steps to execute between adding records to Redis
 RECORD_EXPIRE = 1800  # Number of seconds to keep records in Redis
 
 @app.task
@@ -57,7 +57,7 @@ def new_game(username, game_config, num_steps, expire=3600):
     # Initialize model
     user = get_user(username)
     game_id = random.getrandbits(63)
-    model = AgentModel.from_config(**game_config)
+    model = AgentModel.from_config(**game_config, record_initial_state=False)
     model.game_id = game_id
     model.user_id = user.id
     # Save complete game config to Redis
