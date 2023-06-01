@@ -17,7 +17,6 @@ ENV_FILE = 'simoc_docker.env'
 AGENT_DESC = 'data_files/agent_desc.json'
 
 COMPOSE_FILE = 'docker-compose.mysql.yml'
-DEV_FE_COMPOSE_FILE = 'docker-compose.dev-fe.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
 AGENT_DESC_COMPOSE_FILE = 'docker-compose.agent-desc.yml'
 TESTING_COMPOSE_FILE = 'docker-compose.testing.yml'
@@ -396,18 +395,6 @@ Use the `--with-dev-backend` flag to run the dev backend container.
         help='the docker-compose yml file (default: %(default)r)'
     )
     parser.add_argument(
-        '--with-dev-frontend', action='store_true',
-        help='also start the dev frontend container'
-    )
-    parser.add_argument(
-        '--dev-frontend-yml', metavar='FILE',
-        help='the dev frontend docker-compose yml file'
-    )
-    parser.add_argument(
-        '--dev-frontend-dir', metavar='DIR',
-        help='the dir where the dev frontend code is'
-    )
-    parser.add_argument(
         '--with-dev-backend', action='store_true',
         help='use the dev backend flask container'
     )
@@ -427,21 +414,8 @@ Use the `--with-dev-backend` flag to run the dev backend container.
     if args.docker_file:
         COMPOSE_FILE = args.docker_file
         DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
-
-    if (args.dev_frontend_dir or args.dev_frontend_yml) and not args.with_dev_frontend:
-        parser.error("Can't specify the dev frontend dir/yml without --with-dev-frontend")
-
     if args.dev_backend_yml and not args.with_dev_backend:
         parser.error("Can't specify the dev backend yml without --with-dev-backend")
-
-    if args.with_dev_frontend:
-        if args.dev_frontend_dir:
-            os.environ['DEV_FE_DIR'] = args.dev_frontend_dir
-        if not os.environ['DEV_FE_DIR']:
-            parser.error('Please specify the dev frontend dir (either in '
-                         'simoc_docker.env or with --dev-frontend-dir).')
-        yml_file = args.dev_frontend_yml or DEV_FE_COMPOSE_FILE
-        DOCKER_COMPOSE_CMD.extend(['-f', yml_file])
 
     if args.with_dev_backend:
         yml_file = args.dev_backend_yml or DEV_BE_COMPOSE_FILE
