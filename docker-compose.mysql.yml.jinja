@@ -46,7 +46,7 @@ services:
     volumes:
       - db-data:/var/lib/mysql
     ports:
-      - '${DB_PORT}:${DB_PORT}'
+      - '${DB_EXT_PORT}:${DB_PORT}'
     networks:
       - simoc-net
     environment:
@@ -61,7 +61,7 @@ services:
     {% endif %}
     restart: always
     ports:
-      - '${REDIS_PORT}:${REDIS_PORT}'
+      - '${REDIS_EXT_PORT}:${REDIS_PORT}'
     networks:
       - simoc-net
     environment:
