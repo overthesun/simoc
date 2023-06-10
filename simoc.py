@@ -271,12 +271,12 @@ def post_setup_msg():
     """Print a message and ask to open SIMOC in the browser."""
     print('Setup completed!')
     if pathlib.Path('simoc_server', 'dist').exists():
-        url = 'http://localhost:8000/'
+        url = f'http://localhost:{os.environ["HTTP_PORT"]}/'
         print(f'You can now access SIMOC at <{url}>.' )
         ans = input('Do you want to open SIMOC on your browser? [Y/n] ')
         if ans.lower().strip() != 'n':
             import webbrowser
-            webbrowser.open_new_tab('http://localhost:8000/')
+            webbrowser.open_new_tab(url)
     return True
 
 @cmd
