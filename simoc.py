@@ -42,9 +42,6 @@ try:
 except FileNotFoundError:
     sys.exit(f"Can't find env file: {ENV_FILE!r}")
 
-FLASK_WORKERS = ENVVARS['FLASK_WORKERS']
-CELERY_WORKERS = ENVVARS['CELERY_WORKERS']
-
 # update environ with the new envvars
 os.environ.update(ENVVARS)
 
@@ -171,10 +168,7 @@ def build_images():
 @cmd
 def start_services():
     """Starts the services."""
-    return docker_compose('up', '-d',
-                          '--force-recreate',
-                          '--scale', f'celery-worker={CELERY_WORKERS}',
-                          '--scale', f'flask-app={FLASK_WORKERS}')
+    return docker_compose('up', '-d', '--force-recreate')
 
 # DB
 @cmd
