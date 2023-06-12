@@ -179,12 +179,7 @@ def build_images():
 @cmd
 def start_services():
     """Starts the services."""
-    celery_workers = ENVVARS['CELERY_WORKERS']
-    flask_workers = ENVVARS['FLASK_WORKERS']
-    return docker_compose('up', '-d',
-                          '--force-recreate',
-                          '--scale', f'celery-worker={celery_workers}',
-                          '--scale', f'flask-app={flask_workers}')
+    return docker_compose('up', '-d', '--force-recreate')
 
 # DB
 @cmd
