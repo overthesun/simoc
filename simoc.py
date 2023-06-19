@@ -11,10 +11,13 @@ import socket
 import pathlib
 import argparse
 import subprocess
+import urllib.request
 
 
 ENV_FILE = 'simoc_docker.env'
 AGENT_DESC = 'data_files/agent_desc.json'
+
+CERTBOT_DIR = 'certbot'
 
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
@@ -137,25 +140,81 @@ def generate_scripts():
     return generate_docker_configs.main()
 
 @cmd
-def make_cert():
+def create_self_signed_cert():
     """Create the certs/cert.pem SSL certificate."""
+    if ENVVARS.get('USE_CERTBOT') == '1':
+        return True  # we are using certbot, not self-signed certificates
     pathlib.Path('certs').mkdir(exist_ok=True)
     #print('Creating SSL certificates.  Use the following values:',
           #'Country Name (2 letter code) []:US',
-          #'State or Province Name (full name) []:Texas',
-          #'Locality Name (eg, city) []:Austin',
+          #'State or Province Name (full name) []:Arizona',
+          #'Locality Name (eg, city) []:Tucson',
           #'Organization Name (eg, company) []:SIMOC',
           #'Organizational Unit Name (eg, section) []:',
           #f'Common Name (eg, fully qualified host name) []:{domain}',
           #'Email Address []:', sep='\n')
     certpath = 'certs/cert.pem'
-    if socket.gethostname().endswith('simoc.space'):
-        domain = 'beta.simoc.space'
-    else:
-        domain = 'localhost'
+    server_name = ENVVARS['SERVER_NAME']
     return run(['openssl', 'req', '-x509', '-newkey', 'rsa:4096', '-nodes',
                 '-out', certpath, '-keyout', 'certs/key.pem', '-days', '365',
-                '-subj', f"/C=US/ST=Texas/L=Austin/O=SIMOC/CN={domain}"])
+                '-subj', f"/C=US/ST=Arizona/L=Tucson/O=SIMOC/CN={server_name}"])
+
+@cmd
+def init_certbot():
+    if ENVVARS.get('USE_CERTBOT', '0') == '0':
+        return True  # we are using self-signed certificates, not certbot
+    certbot_path = pathlib.Path(CERTBOT_DIR)
+    if certbot_path.exists() and len(list(certbot_path.iterdir())) > 3:
+        print('certbot already configured')
+        return True  # Certbot already configured
+    # create certbot/conf dir
+    certbot_conf = certbot_path / 'conf'
+    certbot_conf.mkdir(parents=True)
+
+    # download certbot configuration files
+    certbot_repo = 'https://raw.githubusercontent.com/certbot/certbot/master/'
+    tls_config = 'options-ssl-nginx.conf'
+    tls_config_url = (f'{certbot_repo}/certbot-nginx/certbot_nginx/_internal/'
+                      f'tls_configs/{tls_config}')
+    ssl_dhparams = 'ssl-dhparams.pem'
+    ssl_dhparams_url = f'{certbot_repo}/certbot/certbot/{ssl_dhparams}'
+    urllib.request.urlretrieve(tls_config_url, certbot_conf/tls_config)
+    urllib.request.urlretrieve(ssl_dhparams_url, certbot_conf/ssl_dhparams)
+
+    # create domain-specific dirs
+    server_name = ENVVARS['SERVER_NAME']
+    domain_path = certbot_conf / 'live' / server_name
+    domain_path.mkdir(parents=True)
+    docker_cert_path = pathlib.Path('/etc/letsencrypt/live/') / server_name
+
+    # generate "dummy" certificates
+    cmd = (f"openssl req -x509 -nodes -newkey rsa:4096 -days 1 "
+           f"-keyout '{docker_cert_path}/privkey.pem' "
+           f"-out '{docker_cert_path}/fullchain.pem' "
+           f"-subj '/CN=localhost'")
+    docker_compose('run', '--rm', '--entrypoint', cmd, 'certbot')
+
+    # start nginx
+    docker_compose('up', '--force-recreate', '-d', 'nginx')
+
+    # delete "dummy" certificates
+    cmd = (f"rm -Rf /etc/letsencrypt/live/{server_name} && "
+           f"rm -Rf /etc/letsencrypt/archive/{server_name} && "
+           f"rm -Rf /etc/letsencrypt/renewal/{server_name}.conf")
+    docker_compose('run', '--rm', '--entrypoint', cmd, 'certbot')
+
+    # email for the SSL certificates
+    email = ENVVARS['EMAIL']
+
+    # request managed certificates from letsencrypt
+    cmd = (f'certbot certonly --webroot -w /var/www/certbot '
+           f'--email {email} -d {server_name} '
+           f'--rsa-key-size 4096 --agree-tos --no-eff-email --force-renewal')
+    docker_compose('run', '--rm', '--entrypoint', cmd, 'certbot')
+
+    # reload nginx
+    docker_compose('exec', 'nginx', 'nginx -s reload')
+    return True
 
 @cmd
 def build_images():
@@ -266,8 +325,8 @@ def post_setup_msg():
 def setup():
     """Run a complete setup of SIMOC."""
     return (install_deps() and generate_scripts() and make_cert() and
-            build_images() and start_services() and init_db() and
-            ps() and post_setup_msg())
+            build_images() and start_services() and
+            init_certbot() and init_db() and ps() and post_setup_msg())
 
 @cmd
 def teardown():
