@@ -324,8 +324,8 @@ def post_setup_msg():
 @cmd
 def setup():
     """Run a complete setup of SIMOC."""
-    return (install_deps() and generate_scripts() and make_cert() and
-            build_images() and start_services() and
+    return (install_deps() and generate_scripts() and
+            create_self_signed_cert() and build_images() and start_services() and
             init_certbot() and init_db() and ps() and post_setup_msg())
 
 @cmd
