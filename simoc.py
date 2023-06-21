@@ -140,11 +140,15 @@ def generate_scripts():
     import generate_docker_configs
     return generate_docker_configs.main()
 
+def init_certs():
+    if ENVVARS.get('USE_CERTBOT') == '1':
+        return init_certbot()
+    else:
+        return create_self_signed_cert()
+
 @cmd
 def create_self_signed_cert():
     """Create the certs/cert.pem SSL certificate."""
-    if ENVVARS.get('USE_CERTBOT') == '1':
-        return True  # we are using certbot, not self-signed certificates
     pathlib.Path('certs').mkdir(exist_ok=True)
     #print('Creating SSL certificates.  Use the following values:',
           #'Country Name (2 letter code) []:US',
@@ -162,15 +166,13 @@ def create_self_signed_cert():
 
 @cmd
 def init_certbot():
-    if ENVVARS.get('USE_CERTBOT', '0') == '0':
-        return True  # we are using self-signed certificates, not certbot
     certbot_path = pathlib.Path(CERTBOT_DIR)
     if certbot_path.exists() and len(list(certbot_path.iterdir())) > 3:
         print('certbot already configured')
         return True  # Certbot already configured
     # create certbot/conf dir
     certbot_conf = certbot_path / 'conf'
-    certbot_conf.mkdir(parents=True)
+    certbot_conf.mkdir(parents=True, exist_ok=True)
 
     # download certbot configuration files
     certbot_repo = 'https://raw.githubusercontent.com/certbot/certbot/master/'
@@ -179,12 +181,19 @@ def init_certbot():
                       f'tls_configs/{tls_config}')
     ssl_dhparams = 'ssl-dhparams.pem'
     ssl_dhparams_url = f'{certbot_repo}/certbot/certbot/{ssl_dhparams}'
+    if ((certbot_conf/tls_config).exists() and
+        (certbot_conf/ssl_dhparams).exists()):
+        return True  # everything already Initialized
     urllib.request.urlretrieve(tls_config_url, certbot_conf/tls_config)
     urllib.request.urlretrieve(ssl_dhparams_url, certbot_conf/ssl_dhparams)
+    return True
 
+def setup_certbot():
+    if ENVVARS.get('USE_CERTBOT', '0') == '0':
+        return True  # we are using self-signed certificates, not certbot
     # create domain-specific dirs
     server_name = ENVVARS['SERVER_NAME']
-    domain_path = certbot_conf / 'live' / server_name
+    domain_path = pathlib.Path(CERTBOT_DIR) / 'conf' / 'live' / server_name
     domain_path.mkdir(parents=True)
     docker_cert_path = pathlib.Path('/etc/letsencrypt/live/') / server_name
 
@@ -325,9 +334,9 @@ def post_setup_msg():
 @cmd
 def setup():
     """Run a complete setup of SIMOC."""
-    return (install_deps() and generate_scripts() and
-            create_self_signed_cert() and build_images() and start_services() and
-            init_certbot() and init_db() and ps() and post_setup_msg())
+    return (install_deps() and generate_scripts() and init_certs() and
+            build_images() and start_services() and setup_certbot() and
+            init_db() and ps() and post_setup_msg())
 
 @cmd
 def teardown():
