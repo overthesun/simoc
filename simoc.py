@@ -223,7 +223,7 @@ def setup_certbot():
     docker_compose('run', '--rm', '--entrypoint', cmd, 'certbot')
 
     # reload nginx
-    docker_compose('exec', 'nginx', 'nginx -s reload')
+    docker_compose('exec', 'nginx', 'nginx', '-s', 'reload')
     return True
 
 @cmd
