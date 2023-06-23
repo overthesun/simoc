@@ -14,10 +14,12 @@ import subprocess
 import urllib.request
 
 
+SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
+
 ENV_FILE = 'simoc_docker.env'
 AGENT_DESC = 'data_files/agent_desc.json'
 
-CERTBOT_DIR = 'certbot'
+CERTBOT_DIR = SCRIPT_DIR / 'certbot'
 
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
@@ -166,12 +168,11 @@ def create_self_signed_cert():
 
 @cmd
 def init_certbot():
-    certbot_path = pathlib.Path(CERTBOT_DIR)
-    if certbot_path.exists() and len(list(certbot_path.iterdir())) > 3:
-        print('certbot already configured')
+    if CERTBOT_DIR.exists() and len(list(CERTBOT_DIR.iterdir())) > 3:
+        print('Certbot already configured')
         return True  # Certbot already configured
     # create certbot/conf dir
-    certbot_conf = certbot_path / 'conf'
+    certbot_conf = CERTBOT_DIR / 'conf'
     certbot_conf.mkdir(parents=True, exist_ok=True)
 
     # download certbot configuration files
@@ -193,8 +194,8 @@ def setup_certbot():
         return True  # we are using self-signed certificates, not certbot
     # create domain-specific dirs
     server_name = ENVVARS['SERVER_NAME']
-    domain_path = pathlib.Path(CERTBOT_DIR) / 'conf' / 'live' / server_name
-    domain_path.mkdir(parents=True)
+    domain_path = CERTBOT_DIR / 'conf' / 'live' / server_name
+    domain_path.mkdir(parents=True, exist_ok=True)
     docker_cert_path = pathlib.Path('/etc/letsencrypt/live/') / server_name
 
     # generate "dummy" certificates
