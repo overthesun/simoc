@@ -1,13 +1,18 @@
 __pycache__
 *.diff
+.DS_Store
 
 # Sphinx documentation
 docs/_build/
 
+# frontend dir
+simoc_server/dist/
+ 
+# SSL certificates
 certs/
+certbot/
 
 data_analysis/
 
-.DS_Store
 docker-compose.mysql.yml
 simoc_nginx.conf
