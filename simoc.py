@@ -168,33 +168,46 @@ def create_self_signed_cert():
 
 @cmd
 def init_certbot():
-    if CERTBOT_DIR.exists() and len(list(CERTBOT_DIR.iterdir())) > 3:
-        print('Certbot already configured')
-        return True  # Certbot already configured
-    # create certbot/conf dir
     certbot_conf = CERTBOT_DIR / 'conf'
+    tls_config = 'options-ssl-nginx.conf'
+    ssl_dhparams = 'ssl-dhparams.pem'
+    tls_config_path = certbot_conf / 'options-ssl-nginx.conf'
+    ssl_dhparams_path = certbot_conf / 'ssl-dhparams.pem'
+    if tls_config_path.exists() and ssl_dhparams_path.exists():
+        print('Certbot configuration files already downloaded.\n')
+        return True
+    # create certbot/conf dir
     certbot_conf.mkdir(parents=True, exist_ok=True)
 
-    # download certbot configuration files
+    print('Downloading Certbot config files:')
     certbot_repo = 'https://raw.githubusercontent.com/certbot/certbot/master/'
-    tls_config = 'options-ssl-nginx.conf'
     tls_config_url = (f'{certbot_repo}/certbot-nginx/certbot_nginx/_internal/'
                       f'tls_configs/{tls_config}')
-    ssl_dhparams = 'ssl-dhparams.pem'
     ssl_dhparams_url = f'{certbot_repo}/certbot/certbot/{ssl_dhparams}'
-    if ((certbot_conf/tls_config).exists() and
-        (certbot_conf/ssl_dhparams).exists()):
-        return True  # everything already Initialized
-    urllib.request.urlretrieve(tls_config_url, certbot_conf/tls_config)
-    urllib.request.urlretrieve(ssl_dhparams_url, certbot_conf/ssl_dhparams)
-    return True
+    try:
+        urllib.request.urlretrieve(tls_config_url, tls_config_path)
+        print(f'  * <{tls_config}> downloaded')
+        urllib.request.urlretrieve(ssl_dhparams_url, ssl_dhparams_path)
+        print(f'  * <{ssl_dhparams}> downloaded')
+        print()
+    except Exception as err:
+        print('Failed to download certbot files:', err)
+        return False
+    else:
+        return True
 
 def setup_certbot():
     if ENVVARS.get('USE_CERTBOT', '0') == '0':
         return True  # we are using self-signed certificates, not certbot
-    # create domain-specific dirs
+
     server_name = ENVVARS['SERVER_NAME']
     domain_path = CERTBOT_DIR / 'conf' / 'live' / server_name
+    if domain_path.exists() and len(list(domain_path.glob('*.pem'))) >= 4:
+        print('Certbot certificates already installed.\n')
+        # TODO: check expiration date
+        return True
+
+    # create domain-specific dirs
     domain_path.mkdir(parents=True, exist_ok=True)
     docker_cert_path = pathlib.Path('/etc/letsencrypt/live/') / server_name
 
