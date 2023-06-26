@@ -204,7 +204,6 @@ def setup_certbot():
     domain_path = CERTBOT_DIR / 'conf' / 'live' / server_name
     if domain_path.exists() and len(list(domain_path.glob('*.pem'))) >= 4:
         print('Certbot certificates already installed.\n')
-        # TODO: check expiration date
         return True
 
     # create domain-specific dirs
