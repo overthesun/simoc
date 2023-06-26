@@ -14,7 +14,7 @@ numpy==1.24.3
 pytest==7.3.1
 pytimeparse==1.1.8
 quantities==0.14.1
-redis==4.5.4
+redis==4.6.0
 scikit-learn==1.2.0
 scipy==1.9.3
 setuptools==67.7.2
