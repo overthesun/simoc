@@ -35,6 +35,7 @@ jobs:
           cd simoc-web
           pwd
           git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc-web/ $FE_BRANCH
+          git branch
           git reset --hard "origin/$FE_BRANCH"
           # git reset --hard origin/${{ github.event.inputs.fe_branch }}
           git status
