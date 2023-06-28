@@ -24,7 +24,7 @@ jobs:
     - name: Deploy SIMOC
       uses: appleboy/ssh-action@v0.1.10
       with:
-        host: ${{ secrets.BETA_SSH_HOST }}
+        host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
