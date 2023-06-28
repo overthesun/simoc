@@ -10,11 +10,11 @@ on:
       fe_branch:
         description: 'Use this frontend branch:'
         required: true
-        default: 'master'
+        default: 'new-deployment'
       be_branch:
         description: 'Use this backend branch:'
         required: true
-        default: 'master'
+        default: 'new-deployment'
       
 jobs:
   deploy:
@@ -28,6 +28,11 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
+          cd simoc-web
           pwd
-          cd simoc          
-          python3 simoc.py ps
+          git fetch origin
+          git reset --hard origin/${{ github.event.inputs.fe_branch }}
+          git status
+          python3 simoc-web.py deploy
+          cd ../simoc
+          pwd
