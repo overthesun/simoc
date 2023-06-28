@@ -23,19 +23,14 @@ jobs:
     steps:
     - name: Deploy SIMOC
       uses: appleboy/ssh-action@v0.1.10
-      env:
-        GITHUB_USER: ${{ secrets.SSH_GITHUB_USERNAME }}
-        GITHUB_TOKEN: ${{ secrets.SSH_GITHUB_TOKEN }}
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        envs: GITHUB_USER,GITHUB_TOKEN
         script: |
-          echo "user: $GITHUB_USER"
           cd simoc-web
           pwd
-          git fetch origin
+          git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc-web/
           git reset --hard origin/new-deployment
           # git reset --hard origin/${{ github.event.inputs.fe_branch }}
           git status
