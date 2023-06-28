@@ -1,0 +1,32 @@
+name: Deploy SIMOC
+on:
+  workflow_dispatch:
+    inputs:
+      host:
+        description: 'Deploy on this host:'
+        required: true
+        default: ''
+      fe_branch:
+        description: 'Use this frontend branch:'
+        required: true
+        default: 'master'
+      be_branch:
+        description: 'Use this backend branch:'
+        required: true
+        default: 'master'
+      
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy SIMOC
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ github.event.inputs.host }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          pwd
+          cd simoc          
+          python3 simoc.py ps
