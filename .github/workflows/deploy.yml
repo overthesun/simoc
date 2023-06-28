@@ -32,9 +32,11 @@ jobs:
         envs: FE_BRANCH
         script: |
           echo "FE_BRANCH: $FE_BRANCH"
+          git 
           cd simoc-web
           pwd
           git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc-web/ $FE_BRANCH
+          git switch $FE_BRANCH
           git branch
           git reset --hard "origin/$FE_BRANCH"
           # git reset --hard origin/${{ github.event.inputs.fe_branch }}
