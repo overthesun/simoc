@@ -168,6 +168,7 @@ def create_self_signed_cert():
 
 @cmd
 def init_certbot():
+    """Download Certbot configuration files."""
     certbot_conf = CERTBOT_DIR / 'conf'
     tls_config = 'options-ssl-nginx.conf'
     ssl_dhparams = 'ssl-dhparams.pem'
@@ -197,6 +198,7 @@ def init_certbot():
         return True
 
 def setup_certbot():
+    """Setup Certbot and request new certificates from Letsencrypt."""
     if ENVVARS.get('USE_CERTBOT', '0') == '0':
         return True  # we are using self-signed certificates, not certbot
 
@@ -206,6 +208,7 @@ def setup_certbot():
         print('Certbot certificates already installed.\n')
         return True
 
+    print('Requesting new certificates from Letsencrypt.\n')
     # create domain-specific dirs
     domain_path.mkdir(parents=True, exist_ok=True)
     docker_cert_path = pathlib.Path('/etc/letsencrypt/live/') / server_name
@@ -248,8 +251,8 @@ def build_images():
 
 @cmd
 def start_services():
-    """Starts the services."""
-    return docker_compose('up', '-d', '--force-recreate')
+    """Start the services."""
+    return docker_compose('up', '-d', '--force-recreate', '--remove-orphans')
 
 # DB
 @cmd
@@ -361,6 +364,14 @@ def teardown():
 def reset():
     """Remove everything, then run a full setup."""
     return teardown() and setup()
+
+@cmd
+def deploy():
+    """Deploy SIMOC on the server."""
+    # similar to setup(), but doesn't check deps (should already be there),
+    # and doesn't re-init the DB or show the post-setup message
+    return (generate_scripts() and init_certs() and build_images() and
+            start_services() and setup_certbot() and ps())
 
 
 # testing/debugging
