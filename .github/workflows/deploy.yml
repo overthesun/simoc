@@ -36,17 +36,16 @@ jobs:
           cd simoc-web
           pwd
           git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc-web/ $FE_BRANCH
+          git reset --hard origin/master
           git switch $FE_BRANCH
           git branch
-          git reset --hard "origin/$FE_BRANCH"
           # git reset --hard origin/${{ github.event.inputs.fe_branch }}
           git status
           python3 simoc-web.py deploy
           cd ../simoc
           pwd
           git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ $BE_BRANCH
+          git reset --hard origin/master
           git switch $BE_BRANCH
           git branch
-          git reset --hard "origin/$BE_BRANCH"
           python3 simoc.py deploy
-          
