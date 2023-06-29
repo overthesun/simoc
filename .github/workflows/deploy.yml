@@ -53,4 +53,4 @@ jobs:
           git switch $BE_BRANCH
           git pull https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ $BE_BRANCH
           git branch
-          python3 simoc.py deploy
+          python3 simoc.py --env-file=simoc_docker_beta.env deploy
