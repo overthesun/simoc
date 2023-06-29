@@ -37,20 +37,14 @@ jobs:
         script: |
           echo "Branches: $FE_BRANCH/$BE_BRANCH"
           cd simoc-web
-          pwd
+          echo "* In <`pwd`>, switching frontend branch to <$FE_BRANCH>..."
           git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc-web/ $FE_BRANCH
-          git reset --hard origin/master
-          git switch $FE_BRANCH
-          git pull https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc-web/ $FE_BRANCH
-          git branch
-          # git reset --hard origin/${{ github.event.inputs.fe_branch }}
-          git status
+          git switch -C $FE_BRANCH "origin/$FE_BRANCH" --force
+          echo "* Current frontend branch is now <`git branch --show-current`>"
           python3 simoc-web.py deploy
           cd ../simoc
-          pwd
+          echo "* In <`pwd`>, switching backend branch to <$BE_BRANCH>..."
           git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ $BE_BRANCH
-          git reset --hard origin/master
-          git switch $BE_BRANCH
-          git pull https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ $BE_BRANCH
-          git branch
+          git switch -C $BE_BRANCH "origin/$BE_BRANCH" --force
+          echo "* Current backend branch is now <`git branch --show-current`>"
           python3 simoc.py --env-file=simoc_docker_beta.env deploy
