@@ -38,13 +38,13 @@ jobs:
           echo "Branches: $FE_BRANCH/$BE_BRANCH"
           cd simoc-web
           echo "* In <`pwd`>, switching frontend branch to <$FE_BRANCH>..."
-          git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc-web/ $FE_BRANCH
+          git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc-web/ $FE_BRANCH:$FE_BRANCH
           git switch -C $FE_BRANCH "origin/$FE_BRANCH" --force
           echo "* Current frontend branch is now <`git branch --show-current`>"
           python3 simoc-web.py deploy
           cd ../simoc
           echo "* In <`pwd`>, switching backend branch to <$BE_BRANCH>..."
-          git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ $BE_BRANCH
+          git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ $BE_BRANCH:$BE_BRANCH
           git switch -C $BE_BRANCH "origin/$BE_BRANCH" --force
           echo "* Current backend branch is now <`git branch --show-current`>"
           python3 simoc.py --env-file=simoc_docker_beta.env deploy
