@@ -25,14 +25,14 @@ jobs:
       uses: appleboy/ssh-action@v0.1.10
       env:
         FE_BRANCH: 'new-deployment'
+        BE_BRANCH: 'new-deployment'
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        envs: FE_BRANCH
+        envs: FE_BRANCH,BE_BRANCH
         script: |
-          echo "FE_BRANCH: $FE_BRANCH"
-          git 
+          echo "Branches: $FE_BRANCH/$BE_BRANCH"
           cd simoc-web
           pwd
           git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc-web/ $FE_BRANCH
@@ -44,3 +44,9 @@ jobs:
           python3 simoc-web.py deploy
           cd ../simoc
           pwd
+          git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ $BE_BRANCH
+          git switch $BE_BRANCH
+          git branch
+          git reset --hard "origin/$BE_BRANCH"
+          python3 simoc.py deploy
+          
