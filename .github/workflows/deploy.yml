@@ -26,11 +26,14 @@ jobs:
       env:
         FE_BRANCH: 'new-deployment'
         BE_BRANCH: 'new-deployment'
+        DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
+        FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
+        REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        envs: FE_BRANCH,BE_BRANCH
+        envs: FE_BRANCH,BE_BRANCH,DB_PASSWORD,FLASK_SECRET,REDIS_PASSWORD
         script: |
           echo "Branches: $FE_BRANCH/$BE_BRANCH"
           cd simoc-web
