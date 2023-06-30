@@ -30,7 +30,7 @@ jobs:
         with:
           repository: overthesun/simoc-web
           #ref: ${{ github.event.inputs.fe_branch }}
-          ref: 'new-deployment-2'
+          ref: 'new-deployment'
           token: ${{ secrets.ACCESS_TOKEN }}
       - name: Set up Node Environment
         uses: actions/setup-node@v3
