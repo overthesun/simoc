@@ -17,6 +17,43 @@ on:
         default: 'master'
       
 jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      # workaround to prevent node/vite crashes during the build step
+      # see https://github.com/vitejs/vite/issues/2433#issuecomment-831399876
+      # assume 4GB - 512MB
+      NODE_OPTIONS: '--max-old-space-size=3584'
+    steps:
+      - name: Checkout Frontend Repository
+        uses: actions/checkout@v3
+        with:
+          repository: overthesun/simoc-web
+          #ref: ${{ github.event.inputs.fe_branch }}
+          ref: 'new-deployment-2'
+          token: ${{ secrets.ACCESS_TOKEN }}
+      - name: Set up Node Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+          check-latest: true
+      - name: Download simdata/models/skybox
+        run: |
+          source run.sh
+      - name: npm install
+        run: |
+          npm install --no-fund --no-audit -g npm@latest
+          npm install --no-fund
+      - name: Print info
+        run: |
+          echo "Current branch: $GITHUB_HEAD_REF"
+          echo "node $(node --version); npm $(npm --version)"
+      - name: Build
+        run: |
+          npm run build
+          ls -ld $PWD/dist/*
+      - name: Fail
+        run: exit 1
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
@@ -24,8 +61,7 @@ jobs:
     - name: Deploy SIMOC
       uses: appleboy/ssh-action@v0.1.10
       env:
-        FE_BRANCH: 'new-deployment'
-        BE_BRANCH: 'new-deployment'
+        BE_BRANCH: 'new-deployment-2'
         DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
         FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
         REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
@@ -33,16 +69,9 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        envs: FE_BRANCH,BE_BRANCH,DB_PASSWORD,FLASK_SECRET,REDIS_PASSWORD
+        envs: BE_BRANCH,DB_PASSWORD,FLASK_SECRET,REDIS_PASSWORD
         script: |
-          echo "Branches: $FE_BRANCH/$BE_BRANCH"
-          cd simoc-web
-          echo "* In <`pwd`>, switching frontend branch to <$FE_BRANCH>..."
-          git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc-web/ $FE_BRANCH:$FE_BRANCH
-          git switch -C $FE_BRANCH "origin/$FE_BRANCH" --force
-          echo "* Current frontend branch is now <`git branch --show-current`>"
-          python3 simoc-web.py deploy
-          cd ../simoc
+          cd simoc
           echo "* In <`pwd`>, switching backend branch to <$BE_BRANCH>..."
           git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ $BE_BRANCH:$BE_BRANCH
           git switch -C $BE_BRANCH "origin/$BE_BRANCH" --force
