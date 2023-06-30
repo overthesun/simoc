@@ -61,6 +61,7 @@ jobs:
           source: dist/*
           target: /home/${{ secrets.SSH_USERNAME }}/simoc/simoc_server/dist
           rm: true
+          strip_components: 1
   deploy:
     name: Deploy
     needs: build-frontend
