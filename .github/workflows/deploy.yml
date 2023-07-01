@@ -82,8 +82,8 @@ jobs:
         script: |
           cd simoc
           echo "* In <`pwd`>, switching backend branch to <$BE_BRANCH>..."
-          git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ $BE_BRANCH:$BE_BRANCH
-          git switch $BE_BRANCH --force
+          git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ $BE_BRANCH:refs/remotes/origin/$BE_BRANCH
+          git switch -C $BE_BRANCH origin/$BE_BRANCH --force
           echo "* Current branch is now <`git branch --show-current`>"
           echo "* Current commit is <`git show --oneline -s`>"
           python3 simoc.py --env-file=simoc_docker_beta.env deploy
