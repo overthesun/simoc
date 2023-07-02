@@ -81,10 +81,10 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         envs: BE_BRANCH,DB_PASSWORD,FLASK_SECRET,REDIS_PASSWORD
         script: |
+          rm -rf simoc
+          git clone --branch $BE_BRANCH --depth 1 https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ simoc
           cd simoc
-          echo "* In <`pwd`>, switching backend branch to <$BE_BRANCH>..."
-          git fetch https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ $BE_BRANCH:refs/remotes/origin/$BE_BRANCH
-          git switch -C $BE_BRANCH origin/$BE_BRANCH --force
-          echo "* Current branch is now <`git branch --show-current`>"
-          echo "* Current commit is <`git show --oneline -s`>"
+          echo "* Current directory: <`pwd`>"
+          echo "* Current branch is: <`git branch --show-current`>"
+          echo "* Current commit is: <`git show --oneline -s`>"
           python3 -u simoc.py --env-file=simoc_docker_beta.env deploy
