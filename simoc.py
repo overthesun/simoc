@@ -178,9 +178,6 @@ def init_certbot():
     ssl_dhparams = 'ssl-dhparams.pem'
     tls_config_path = certbot_conf / 'options-ssl-nginx.conf'
     ssl_dhparams_path = certbot_conf / 'ssl-dhparams.pem'
-    if tls_config_path.exists() and ssl_dhparams_path.exists():
-        print('Certbot configuration files already downloaded.\n')
-        return True
     # create certbot/conf dir
     # this might fail to create the certbot/ dir due to permissions
     # so you might have to create certbot/ manually
@@ -191,9 +188,12 @@ def init_certbot():
         os.symlink(CERTBOT_DIR, CERTBOT_SYMLINK_DIR)
     except FileExistsError:
         print('Symlink to certbot dir already exists')
-        pass  # symlink already there
     else:
         print('Created symlink to certbot dir')
+
+    if tls_config_path.exists() and ssl_dhparams_path.exists():
+        print('Certbot configuration files already downloaded.\n')
+        return True  # files are already there, nothing else to do here
 
     print('Downloading Certbot config files:')
     certbot_repo = 'https://raw.githubusercontent.com/certbot/certbot/master/'
