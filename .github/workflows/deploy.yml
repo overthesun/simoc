@@ -70,7 +70,7 @@ jobs:
     - name: Deploy SIMOC
       uses: appleboy/ssh-action@v0.1.10
       env:
-        BE_BRANCH: 'new-deployment-2'
+        BE_BRANCH: 'new-deployment'
         DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
         FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
         REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
