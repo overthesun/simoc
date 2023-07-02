@@ -65,7 +65,7 @@ def run(args):
     print('>'*80)
     print(' '.join(args))
     print('-'*80)
-    result = subprocess.run(args, env=os.environ)
+    result = subprocess.run(args, env=os.environ, stderr=subprocess.STDOUT)
     print('-'*80)
     print(result)
     print('<'*80)
