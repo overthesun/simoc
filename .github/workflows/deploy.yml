@@ -74,6 +74,7 @@ jobs:
       uses: appleboy/ssh-action@v0.1.10
       env:
         BE_BRANCH: 'new-deployment-3'
+        DOCKER_ENV: 'simoc_docker_beta.env'
         DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
         FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
         REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
@@ -81,7 +82,7 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        envs: BE_BRANCH,DB_PASSWORD,FLASK_SECRET,REDIS_PASSWORD
+        envs: BE_BRANCH,DOCKER_ENV,DB_PASSWORD,FLASK_SECRET,REDIS_PASSWORD
         script: |
           rm -rf simoc
           git clone --branch $BE_BRANCH --depth 1 https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ simoc
@@ -90,4 +91,4 @@ jobs:
           echo "* Current directory: <`pwd`>"
           echo "* Current branch is: <`git branch --show-current`>"
           echo "* Current commit is: <`git show --oneline -s`>"
-          python3 -u simoc.py --env-file=simoc_docker_beta.env deploy
+          python3 -u simoc.py --env-file=$DOCKER_ENV deploy
