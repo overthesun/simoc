@@ -25,6 +25,8 @@ jobs:
       # see https://github.com/vitejs/vite/issues/2433#issuecomment-831399876
       # assume 4GB - 512MB
       NODE_OPTIONS: '--max-old-space-size=3584'
+      VITE_FE_BRANCH: 'new-deployment' # ${{ github.event.inputs.fe_branch }}
+      VITE_BE_BRANCH: 'new-deployment-3' # ${{ github.event.inputs.be_branch }}
     steps:
       - name: Checkout Frontend Repository
         uses: actions/checkout@v3
