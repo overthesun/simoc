@@ -60,7 +60,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: dist/*
-          target: /home/${{ secrets.SSH_USERNAME }}/simoc/simoc_server/dist
+          target: /home/${{ secrets.SSH_USERNAME }}/dist
           rm: true
           strip_components: 1
   deploy:
@@ -83,6 +83,7 @@ jobs:
         script: |
           rm -rf simoc
           git clone --branch $BE_BRANCH --depth 1 https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ simoc
+          mv dist simoc/simoc_server/
           cd simoc
           echo "* Current directory: <`pwd`>"
           echo "* Current branch is: <`git branch --show-current`>"
