@@ -18,6 +18,7 @@ on:
       
 jobs:
   build-frontend:
+    name: Build frontend
     runs-on: ubuntu-latest
     env:
       # workaround to prevent node/vite crashes during the build step
@@ -70,7 +71,7 @@ jobs:
     - name: Deploy SIMOC
       uses: appleboy/ssh-action@v0.1.10
       env:
-        BE_BRANCH: 'new-deployment'
+        BE_BRANCH: 'new-deployment-3'
         DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
         FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
         REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
