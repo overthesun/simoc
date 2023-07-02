@@ -73,8 +73,11 @@ jobs:
     - name: Deploy SIMOC
       uses: appleboy/ssh-action@v0.1.10
       env:
+        BE_DIR: simoc
         BE_BRANCH: 'new-deployment-3'
         DOCKER_ENV: 'simoc_docker_beta.env'
+        GH_USER: ${{ secrets.SSH_GITHUB_USERNAME }}
+        GH_TOKEN: ${{ secrets.SSH_GITHUB_TOKEN }}
         DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
         FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
         REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
@@ -82,12 +85,12 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        envs: BE_BRANCH,DOCKER_ENV,DB_PASSWORD,FLASK_SECRET,REDIS_PASSWORD
+        envs: BE_DIR,BE_BRANCH,DOCKER_ENV,GH_USER,GH_TOKEN,DB_PASSWORD,FLASK_SECRET,REDIS_PASSWORD
         script: |
-          rm -rf simoc
-          git clone --branch $BE_BRANCH --depth 1 https://${{ secrets.SSH_GITHUB_USERNAME }}:${{ secrets.SSH_GITHUB_TOKEN }}@github.com/overthesun/simoc/ simoc
-          mv dist simoc/simoc_server/
-          cd simoc
+          rm -rf $BE_DIR
+          git clone --branch $BE_BRANCH --depth 1 https://$GH_USER:$GH_TOKEN@github.com/overthesun/simoc/ $BE_DIR
+          mv dist $BE_DIR/simoc_server/
+          cd $BE_DIR
           echo "* Current directory: <`pwd`>"
           echo "* Current branch is: <`git branch --show-current`>"
           echo "* Current commit is: <`git show --oneline -s`>"
