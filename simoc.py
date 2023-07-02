@@ -19,7 +19,11 @@ SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 ENV_FILE = 'simoc_docker.env'
 AGENT_DESC = 'data_files/agent_desc.json'
 
-CERTBOT_DIR = SCRIPT_DIR / 'certbot'
+# certbot is created outside of the home/repo,
+# so that it's accessible to all instances,
+# and then add a symlink inside the repo
+CERTBOT_DIR = SCRIPT_DIR.parent.parent / 'certbot'
+CERTBOT_SYMLINK_DIR = SCRIPT_DIR / 'certbot'
 
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
@@ -178,7 +182,18 @@ def init_certbot():
         print('Certbot configuration files already downloaded.\n')
         return True
     # create certbot/conf dir
+    # this might fail to create the certbot/ dir due to permissions
+    # so you might have to create certbot/ manually
     certbot_conf.mkdir(parents=True, exist_ok=True)
+
+    # create symlink in the root of the repo
+    try:
+        os.symlink(CERTBOT_DIR, CERTBOT_SYMLINK_DIR)
+    except FileExistsError:
+        print('Symlink to certbot dir already exists')
+        pass  # symlink already there
+    else:
+        print('Created symlink to certbot dir')
 
     print('Downloading Certbot config files:')
     certbot_repo = 'https://raw.githubusercontent.com/certbot/certbot/master/'
