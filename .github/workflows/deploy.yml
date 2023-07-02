@@ -87,4 +87,4 @@ jobs:
           git switch -C $BE_BRANCH origin/$BE_BRANCH --force
           echo "* Current branch is now <`git branch --show-current`>"
           echo "* Current commit is <`git show --oneline -s`>"
-          python3 simoc.py --env-file=simoc_docker_beta.env deploy
+          python3 -u simoc.py --env-file=simoc_docker_beta.env deploy
