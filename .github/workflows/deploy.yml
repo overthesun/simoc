@@ -91,6 +91,7 @@ jobs:
           rm -rf $BE_DIR
           git clone --branch $BE_BRANCH --depth 1 https://$GH_USER:$GH_TOKEN@github.com/overthesun/simoc/ $BE_DIR
           mv dist $BE_DIR/simoc_server/
+          rm -r dist
           cd $BE_DIR
           echo "* Current directory: <`pwd`>"
           echo "* Current branch is: <`git branch --show-current`>"
