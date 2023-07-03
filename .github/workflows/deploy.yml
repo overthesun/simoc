@@ -1,4 +1,5 @@
 name: Deploy SIMOC
+
 on:
   push:
   workflow_dispatch:
