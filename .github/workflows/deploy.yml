@@ -25,15 +25,15 @@ jobs:
       # see https://github.com/vitejs/vite/issues/2433#issuecomment-831399876
       # assume 4GB - 512MB
       NODE_OPTIONS: '--max-old-space-size=3584'
-      VITE_FE_BRANCH: 'new-deployment' # ${{ github.event.inputs.fe_branch }}
-      VITE_BE_BRANCH: 'new-deployment-3' # ${{ github.event.inputs.be_branch }}
+      VITE_FE_BRANCH: master # ${{ github.event.inputs.fe_branch }}
+      VITE_BE_BRANCH: new-deployment # ${{ github.event.inputs.be_branch }}
     steps:
       - name: Checkout Frontend Repository
         uses: actions/checkout@v3
         with:
           repository: overthesun/simoc-web
           #ref: ${{ github.event.inputs.fe_branch }}
-          ref: 'new-deployment'
+          ref: master
           token: ${{ secrets.ACCESS_TOKEN }}
       - name: Set up Node Environment
         uses: actions/setup-node@v3
@@ -74,8 +74,8 @@ jobs:
       uses: appleboy/ssh-action@v0.1.10
       env:
         BE_DIR: simoc
-        BE_BRANCH: 'new-deployment-3'
-        DOCKER_ENV: 'simoc_docker_beta.env'
+        BE_BRANCH: new-deployment
+        DOCKER_ENV: simoc_docker_beta.env
         GH_USER: ${{ secrets.SSH_GITHUB_USERNAME }}
         GH_TOKEN: ${{ secrets.SSH_GITHUB_TOKEN }}
         DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
