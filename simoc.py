@@ -19,7 +19,11 @@ SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 ENV_FILE = 'simoc_docker.env'
 AGENT_DESC = 'data_files/agent_desc.json'
 
-CERTBOT_DIR = SCRIPT_DIR / 'certbot'
+# certbot is created outside of the home/repo,
+# so that it's accessible to all instances,
+# and then add a symlink inside the repo
+CERTBOT_DIR = SCRIPT_DIR.parent.parent / 'certbot'
+CERTBOT_SYMLINK_DIR = SCRIPT_DIR / 'certbot'
 
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
@@ -168,16 +172,28 @@ def create_self_signed_cert():
 
 @cmd
 def init_certbot():
+    """Download Certbot configuration files."""
     certbot_conf = CERTBOT_DIR / 'conf'
     tls_config = 'options-ssl-nginx.conf'
     ssl_dhparams = 'ssl-dhparams.pem'
     tls_config_path = certbot_conf / 'options-ssl-nginx.conf'
     ssl_dhparams_path = certbot_conf / 'ssl-dhparams.pem'
+    # create certbot/conf dir
+    # this might fail to create the certbot/ dir due to permissions
+    # so you might have to create certbot/ manually
+    certbot_conf.mkdir(parents=True, exist_ok=True)
+
+    # create symlink in the root of the repo
+    try:
+        os.symlink(CERTBOT_DIR, CERTBOT_SYMLINK_DIR)
+    except FileExistsError:
+        print('Symlink to certbot dir already exists')
+    else:
+        print('Created symlink to certbot dir')
+
     if tls_config_path.exists() and ssl_dhparams_path.exists():
         print('Certbot configuration files already downloaded.\n')
-        return True
-    # create certbot/conf dir
-    certbot_conf.mkdir(parents=True, exist_ok=True)
+        return True  # files are already there, nothing else to do here
 
     print('Downloading Certbot config files:')
     certbot_repo = 'https://raw.githubusercontent.com/certbot/certbot/master/'
@@ -197,6 +213,7 @@ def init_certbot():
         return True
 
 def setup_certbot():
+    """Setup Certbot and request new certificates from Letsencrypt."""
     if ENVVARS.get('USE_CERTBOT', '0') == '0':
         return True  # we are using self-signed certificates, not certbot
 
@@ -206,6 +223,7 @@ def setup_certbot():
         print('Certbot certificates already installed.\n')
         return True
 
+    print('Requesting new certificates from Letsencrypt.\n')
     # create domain-specific dirs
     domain_path.mkdir(parents=True, exist_ok=True)
     docker_cert_path = pathlib.Path('/etc/letsencrypt/live/') / server_name
@@ -248,8 +266,8 @@ def build_images():
 
 @cmd
 def start_services():
-    """Starts the services."""
-    return docker_compose('up', '-d', '--force-recreate')
+    """Start the services."""
+    return docker_compose('up', '-d', '--force-recreate', '--remove-orphans')
 
 # DB
 @cmd
@@ -361,6 +379,14 @@ def teardown():
 def reset():
     """Remove everything, then run a full setup."""
     return teardown() and setup()
+
+@cmd
+def deploy():
+    """Deploy SIMOC on the server."""
+    # similar to setup(), but doesn't check deps (should already be there),
+    # and doesn't re-init the DB or show the post-setup message
+    return (generate_scripts() and init_certs() and build_images() and
+            start_services() and setup_certbot() and ps())
 
 
 # testing/debugging
