@@ -1,7 +1,6 @@
 name: Deploy SIMOC
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       fe_branch:
