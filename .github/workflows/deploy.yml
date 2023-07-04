@@ -57,7 +57,7 @@ jobs:
           npm run build
           ls -ld $PWD/dist/*
       - name: Upload dist folder
-        uses: appleboy/scp-action@98930d398ce425af0148ea8a0e3295cd04fe2b7a
+        uses: appleboy/scp-action@v0.1.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
