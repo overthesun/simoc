@@ -4,10 +4,6 @@ on:
   push:
   workflow_dispatch:
     inputs:
-      host:
-        description: 'Deploy on this host:'
-        required: true
-        default: ''
       fe_branch:
         description: 'Use this frontend branch:'
         required: true
@@ -16,6 +12,10 @@ on:
         description: 'Use this backend branch:'
         required: true
         default: 'master'
+      host:
+        description: 'Deploy on this host:'
+        required: true
+        default: ''
       
 jobs:
   build-frontend:
@@ -26,15 +26,15 @@ jobs:
       # see https://github.com/vitejs/vite/issues/2433#issuecomment-831399876
       # assume 4GB - 512MB
       NODE_OPTIONS: '--max-old-space-size=3584'
-      VITE_FE_BRANCH: master # ${{ github.event.inputs.fe_branch }}
-      VITE_BE_BRANCH: new-deployment # ${{ github.event.inputs.be_branch }}
+      VITE_FE_BRANCH: ${{ github.event.inputs.fe_branch }}
+      VITE_BE_BRANCH: ${{ github.event.inputs.be_branch }}
     steps:
       - name: Checkout Frontend Repository
         uses: actions/checkout@v3
         with:
           repository: overthesun/simoc-web
           #ref: ${{ github.event.inputs.fe_branch }}
-          ref: master
+          ref: ${{ github.event.inputs.fe_branch }}
           token: ${{ secrets.ACCESS_TOKEN }}
       - name: Set up Node Environment
         uses: actions/setup-node@v3
@@ -59,7 +59,7 @@ jobs:
       - name: Upload dist folder
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: ${{ secrets.SSH_HOST }}
+          host: ${{ github.event.inputs.host }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: dist/*
@@ -75,7 +75,7 @@ jobs:
       uses: appleboy/ssh-action@v0.1.10
       env:
         BE_DIR: simoc
-        BE_BRANCH: new-deployment
+        BE_BRANCH: ${{ github.event.inputs.be_branch }}
         DOCKER_ENV: simoc_docker_beta.env
         GH_USER: ${{ secrets.SSH_GITHUB_USERNAME }}
         GH_TOKEN: ${{ secrets.SSH_GITHUB_TOKEN }}
@@ -83,7 +83,7 @@ jobs:
         FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
         REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
       with:
-        host: ${{ secrets.SSH_HOST }}
+        host: ${{ github.event.inputs.host }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         envs: BE_DIR,BE_BRANCH,DOCKER_ENV,GH_USER,GH_TOKEN,DB_PASSWORD,FLASK_SECRET,REDIS_PASSWORD
