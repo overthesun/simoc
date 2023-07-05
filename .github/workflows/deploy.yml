@@ -75,7 +75,7 @@ jobs:
       env:
         BE_DIR: simoc
         BE_BRANCH: ${{ github.event.inputs.be_branch }}
-        DOCKER_ENV: simoc_docker_beta.env
+        DOCKER_ENV: simoc_docker_ngs.env
         GH_USER: ${{ secrets.SSH_GITHUB_USERNAME }}
         GH_TOKEN: ${{ secrets.SSH_GITHUB_TOKEN }}
         DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
