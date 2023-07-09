@@ -11,13 +11,21 @@ import socket
 import pathlib
 import argparse
 import subprocess
+import urllib.request
 
+
+SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 
 ENV_FILE = 'simoc_docker.env'
 AGENT_DESC = 'data_files/agent_desc.json'
 
+# certbot is created outside of the home/repo,
+# so that it's accessible to all instances,
+# and then add a symlink inside the repo
+CERTBOT_DIR = SCRIPT_DIR.parent.parent / 'certbot'
+CERTBOT_SYMLINK_DIR = SCRIPT_DIR / 'certbot'
+
 COMPOSE_FILE = 'docker-compose.mysql.yml'
-DEV_FE_COMPOSE_FILE = 'docker-compose.dev-fe.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
 AGENT_DESC_COMPOSE_FILE = 'docker-compose.agent-desc.yml'
 TESTING_COMPOSE_FILE = 'docker-compose.testing.yml'
@@ -37,16 +45,14 @@ def parse_env(fname):
                 print(f'Unrecognized line in {fname}: {line!r}')
     return env
 
-try:
-    ENVVARS = parse_env(ENV_FILE)
-except FileNotFoundError:
-    sys.exit(f"Can't find env file: {ENV_FILE!r}")
-
-FLASK_WORKERS = ENVVARS['FLASK_WORKERS']
-CELERY_WORKERS = ENVVARS['CELERY_WORKERS']
-
-# update environ with the new envvars
-os.environ.update(ENVVARS)
+def update_env(env_file):
+    try:
+        envvars = parse_env(env_file)
+    except FileNotFoundError:
+        sys.exit(f"Can't find env file: {env_file!r}")
+    # update environ with the new envvars
+    os.environ.update(envvars)
+    return envvars
 
 COMMANDS = {}
 
@@ -140,26 +146,116 @@ def generate_scripts():
     import generate_docker_configs
     return generate_docker_configs.main()
 
+def init_certs():
+    if ENVVARS.get('USE_CERTBOT') == '1':
+        return init_certbot()
+    else:
+        return create_self_signed_cert()
+
 @cmd
-def make_cert():
+def create_self_signed_cert():
     """Create the certs/cert.pem SSL certificate."""
     pathlib.Path('certs').mkdir(exist_ok=True)
     #print('Creating SSL certificates.  Use the following values:',
           #'Country Name (2 letter code) []:US',
-          #'State or Province Name (full name) []:Texas',
-          #'Locality Name (eg, city) []:Austin',
+          #'State or Province Name (full name) []:Arizona',
+          #'Locality Name (eg, city) []:Tucson',
           #'Organization Name (eg, company) []:SIMOC',
           #'Organizational Unit Name (eg, section) []:',
           #f'Common Name (eg, fully qualified host name) []:{domain}',
           #'Email Address []:', sep='\n')
     certpath = 'certs/cert.pem'
-    if socket.gethostname().endswith('simoc.space'):
-        domain = 'beta.simoc.space'
-    else:
-        domain = 'localhost'
+    server_name = ENVVARS['SERVER_NAME']
     return run(['openssl', 'req', '-x509', '-newkey', 'rsa:4096', '-nodes',
                 '-out', certpath, '-keyout', 'certs/key.pem', '-days', '365',
-                '-subj', f"/C=US/ST=Texas/L=Austin/O=SIMOC/CN={domain}"])
+                '-subj', f"/C=US/ST=Arizona/L=Tucson/O=SIMOC/CN={server_name}"])
+
+@cmd
+def init_certbot():
+    """Download Certbot configuration files."""
+    certbot_conf = CERTBOT_DIR / 'conf'
+    tls_config = 'options-ssl-nginx.conf'
+    ssl_dhparams = 'ssl-dhparams.pem'
+    tls_config_path = certbot_conf / 'options-ssl-nginx.conf'
+    ssl_dhparams_path = certbot_conf / 'ssl-dhparams.pem'
+    # create certbot/conf dir
+    # this might fail to create the certbot/ dir due to permissions
+    # so you might have to create certbot/ manually
+    certbot_conf.mkdir(parents=True, exist_ok=True)
+
+    # create symlink in the root of the repo
+    try:
+        os.symlink(CERTBOT_DIR, CERTBOT_SYMLINK_DIR)
+    except FileExistsError:
+        print('Symlink to certbot dir already exists')
+    else:
+        print('Created symlink to certbot dir')
+
+    if tls_config_path.exists() and ssl_dhparams_path.exists():
+        print('Certbot configuration files already downloaded.\n')
+        return True  # files are already there, nothing else to do here
+
+    print('Downloading Certbot config files:')
+    certbot_repo = 'https://raw.githubusercontent.com/certbot/certbot/master/'
+    tls_config_url = (f'{certbot_repo}/certbot-nginx/certbot_nginx/_internal/'
+                      f'tls_configs/{tls_config}')
+    ssl_dhparams_url = f'{certbot_repo}/certbot/certbot/{ssl_dhparams}'
+    try:
+        urllib.request.urlretrieve(tls_config_url, tls_config_path)
+        print(f'  * <{tls_config}> downloaded')
+        urllib.request.urlretrieve(ssl_dhparams_url, ssl_dhparams_path)
+        print(f'  * <{ssl_dhparams}> downloaded')
+        print()
+    except Exception as err:
+        print('Failed to download certbot files:', err)
+        return False
+    else:
+        return True
+
+def setup_certbot():
+    """Setup Certbot and request new certificates from Letsencrypt."""
+    if ENVVARS.get('USE_CERTBOT', '0') == '0':
+        return True  # we are using self-signed certificates, not certbot
+
+    server_name = ENVVARS['SERVER_NAME']
+    domain_path = CERTBOT_DIR / 'conf' / 'live' / server_name
+    if domain_path.exists() and len(list(domain_path.glob('*.pem'))) >= 4:
+        print('Certbot certificates already installed.\n')
+        return True
+
+    print('Requesting new certificates from Letsencrypt.\n')
+    # create domain-specific dirs
+    domain_path.mkdir(parents=True, exist_ok=True)
+    docker_cert_path = pathlib.Path('/etc/letsencrypt/live/') / server_name
+
+    # generate "dummy" certificates
+    cmd = (f"openssl req -x509 -nodes -newkey rsa:4096 -days 1 "
+           f"-keyout '{docker_cert_path}/privkey.pem' "
+           f"-out '{docker_cert_path}/fullchain.pem' "
+           f"-subj '/CN=localhost'")
+    docker_compose('run', '--rm', '--entrypoint', cmd, 'certbot')
+
+    # start nginx
+    docker_compose('up', '--force-recreate', '-d', 'nginx')
+
+    # delete "dummy" certificates
+    cmd = (f"rm -Rf /etc/letsencrypt/live/{server_name} && "
+           f"rm -Rf /etc/letsencrypt/archive/{server_name} && "
+           f"rm -Rf /etc/letsencrypt/renewal/{server_name}.conf")
+    docker_compose('run', '--rm', '--entrypoint', cmd, 'certbot')
+
+    # email for the SSL certificates
+    email = ENVVARS['EMAIL']
+
+    # request managed certificates from letsencrypt
+    cmd = (f'certbot certonly --webroot -w /var/www/certbot '
+           f'--email {email} -d {server_name} '
+           f'--rsa-key-size 4096 --agree-tos --no-eff-email --force-renewal')
+    docker_compose('run', '--rm', '--entrypoint', cmd, 'certbot')
+
+    # reload nginx
+    docker_compose('exec', 'nginx', 'nginx', '-s', 'reload')
+    return True
 
 @cmd
 def build_images():
@@ -170,11 +266,8 @@ def build_images():
 
 @cmd
 def start_services():
-    """Starts the services."""
-    return docker_compose('up', '-d',
-                          '--force-recreate',
-                          '--scale', f'celery-worker={CELERY_WORKERS}',
-                          '--scale', f'flask-app={FLASK_WORKERS}')
+    """Start the services."""
+    return docker_compose('up', '-d', '--force-recreate', '--remove-orphans')
 
 # DB
 @cmd
@@ -272,9 +365,9 @@ def post_setup_msg():
 @cmd
 def setup():
     """Run a complete setup of SIMOC."""
-    return (install_deps() and generate_scripts() and make_cert() and
-            build_images() and start_services() and init_db() and
-            ps() and post_setup_msg())
+    return (install_deps() and generate_scripts() and init_certs() and
+            build_images() and start_services() and setup_certbot() and
+            init_db() and ps() and post_setup_msg())
 
 @cmd
 def teardown():
@@ -286,6 +379,14 @@ def teardown():
 def reset():
     """Remove everything, then run a full setup."""
     return teardown() and setup()
+
+@cmd
+def deploy():
+    """Deploy SIMOC on the server."""
+    # similar to setup(), but doesn't check deps (should already be there),
+    # and doesn't re-init the DB or show the post-setup message
+    return (generate_scripts() and init_certs() and build_images() and
+            start_services() and setup_certbot() and ps())
 
 
 # testing/debugging
@@ -396,16 +497,8 @@ Use the `--with-dev-backend` flag to run the dev backend container.
         help='the docker-compose yml file (default: %(default)r)'
     )
     parser.add_argument(
-        '--with-dev-frontend', action='store_true',
-        help='also start the dev frontend container'
-    )
-    parser.add_argument(
-        '--dev-frontend-yml', metavar='FILE',
-        help='the dev frontend docker-compose yml file'
-    )
-    parser.add_argument(
-        '--dev-frontend-dir', metavar='DIR',
-        help='the dir where the dev frontend code is'
+        '--env-file', metavar='FILE', default=ENV_FILE,
+        help='the env file (default: %(default)r)'
     )
     parser.add_argument(
         '--with-dev-backend', action='store_true',
@@ -428,20 +521,12 @@ Use the `--with-dev-backend` flag to run the dev backend container.
         COMPOSE_FILE = args.docker_file
         DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
 
-    if (args.dev_frontend_dir or args.dev_frontend_yml) and not args.with_dev_frontend:
-        parser.error("Can't specify the dev frontend dir/yml without --with-dev-frontend")
+    if args.env_file:
+        ENV_FILE = args.env_file
+    ENVVARS = update_env(ENV_FILE)
 
     if args.dev_backend_yml and not args.with_dev_backend:
         parser.error("Can't specify the dev backend yml without --with-dev-backend")
-
-    if args.with_dev_frontend:
-        if args.dev_frontend_dir:
-            os.environ['DEV_FE_DIR'] = args.dev_frontend_dir
-        if not os.environ['DEV_FE_DIR']:
-            parser.error('Please specify the dev frontend dir (either in '
-                         'simoc_docker.env or with --dev-frontend-dir).')
-        yml_file = args.dev_frontend_yml or DEV_FE_COMPOSE_FILE
-        DOCKER_COMPOSE_CMD.extend(['-f', yml_file])
 
     if args.with_dev_backend:
         yml_file = args.dev_backend_yml or DEV_BE_COMPOSE_FILE
