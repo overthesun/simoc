@@ -1,14 +1,13 @@
 FROM python:3.11.3-slim-bullseye
 
-MAINTAINER Iurii Milovanov "duruku@gmail.com"
-
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl
 
-COPY . /simoc
-
+COPY ./requirements.txt /simoc/requirements.txt
 RUN pip install -r /simoc/requirements.txt
+
+COPY . /simoc
 
 ARG DB_TYPE
 ARG DB_HOST
