@@ -76,6 +76,7 @@ services:
     image: simoc_celery:{{ version }}
     {% endif %}
     restart: always
+    scale: ${CELERY_WORKERS}
     networks:
       - simoc-net
     healthcheck:
@@ -104,6 +105,7 @@ services:
     image: simoc_flask:{{ version }}
     {% endif %}
     restart: always
+    scale: ${FLASK_WORKERS}
     ports:
       - 8080
     networks:
