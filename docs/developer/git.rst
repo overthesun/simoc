@@ -85,7 +85,7 @@ Pull Requests (PRs)
 Each pull request should be self-contained and address a single issue
 (usually by either adding a feature or fixing a bug).  After a PR is
 merged, the code should still run without errors.  Incomplete and
-work-in-progress PRs can be marked as drafts and shouldn't be merged,
+work-in-progress PRs can be marked as drafts and should not be merged,
 unless they are part of a :ref:`Feature branch <feature-branches>`.
 
 Each pull request can contain multiple commits.  It is possible

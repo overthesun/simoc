@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'SIMOC'
-copyright = '2023, The SIMOC Team'
+copyright = 'Over the Sun, LLC'
 author = 'The SIMOC Team'
 
 # The version info for the project you're documenting, acts as replacement for
