@@ -46,9 +46,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'SIMOC Developer\'s Guide'
-copyright = '2021, Ezio Melotti'
-author = 'Ezio Melotti'
+project = 'SIMOC'
+copyright = 'Over the Sun, LLC'
+author = 'The SIMOC Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -69,7 +69,10 @@ language = 'en'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'venv']
+exclude_patterns = [
+    '_build', 'Thumbs.db', '.DS_Store', 'venv',
+    'developer/local-deployment.rst', 'developer/docker-deployment.rst',
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -118,7 +121,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'SIMOCDevelopersGuidedoc'
+htmlhelp_basename = 'SIMOCdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -145,8 +148,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'SIMOCDevelopersGuide.tex', 'SIMOC Developer\'s Guide Documentation',
-     'Ezio Melotti', 'manual'),
+    (master_doc, 'SIMOC.tex', 'SIMOC Documentation', author, 'manual'),
 ]
 
 
@@ -155,8 +157,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'simocdevelopersguide', 'SIMOC Developer\'s Guide Documentation',
-     [author], 1)
+    (master_doc, 'simoc', 'SIMOC Documentation', [author], 1)
 ]
 
 
@@ -166,8 +167,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'SIMOCDevelopersGuide', 'SIMOC Developer\'s Guide Documentation',
-     author, 'SIMOCDevelopersGuide', 'One line description of project.',
+    (master_doc, 'SIMOC', 'SIMOC Documentation',
+     author, 'SIMOC', 'One line description of project.',
      'Miscellaneous'),
 ]
 
