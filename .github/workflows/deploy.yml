@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Deploy SIMOC
-      uses: appleboy/ssh-action@v0.1.10
+      uses: appleboy/ssh-action@v1.0.0
       env:
         BE_DIR: simoc
         BE_BRANCH: ${{ github.event.inputs.be_branch }}
