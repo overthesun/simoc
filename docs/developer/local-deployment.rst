@@ -2,11 +2,10 @@
 Start ``SIMOC`` locally on ``Linux/macOS``
 ==========================================
 
-.. note::
+.. warning:: This page describes how to manually install SIMOC locally,
+   a process now automated by the ``simoc.py`` script (see :doc:`setup`).
+   This page is no longer updated and kept for reference only.
 
-    This document describes how to install and configure SIMOC locally.
-    A simpler way to install SIMOC using docker is described in the
-    :doc:`setup` document.
 
 1. Clone ``SIMOC`` code from ``GitHub``
 =======================================
