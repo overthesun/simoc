@@ -1,19 +1,19 @@
 # SIMOC
 `SIMOC` - A Scalable, Interactive Model of an Off-world Community
 
-## Getting Started
+![SIMOC Dashboard](https://simoc.space/wp-content/uploads/2020/09/simoc_b2_dashboard.jpg)
 
-You can follow the [Setting up SIMOC](https://simoc.space/docs/user_guide/developer/setup.html)
-documentation page, in particular:
-* [setup instructions for users](https://simoc.space/docs/user_guide/developer/setup.html#for-simoc-users)
-* [setup instructions for developers](https://simoc.space/docs/user_guide/developer/setup.html#for-simoc-developers)
+For more information, visit https://simoc.space/
 
-See also [the repository setup instructions](https://simoc.space/docs/user_guide/developer/git.html#repo-setup).
+## Trying SIMOC
 
-The documentation also includes other possible options (some of which are no longer supported):
-- [Deploy SIMOC to Google Kubernetes Engine](https://simoc.space/docs/user_guide/developer/gcp-deployment.html)
-- [Manually install and run SIMOC locally without Docker (possibly outdated)](https://simoc.space/docs/user_guide/developer/local-deployment.html)
-<!-- - [Run SIMOC locally on Linux/macOS using Docker (outdated)](https://simoc.space/docs/user_guide/developer/docker-deployment.html) -->
+Thanks to our sponsor National Geographic, you can try SIMOC at https://ngs.simoc.space.
+
+## Installing SIMOC locally
+
+To install SIMOC on your machine, follow the
+[Setting up SIMOC](https://simoc.readthedocs.io/en/latest/developer/setup.html)
+documentation page.
 
 ## Jupyter Workflow
 

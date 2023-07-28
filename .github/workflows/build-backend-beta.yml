@@ -139,6 +139,11 @@ jobs:
           source $DOCKER_ENV && export VERSION=${{ github.sha }}
           python3 -m pip install -U jinja2
           python3 generate_docker_configs.py
+          echo "celery_workers=$CELERY_WORKERS" >> "$GITHUB_ENV"
+          echo "flask_workers=$FLASK_WORKERS" >> "$GITHUB_ENV"
+      - name: Print info
+        run: |
+           echo "Celery/Flask workers: ${{ env.celery_workers }}/${{ env.flask_workers }}"
       - name: Deploy to Docker Host
         uses: wshihadeh/docker-deployment-action@v2
         with:
@@ -149,6 +154,6 @@ jobs:
           copy_stack_file: true
           deploy_path: /home/beta.simoc/simoc
           stack_file_name: docker-compose.mysql.yml
-          args: up -d
+          args: "up -d --scale celery-worker=${{ env.celery_workers }} --scale flask-app=${{ env.flask_workers }}"
           docker_prune: false
           pull_images_first: true

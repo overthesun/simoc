@@ -24,9 +24,6 @@ SIMOC Developer's Guide
    developer/architecture
    developer/git
    developer/deployment
-   developer/docker-deployment
-   developer/gcp-deployment
-   developer/local-deployment
 
 Indices and tables
 ==================
