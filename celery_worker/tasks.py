@@ -48,7 +48,8 @@ def get_user(username, num_retries=30, interval=1):
             logger.info(f'User found ({num_retries=} left): {user[0]}')
             return user[0]
 
-BUFFER_SIZE = 100  # Number of steps to execute between adding records to Redis
+# 2023-07-31: For b2_mission1a, with BUFFER_SIZE=100, batches took ~0.12 seconds. 
+BUFFER_SIZE = 500  # Number of steps to execute between adding records to Redis
 RECORD_EXPIRE = 1800  # Number of seconds to keep records in Redis
 
 @app.task
@@ -75,6 +76,7 @@ def new_game(username, game_config, num_steps, expire=3600):
         # Run the model and add records to Redis
         batch_num = 0
         while model.step_num <= num_steps and not model.is_terminated:
+            start_time = time.time()
             n_steps = min(BUFFER_SIZE, num_steps - model.step_num)
             for _ in range(n_steps):
                 model.step()
@@ -84,6 +86,8 @@ def new_game(username, game_config, num_steps, expire=3600):
             label = f'model_records:{user.id}:{game_id}:{batch_num}'
             redis_conn.set(label, json.dumps(records), ex=RECORD_EXPIRE)
             batch_num += 1
+            elapsed_time = time.time() - start_time
+            logger.info(f'Added batch {batch_num} ({n_steps} records) to Redis for {user.id}:{game_id} in {elapsed_time:.3f} seconds')
         logger.info(f'Game {game_id:X} finished successfully after {model.step_num} steps')
 
     finally:

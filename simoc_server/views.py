@@ -22,7 +22,7 @@ from simoc_server.front_end_routes import convert_configuration
 from simoc_abm.util import load_data_file
 
 from celery_worker import tasks
-from celery_worker.tasks import app as celery_app
+from celery_worker.tasks import app as celery_app, BUFFER_SIZE
 
 MAX_NUMBER_OF_AGENTS = 50
 MAX_STEP_NUMBER = 365*24*2  # 2 Earth years
@@ -55,49 +55,48 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
         raise BadRequest("game_id is required.")
     game_id = int(data["game_id"], 16)
     n_steps = int(data.get("n_steps", 1e6))
-    if n_steps > 5000:
-         # Increases system-wide speed by ~50% and prevents the backend crashing
-         # on b2_mission1a sim.
-        timeout = 5
+
+    # If the user has reconnected to a previous game, pick up where it left off.
     min_step_num = int(data.get("min_step_num", 0))
-    max_step_num = min_step_num + n_steps
-    # TODO: If min_step_num is not 0, batch_num should be set to the batch
-    # that contains that step_num. For now, we don't allow min_step_num to be
-    # set anywhere, so it hasn't been implemented yet.
-    batch_num = 0 if min_step_num == 0 else None
+    if min_step_num < 0:
+        batch_num = min_step_num // BUFFER_SIZE
+    else:
+        batch_num = 0
+    app.logger.info(f'User {user_id} connected to game {game_id} at step {min_step_num} (batch {batch_num})')
+
     retries_left = max_retries
-    step_count = max(0, min_step_num - 1)
+    step_count = max(0, min_step_num)
     steps_sent = False
-    redis_conn.set(f'sid_mapping:{sid}', game_id)
-    redis_conn.expire(f'sid_mapping:{sid}', expire)
-    try:
-        while not steps_sent:
-            socketio.sleep(timeout)
-            stop_task = redis_conn.get(f'stop_task:{game_id}')
-            stop_task = bool(stop_task.decode("utf-8")) if stop_task else None
-            if stop_task:
-                app.logger.info("Bg task closed")
-                break
-            output = retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num)
-            if output['n_steps'] == 0:
-                retries_left -= 1
-                app.logger.info(f'0 steps retrieved, {retries_left} retries left.')
-            else:
-                batch_num += output.pop('n_batches', 0)
-                step_count += output['n_steps']
-                socketio.emit('step_data_handler',
-                              {'data': output, 'step_count': step_count, 'max_steps': n_steps},
-                              room=sid)
-                retries_left = max_retries
-            if step_count >= n_steps or retries_left <= 0:
-                msg = f'{step_count}/{n_steps} steps sent by the server'
-                socketio.emit('steps_sent', {'message': msg}, room=sid)
-                steps_sent = True
-                app.logger.info(msg)
-            else:
-                min_step_num = step_count + 1
-    finally:
-        redis_conn.delete(f'sid_mapping:{sid}')
+    start_time = time.time()
+    while not steps_sent:
+        socketio.sleep(timeout)
+        stop_task = redis_conn.get(f'stop_task:{game_id}')
+        stop_task = bool(stop_task.decode("utf-8")) if stop_task else None
+        if stop_task:
+            app.logger.info("Bg task closed")
+            break
+        output = retrieve_steps(game_id, user_id, batch_num)
+        if output['n_steps'] == 0:
+            retries_left -= 1
+            app.logger.info(f'0 steps retrieved, {retries_left} retries left.')
+        else:
+            batch_num += output.pop('n_batches', 0)
+            step_count += output['n_steps']
+            socketio.emit('step_data_handler',
+                            {'data': output, 'step_count': step_count, 'max_steps': n_steps},
+                            room=sid)
+            retries_left = max_retries
+
+        elapsed_time = time.time() - start_time
+        if step_count >= n_steps or retries_left <= 0:
+            msg = f'{step_count}/{n_steps} steps sent by the server'
+            socketio.emit('steps_sent', {'message': msg}, room=sid)
+            steps_sent = True
+            app.logger.info(msg)
+        else:
+            app.logger.info(f'Sent {output["n_steps"]} steps to {sid} after {elapsed_time:.2f}s')
+            start_time = time.time()
+            
 
 
 @socketio.on('connect')
@@ -113,21 +112,18 @@ def connect_handler():
 def get_steps_handler(message):
     """Initiate a background task to send steps to the frontend.
     
-    If the user is already running a background task, it will be stopped.
+    If the user has reconnected to a previous game, pick up where it left off.
     """
     if "data" not in message:
         raise BadRequest("data is required.")
     user_id = get_standard_user_obj().id
-    old_game_id = redis_conn.get(f'sid_mapping:{request.sid}')
-    if old_game_id:
-        redis_conn.set(f'stop_task:{old_game_id}', 1)
-    socketio.start_background_task(get_steps_background, message['data'], user_id, request.sid)
+    socketio.start_background_task(get_steps_background, message["data"], user_id, request.sid)
 
 
 @socketio.on('user_disconnected')
 def user_disconnected_handler():
-    # the client will disconnect after sending the user_disconnected event
-    user_cleanup(get_standard_user_obj())
+    # Don't remove game data on disconnect, in case of reconnect
+    app.logger.info(f'User disconnected: {get_standard_user_obj().id}')
 
 
 
@@ -314,7 +310,7 @@ def get_game_config(game_id):
     game_config = redis_conn.get(f'game_config:{game_id}')
     return json.loads(game_config.decode("utf-8")) if game_config else game_config
 
-def retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num):
+def retrieve_steps(game_id, user_id, batch_num):
     """Return all newly available batches merged together."""
     batches = []
     total_steps = 0
