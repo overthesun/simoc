@@ -49,7 +49,7 @@ def authenticated_only(f):
     return wrapped
 
 
-def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=3600):
+def get_steps_background(data, user_id, sid, timeout=2, max_retries=10, expire=3600):
     """Forward records from Redis to the frontend on a loop until complete."""
     if "game_id" not in data:
         raise BadRequest("game_id is required.")
@@ -58,7 +58,7 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
 
     # If the user has reconnected to a previous game, pick up where it left off.
     min_step_num = int(data.get("min_step_num", 0))
-    if min_step_num < 0:
+    if min_step_num > 0:
         batch_num = min_step_num // BUFFER_SIZE
     else:
         batch_num = 0
@@ -75,7 +75,7 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=36
         if stop_task:
             app.logger.info("Bg task closed")
             break
-        output = retrieve_steps(game_id, user_id, batch_num)
+        output = retrieve_steps(game_id, batch_num)
         if output['n_steps'] == 0:
             retries_left -= 1
             app.logger.info(f'0 steps retrieved, {retries_left} retries left.')
@@ -310,38 +310,33 @@ def get_game_config(game_id):
     game_config = redis_conn.get(f'game_config:{game_id}')
     return json.loads(game_config.decode("utf-8")) if game_config else game_config
 
-def retrieve_steps(game_id, user_id, batch_num):
+def retrieve_steps(game_id, batch_num=0):
     """Return all newly available batches merged together."""
-    batches = []
-    total_steps = 0
-    batch = batch_num or 0
-    while True:
-        records = redis_conn.get(f'model_records:{user_id}:{game_id}:{batch}')
-        if not records:
-            break
-        records = json.loads(records)
-        steps = records.get("n_steps", 0)
-        if steps == 0:
-            break
-        total_steps += steps
-        batches.append(records)
-        batch += 1
-    if len(batches) == 0:
+    
+    # Get latest batches from redis
+    batches = redis_conn.lrange(f'records:{game_id}', batch_num, -1)
+    if not batches:
         return dict(n_steps=0, n_batches=0)
-    elif len(batches) == 1:
+    
+    # If only one new batch, return that
+    batches = [json.loads(batch.decode("utf-8")) for batch in batches]
+    if len(batches) == 1:
         output = batches[0]
-    elif len(batches) > 1:
-        def merge_batches(b1, b2):
-            if isinstance(b1, (str, int, float)):
-                return b2 or b1
-            elif isinstance(b1, list):
-                return b1 + b2
-            elif isinstance (b1, dict):
-                return {k: merge_batches(b1[k], b2[k]) for k in b1.keys()}
-        output = functools.reduce(lambda a, b: merge_batches(a, b), batches)
-    output['n_steps'] = total_steps
-    output['n_batches'] = len(batches)
-    return output
+        output['n_batches'] = 1
+        return output
+
+    # Otherwise, merge all batches together
+    n_steps = sum([batch['n_steps'] for batch in batches])
+    n_batches = len(batches)
+    def merge_batches(b1, b2):
+        if isinstance(b1, (str, int, float)):
+            return b2 or b1
+        elif isinstance(b1, list):
+            return b1 + b2
+        elif isinstance (b1, dict):
+            return {k: merge_batches(b1[k], b2[k]) for k in b1.keys()}
+    output = functools.reduce(lambda a, b: merge_batches(a, b), batches)
+    return {**output, 'n_steps': n_steps, 'n_batches': n_batches}
 
 
 def get_user_game_id(user):

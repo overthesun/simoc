@@ -67,11 +67,12 @@ def new_game(username, game_config, num_steps, expire=3600):
     # Initialize Redis
     logger.info(f'Setting user:{user.id} task:{game_id:X} on Redis')
     redis_conn.set('task_mapping:{}'.format(game_id), new_game.request.id)
-    redis_conn.set('worker_mapping:{}'.format(game_id), current_task.request.hostname)
+    # redis_conn.set('worker_mapping:{}'.format(game_id), current_task.request.hostname)
     redis_conn.set('user_mapping:{}'.format(user.id), game_id)
     redis_conn.expire(f'task_mapping:{user.id}', expire)
-    redis_conn.expire(f'worker_mapping:{game_id}', expire)
+    # redis_conn.expire(f'worker_mapping:{game_id}', expire)
     redis_conn.expire(f'user_mapping:{user.id}', expire)
+    key = f'records:{game_id}'
     try:
         # Run the model and add records to Redis
         batch_num = 0
@@ -83,14 +84,14 @@ def new_game(username, game_config, num_steps, expire=3600):
             records = model.get_records(static=True, clear_cache=True)
             # Include the number of steps so views.py knows when it's finished
             records['n_steps'] = n_steps
-            label = f'model_records:{user.id}:{game_id}:{batch_num}'
-            redis_conn.set(label, json.dumps(records), ex=RECORD_EXPIRE)
+            redis_conn.lpush(key, json.dumps(records))
             batch_num += 1
             elapsed_time = time.time() - start_time
             logger.info(f'Added batch {batch_num} ({n_steps} records) to Redis for {user.id}:{game_id} in {elapsed_time:.3f} seconds')
         logger.info(f'Game {game_id:X} finished successfully after {model.step_num} steps')
 
     finally:
+        redis_conn.expire(key, RECORD_EXPIRE)
         logger.info(f'Completed simulation for {user}')
         # SIMULATION FINISHES TOO FAST, LOST MAPPING BEFORE FRONTEND CAN GRAB
         # logger.info(f'Deleting user_mapping on Redis for {user}')
