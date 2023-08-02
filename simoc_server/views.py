@@ -72,7 +72,8 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=10, expire=3
         socketio.sleep(timeout)
         stop_task = redis_conn.get(f'stop_task:{sid}')
         stop_task = bool(stop_task.decode("utf-8")) if stop_task else None
-        if stop_task:
+        is_expired = time.time() - start_time > expire
+        if stop_task or is_expired:
             app.logger.info("Bg task closed")
             break
         output = retrieve_steps(game_id, batch_num)
@@ -87,16 +88,11 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=10, expire=3
                             room=sid)
             retries_left = max_retries
 
-        elapsed_time = time.time() - start_time
         if step_count >= n_steps or retries_left <= 0:
             msg = f'{step_count}/{n_steps} steps sent by the server'
             socketio.emit('steps_sent', {'message': msg}, room=sid)
             steps_sent = True
-            app.logger.info(msg)
-        else:
-            app.logger.info(f'Sent {output["n_steps"]} steps to {sid} after {elapsed_time:.2f}s')
-            start_time = time.time()
-            
+            app.logger.info(msg)            
 
 
 @socketio.on('connect')
@@ -362,19 +358,20 @@ def get_last_game_id():
 
 
 def kill_game_by_id(game_id, sid=None):
-    """Terminate a game by its id.
-    
-    This function performs two tasks:
-    1. Set a `stop_task` flag in Redis to stop the get_steps_background loop
-    2. Revoke a Celery task of running the AgentModel
-    """
+    """Terminate a game by its id."""
+
+    # Set a flag to stop the get_steps_background loop
     if sid is not None:
         redis_conn.set(f'stop_task:{sid}', 1)
+    # Revoke a Celery task of running the AgentModel
     task_id = redis_conn.get('task_mapping:{}'.format(game_id))
     task_id = task_id.decode("utf-8") if task_id else task_id
     app.logger.info(f"kill_game_by_id({game_id=:X}): revoke {task_id}")
     if task_id:
         celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
+    # Remove the configuration and records from redis
+    redis_conn.delete(f'game_config:{game_id}')
+    redis_conn.delete(f'records:{game_id}')
 
 
 def user_cleanup(user):

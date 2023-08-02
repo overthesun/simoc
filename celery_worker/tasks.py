@@ -48,7 +48,6 @@ def get_user(username, num_retries=30, interval=1):
             logger.info(f'User found ({num_retries=} left): {user[0]}')
             return user[0]
 
-# 2023-07-31: For b2_mission1a, with BUFFER_SIZE=100, batches took ~0.12 seconds. 
 BUFFER_SIZE = 100  # Number of steps to execute between adding records to Redis
 RECORD_EXPIRE = 1800  # Number of seconds to keep records in Redis
 
@@ -63,15 +62,11 @@ def new_game(username, game_config, num_steps, expire=3600):
     model.user_id = user.id
     # Save complete game config to Redis
     complete_game_config = model.save()
-    redis_conn.set(f'game_config:{game_id}', json.dumps(complete_game_config))
+    redis_conn.set(f'game_config:{game_id}', json.dumps(complete_game_config), ex=expire)
     # Initialize Redis
     logger.info(f'Setting user:{user.id} task:{game_id:X} on Redis')
-    redis_conn.set('task_mapping:{}'.format(game_id), new_game.request.id)
-    # redis_conn.set('worker_mapping:{}'.format(game_id), current_task.request.hostname)
-    redis_conn.set('user_mapping:{}'.format(user.id), game_id)
-    redis_conn.expire(f'task_mapping:{user.id}', expire)
-    # redis_conn.expire(f'worker_mapping:{game_id}', expire)
-    redis_conn.expire(f'user_mapping:{user.id}', expire)
+    redis_conn.set(f'task_mapping:{game_id}', new_game.request.id, ex=expire)
+    redis_conn.set(f'user_mapping:{user.id}', game_id, ex=expire)
     key = f'records:{game_id}'
     try:
         # Run the model and add records to Redis
@@ -93,6 +88,3 @@ def new_game(username, game_config, num_steps, expire=3600):
     finally:
         redis_conn.expire(key, RECORD_EXPIRE)
         logger.info(f'Completed simulation for {user}')
-        # SIMULATION FINISHES TOO FAST, LOST MAPPING BEFORE FRONTEND CAN GRAB
-        # logger.info(f'Deleting user_mapping on Redis for {user}')
-        # redis_conn.delete('user_mapping:{}'.format(user.id))
