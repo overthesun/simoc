@@ -49,7 +49,7 @@ def get_user(username, num_retries=30, interval=1):
             return user[0]
 
 # 2023-07-31: For b2_mission1a, with BUFFER_SIZE=100, batches took ~0.12 seconds. 
-BUFFER_SIZE = 500  # Number of steps to execute between adding records to Redis
+BUFFER_SIZE = 100  # Number of steps to execute between adding records to Redis
 RECORD_EXPIRE = 1800  # Number of seconds to keep records in Redis
 
 @app.task

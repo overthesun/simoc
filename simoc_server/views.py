@@ -320,11 +320,13 @@ def get_game_config(game_id):
     game_config = redis_conn.get(f'game_config:{game_id}')
     return json.loads(game_config.decode("utf-8")) if game_config else game_config
 
-def retrieve_steps(game_id, batch_num=0, max_batches=5):
+def retrieve_steps(game_id, batch_num=0, max_batches=10):
     """Return all newly available batches merged together."""
 
     # Get latest batches from redis
-    batches = redis_conn.lrange(f'records:{game_id}', batch_num, batch_num + 5)
+    start = batch_num
+    stop = batch_num + max_batches - 1  # redis indexing is inclusive
+    batches = redis_conn.lrange(f'records:{game_id}', start, stop)
     if not batches:
         return dict(n_steps=0, n_batches=0)
     
