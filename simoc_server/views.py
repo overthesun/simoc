@@ -65,12 +65,12 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=10, expire=3
     app.logger.info(f'User {user_id} connected to game {game_id} at step {min_step_num} (batch {batch_num})')
 
     retries_left = max_retries
-    step_count = max(0, min_step_num)
+    step_count = max(0, batch_num * BUFFER_SIZE)
     steps_sent = False
     start_time = time.time()
     while not steps_sent:
         socketio.sleep(timeout)
-        stop_task = redis_conn.get(f'stop_task:{game_id}')
+        stop_task = redis_conn.get(f'stop_task:{sid}')
         stop_task = bool(stop_task.decode("utf-8")) if stop_task else None
         if stop_task:
             app.logger.info("Bg task closed")
@@ -116,8 +116,18 @@ def get_steps_handler(message):
     """
     if "data" not in message:
         raise BadRequest("data is required.")
+    data = message["data"]
     user_id = get_standard_user_obj().id
-    socketio.start_background_task(get_steps_background, message["data"], user_id, request.sid)
+    sid = request.sid
+
+    # Map the user_id to the sid, so that on disconnect/reconnect previous task is cancelled
+    if redis_conn.exists(f'user_sid_mapping:{user_id}'):
+        old_sid = redis_conn.get(f'user_sid_mapping:{user_id}').decode("utf-8")
+        app.logger.info(f'User {user_id} reconnected, cancelling previous task')
+        redis_conn.set(f'stop_task:{old_sid}', 1, ex=60)
+    redis_conn.set(f'user_sid_mapping:{user_id}', sid, ex=3600)
+    
+    socketio.start_background_task(get_steps_background, data, user_id, sid)
 
 
 @socketio.on('user_disconnected')
@@ -312,20 +322,14 @@ def get_game_config(game_id):
 
 def retrieve_steps(game_id, batch_num=0):
     """Return all newly available batches merged together."""
-    
+
     # Get latest batches from redis
     batches = redis_conn.lrange(f'records:{game_id}', batch_num, -1)
     if not batches:
         return dict(n_steps=0, n_batches=0)
     
-    # If only one new batch, return that
+    # Decode, merge and return batches
     batches = [json.loads(batch.decode("utf-8")) for batch in batches]
-    if len(batches) == 1:
-        output = batches[0]
-        output['n_batches'] = 1
-        return output
-
-    # Otherwise, merge all batches together
     n_steps = sum([batch['n_steps'] for batch in batches])
     n_batches = len(batches)
     def merge_batches(b1, b2):
@@ -355,14 +359,15 @@ def get_last_game_id():
                   game_id=format(game_id, 'X'))
 
 
-def kill_game_by_id(game_id):
+def kill_game_by_id(game_id, sid=None):
     """Terminate a game by its id.
     
     This function performs two tasks:
-    1. Revoke a Celery task of running the AgentModel
-    2. Set a `stop_task` flag in Redis to stop the get_steps_background loop
+    1. Set a `stop_task` flag in Redis to stop the get_steps_background loop
+    2. Revoke a Celery task of running the AgentModel
     """
-    redis_conn.set(f'stop_task:{game_id}', 1)
+    if sid is not None:
+        redis_conn.set(f'stop_task:{sid}', 1)
     task_id = redis_conn.get('task_mapping:{}'.format(game_id))
     task_id = task_id.decode("utf-8") if task_id else task_id
     app.logger.info(f"kill_game_by_id({game_id=:X}): revoke {task_id}")
@@ -373,8 +378,9 @@ def kill_game_by_id(game_id):
 def user_cleanup(user):
     """Terminate a game associated with a given user and delete user mapping."""
     game_id = get_user_game_id(get_standard_user_obj())
+    old_sid = redis_conn.get(f'user_sid_mapping:{user.id}') or None
     if game_id:
-        kill_game_by_id(game_id)
+        kill_game_by_id(game_id, old_sid)
     redis_conn.delete('user_mapping:{}'.format(user.id))
 
 
@@ -385,7 +391,7 @@ def kill_game():
     if "game_id" not in input:
         raise BadRequest("game_id is required.")
     game_id = int(input["game_id"], 16)
-    kill_game_by_id(game_id)
+    user_cleanup(get_standard_user_obj())
     return status(f"Game {input['game_id']} killed.")
 
 

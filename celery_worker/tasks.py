@@ -84,7 +84,7 @@ def new_game(username, game_config, num_steps, expire=3600):
             records = model.get_records(static=True, clear_cache=True)
             # Include the number of steps so views.py knows when it's finished
             records['n_steps'] = n_steps
-            redis_conn.lpush(key, json.dumps(records))
+            redis_conn.rpush(key, json.dumps(records))
             batch_num += 1
             elapsed_time = time.time() - start_time
             logger.info(f'Added batch {batch_num} ({n_steps} records) to Redis for {user.id}:{game_id} in {elapsed_time:.3f} seconds')
