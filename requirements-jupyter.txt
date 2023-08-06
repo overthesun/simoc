@@ -7,5 +7,4 @@ pytimeparse
 quantities
 scikit-learn>=0.23,!=0.24.0,!=0.24.1
 scipy
---extra-index-url https://test.pypi.org/simple/
 simoc_abm
