@@ -14,7 +14,7 @@ logger = get_task_logger(__name__)
 
 sys.path.append("../")
 
-from agent_model import AgentModel
+from simoc_abm.agent_model import AgentModel
 from simoc_server.database.db_model import User
 from simoc_server.exceptions import NotFound
 from simoc_server import redis_conn, db
@@ -48,41 +48,43 @@ def get_user(username, num_retries=30, interval=1):
             logger.info(f'User found ({num_retries=} left): {user[0]}')
             return user[0]
 
-BUFFER_SIZE = 10  # Number of steps to execute between adding records to Redis
+BUFFER_SIZE = 100  # Number of steps to execute between adding records to Redis
 RECORD_EXPIRE = 1800  # Number of seconds to keep records in Redis
 
 @app.task
-def new_game(username, game_config, num_steps, user_agent_desc=None,
-             user_agent_conn=None, expire=3600):
+def new_game(username, game_config, num_steps, expire=3600):
     logger.info(f'Starting new game for {username=}, {num_steps=}')
     # Initialize model
     user = get_user(username)
     game_id = random.getrandbits(63)
-    model = AgentModel.from_config(game_config, agent_desc=user_agent_desc, agent_conn=user_agent_conn)
+    model = AgentModel.from_config(**game_config, record_initial_state=False)
     model.game_id = game_id
     model.user_id = user.id
+    # Save complete game config to Redis
+    complete_game_config = model.save()
+    redis_conn.set(f'game_config:{game_id}', json.dumps(complete_game_config), ex=expire)
     # Initialize Redis
     logger.info(f'Setting user:{user.id} task:{game_id:X} on Redis')
-    redis_conn.set('task_mapping:{}'.format(game_id), new_game.request.id)
-    redis_conn.set('worker_mapping:{}'.format(game_id), current_task.request.hostname)
-    redis_conn.set('user_mapping:{}'.format(user.id), game_id)
-    redis_conn.expire(f'task_mapping:{user.id}', expire)
-    redis_conn.expire(f'worker_mapping:{game_id}', expire)
-    redis_conn.expire(f'user_mapping:{user.id}', expire)
+    redis_conn.set(f'task_mapping:{game_id}', new_game.request.id, ex=expire)
+    redis_conn.set(f'user_mapping:{user.id}', game_id, ex=expire)
+    key = f'records:{game_id}'
     try:
         # Run the model and add records to Redis
         batch_num = 0
         while model.step_num <= num_steps and not model.is_terminated:
+            start_time = time.time()
             n_steps = min(BUFFER_SIZE, num_steps - model.step_num)
-            model.step_to(n_steps)
-            records = model.get_data(step_range=(0, n_steps), clear_cache=True)
+            for _ in range(n_steps):
+                model.step()
+            records = model.get_records(static=True, clear_cache=True)
             # Include the number of steps so views.py knows when it's finished
             records['n_steps'] = n_steps
-            label = f'model_records:{user.id}:{game_id}:{batch_num}'
-            redis_conn.set(label, json.dumps(records), ex=RECORD_EXPIRE)
+            redis_conn.rpush(key, json.dumps(records))
             batch_num += 1
+            elapsed_time = time.time() - start_time
+            logger.info(f'Added batch {batch_num} ({n_steps} records) to Redis for {user.id}:{game_id} in {elapsed_time:.3f} seconds')
         logger.info(f'Game {game_id:X} finished successfully after {model.step_num} steps')
 
     finally:
-        logger.info(f'Deleting user_mapping on Redis for {user}')
-        redis_conn.delete('user_mapping:{}'.format(user.id))
+        redis_conn.expire(key, RECORD_EXPIRE)
+        logger.info(f'Completed simulation for {user}')

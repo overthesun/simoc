@@ -18,10 +18,11 @@ from simoc_server.database.db_model import User
 from simoc_server.exceptions import GenericError, InvalidLogin, BadRequest, BadRegistration, \
     ServerError
 from simoc_server.serialize import serialize_response
-from simoc_server.front_end_routes import convert_configuration, load_from_basedir
+from simoc_server.front_end_routes import convert_configuration
+from simoc_abm.util import load_data_file
 
 from celery_worker import tasks
-from celery_worker.tasks import app as celery_app
+from celery_worker.tasks import app as celery_app, BUFFER_SIZE
 
 MAX_NUMBER_OF_AGENTS = 50
 MAX_STEP_NUMBER = 365*24*2  # 2 Earth years
@@ -48,55 +49,50 @@ def authenticated_only(f):
     return wrapped
 
 
-def get_steps_background(data, user_id, sid, timeout=2, max_retries=5, expire=3600):
+def get_steps_background(data, user_id, sid, timeout=2, max_retries=10, expire=3600):
     """Forward records from Redis to the frontend on a loop until complete."""
     if "game_id" not in data:
         raise BadRequest("game_id is required.")
     game_id = int(data["game_id"], 16)
     n_steps = int(data.get("n_steps", 1e6))
-    if n_steps > 5000:
-         # Increases system-wide speed by ~50% and prevents the backend crashing
-         # on b2_mission1a sim.
-        timeout = 5
+
+    # If the user has reconnected to a previous game, pick up where it left off.
     min_step_num = int(data.get("min_step_num", 0))
-    max_step_num = min_step_num + n_steps
-    # TODO: If min_step_num is not 0, batch_num should be set to the batch
-    # that contains that step_num. For now, we don't allow min_step_num to be
-    # set anywhere, so it hasn't been implemented yet.
-    batch_num = 0 if min_step_num == 0 else None
+    if min_step_num > 0:
+        batch_num = min_step_num // BUFFER_SIZE
+    else:
+        batch_num = 0
+    app.logger.info(f'User {user_id} connected to game {game_id} at step {min_step_num} (batch {batch_num})')
+
     retries_left = max_retries
-    step_count = max(0, min_step_num - 1)
+    step_count = max(0, batch_num * BUFFER_SIZE)
     steps_sent = False
-    redis_conn.set(f'sid_mapping:{sid}', game_id)
-    redis_conn.expire(f'sid_mapping:{sid}', expire)
-    try:
-        while not steps_sent:
-            socketio.sleep(timeout)
-            stop_task = redis_conn.get(f'stop_task:{game_id}')
-            stop_task = bool(stop_task.decode("utf-8")) if stop_task else None
-            if stop_task:
-                app.logger.info("Bg task closed")
-                break
-            output = retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num)
-            if output['n_steps'] == 0:
-                retries_left -= 1
-                app.logger.info(f'0 steps retrieved, {retries_left} retries left.')
-            else:
-                batch_num += output.pop('n_batches', 0)
-                step_count += output['n_steps']
-                socketio.emit('step_data_handler',
-                              {'data': output, 'step_count': step_count, 'max_steps': n_steps},
-                              room=sid)
-                retries_left = max_retries
-            if step_count >= n_steps or retries_left <= 0:
-                msg = f'{step_count}/{n_steps} steps sent by the server'
-                socketio.emit('steps_sent', {'message': msg}, room=sid)
-                steps_sent = True
-                app.logger.info(msg)
-            else:
-                min_step_num = step_count + 1
-    finally:
-        redis_conn.delete(f'sid_mapping:{sid}')
+    start_time = time.time()
+    while not steps_sent:
+        socketio.sleep(timeout)
+        stop_task = redis_conn.get(f'stop_task:{sid}')
+        stop_task = bool(stop_task.decode("utf-8")) if stop_task else None
+        is_expired = time.time() - start_time > expire
+        if stop_task or is_expired:
+            app.logger.info("Bg task closed")
+            break
+        output = retrieve_steps(game_id, batch_num)
+        if output['n_steps'] == 0:
+            retries_left -= 1
+            app.logger.info(f'0 steps retrieved, {retries_left} retries left.')
+        else:
+            batch_num += output.pop('n_batches', 0)
+            step_count += output['n_steps']
+            socketio.emit('step_data_handler',
+                            {'data': output, 'step_count': step_count, 'max_steps': n_steps},
+                            room=sid)
+            retries_left = max_retries
+
+        if step_count >= n_steps or retries_left <= 0:
+            msg = f'{step_count}/{n_steps} steps sent by the server'
+            socketio.emit('steps_sent', {'message': msg}, room=sid)
+            steps_sent = True
+            app.logger.info(msg)            
 
 
 @socketio.on('connect')
@@ -112,21 +108,28 @@ def connect_handler():
 def get_steps_handler(message):
     """Initiate a background task to send steps to the frontend.
     
-    If the user is already running a background task, it will be stopped.
+    If the user has reconnected to a previous game, pick up where it left off.
     """
     if "data" not in message:
         raise BadRequest("data is required.")
+    data = message["data"]
     user_id = get_standard_user_obj().id
-    old_game_id = redis_conn.get(f'sid_mapping:{request.sid}')
-    if old_game_id:
-        redis_conn.set(f'stop_task:{old_game_id}', 1)
-    socketio.start_background_task(get_steps_background, message['data'], user_id, request.sid)
+    sid = request.sid
+
+    # Map the user_id to the sid, so that on disconnect/reconnect previous task is cancelled
+    if redis_conn.exists(f'user_sid_mapping:{user_id}'):
+        old_sid = redis_conn.get(f'user_sid_mapping:{user_id}').decode("utf-8")
+        app.logger.info(f'User {user_id} reconnected, cancelling previous task')
+        redis_conn.set(f'stop_task:{old_sid}', 1, ex=60)
+    redis_conn.set(f'user_sid_mapping:{user_id}', sid, ex=3600)
+    
+    socketio.start_background_task(get_steps_background, data, user_id, sid)
 
 
 @socketio.on('user_disconnected')
 def user_disconnected_handler():
-    # the client will disconnect after sending the user_disconnected event
-    user_cleanup(get_standard_user_obj())
+    # Don't remove game data on disconnect, in case of reconnect
+    app.logger.info(f'User disconnected: {get_standard_user_obj().id}')
 
 
 
@@ -278,20 +281,14 @@ def new_game():
         raise BadRequest("step_num is required.")
     step_num = int(input["step_num"])
     try:
-        data_files = convert_configuration(input["game_config"])
-        game_config, user_agent_desc, user_agent_conn = data_files
+        game_config = convert_configuration(input["game_config"])
     except BadRequest as e:
         raise BadRequest(f"Cannot retrieve game config. Reason: {e}")
-    if game_config['total_amount'] >= MAX_NUMBER_OF_AGENTS:
-        raise BadRequest("Too many agents requested.")
     if step_num >= MAX_STEP_NUMBER:
         raise BadRequest("Too many steps requested.")
     user = get_standard_user_obj()
     user_cleanup(user)
-    # Import and load default currencies list
-    default_currencies = load_from_basedir('data_files/currency_desc.json')
-    tasks.new_game.apply_async(args=[user.username, game_config, step_num,
-                                     user_agent_desc, user_agent_conn])
+    tasks.new_game.apply_async(args=[user.username, game_config, step_num])
     while True:
         time.sleep(0.5)
         game_id = get_user_game_id(user)
@@ -305,9 +302,13 @@ def new_game():
             msg = 'Cannot create a new game.'
             app.logger.error(msg)
             raise ServerError(msg)
-    redis_conn.set('game_config:{}'.format(game_id), json.dumps(game_config))
+    # The AgentModel fills in connections, currencies, etc and then re-exports
+    # using the save() method, and adds to redis. We return this to the 
+    # frontend as the complete 'game config' of record.
+    complete_game_config = redis_conn.get(f'game_config:{game_id}')
+    complete_game_config = json.loads(complete_game_config)
     return status("New game starts.", game_id=format(game_id, 'X'),
-                  game_config=game_config, currency_desc=default_currencies)
+                  game_config=complete_game_config)
 
 
 def get_game_config(game_id):
@@ -315,38 +316,29 @@ def get_game_config(game_id):
     game_config = redis_conn.get(f'game_config:{game_id}')
     return json.loads(game_config.decode("utf-8")) if game_config else game_config
 
-def retrieve_steps(game_id, user_id, batch_num, min_step_num, max_step_num):
+def retrieve_steps(game_id, batch_num=0, max_batches=10):
     """Return all newly available batches merged together."""
-    batches = []
-    total_steps = 0
-    batch = batch_num or 0
-    while True:
-        records = redis_conn.get(f'model_records:{user_id}:{game_id}:{batch}')
-        if not records:
-            break
-        records = json.loads(records)
-        steps = records.get("n_steps", 0)
-        if steps == 0:
-            break
-        total_steps += steps
-        batches.append(records)
-        batch += 1
-    if len(batches) == 0:
+
+    # Get latest batches from redis
+    start = batch_num
+    stop = batch_num + max_batches - 1  # redis indexing is inclusive
+    batches = redis_conn.lrange(f'records:{game_id}', start, stop)
+    if not batches:
         return dict(n_steps=0, n_batches=0)
-    elif len(batches) == 1:
-        output = batches[0]
-    elif len(batches) > 1:
-        def merge_batches(b1, b2):
-            if isinstance(b1, (str, int, float)):
-                return b2 or b1
-            elif isinstance(b1, list):
-                return b1 + b2
-            elif isinstance (b1, dict):
-                return {k: merge_batches(b1[k], b2[k]) for k in b1.keys()}
-        output = functools.reduce(lambda a, b: merge_batches(a, b), batches)
-    output['n_steps'] = total_steps
-    output['n_batches'] = len(batches)
-    return output
+    
+    # Decode, merge and return batches
+    batches = [json.loads(batch.decode("utf-8")) for batch in batches]
+    n_steps = sum([batch['n_steps'] for batch in batches])
+    n_batches = len(batches)
+    def merge_batches(b1, b2):
+        if isinstance(b1, (str, int, float)):
+            return b2 or b1
+        elif isinstance(b1, list):
+            return b1 + b2
+        elif isinstance (b1, dict):
+            return {k: merge_batches(b1[k], b2[k]) for k in b1.keys()}
+    output = functools.reduce(lambda a, b: merge_batches(a, b), batches)
+    return {**output, 'n_steps': n_steps, 'n_batches': n_batches}
 
 
 def get_user_game_id(user):
@@ -365,26 +357,29 @@ def get_last_game_id():
                   game_id=format(game_id, 'X'))
 
 
-def kill_game_by_id(game_id):
-    """Terminate a game by its id.
-    
-    This function performs two tasks:
-    1. Revoke a Celery task of running the AgentModel
-    2. Set a `stop_task` flag in Redis to stop the get_steps_background loop
-    """
-    redis_conn.set(f'stop_task:{game_id}', 1)
+def kill_game_by_id(game_id, sid=None):
+    """Terminate a game by its id."""
+
+    # Set a flag to stop the get_steps_background loop
+    if sid is not None:
+        redis_conn.set(f'stop_task:{sid}', 1)
+    # Revoke a Celery task of running the AgentModel
     task_id = redis_conn.get('task_mapping:{}'.format(game_id))
     task_id = task_id.decode("utf-8") if task_id else task_id
     app.logger.info(f"kill_game_by_id({game_id=:X}): revoke {task_id}")
     if task_id:
         celery_app.control.revoke(task_id, terminate=True, signal='SIGKILL')
+    # Remove the configuration and records from redis
+    redis_conn.delete(f'game_config:{game_id}')
+    redis_conn.delete(f'records:{game_id}')
 
 
 def user_cleanup(user):
     """Terminate a game associated with a given user and delete user mapping."""
     game_id = get_user_game_id(get_standard_user_obj())
+    old_sid = redis_conn.get(f'user_sid_mapping:{user.id}') or None
     if game_id:
-        kill_game_by_id(game_id)
+        kill_game_by_id(game_id, old_sid)
     redis_conn.delete('user_mapping:{}'.format(user.id))
 
 
@@ -395,7 +390,7 @@ def kill_game():
     if "game_id" not in input:
         raise BadRequest("game_id is required.")
     game_id = int(input["game_id"], 16)
-    kill_game_by_id(game_id)
+    user_cleanup(get_standard_user_obj())
     return status(f"Game {input['game_id']} killed.")
 
 
@@ -438,25 +433,26 @@ def get_agent_types_by_class():
     results = []
     get_agent_class = request.args.get("agent_class", type=str)
     get_agent_name = request.args.get("agent_name", type=str)
-    agent_desc = load_from_basedir('data_files/agent_desc.json')
-    for agent_class, agents in agent_desc.items():
+    agent_desc = load_data_file('agent_desc.json')
+    for agent_name, agent_data in agent_desc.items():
+        agent_class = agent_data.get('agent_class', None)
         if get_agent_class and agent_class != get_agent_class:
             continue
-        for agent_name, agent_data in agents.items():
-            if get_agent_name and agent_name != get_agent_name:
-                continue
-            entry = {"agent_class": agent_class, "name": agent_name}
-            for prefix, items in agent_data['data'].items():
-                for item in items:
-                    if prefix not in entry:
-                        entry[prefix] = []
-                    if prefix in ['in', 'out']:
-                        entry[prefix].append(item['type'])
-                    else:
-                        entry[prefix].append(
-                            # FIXME: see issue #68, "units": attr.details
-                            {"name": item['type'], "value": item['value']})
-            results.append(entry)
+        if get_agent_name and agent_name != get_agent_name:
+            continue
+        entry = {"agent_class": agent_class, "name": agent_name}
+        # 06/2023: Outdated and Unused
+        # for prefix, items in agent_data['data'].items():
+        #     for item in items:
+        #         if prefix not in entry:
+        #             entry[prefix] = []
+        #         if prefix in ['in', 'out']:
+        #             entry[prefix].append(item['type'])
+        #         else:
+        #             entry[prefix].append(
+        #                 # FIXME: see issue #68, "units": attr.details
+        #                 {"name": item['type'], "value": item['value']})
+        results.append(entry)
     return json.dumps(results)
 
 
@@ -464,16 +460,15 @@ def get_agent_types_by_class():
 @app.route("/get_agent_desc", methods=["GET"])
 def get_agent_desc():
     """Return the default agent_desc.json and agent_schema.json files."""
-    agent_desc = load_from_basedir('data_files/agent_desc.json')
-    agent_schema = load_from_basedir('data_files/agent_schema.json')
+    agent_desc = load_data_file('agent_desc.json')
     return status("Agent editor data retrieved",
-                  agent_desc=agent_desc, agent_schema=agent_schema)
+                  agent_desc=agent_desc)
 
 
 @app.route("/get_currency_desc", methods=["GET"])
 def get_currency_desc():
     """Return the default currency_desc.json file."""
-    currency_desc = load_from_basedir('data_files/currency_desc.json')
+    currency_desc = load_data_file('currency_desc.json')
     return status("Currency desc retrieved", currency_desc=currency_desc)
 
 

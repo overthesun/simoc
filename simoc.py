@@ -10,6 +10,7 @@ import shutil
 import socket
 import pathlib
 import argparse
+import platform
 import subprocess
 import urllib.request
 
@@ -132,7 +133,11 @@ def install_jinja():
         return True  # Jinja already installed
     except ImportError:
         print('Installing Jinja2:')
-        return run(['sudo', 'apt', 'install', '-y', 'python3-jinja2'])
+        if platform.system() == 'Darwin': # macOS-specific installation
+            command = ['python3', '-m', 'pip', 'install', 'jinja2']
+        else: # Assume Linux-based system
+            command = ['sudo', 'apt', 'install', '-y', 'python3-jinja2']
+        return run(command)
 
 @cmd
 def install_deps():
