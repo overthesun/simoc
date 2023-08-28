@@ -1,4 +1,5 @@
 name: Deploy SIMOC
+run-name: Deploy SIMOC on ${{ github.event.inputs.host }} (${{ github.event.inputs.fe_branch }}/${{ github.event.inputs.be_branch }})
 
 on:
   workflow_dispatch:
