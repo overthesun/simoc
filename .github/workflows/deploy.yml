@@ -1,4 +1,5 @@
 name: Deploy SIMOC
+run-name: "Deploy SIMOC on ${{ inputs.host }} (fe: ${{ inputs.fe_branch }} / be: ${{ inputs.be_branch }})"
 
 on:
   workflow_dispatch:
