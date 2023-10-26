@@ -1,7 +1,16 @@
 celery==5.3.1
 flask==2.3.3
 flask-login==0.6.2
-flask_socketio==5.3.6
+# Something broke upgrading flask_socketio to 5.3.5
+# so we are temporarily pinning it back to 5.3.2,
+# however that's not enough because that will still
+# install more recent versions of python-socketio/engineio
+# which contain the bug, so those are now pinned too.
+# Once the issue with python-socketio/engineio is solved,
+# flask_socketio can be upgraded again and the other two removed.
+flask_socketio==5.3.2
+python-socketio==5.8.0
+python-engineio==4.6.1
 flask-sqlalchemy==2.5.1
 gevent==22.10.2
 gunicorn==20.1.0
