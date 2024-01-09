@@ -14,7 +14,7 @@ python-engineio==4.7.0
 flask-sqlalchemy==2.5.1
 gevent-websocket==0.10.1
 gevent==23.9.1
-gunicorn==20.1.0
+gunicorn==21.2.0
 jinja2==3.1.2
 mesa==1.1.1
 msgpack-python==0.5.6
