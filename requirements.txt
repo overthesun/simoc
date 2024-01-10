@@ -1,6 +1,6 @@
 celery==5.3.1
 flask==2.3.3
-flask-login==0.6.2
+flask-login==0.6.3
 # Something broke upgrading flask_socketio to 5.3.5
 # so we are temporarily pinning it back to 5.3.2,
 # however that's not enough because that will still
