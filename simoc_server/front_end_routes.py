@@ -189,6 +189,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     """
     full_game_config = {  # The object to be returned by this function.
         'agents': {},
+        'currencies': {},
         'termination': [],
     }
     # Create a working_config which will be modified by this function, so as
@@ -196,6 +197,8 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     working_config = copy.deepcopy(game_config)
     agent_desc = load_data_file('agent_desc.json')
     currency_dict = get_default_currency_data()
+   # working_config['food_storage']['capacity']={}
+    #working_config['food_storage']['capacity']['rice_7']=10000
     is_b2 = False
 
     ###########################################################################
@@ -287,25 +290,32 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
 
     # Plants: A list of objects with 'species' and 'amount'
     plants_in_config = []
-    input_food_storage = working_config.pop('food_storage', None)
+    input_food_storage = working_config.pop('food_storage', None) #### FOOD STORAGE GRABBED ####
     crop_mgmt_input = working_config.pop('improvedCropManagement', False)
     crop_mgmt_factor = 1.5 if crop_mgmt_input is True else 1
     if 'plants' in working_config and isinstance(working_config['plants'], list):
         plants = working_config.pop('plants')
+        app.logger.info(f'ZZZZZZZZZZZZZZZZZ PLANTS  ZZZZZZZZZZZZZZZZZ {plants} ' )
         for plant in plants:
             amount = plant.get('amount', 0) or 0
-            plant_type = plant.get('species', None)
+            plant_type = plant.pop('species') # plant.get('species', None) # plant.pop('species')  
             if not (plant_type and amount):
                 continue
             plants_in_config.append(plant_type)
-            working_config[plant_type] = dict(amount=amount)
+            plant['amount']=amount
+            if plant_type not in working_config: # Could be in the working config already as a custom agent
+                working_config[plant_type]=plant
+            else:
+                working_config[plant_type]['amount']=amount
+            
             if is_b2:
                 working_config[plant_type]['properties'] = {
                     'crop_management_factor': {'value': crop_mgmt_factor},
                     'density_factor': {'value': 0.5}
                 }
+        app.logger.info(f'BBBBBBBBBBBBBB WORKING CONFIG  BBBBBBBBBBBBBBBB {working_config} ' )
     if plants_in_config:
-        working_config['food_storage'] = dict(amount=1)
+        working_config['food_storage'] = dict(amount=1)# FOOD STORAGE CLEARED!?!?!
         # Lights
         if is_b2:
             working_config['b2_sun'] = {'amount': 1}
@@ -317,10 +327,15 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                 # Add custom lamp for plant
                 lamp_id = f'{species}_lamp'
                 working_config[lamp_id] = {'amount': 1, 'prototypes': ['lamp'],
-                                           'flows': {'out': {'par': {'connections': [lamp_id]}}}}
+                                           'flows': {'out': {'par': {'connections': [lamp_id]}}}}  # species to lamp_id? Nope, that crashes it. ERROR: 'rice' does not store par
                 # Add connection to plant 'par' flow
-                par_flow_stub = {'in': {'par': {'connections': [lamp_id]}}}
-                working_config[species]['flows'] = par_flow_stub
+                par_flow_stub = {'in': {'par': {'connections': [lamp_id]}}}  
+                app.logger.info(f'5555555555555555555555555 WORKING CONFIG SPECIES  5555555555555555555555555 {working_config[species]} ' )
+                if 'flows' in working_config[species]:
+                    working_config[species]['flows']['in']['par']['connections'].clear() # Remove excess lamps
+                    working_config[species]['flows']['in']['par']['connections'].append(lamp_id) # Add specific lamp
+                else:
+                    working_config[species]['flows']=par_flow_stub
                 # Everything else (amt, rate, schedule) managed by LampAgent
      # Default Storages: Some listed, some not. Need to calculate amount.
     # 'food_storage' now holds fresh food, and 'ration_storage' holds the rations. Rations are
@@ -357,7 +372,9 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                 capacity = agent_desc[storage_type]['capacity'][field]
                 amount = max(amount, math.ceil(value / capacity))
         storage_agent['amount'] = amount
-        working_config[storage_type] = storage_agent
+        working_config[storage_type] = storage_agent    
+    working_config['food_storage']['capacity']={};
+    working_config['food_storage']['capacity']['rice_7']=10000; ## HARD CODED
     if 'human_agent' in working_config:
         human = working_config.pop('human_agent')
         working_config['human'] = human
@@ -446,10 +463,20 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     ###########################################################################
     #                   STEP 3: Add all agents to output                      #
     ###########################################################################
+    custom_currencies = {}
+    # Save the currencies
+    if 'currencies' in working_config:
+        custom_currencies = working_config.pop('currencies')
 
     for agent_id, agent in working_config.items():
         full_game_config['agents'][agent_id] = agent
-
+        
+    for currency_id, currency in custom_currencies.items():
+            full_game_config['currencies'][currency_id] = currency
+            
+        #if(plant.custom_flag=true)
+            #full_game_config['currencies']= new currency for custom plant
+        
     # Print result
     if save_output:
         timestamp = datetime.datetime.now()
