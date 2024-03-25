@@ -9,7 +9,7 @@ flask-login==0.6.3
 # Once the issue with python-socketio/engineio is solved,
 # flask_socketio can be upgraded again and the other two removed.
 flask_socketio==5.3.6
-python-socketio==5.9.0
+python-socketio==5.11.2
 python-engineio==4.7.0
 flask-sqlalchemy==2.5.1
 gevent-websocket==0.10.1
