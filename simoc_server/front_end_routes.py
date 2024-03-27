@@ -315,7 +315,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                 }
         app.logger.info(f'BBBBBBBBBBBBBB WORKING CONFIG  BBBBBBBBBBBBBBBB {working_config} ' )
     if plants_in_config:
-        working_config['food_storage'] = dict(amount=1)# FOOD STORAGE CLEARED!?!?!
+        working_config['food_storage'] = dict(amount=1) 
         # Lights
         if is_b2:
             working_config['b2_sun'] = {'amount': 1}
@@ -373,8 +373,24 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                 amount = max(amount, math.ceil(value / capacity))
         storage_agent['amount'] = amount
         working_config[storage_type] = storage_agent    
-    working_config['food_storage']['capacity']={};
-    working_config['food_storage']['capacity']['rice_7']=10000; ## HARD CODED
+        
+    # For any custom food currencies, it is necessary that food storage be created for them
+    # Because food storage is set to a new object above (and combined later with food storage in simoc-abm's 
+    # default JSON file), a capacity is defined subobject is defined here.
+    custom_currencies = {}
+    if 'currencies' in working_config:
+        custom_currencies = working_config.pop('currencies') # These are later added to config in format expected by simoc-abm
+        working_config['food_storage']['capacity']={};
+        # Check if each custom currency is a food, and if it is, add a food storage capacity for this food.
+        for currency_name, currency_parameters in custom_currencies.items():
+            if 'category' in currency_parameters:
+                if currency_parameters['category'] == 'food':
+                      #  working_config['food_storage']['capacity']['rice_7']=10000; ## HARD CODED
+                       working_config['food_storage']['capacity'][currency_name]=10000 
+    # Next, iterate through the custom agents and see if they are a food type agent.
+    # If they are, set the capacity to 10,000 which is the default hardcoded amount in the simoc-abm JSON for a food item
+    
+    
     if 'human_agent' in working_config:
         human = working_config.pop('human_agent')
         working_config['human'] = human
@@ -463,10 +479,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     ###########################################################################
     #                   STEP 3: Add all agents to output                      #
     ###########################################################################
-    custom_currencies = {}
-    # Save the currencies
-    if 'currencies' in working_config:
-        custom_currencies = working_config.pop('currencies')
+
 
     for agent_id, agent in working_config.items():
         full_game_config['agents'][agent_id] = agent
