@@ -1,4 +1,4 @@
-celery==5.3.1
+celery==5.4.0
 flask==2.3.3
 flask-login==0.6.3
 # Something broke upgrading flask_socketio to 5.3.5
