@@ -197,8 +197,6 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     working_config = copy.deepcopy(game_config)
     agent_desc = load_data_file('agent_desc.json')
     currency_dict = get_default_currency_data()
-   # working_config['food_storage']['capacity']={}
-    #working_config['food_storage']['capacity']['rice_7']=10000
     is_b2 = False
 
     ###########################################################################
@@ -298,7 +296,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
         app.logger.info(f'ZZZZZZZZZZZZZZZZZ PLANTS  ZZZZZZZZZZZZZZZZZ {plants} ' )
         for plant in plants:
             amount = plant.get('amount', 0) or 0
-            plant_type = plant.pop('species') # plant.get('species', None) # plant.pop('species')  
+            plant_type = plant.pop('species')
             if not (plant_type and amount):
                 continue
             plants_in_config.append(plant_type)
@@ -327,7 +325,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                 # Add custom lamp for plant
                 lamp_id = f'{species}_lamp'
                 working_config[lamp_id] = {'amount': 1, 'prototypes': ['lamp'],
-                                           'flows': {'out': {'par': {'connections': [lamp_id]}}}}  # species to lamp_id? Nope, that crashes it. ERROR: 'rice' does not store par
+                                           'flows': {'out': {'par': {'connections': [lamp_id]}}}}
                 # Add connection to plant 'par' flow
                 par_flow_stub = {'in': {'par': {'connections': [lamp_id]}}}  
                 app.logger.info(f'5555555555555555555555555 WORKING CONFIG SPECIES  5555555555555555555555555 {working_config[species]} ' )
@@ -340,7 +338,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
      # Default Storages: Some listed, some not. Need to calculate amount.
     # 'food_storage' now holds fresh food, and 'ration_storage' holds the rations. Rations are
     # still pre-loaded to 'food_storage' on the front-end though, so need to change the label.
-    if input_food_storage and input_food_storage.get('ration') is not None:                                                                # b2: initialize with food (plants) instead of rations
+    if input_food_storage and input_food_storage.get('ration') is not None: # b2: initialize with food (plants) instead of rations
         if is_b2:
             starting_food = input_food_storage['ration']
             greenhouse_layout = {p: working_config[p]['amount'] for p in plants_in_config}
@@ -486,9 +484,10 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
         
     for currency_id, currency in custom_currencies.items():
             full_game_config['currencies'][currency_id] = currency
-            
-        #if(plant.custom_flag=true)
-            #full_game_config['currencies']= new currency for custom plant
+    
+    # Might need something like this to eliminate excess currency bug:
+    #if(plant.custom_flag=true)
+        #full_game_config['currencies']= new currency for custom plant
         
     # Print result
     if save_output:
