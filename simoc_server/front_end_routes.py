@@ -291,6 +291,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
     input_food_storage = working_config.pop('food_storage', None) #### FOOD STORAGE GRABBED ####
     crop_mgmt_input = working_config.pop('improvedCropManagement', False)
     crop_mgmt_factor = 1.5 if crop_mgmt_input is True else 1
+
     if 'plants' in working_config and isinstance(working_config['plants'], list):
         plants = working_config.pop('plants')
         app.logger.info(f'ZZZZZZZZZZZZZZZZZ PLANTS  ZZZZZZZZZZZZZZZZZ {plants} ' )
@@ -305,13 +306,23 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                 working_config[plant_type]=plant
             else:
                 working_config[plant_type]['amount']=amount
-            
             if is_b2:
                 working_config[plant_type]['properties'] = {
                     'crop_management_factor': {'value': crop_mgmt_factor},
                     'density_factor': {'value': 0.5}
                 }
         app.logger.info(f'BBBBBBBBBBBBBB WORKING CONFIG  BBBBBBBBBBBBBBBB {working_config} ' )
+    # 'plants' in working_config correspond to the ones selected by the user in the wizard,
+    # but does not include custom plant agents that were not selected in wizard but may have
+    # been sent over as an agent, which need to be removed before simulation start.
+    unused_custom_plants = []
+    for agent_key, config_agent in working_config.items():
+        if 'agent_class' in config_agent and config_agent['agent_class']=='plants':
+            if agent_key not in plants_in_config:
+                unused_custom_plants.append(agent_key)
+    for deletable_plant in unused_custom_plants:
+        working_config.pop(deletable_plant)
+    # For the plants that are actually in the simulation, add lamps
     if plants_in_config:
         working_config['food_storage'] = dict(amount=1) 
         # Lights
@@ -327,8 +338,7 @@ def convert_configuration(game_config, agent_desc=None, save_output=False):
                 working_config[lamp_id] = {'amount': 1, 'prototypes': ['lamp'],
                                            'flows': {'out': {'par': {'connections': [lamp_id]}}}}
                 # Add connection to plant 'par' flow
-                par_flow_stub = {'in': {'par': {'connections': [lamp_id]}}}  
-                app.logger.info(f'5555555555555555555555555 WORKING CONFIG SPECIES  5555555555555555555555555 {working_config[species]} ' )
+                par_flow_stub = {'in': {'par': {'connections': [lamp_id]}}}
                 if 'flows' in working_config[species]:
                     working_config[species]['flows']['in']['par']['connections'].clear() # Remove excess lamps
                     working_config[species]['flows']['in']['par']['connections'].append(lamp_id) # Add specific lamp
