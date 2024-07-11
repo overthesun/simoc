@@ -20,5 +20,5 @@ scikit-learn==1.5.0
 scipy==1.11.2
 setuptools==69.0.2
 simoc_abm==1.1.2
-sqlalchemy==1.4.46
+sqlalchemy==2.0.31
 werkzeug==2.3.8
