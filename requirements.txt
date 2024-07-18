@@ -18,7 +18,7 @@ quantities==0.14.1
 redis==5.0.7
 scikit-learn==1.5.0
 scipy==1.11.2
-setuptools==69.0.2
+setuptools==71.0.1
 simoc_abm==1.1.2
 sqlalchemy==1.4.46
 werkzeug==2.3.8
