@@ -17,7 +17,7 @@ pytimeparse==1.1.8
 quantities==0.15.0
 redis==5.0.7
 scikit-learn==1.5.1
-scipy==1.11.2
+scipy==1.14.1
 setuptools==71.0.3
 simoc_abm==1.1.2
 sqlalchemy==1.4.46
