@@ -1,20 +1,11 @@
 celery==5.3.1
 flask==2.3.3
 flask-login==0.6.3
-# Something broke upgrading flask_socketio to 5.3.5
-# so we are temporarily pinning it back to 5.3.2,
-# however that's not enough because that will still
-# install more recent versions of python-socketio/engineio
-# which contain the bug, so those are now pinned too.
-# Once the issue with python-socketio/engineio is solved,
-# flask_socketio can be upgraded again and the other two removed.
-flask_socketio==5.3.6
-python-socketio==5.9.0
-python-engineio==4.7.0
 flask-sqlalchemy==2.5.1
+flask_socketio==5.3.6
 gevent-websocket==0.10.1
 gevent==23.9.1
-gunicorn==21.2.0
+gunicorn==22.0.0
 jinja2==3.1.4
 mesa==1.1.1
 msgpack-python==0.5.6
@@ -23,11 +14,11 @@ nose==1.3.7
 numpy==1.25.2
 pytest==7.4.2
 pytimeparse==1.1.8
-quantities==0.14.1
-redis==4.5.4
-scikit-learn==1.3.2
-scipy==1.11.2
-setuptools==69.0.2
+quantities==0.15.0
+redis==5.0.7
+scikit-learn==1.5.1
+scipy==1.14.1
+setuptools==71.0.3
 simoc_abm==1.1.2
 sqlalchemy==1.4.46
 werkzeug==2.3.8
