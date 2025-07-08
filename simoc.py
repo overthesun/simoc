@@ -115,9 +115,9 @@ def install_docker_linux():
     # `apt` already creates a `docker` group, but we need to manually
     # add the current user to it and ask the user to log out/log in
     # for the change to take place and for `docker` to work without `sudo`
-    print('Installing docker and docker-compose:')
+    print('Installing docker.io and docker-compose:')
     user = os.getenv('USER')
-    if not (run(['sudo', 'apt', 'install', '-y', 'docker', 'docker-compose']) and
+    if not (run(['sudo', 'apt', 'install', '-y', 'docker.io', 'docker-compose']) and
             run(['sudo', 'usermod', '-aG', 'docker', user])):
         return False
     print('Please log out and log in again (or restart the machine) '
