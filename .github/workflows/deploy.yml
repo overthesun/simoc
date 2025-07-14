@@ -19,7 +19,7 @@ on:
         options:
           - beta
           - ngs
-        default: beta
+        default: ngs
       
 jobs:
   build-frontend:
