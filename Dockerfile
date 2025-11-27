@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-MAINTAINER Iurii Milovanov "duruku@gmail.com"
+LABEL maintainer="wolf@overthesun.com"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
