@@ -8,7 +8,6 @@ RUN apt-get update && \
     python3-setuptools \
     python3-venv \
     python3-dev \
-    python3-distutils \
     build-essential \
     curl
 
