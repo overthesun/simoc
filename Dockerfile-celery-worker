@@ -19,6 +19,11 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install --upgrade pip wheel
 
 COPY ./requirements.txt /simoc/requirements.txt
+
+# Install setuptools first at the version specified in requirements.txt
+RUN pip install setuptools==71.0.3
+
+# Now install the rest of the requirements
 RUN pip install -r /simoc/requirements.txt
 
 COPY . /simoc
