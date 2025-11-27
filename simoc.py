@@ -1,5 +1,5 @@
 """
-Script to install, start, stop, reset, etc. SIMOC through docker-compose.
+Script to install, start, stop, reset, etc. SIMOC through docker compose.
 """
 
 import os
@@ -30,7 +30,7 @@ COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
 AGENT_DESC_COMPOSE_FILE = 'docker-compose.agent-desc.yml'
 TESTING_COMPOSE_FILE = 'docker-compose.testing.yml'
-DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
+DOCKER_COMPOSE_CMD = ['docker', 'compose', '-f', COMPOSE_FILE]
 
 
 def parse_env(fname):
@@ -74,8 +74,12 @@ def run(args):
     return not result.returncode
 
 def docker_available():
-    """Return True if docker and docker-compose are installed."""
-    return shutil.which('docker') and shutil.which('docker-compose')
+    """Return True if docker and docker compose plugin are installed."""
+    if not shutil.which('docker'):
+        return False
+    # Check if docker compose plugin is available
+    result = subprocess.run(['docker', 'compose'], capture_output=True)
+    return result.returncode == 0
 
 @cmd
 def docker(*args):
@@ -86,7 +90,7 @@ def docker(*args):
 
 @cmd
 def docker_compose(*args):
-    """Run an arbitrary docker-compose command."""
+    """Run an arbitrary docker compose command."""
     if not docker_available():
         install_docker()
     # if the docker-compose file is missing, create it
@@ -104,7 +108,7 @@ def print_env():
 
 # initial setup
 def install_docker():
-    """Install docker and docker-compose."""
+    """Install docker and docker compose."""
     return install_docker_linux()
 
 def install_docker_linux():
@@ -115,9 +119,9 @@ def install_docker_linux():
     # `apt` already creates a `docker` group, but we need to manually
     # add the current user to it and ask the user to log out/log in
     # for the change to take place and for `docker` to work without `sudo`
-    print('Installing docker.io and docker-compose:')
+    print('Installing docker.io and docker-compose-v2:')
     user = os.getenv('USER')
-    if not (run(['sudo', 'apt', 'install', '-y', 'docker.io', 'docker-compose']) and
+    if not (run(['sudo', 'apt', 'install', '-y', 'docker.io', 'docker-compose-v2']) and
             run(['sudo', 'usermod', '-aG', 'docker', user])):
         return False
     print('Please log out and log in again (or restart the machine) '
@@ -318,24 +322,24 @@ def reset_db():
 # start/stop
 @cmd
 def up(*args):
-    """Start/update the containers with `docker-compose up -d`."""
+    """Start/update the containers with `docker compose up -d`."""
     return docker_compose('up', '-d', *args)
 
 @cmd
 def down(*args):
-    """Stop/remove the containers with `docker-compose down`."""
+    """Stop/remove the containers with `docker compose down`."""
     return docker_compose('down', *args)
 
 @cmd
 def restart(*args):
-    """Restart the containers with `docker-compose restart`."""
+    """Restart the containers with `docker compose restart`."""
     return docker_compose('restart', *args)
 
 
 # status and logging
 @cmd
 def ps(*args):
-    """Run `docker-compose ps`."""
+    """Run `docker compose ps`."""
     return docker_compose('ps', *args)
 
 @cmd
@@ -499,7 +503,7 @@ Use the `--with-dev-backend` flag to run the dev backend container.
     )
     parser.add_argument(
         '--docker-file', metavar='FILE', default=COMPOSE_FILE,
-        help='the docker-compose yml file (default: %(default)r)'
+        help='the docker compose yml file (default: %(default)r)'
     )
     parser.add_argument(
         '--env-file', metavar='FILE', default=ENV_FILE,
@@ -511,7 +515,7 @@ Use the `--with-dev-backend` flag to run the dev backend container.
     )
     parser.add_argument(
         '--dev-backend-yml', metavar='FILE',
-        help='the dev backend docker-compose yml file'
+        help='the dev backend docker compose yml file'
     )
     parser.add_argument(
         '--agent-desc', metavar='FILE',
@@ -524,7 +528,7 @@ Use the `--with-dev-backend` flag to run the dev backend container.
 
     if args.docker_file:
         COMPOSE_FILE = args.docker_file
-        DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
+        DOCKER_COMPOSE_CMD = ['docker', 'compose', '-f', COMPOSE_FILE]
 
     if args.env_file:
         ENV_FILE = args.env_file
