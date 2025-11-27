@@ -6,7 +6,13 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python3-pip \
     python3-setuptools \
+    python3-venv \
     curl
+
+# Create and activate a virtual environment
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 COPY ./requirements.txt /simoc/requirements.txt
 RUN python3 -m pip install -r /simoc/requirements.txt
