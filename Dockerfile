@@ -6,8 +6,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python3-pip \
     python3-setuptools \
-    curl && \
-    python3 -m pip install --upgrade pip
+    curl
 
 COPY ./requirements.txt /simoc/requirements.txt
 RUN python3 -m pip install -r /simoc/requirements.txt
