@@ -16,7 +16,7 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN pip install --upgrade pip setuptools wheel
+RUN pip install --upgrade pip wheel
 
 COPY ./requirements.txt /simoc/requirements.txt
 RUN pip install -r /simoc/requirements.txt
