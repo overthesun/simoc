@@ -30,7 +30,7 @@ COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
 AGENT_DESC_COMPOSE_FILE = 'docker-compose.agent-desc.yml'
 TESTING_COMPOSE_FILE = 'docker-compose.testing.yml'
-DOCKER_COMPOSE_CMD = ['docker-compose', '-f', COMPOSE_FILE]
+DOCKER_COMPOSE_CMD = ['docker', 'compose', '-f', COMPOSE_FILE]
 
 
 def parse_env(fname):
@@ -74,8 +74,12 @@ def run(args):
     return not result.returncode
 
 def docker_available():
-    """Return True if docker and docker-compose are installed."""
-    return shutil.which('docker') and shutil.which('docker-compose')
+    """Return True if docker and docker compose plugin are installed."""
+    if not shutil.which('docker'):
+        return False
+    # Check if docker compose plugin is available
+    result = subprocess.run(['docker', 'compose'], capture_output=True)
+    return result.returncode == 0
 
 @cmd
 def docker(*args):
@@ -115,9 +119,9 @@ def install_docker_linux():
     # `apt` already creates a `docker` group, but we need to manually
     # add the current user to it and ask the user to log out/log in
     # for the change to take place and for `docker` to work without `sudo`
-    print('Installing docker.io and docker-compose:')
+    print('Installing docker.io and docker-compose-v2:')
     user = os.getenv('USER')
-    if not (run(['sudo', 'apt', 'install', '-y', 'docker.io', 'docker-compose']) and
+    if not (run(['sudo', 'apt', 'install', '-y', 'docker.io', 'docker-compose-v2']) and
             run(['sudo', 'usermod', '-aG', 'docker', user])):
         return False
     print('Please log out and log in again (or restart the machine) '
