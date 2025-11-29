@@ -10,11 +10,6 @@ Git Guidelines
 Repository setup
 ================
 
-.. note::
-
-    To access, fork, clone, and install SIMOC, you will also need access
-    to the `SIMOC GitHub repository <https://github.com/overthesun/simoc>`_.
-
 If you just want to have a local clone of the repository use::
 
     $ git clone git@github.com:overthesun/simoc.git
@@ -79,7 +74,8 @@ Workflow
 
     On older versions of Git, the ``switch`` command is not available.
     Use ``git checkout -b <branch>`` to create a new branch and
-    ``git checkout <branch>`` to switch to a different branch.
+    ``git checkout <branch>`` to switch to a different branch,
+    or update Git to a more recent version.
 
 
 .. _prs:
@@ -89,8 +85,8 @@ Pull Requests (PRs)
 Each pull request should be self-contained and address a single issue
 (usually by either adding a feature or fixing a bug).  After a PR is
 merged, the code should still run without errors.  Incomplete and
-work-in-progress PRs shouldn't be merged, unless they are part of a
-:ref:`Feature branch <feature-branches>`.
+work-in-progress PRs can be marked as drafts and should not be merged,
+unless they are part of a :ref:`Feature branch <feature-branches>`.
 
 Each pull request can contain multiple commits.  It is possible
 to add more commits to the PR by simply creating them in the branch
@@ -150,7 +146,6 @@ be merged into ``master``.
 
 Merge strategy
 --------------
-PRs are usually merged normally through the GitHub interface.  If the
-commits included in the PR don't have meaningful messages or if there
-is a lot of noise (e.g. several failed experiments, or many small
-changes like typo fixes), a *squash merge* can be used instead.
+In most cases PRs against ``master`` should be *squash merged*
+from the GitHub interface.  A regular merge can be used in some cases,
+e.g. while using chained PRs against a feature branch.

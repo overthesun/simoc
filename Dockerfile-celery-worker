@@ -1,18 +1,31 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
-MAINTAINER Iurii Milovanov "duruku@gmail.com"
+LABEL maintainer="ezio.melotti@gmail.com"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    python3-pip \
-    python3-setuptools \
+    python3-venv \
+    python3-dev \
+    build-essential \
     curl && \
-    python3 -m pip install --upgrade pip
+    rm -rf /var/lib/apt/lists/*
+
+# Create and activate a virtual environment
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN pip install --upgrade pip wheel
 
 COPY ./requirements.txt /simoc/requirements.txt
-RUN python3 -m pip install -r /simoc/requirements.txt
+RUN pip install -r /simoc/requirements.txt
 
 COPY . /simoc
+
+# Create a non-root user and set permissions
+RUN groupadd -r simoc && \
+    useradd --no-log-init -r -g simoc -s /bin/bash simoc && \
+    chown -R simoc:simoc /simoc /opt/venv
 
 ARG DB_TYPE
 ARG DB_HOST
@@ -37,6 +50,7 @@ ENV REDIS_PASSWORD ${REDIS_PASSWORD}
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
+USER simoc
 WORKDIR /simoc
 
 ENTRYPOINT [ "/bin/bash" ]

@@ -47,12 +47,12 @@ jobs:
       NODE_OPTIONS: '--max-old-space-size=3584'
     steps:
       - name: Checkout Backend Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.be_branch }}
           path: simoc
       - name: Checkout Frontend Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: overthesun/simoc-web
           ref: ${{ github.event.inputs.fe_branch }}
@@ -69,7 +69,7 @@ jobs:
       - name: Use gcloud CLI
         run: gcloud info
       - name: Set up Node Environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           check-latest: true
@@ -144,9 +144,9 @@ jobs:
     needs: ci
     steps:
       - name: Checkout Backend Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python Environment
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       - id: auth

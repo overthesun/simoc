@@ -14,7 +14,6 @@ without the frontend (e.g. from the command line), and the frontend should
 be able to work without the backend (e.g. by loading simdata from a file
 or by showing live data).  In practice they are mostly used together.
 
-
 The **backend** is written in Python, whereas the **frontend** is written
 in JavaScript.  The source code can be found in two different repositories:
 
@@ -34,7 +33,7 @@ orchestrated using ``docker-compose``:
 * ``redis``
 * ``simoc-db``
 
-They can controlled through the ``simoc.py`` script, or directly through
+They can be controlled through the ``simoc.py`` script, or directly through
 the ``docker`` and ``docker-compose`` commands.
 
 Flask
@@ -67,20 +66,19 @@ Redis is used to share data between Flask and Celery.
 SIMOC DB
 --------
 
-This container runs a MySQL instance connected to a Docker volume that
-stores both data about the agents and the list of users that created an
-account through the SIMOC frontend.
+This container runs a MySQL instance connected to a Docker volume
+that currently only stores the users that created an account through
+the SIMOC frontend.
 
 
 The Frontend Docker Container
 =============================
 
-Even though the Flask backend container already includes a build of the
-frontend, there is an additional frontend container that is used for
-development.
+The frontend is build and developed using an additional Docker container,
+that can be controlled using the ``simoc-web.py`` script.
 
-This container resides in the frontend repo (see the ``Dockerfile`` for
-instructions), and communicates with the backend containers.
+This container resides in the frontend repo, and communicates with
+the backend containers.
 
 Note that both the frontend container and the build included in the
 flask container can be used at the same time, since they use different

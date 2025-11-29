@@ -1,0 +1,102 @@
+name: Deploy SIMOC
+run-name: "Deploy SIMOC on ${{ inputs.host }} (fe: ${{ inputs.fe_branch }} / be: ${{ inputs.be_branch }})"
+
+on:
+  workflow_dispatch:
+    inputs:
+      fe_branch:
+        description: 'Use this frontend branch:'
+        required: true
+        default: 'master'
+      be_branch:
+        description: 'Use this backend branch:'
+        required: true
+        default: 'master'
+      host:
+        description: 'Deploy on this host:'
+        required: true
+        type: choice
+        options:
+          - beta
+          - ngs
+        default: ngs
+      
+jobs:
+  build-frontend:
+    name: Build frontend
+    runs-on: ubuntu-latest
+    env:
+      # workaround to prevent node/vite crashes during the build step
+      # see https://github.com/vitejs/vite/issues/2433#issuecomment-831399876
+      # assume 4GB - 512MB
+      NODE_OPTIONS: '--max-old-space-size=3584'
+      VITE_FE_BRANCH: ${{ github.event.inputs.fe_branch }}
+      VITE_BE_BRANCH: ${{ github.event.inputs.be_branch }}
+    steps:
+      - name: Checkout Frontend Repository
+        uses: actions/checkout@v4
+        with:
+          repository: overthesun/simoc-web
+          ref: ${{ github.event.inputs.fe_branch }}
+          token: ${{ secrets.ACCESS_TOKEN }}
+      - name: Set up Node Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          check-latest: true
+      - name: Download simdata/models/skybox
+        run: |
+          source run.sh
+      - name: npm install
+        run: |
+          npm install --no-fund --no-audit -g npm@latest
+          npm install --no-fund
+      - name: Print info
+        run: |
+          echo "Current branch: $GITHUB_HEAD_REF"
+          echo "node $(node --version); npm $(npm --version)"
+      - name: Build
+        run: |
+          npm run build
+          ls -ld $PWD/dist/*
+      - name: Upload dist folder
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ github.event.inputs.host }}.simoc.space
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: dist/*
+          target: /home/${{ secrets.SSH_USERNAME }}/dist
+          rm: true
+          strip_components: 1
+  deploy:
+    name: Deploy
+    needs: build-frontend
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy SIMOC
+      uses: appleboy/ssh-action@v1.2.0
+      env:
+        BE_DIR: simoc
+        BE_BRANCH: ${{ github.event.inputs.be_branch }}
+        DOCKER_ENV: simoc_docker_${{ github.event.inputs.host }}.env
+        GH_USER: ${{ secrets.SSH_GITHUB_USERNAME }}
+        GH_TOKEN: ${{ secrets.SSH_GITHUB_TOKEN }}
+        DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
+        FLASK_SECRET: ${{ secrets.BETA_FLASK_SECRET }}
+        REDIS_PASSWORD: ${{ secrets.BETA_REDIS_PASSWORD }}
+      with:
+        host: ${{ github.event.inputs.host }}.simoc.space
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        envs: BE_DIR,BE_BRANCH,DOCKER_ENV,GH_USER,GH_TOKEN,DB_PASSWORD,FLASK_SECRET,REDIS_PASSWORD
+        script_stop: true
+        script: |
+          rm -rf $BE_DIR
+          git clone --branch $BE_BRANCH --depth 1 https://$GH_USER:$GH_TOKEN@github.com/overthesun/simoc/ $BE_DIR
+          mv dist $BE_DIR/simoc_server/
+          cd $BE_DIR
+          echo "* Current directory: <`pwd`>"
+          echo "* Current branch is: <`git branch --show-current`>"
+          echo "* Current commit is: <`git show --oneline -s`>"
+          python3 -u simoc.py --env-file=$DOCKER_ENV deploy

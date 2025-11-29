@@ -2,6 +2,11 @@
 Deploy SIMOC via Docker on Linux/macOS
 ======================================
 
+.. warning:: This page describes how to manually install SIMOC using Docker,
+   a process now automated by the ``simoc.py`` script (see :doc:`setup`).
+   This page is no longer updated and kept for reference only.
+
+
 1. Clone ``SIMOC`` code from ``GitHub``
 =======================================
 
