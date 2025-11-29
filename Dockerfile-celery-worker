@@ -7,7 +7,8 @@ RUN apt-get update && \
     python3-venv \
     python3-dev \
     build-essential \
-    curl
+    curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create and activate a virtual environment
 ENV VIRTUAL_ENV=/opt/venv
@@ -20,6 +21,11 @@ COPY ./requirements.txt /simoc/requirements.txt
 RUN pip install -r /simoc/requirements.txt
 
 COPY . /simoc
+
+# Create a non-root user and set permissions
+RUN groupadd -r simoc && \
+    useradd --no-log-init -r -g simoc -s /bin/bash simoc && \
+    chown -R simoc:simoc /simoc /opt/venv
 
 ARG DB_TYPE
 ARG DB_HOST
@@ -44,6 +50,7 @@ ENV REDIS_PASSWORD ${REDIS_PASSWORD}
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
+USER simoc
 WORKDIR /simoc
 
 ENTRYPOINT [ "/bin/bash" ]
