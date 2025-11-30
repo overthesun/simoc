@@ -120,8 +120,9 @@ def install_docker_linux():
     # add the current user to it and ask the user to log out/log in
     # for the change to take place and for `docker` to work without `sudo`
     print('Installing docker.io and docker-compose-v2:')
+    packages = ['docker.io', 'docker-compose-v2']
     user = os.getenv('USER')
-    if not (run(['sudo', 'apt', 'install', '-y', 'docker.io', 'docker-compose-v2']) and
+    if not (run(['sudo', 'apt', 'install', '-y', *packages]) and
             run(['sudo', 'usermod', '-aG', 'docker', user])):
         return False
     print('Please log out and log in again (or restart the machine) '
