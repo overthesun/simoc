@@ -54,7 +54,7 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           path: simoc-web
       - name: Set up Node Environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           check-latest: true
