@@ -34,7 +34,7 @@ jobs:
       VITE_BE_BRANCH: ${{ github.event.inputs.be_branch }}
     steps:
       - name: Checkout Frontend Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: overthesun/simoc-web
           ref: ${{ github.event.inputs.fe_branch }}
