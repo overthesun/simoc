@@ -30,10 +30,10 @@ Make sure you installed ``Docker Engine`` and ``Docker Compose`` components.
 3. Configure ``SIMOC`` deployment
 =================================
 
-Open ``simoc_docker.env`` file with any text editor, scroll through
+Open ``env/local.env`` file with any text editor, scroll through
 the file and update the variable values to configure the deployment::
 
-    vim simoc_docker.env
+    vim env/local.env
 
 
 Update web server configuration:
@@ -78,7 +78,7 @@ Update the number of worker containers to spin up (optional)::
 
 Load ``SIMOC`` environment variables::
 
-    source simoc_docker.env
+    source env/local.env
 
 Generate dynamic config files (Nginx, Docker)::
 
@@ -284,7 +284,7 @@ Re-build ``SIMOC`` images
 
 Load ``SIMOC`` environment variables::
 
-    source simoc_docker.env
+    source env/local.env
 
 Login to ``Docker Hub``::
 
@@ -312,7 +312,7 @@ Re-deploy ``SIMOC`` application
 
 Load ``SIMOC`` environment variables::
 
-    source simoc_docker.env
+    source env/local.env
 
 Specify the version to deploy::
 

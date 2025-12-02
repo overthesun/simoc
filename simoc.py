@@ -7,7 +7,6 @@ import sys
 import time
 import json
 import shutil
-import socket
 import pathlib
 import argparse
 import platform
@@ -17,7 +16,7 @@ import urllib.request
 
 SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 
-ENV_FILE = 'simoc_docker.env'
+ENV_FILE = pathlib.Path('env/local.env')
 AGENT_DESC = 'data_files/agent_desc.json'
 
 # certbot is created outside of the home/repo,
@@ -506,7 +505,7 @@ Use the `--with-dev-backend` flag to run the dev backend container.
         help='the docker compose yml file (default: %(default)r)'
     )
     parser.add_argument(
-        '--env-file', metavar='FILE', default=ENV_FILE,
+        '--env-file', metavar='FILE', type=pathlib.Path, default=ENV_FILE,
         help='the env file (default: %(default)r)'
     )
     parser.add_argument(
