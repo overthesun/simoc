@@ -20,7 +20,7 @@ on:
           - beta
           - ngs
         default: ngs
-      
+
 jobs:
   build-frontend:
     name: Build frontend
@@ -79,7 +79,7 @@ jobs:
       env:
         BE_DIR: simoc
         BE_BRANCH: ${{ github.event.inputs.be_branch }}
-        DOCKER_ENV: simoc_docker_${{ github.event.inputs.host }}.env
+        DOCKER_ENV: env/${{ github.event.inputs.host }}.env
         GH_USER: ${{ secrets.SSH_GITHUB_USERNAME }}
         GH_TOKEN: ${{ secrets.SSH_GITHUB_TOKEN }}
         DB_PASSWORD: ${{ secrets.BETA_DB_PASSWORD }}
