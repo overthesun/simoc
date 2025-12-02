@@ -16,7 +16,7 @@ import urllib.request
 
 SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 
-ENV_FILE = 'env/local.env'
+ENV_FILE = pathlib.Path('env/local.env')
 AGENT_DESC = 'data_files/agent_desc.json'
 
 # certbot is created outside of the home/repo,
