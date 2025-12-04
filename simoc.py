@@ -432,17 +432,16 @@ def adminer(db=None):
         # mount the 'simoc_db-testing' volume instead of the
         # default 'simoc_db-data' if 'testing' is passed as arg
         DOCKER_COMPOSE_CMD.extend(['-f', TESTING_COMPOSE_FILE])
+    db_container = f'{PROJECT_NAME}-simoc-db-1'
+    network_name = f'{PROJECT_NAME}_simoc-net'
     def show_info():
         # show the volume that is currently connected to the db container
-        db_container = f'{PROJECT_NAME}-simoc-db-1'
         cp = subprocess.run(['docker', 'inspect', '-f',
                              '{{range .Mounts}}{{.Name}}{{end}}',
                              db_container], capture_output=True)
         print('* Starting adminer at: http://localhost:8081/')
         print('* Connecting to:', cp.stdout.decode('utf-8'))
         return True
-    network_name = f'{PROJECT_NAME}_simoc-net'
-    db_container = f'{PROJECT_NAME}-simoc-db-1'
     cmd = ['run', '--network', network_name,
            '--link', f'{db_container}:db', '-p', '8081:8080',
            '-e', 'ADMINER_DESIGN=dracula', 'adminer']
