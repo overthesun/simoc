@@ -45,8 +45,6 @@ services:
     restart: always
     volumes:
       - db-data:/var/lib/mysql
-    ports:
-      - '${DB_PORT}:${DB_PORT}'
     networks:
       - simoc-net
     environment:
@@ -60,8 +58,6 @@ services:
     image: redis:latest
     {% endif %}
     restart: always
-    ports:
-      - 6379:6379
     networks:
       - simoc-net
     environment:
