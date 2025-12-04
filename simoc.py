@@ -510,12 +510,12 @@ Use the `--with-dev-backend` flag to run the dev backend container.
         help='the docker compose yml file (default: %(default)r)'
     )
     parser.add_argument(
-        '--env-file', metavar='FILE', type=pathlib.Path, default=ENV_FILE,
-        help='the env file (default: %(default)r)'
-    )
-    parser.add_argument(
         '--project-name', metavar='NAME',
         help='the project name for docker compose'
+    )
+    parser.add_argument(
+        '--env-file', metavar='FILE', type=pathlib.Path,
+        help='the env file with the deployment-specific variables'
     )
     parser.add_argument(
         '--with-dev-backend', action='store_true',
@@ -538,16 +538,16 @@ Use the `--with-dev-backend` flag to run the dev backend container.
         COMPOSE_FILE = args.docker_file
         DOCKER_COMPOSE_CMD = ['docker', 'compose', '-f', COMPOSE_FILE]
 
-    if args.env_file:
-        ENV_FILE = args.env_file
-    ENVVARS = update_env(ENV_FILE)
-
     if args.project_name:  # use project name if specified
         PROJECT_NAME = args.project_name
     elif args.env_file:  # or use env file name if specified
         PROJECT_NAME = args.env_file.stem
-    # or use default 'simoc'
-    DOCKER_COMPOSE_CMD = ['docker', 'compose', '-f', COMPOSE_FILE, '-p', PROJECT_NAME]
+    # or use default PROJECT_NAME
+    DOCKER_COMPOSE_CMD.extend(['-p', PROJECT_NAME])
+
+    if args.env_file:
+        ENV_FILE = args.env_file
+    ENVVARS = update_env(ENV_FILE)
 
     if args.dev_backend_yml and not args.with_dev_backend:
         parser.error("Can't specify the dev backend yml without --with-dev-backend")
