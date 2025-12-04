@@ -25,11 +25,12 @@ AGENT_DESC = 'data_files/agent_desc.json'
 CERTBOT_DIR = SCRIPT_DIR.parent.parent / 'certbot'
 CERTBOT_SYMLINK_DIR = SCRIPT_DIR / 'certbot'
 
+# some of these are overridden in the __main__ section
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
 AGENT_DESC_COMPOSE_FILE = 'docker-compose.agent-desc.yml'
 TESTING_COMPOSE_FILE = 'docker-compose.testing.yml'
-PROJECT_NAME = 'simoc'  # used to handle multiple deployment
+PROJECT_NAME = 'simoc'  # used to handle multiple deployments
 DOCKER_COMPOSE_CMD = ['docker', 'compose', '-f', COMPOSE_FILE]
 
 
