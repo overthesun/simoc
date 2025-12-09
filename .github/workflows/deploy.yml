@@ -90,7 +90,6 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         envs: BE_DIR,BE_BRANCH,DOCKER_ENV,GH_USER,GH_TOKEN,DB_PASSWORD,FLASK_SECRET,REDIS_PASSWORD
-        script_stop: true
         script: |
           rm -rf $BE_DIR
           git clone --branch $BE_BRANCH --depth 1 https://$GH_USER:$GH_TOKEN@github.com/overthesun/simoc/ $BE_DIR
