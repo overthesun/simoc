@@ -1,7 +1,7 @@
 # SIMOC
 `SIMOC` - A Scalable, Interactive Model of an Off-world Community
 
-![SIMOC Dashboard](https://simoc.space/wp-content/uploads/2020/09/simoc_b2_dashboard.jpg)
+![SIMOC Dashboard](https://simoc.space/wp-content/uploads/2025/06/simoc_b2_dashboard-1920x886-1-1024x473.jpg)
 
 For more information, visit https://simoc.space/
 
