@@ -25,10 +25,12 @@ AGENT_DESC = 'data_files/agent_desc.json'
 CERTBOT_DIR = SCRIPT_DIR.parent.parent / 'certbot'
 CERTBOT_SYMLINK_DIR = SCRIPT_DIR / 'certbot'
 
+# some of these are overridden in the __main__ section
 COMPOSE_FILE = 'docker-compose.mysql.yml'
 DEV_BE_COMPOSE_FILE = 'docker-compose.dev-be.yml'
 AGENT_DESC_COMPOSE_FILE = 'docker-compose.agent-desc.yml'
 TESTING_COMPOSE_FILE = 'docker-compose.testing.yml'
+PROJECT_NAME = 'simoc'  # used to handle multiple deployments
 DOCKER_COMPOSE_CMD = ['docker', 'compose', '-f', COMPOSE_FILE]
 
 
@@ -302,7 +304,7 @@ def init_db():
 def remove_db():
     """Remove the volume for the MySQL DB."""
     docker_compose('rm', '--stop', '-v', '-f', 'simoc-db')
-    docker('volume', 'rm', 'simoc_db-data')
+    docker('volume', 'rm', f'{PROJECT_NAME}_db-data')
     return True  # the volume rm might return False if the volume is missing
 
 
@@ -404,7 +406,8 @@ def test(*args):
     # add the testing yml that replaces the db
     DOCKER_COMPOSE_CMD.extend(['-f', TESTING_COMPOSE_FILE])
     # check if the volume already exists
-    cp = subprocess.run(['docker', 'volume', 'inspect', 'simoc_db-testing'],
+    test_volume = f'{PROJECT_NAME}_db-testing'
+    cp = subprocess.run(['docker', 'volume', 'inspect', test_volume],
                         capture_output=True)
     vol_info = json.loads(cp.stdout)
     if not vol_info:
@@ -430,16 +433,18 @@ def adminer(db=None):
         # mount the 'simoc_db-testing' volume instead of the
         # default 'simoc_db-data' if 'testing' is passed as arg
         DOCKER_COMPOSE_CMD.extend(['-f', TESTING_COMPOSE_FILE])
+    db_container = f'{PROJECT_NAME}-simoc-db-1'
+    network_name = f'{PROJECT_NAME}_simoc-net'
     def show_info():
         # show the volume that is currently connected to the db container
         cp = subprocess.run(['docker', 'inspect', '-f',
                              '{{range .Mounts}}{{.Name}}{{end}}',
-                             'simoc_simoc-db_1'], capture_output=True)
+                             db_container], capture_output=True)
         print('* Starting adminer at: http://localhost:8081/')
         print('* Connecting to:', cp.stdout.decode('utf-8'))
         return True
-    cmd = ['run', '--network', 'simoc_simoc-net',
-           '--link', 'simoc_simoc-db_1:db', '-p', '8081:8080',
+    cmd = ['run', '--network', network_name,
+           '--link', f'{db_container}:db', '-p', '8081:8080',
            '-e', 'ADMINER_DESIGN=dracula', 'adminer']
     return up() and show_info() and docker(*cmd)
 
@@ -505,8 +510,12 @@ Use the `--with-dev-backend` flag to run the dev backend container.
         help='the docker compose yml file (default: %(default)r)'
     )
     parser.add_argument(
-        '--env-file', metavar='FILE', type=pathlib.Path, default=ENV_FILE,
-        help='the env file (default: %(default)r)'
+        '--project-name', metavar='NAME',
+        help='the project name for docker compose'
+    )
+    parser.add_argument(
+        '--env-file', metavar='FILE', type=pathlib.Path,
+        help='the env file with the deployment-specific variables'
     )
     parser.add_argument(
         '--with-dev-backend', action='store_true',
@@ -528,6 +537,13 @@ Use the `--with-dev-backend` flag to run the dev backend container.
     if args.docker_file:
         COMPOSE_FILE = args.docker_file
         DOCKER_COMPOSE_CMD = ['docker', 'compose', '-f', COMPOSE_FILE]
+
+    if args.project_name:  # use project name if specified
+        PROJECT_NAME = args.project_name
+    elif args.env_file:  # or use env file name if specified
+        PROJECT_NAME = args.env_file.stem
+    # or use default PROJECT_NAME
+    DOCKER_COMPOSE_CMD.extend(['-p', PROJECT_NAME])
 
     if args.env_file:
         ENV_FILE = args.env_file
