@@ -5,7 +5,7 @@ flask-sqlalchemy==2.5.1
 flask_socketio==5.3.6
 gevent-websocket==0.10.1
 gevent==23.9.1
-gunicorn==22.0.0
+gunicorn==26.2.0
 jinja2==3.1.6
 mesa==1.1.1
 msgpack-python==0.5.6
