@@ -39,7 +39,7 @@ jobs:
           repository: overthesun/simoc-web
           ref: ${{ github.event.inputs.fe_branch }}
       - name: Set up Node Environment
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 'lts/*'
           check-latest: true
