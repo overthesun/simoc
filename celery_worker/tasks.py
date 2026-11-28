@@ -17,10 +17,11 @@ sys.path.append("../")
 from simoc_abm.agent_model import AgentModel
 from simoc_server.database.db_model import User
 from simoc_server.exceptions import NotFound
+from simoc_server import app as flask_app
 from simoc_server import redis_conn, db
 
-app = Celery('tasks')
-app.config_from_object('celery_worker.celeryconfig')
+celery_app = Celery('tasks')
+celery_app.config_from_object('celery_worker.celeryconfig')
 
 
 @worker_process_init.connect
@@ -30,28 +31,31 @@ def on_worker_init(**kwargs):
 
 def get_user(username, num_retries=30, interval=1):
     while True:
-        try:
-            user = User.query.filter_by(username=username).all()
-        except Exception as err:
-            user = []
-            logger.error(f'Exception in task.get_user({username=}) ({err}): rolling back')
-            db.session.rollback()
-        if len(user) != 1:
-            logger.warning(f'User {username!r} NOT found ({num_retries=} left): {user=}')
-            if num_retries > 0:
-                num_retries -= 1
+        with flask_app.app_context():
+            try:
+                user = db.session.execute(
+                    db.select(User).where(User.username == username)
+                ).scalars().all()
+            except Exception as err:
+                user = []
+                logger.error(f'Exception in task.get_user({username=}) ({err}): rolling back')
                 db.session.rollback()
-                time.sleep(interval)
+            if len(user) != 1:
+                logger.warning(f'User {username!r} NOT found ({num_retries=} left): {user=}')
+                if num_retries > 0:
+                    num_retries -= 1
+                    db.session.rollback()
+                    time.sleep(interval)
+                else:
+                    raise NotFound(f'User {username!r} not found.')
             else:
-                raise NotFound(f'User {username} not found.')
-        else:
-            logger.info(f'User found ({num_retries=} left): {user[0]}')
-            return user[0]
+                logger.info(f'User found ({num_retries=} left): {user[0]}')
+                return user[0]
 
 BUFFER_SIZE = 100  # Number of steps to execute between adding records to Redis
 RECORD_EXPIRE = 1800  # Number of seconds to keep records in Redis
 
-@app.task
+@celery_app.task
 def new_game(username, game_config, num_steps, expire=3600):
     logger.info(f'Starting new game for {username=}, {num_steps=}')
     # Initialize model

@@ -1,11 +1,12 @@
-import argparse
 import os
 import time
+import argparse
 
 os.environ["NO_FLASK"] = "1"
 
-from simoc_server import app
-from simoc_server.database import *
+from simoc_server import app, db
+# Import the model so Flask-SQLAlchemy registers it with db.metadata before create_all().
+from simoc_server.database.db_model import User
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Seed database")
@@ -18,7 +19,8 @@ if __name__ == "__main__":
     while True:
         try:
             app.logger.info(f"Populating the '{app.config['DB_TYPE']}' database at '{app.config['SQLALCHEMY_DATABASE_URI']}'.")
-            db.create_all()  # Adds the User table to database
+            with app.app_context():
+                db.create_all()  # Adds the User table to database
             break
         except Exception as e:
             # TODO: catch sqlalchemy.exc.DatabaseError: (mysql.connector.errors.DatabaseError)
@@ -35,4 +37,3 @@ if __name__ == "__main__":
                 raise Exception("Error while populating the database.")
 
     app.logger.info(f"The '{app.config['DB_TYPE']}' database was successfully populated.")
-
