@@ -64,7 +64,8 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_size': 100,
                                            'pool_recycle': 300,
                                            'pool_pre_ping': True}
 
-db = SQLAlchemy(app, session_options={'expire_on_commit': False})
+db = SQLAlchemy(session_options={'expire_on_commit': False})
+db.init_app(app)
 
 no_flask = os.environ.get('NO_FLASK')
 if no_flask and int(no_flask) == 1:

@@ -1,8 +1,6 @@
 import json
-import copy
 import time
 import traceback
-import itertools
 import functools
 from pathlib import Path
 
@@ -22,7 +20,7 @@ from simoc_server.front_end_routes import convert_configuration
 from simoc_abm.util import load_data_file
 
 from celery_worker import tasks
-from celery_worker.tasks import app as celery_app, BUFFER_SIZE
+from celery_worker.tasks import celery_app, BUFFER_SIZE
 
 MAX_NUMBER_OF_AGENTS = 50
 MAX_STEP_NUMBER = 365*24*2  # 2 Earth years
@@ -92,7 +90,7 @@ def get_steps_background(data, user_id, sid, timeout=2, max_retries=10, expire=3
             msg = f'{step_count}/{n_steps} steps sent by the server'
             socketio.emit('steps_sent', {'message': msg}, room=sid)
             steps_sent = True
-            app.logger.info(msg)            
+            app.logger.info(msg)
 
 
 @socketio.on('connect')
@@ -107,7 +105,7 @@ def connect_handler():
 @authenticated_only
 def get_steps_handler(message):
     """Initiate a background task to send steps to the frontend.
-    
+
     If the user has reconnected to a previous game, pick up where it left off.
     """
     if "data" not in message:
@@ -122,7 +120,7 @@ def get_steps_handler(message):
         app.logger.info(f'User {user_id} reconnected, cancelling previous task')
         redis_conn.set(f'stop_task:{old_sid}', 1, ex=60)
     redis_conn.set(f'user_sid_mapping:{user_id}', sid, ex=3600)
-    
+
     socketio.start_background_task(get_steps_background, data, user_id, sid)
 
 
@@ -172,7 +170,9 @@ def login():
     userinfo = json.loads(request.data.decode('utf-8'))
     username = userinfo["username"]
     password = userinfo["password"]
-    user = User.query.filter_by(username=username).first()
+    user = db.session.execute(
+        db.select(User).where(User.username == username)
+    ).scalar_one_or_none()
     if user and user.validate_password(password):
         login_user(user)
         app.logger.info(f'User {user} logged in')
@@ -198,7 +198,9 @@ def register():
         raise BadRegistration("Password is required.")
     username = input["username"]
     password = input["password"]
-    if User.query.filter_by(username=username).first():
+    if db.session.execute(
+        db.select(User).where(User.username == username)
+    ).scalar_one_or_none():
         raise BadRegistration("User already exists.")
     try:
         user = User(username=username)
@@ -233,7 +235,9 @@ def unregister():
     userinfo = json.loads(request.data.decode('utf-8'))
     username = userinfo["username"]
     password = userinfo["password"]
-    user = User.query.filter_by(username=username).first()
+    user = db.session.execute(
+        db.select(User).where(User.username == username)
+    ).scalar_one_or_none()
     if user and user.validate_password(password):
         try:
             db.session.delete(user)
@@ -303,7 +307,7 @@ def new_game():
             app.logger.error(msg)
             raise ServerError(msg)
     # The AgentModel fills in connections, currencies, etc and then re-exports
-    # using the save() method, and adds to redis. We return this to the 
+    # using the save() method, and adds to redis. We return this to the
     # frontend as the complete 'game config' of record.
     complete_game_config = redis_conn.get(f'game_config:{game_id}')
     complete_game_config = json.loads(complete_game_config)
@@ -325,7 +329,7 @@ def retrieve_steps(game_id, batch_num=0, max_batches=10):
     batches = redis_conn.lrange(f'records:{game_id}', start, stop)
     if not batches:
         return dict(n_steps=0, n_batches=0)
-    
+
     # Decode, merge and return batches
     batches = [json.loads(batch.decode("utf-8")) for batch in batches]
     n_steps = sum([batch['n_steps'] for batch in batches])
@@ -422,7 +426,7 @@ def get_num_steps():
 @app.route("/get_agent_types", methods=["GET"])
 def get_agent_types_by_class():
     """Return a list of agents for a given agent class or name.
-    
+
     For each agent include:
     - name (e.g. 'wheat')
     - agent_class (e.g. 'plants')
@@ -482,7 +486,7 @@ def load_user(user_id):
     user_id : str
         The requested user id.
     """
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 def status(message, status_code=200, **kwargs):
@@ -548,4 +552,3 @@ def get_standard_user_obj():
 @app.route("/ping", methods=["GET"])
 def ping():
     return '', 200
-
